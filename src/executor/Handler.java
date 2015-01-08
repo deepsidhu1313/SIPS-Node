@@ -5,6 +5,7 @@
  */
 package executor;
 
+import controlpanel.settings;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -53,8 +54,8 @@ public class Handler implements Runnable {
                 String body = msg.substring(msg.indexOf("<Body>") + 6, msg.indexOf("</Body>"));
                 System.out.println(msg);
                 if (command.contains("createprocess")) {
-                    Thread processThread = new Thread(new ParallelProcess(body, ipAddress));
-                    processThread.start();
+                   settings.PROCESS_WAITING++;
+                    settings.processExecutor.execute(new ParallelProcess(body, ipAddress));
                     System.out.println("created process");
 
                     OutputStream os = submitter.getOutputStream();
@@ -65,19 +66,20 @@ public class Handler implements Runnable {
                     outToClient.writeInt(bytes.length);
                     outToClient.write(bytes);
 
-                    ir.close();
+//                    ir.close();
                     //  br.close();
                     submitter.close();
                 } else if (command.contains("ping")) {
 
                     OutputStream os2 = submitter.getOutputStream();
                     DataOutputStream outToClient2 = new DataOutputStream(os2);
-                    String sendmsg2 = "<OS>" + controlpanel.settings.OS + "</OS><HOSTNAME>" + InetAddress.getLocalHost().getHostName() + "</HOSTNAME>";
+                    String sendmsg2 = "<OS>" + controlpanel.settings.OS + "</OS><HOSTNAME>" + controlpanel.settings.HOST_NAME + "</HOSTNAME><PLIMIT>"+controlpanel.settings.PROCESS_LIMIT
+                            +"</PLIMIT><PWAIT>"+controlpanel.settings.PROCESS_WAITING+"</PWAIT><TMEM>"+controlpanel.settings.MEM_SIZE+"</TMEM><CPULOAD>" + controlpanel.settings.getCPULoad() + "</CPULOAD><CPUNAME>"+controlpanel.settings.CPU_NAME+"</CPUNAME>";
 
                     byte[] bytes2 = sendmsg2.getBytes("UTF8");
                     outToClient2.writeInt(bytes2.length);
                     outToClient2.write(bytes2);
-                    ir.close();
+                 //   ir.close();
                     //  br.close();
                     submitter.close();
 
@@ -107,6 +109,11 @@ public class Handler implements Runnable {
             }
         } catch (IOException ex) {
             Logger.getLogger(Handler.class.getName()).log(Level.SEVERE, null, ex);
+            try {
+                submitter.close();
+            } catch (IOException ex1) {
+                Logger.getLogger(Handler.class.getName()).log(Level.SEVERE, null, ex1);
+            }
         }
 
     }

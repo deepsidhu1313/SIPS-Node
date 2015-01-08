@@ -11,6 +11,8 @@ import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,7 +27,7 @@ public class Server implements Runnable {
     public static boolean serverisRunning = false;
     public static ArrayList<Integer> localprocessID = new ArrayList();
     public static ArrayList<String> alienprocessID = new ArrayList();
-
+public ExecutorService executorService = Executors.newFixedThreadPool(1000);
     public Server(boolean serverisrunning) throws IOException {
         serverisRunning = serverisrunning;
         if (controlpanel.settings.OS_Name == 2) {
@@ -36,8 +38,8 @@ public class Server implements Runnable {
                 out.println("PATH=/bin:/usr/bin:/usr/local/bin");
                 out.println("WORK=${PWD}/");
                 out.println("cd  \"${WORK}${1}/\"");
-                out.println("javac $2");
-                out.println("java $3");
+                out.println("javac -cp .:${WORK}lib1.jar $2");
+                out.println("java -cp .:${WORK}lib1.jar $3");
                 out.close();
                 System.out.println("Script is executable "+  f.setExecutable(true));
             }
@@ -51,8 +53,8 @@ public class Server implements Runnable {
                 out.println("set arg2=%2 ");
                 out.println("set arg3=%3 ");
                 out.println("cd /d %PFRAMEWORK_HOME%%arg1%");
-                out.println("javac %arg2% ");
-                out.println("java %arg3% \n cd %PFRAMEWORK_HOME%");
+                out.println("javac -cp .;%PFRAMEWORK_HOME%lib1.jar %arg2% ");
+                out.println("java -cp .;%PFRAMEWORK_HOME%lib1.jar %arg3% \n cd %PFRAMEWORK_HOME%");
                 out.close();
 
             }
@@ -78,8 +80,8 @@ public class Server implements Runnable {
             try {
                 Socket s = ss.accept();
                 System.out.println("Server is running");
-                Thread t = new Thread(new Handler(s));
-                t.start();
+                executorService.execute(new Handler(s));
+                
             } catch (IOException ex) {
                 Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
             }

@@ -24,6 +24,7 @@ public class sendOutput implements Runnable {
 
     String ipadd = "", ID = "", outPut = "", filename = "";
 
+    Socket s ;
     public sendOutput(String ip, String id, String fname, String output) {
         ipadd = ip;
         ID = id;
@@ -34,7 +35,7 @@ public class sendOutput implements Runnable {
     @Override
     public void run() {
         try {
-            Socket s = new Socket();
+             s = new Socket();
             s.connect(new InetSocketAddress(ipadd, 13131));
             OutputStream os = s.getOutputStream();
             DataOutputStream outToServer = new DataOutputStream(os);
@@ -59,6 +60,11 @@ public class sendOutput implements Runnable {
             dIn.close();
         } catch (IOException ex) {
             Logger.getLogger(sendOutput.class.getName()).log(Level.SEVERE, null, ex);
+            try {
+                s.close();
+            } catch (IOException ex1) {
+                Logger.getLogger(sendOutput.class.getName()).log(Level.SEVERE, null, ex1);
+            }
         }
 
     }

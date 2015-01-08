@@ -6,6 +6,7 @@
 package executor;
 
 import com.sun.scenario.Settings;
+import controlpanel.settings;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -59,6 +60,7 @@ public class ParallelProcess implements Runnable {
     @Override
     public void run() {
         try {
+            settings.PROCESS_WAITING--;
             ProcessBuilder pb = null;
             String cmd2 = "";
             Long startTime = System.currentTimeMillis();
@@ -106,7 +108,7 @@ public class ParallelProcess implements Runnable {
                 ocounter++;
                 System.out.println(s);
 
-                if (ocounter == 50000) {
+                if (ocounter == 250000) {
 
                     output += "\n" + s;
                     Thread outputThread = new Thread(new sendOutput(ip, pid, fname, output));
@@ -128,7 +130,7 @@ public class ParallelProcess implements Runnable {
                 ocounter++;
                 System.out.println(s);
                 success = false;
-                if (ocounter == 50000) {
+                if (ocounter == 250000) {
 
                     output += "\n" + s;
                     Thread outputThread2 = new Thread(new sendOutput(ip, pid, fname, output));

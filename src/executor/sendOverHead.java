@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 public class sendOverHead implements Runnable {
 
     String ipadd = "", ID = "", outPut = "", filename = "", value = "", cmd;
+    Socket s;
 
     public sendOverHead(String overheadName, String ip, String PID, String Filename, String value) {
         ipadd = ip;
@@ -35,11 +36,11 @@ public class sendOverHead implements Runnable {
     @Override
     public void run() {
         try {
-            Socket s = new Socket();
+             s = new Socket();
             s.connect(new InetSocketAddress(ipadd, 13131));
             OutputStream os = s.getOutputStream();
             DataOutputStream outToServer = new DataOutputStream(os);
-            String sendmsg = "<Command>" + cmd + "</Command><Body><PID>" + ID + "</PID><FILENAME>" + filename + "</FILENAME><OUTPUT>" + value + "</OUTPUT></Body>";
+            String sendmsg = "<Command>" + cmd + "</Command><Body><PID>" + ID + "</PID><FILENAME>" + filename + "</FILENAME><OUTPUT>" + value + "</OUTPUT><CPULOAD>" + controlpanel.settings.getCPULoad() + "</CPULOAD></Body>";
             byte[] bytes = sendmsg.getBytes("UTF8");
             outToServer.writeInt(bytes.length);
             outToServer.write(bytes);
@@ -61,6 +62,11 @@ public class sendOverHead implements Runnable {
             //inFromServer.close();
         } catch (IOException ex) {
             Logger.getLogger(sendOutput.class.getName()).log(Level.SEVERE, null, ex);
+            try {
+                s.close();
+            } catch (IOException ex1) {
+                Logger.getLogger(sendOverHead.class.getName()).log(Level.SEVERE, null, ex1);
+            }
         }
 
     }
