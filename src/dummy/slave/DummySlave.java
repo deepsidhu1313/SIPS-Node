@@ -22,7 +22,7 @@ public class DummySlave {
     public static void main(String[] args) throws IOException {
         new settings();
         if (args.length > 0) {
-            if ((args[0] != null) || (!args[0].equalsIgnoreCase("") || (!args[0].contains(" ")))) {
+            if ( (! (args[0].length()<=0))) {
                 settings.PROCESS_LIMIT = Integer.parseInt(args[0]);
                 settings.processExecutor = Executors.newFixedThreadPool(settings.PROCESS_LIMIT);
             } else {
