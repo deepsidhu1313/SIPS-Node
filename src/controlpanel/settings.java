@@ -5,14 +5,19 @@ import db.SQLiteJDBC;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.net.InetAddress;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -112,7 +117,11 @@ public class settings {
         } catch (Exception e) {
             System.err.println("Couldn't get Hostname");
         }
-
+        try (PrintStream procn = new PrintStream("procn.bat")) {
+            procn.print("wmic cpu get name");
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(settings.class.getName()).log(Level.SEVERE, null, ex);
+        }
         OperatingSystemMXBean osMBean
                 = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
         MEM_SIZE = osMBean.getTotalPhysicalMemorySize();
@@ -176,29 +185,31 @@ public class settings {
                 pb = new ProcessBuilder();
 
                 if ((directory = new File("c:\\windows\\system32\\")).exists()) {
-                    pb.directory(directory);
+                    //           pb.directory(directory);
 
                 } else if ((directory = new File("d:\\windows\\system32\\")).exists()) {
-                    pb.directory(directory);
+                    //          pb.directory(directory);
 
                 } else if ((directory = new File("e:\\windows\\system32\\")).exists()) {
-                    pb.directory(directory);
+                    //       pb.directory(directory);
 
                 } else if ((directory = new File("f:\\windows\\system32\\")).exists()) {
-                    pb.directory(directory);
+                    //    pb.directory(directory);
 
                 } else if ((directory = new File("g:\\windows\\system32\\")).exists()) {
-                    pb.directory(directory);
+                    //   pb.directory(directory);
 
                 } else if ((directory = new File("h:\\windows\\system32\\")).exists()) {
-                    pb.directory(directory);
+                    //   pb.directory(directory);
 
                 } else {
                     return CPUname = "Unidentified";
                 }
-                String cmd[] = {"cd", "/d", "" + directory.getAbsolutePath(), "&", "wmic cpu get Name"};
+                //"cd", "/d", "" + directory.getAbsolutePath(), "&",
+               // String cmd[] = {"cd", "/d", "" + directory.getAbsolutePath(), "&", "wmic cpu get Name"};
+                String cmd[] = {"procn.bat"};
                 for (int i = 0; i <= cmd.length - 1; i++) {
-                    cmd2 += cmd[i];
+                    cmd2 += " " + cmd[i];
                 }
                 System.out.println("" + cmd2);
                 pb.command(cmd);
@@ -345,7 +356,7 @@ public class settings {
 
             //if directory not exists, create it
             if (!dest.exists()) {
-                dest.mkdir();
+                dest.mkdirs();
                 System.out.println("Directory copied from "
                         + src + "  to " + dest);
             }
@@ -395,6 +406,98 @@ public class settings {
             }
         }
         return (directory.delete());
+    }
+
+    public static String getCheckSum(String datafile) {
+        StringBuilder sb = new StringBuilder("");
+        if (datafile.substring(datafile.lastIndexOf(".")).equalsIgnoreCase("sha")) {
+            System.out.println("Didn't computed CheckSum for " + datafile);
+            return "";
+        }
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA1");
+            FileInputStream fis = new FileInputStream(datafile);
+            byte[] dataBytes = new byte[1024];
+
+            int nread = 0;
+
+            while ((nread = fis.read(dataBytes)) != -1) {
+                md.update(dataBytes, 0, nread);
+            };
+
+            byte[] mdbytes = md.digest();
+
+            //convert the byte to hex format
+            for (int i = 0; i < mdbytes.length; i++) {
+                sb.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
+            }
+
+            System.out.println("Digest(in hex format):: " + sb.toString());
+        } catch (NoSuchAlgorithmException ex) {
+            Logger.getLogger(settings.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(settings.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(settings.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        saveCheckSum(datafile + ".sha", sb.toString());
+        return sb.toString();
+    }
+
+    public static String LoadCheckSum(String ld) {
+        StringBuilder sb = new StringBuilder();
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new FileReader(ld));
+            String line = br.readLine();
+            while (line != null) {
+                sb.append(line);
+                sb.append(System.lineSeparator());
+                line = br.readLine();
+            }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(settings.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(settings.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                br.close();
+            } catch (IOException ex) {
+                Logger.getLogger(settings.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return sb.toString();
+    }
+
+    public static void saveCheckSum(String Filename, String con) {
+        File f = new File(Filename);
+        if (f.exists()) {
+            f.delete();
+        }
+        try (PrintStream cstream = new PrintStream(Filename)) {
+            cstream.append(con);
+            cstream.close();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(settings.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+
+    public static void generateCheckSumsInDirectory(String filename) {
+        File f = new File(filename);
+        if (f.isDirectory()) {
+          //  generateCheckSumsInDirectory(f.getAbsolutePath());
+            for (File listFile : f.listFiles()) {
+                if (listFile.isDirectory()) {
+                    generateCheckSumsInDirectory(listFile.getAbsolutePath());
+                } else {
+                    getCheckSum(listFile.getAbsolutePath());
+                }
+            }
+        } else {
+            getCheckSum(f.getAbsolutePath());
+
+        }
     }
 
 }

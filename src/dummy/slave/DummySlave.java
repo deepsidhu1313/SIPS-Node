@@ -6,6 +6,8 @@
 package dummy.slave;
 
 import controlpanel.settings;
+import executor.FileReqQueServer;
+import executor.PingServer;
 import executor.Server;
 import java.io.IOException;
 import java.util.concurrent.Executors;
@@ -30,6 +32,10 @@ public class DummySlave {
         }
         Thread server = new Thread(new Server(true));
         server.start();
+        Thread pserver = new Thread(new PingServer(true));
+        pserver.start();
+        Thread dqserver = new Thread(new FileReqQueServer(true));
+        dqserver.start();
         // TODO code application logic here
     }
 

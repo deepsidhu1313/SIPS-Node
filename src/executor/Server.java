@@ -197,6 +197,10 @@ public static Process[] p = new Process[1000];
         if (dest.exists()) {
             dest.delete();
         }
+         if (!dest.getParentFile().exists()) {
+            dest.getParentFile().mkdirs();
+        }
+       
         if (!source.exists()) {
             System.out.println("" + pathtosrc + " does not exist");
             return;
