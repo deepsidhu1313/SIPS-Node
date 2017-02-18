@@ -13,6 +13,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.json.JSONObject;
 
 /**
  *
@@ -36,7 +37,16 @@ public class sendOutput implements Runnable {
             try (Socket s = new Socket()) {
                 s.connect(new InetSocketAddress(ipadd, 13131));
                 try (OutputStream os = s.getOutputStream(); DataOutputStream outToServer = new DataOutputStream(os); DataInputStream dIn = new DataInputStream(s.getInputStream())) {
-                    String sendmsg = "<Command>printoutput</Command><Body><PID>" + ID + "</PID><CNO>" + cno + "</CNO><FILENAME>" + filename + "</FILENAME><OUTPUT>" + outPut + "</OUTPUT></Body>";
+                    JSONObject sendmsgJsonObj = new JSONObject();
+                    sendmsgJsonObj.put("Command", "printoutput");
+                    JSONObject sendmsgBodyJsonObj = new JSONObject();
+                    sendmsgBodyJsonObj.put("PID", ID);
+                    sendmsgBodyJsonObj.put("CNO", cno);
+                    sendmsgBodyJsonObj.put("FILENAME", filename);
+                    sendmsgBodyJsonObj.put("OUTPUT", outPut);
+                    sendmsgJsonObj.put("BODY", sendmsgBodyJsonObj);
+
+                    String sendmsg = sendmsgJsonObj.toString();//"<Command>printoutput</Command><Body><PID>" + ID + "</PID><CNO>" + cno + "</CNO><FILENAME>" + filename + "</FILENAME><OUTPUT>" + outPut + "</OUTPUT></Body>";
                     byte[] bytes = sendmsg.getBytes("UTF-8");
                     outToServer.writeInt(bytes.length);
                     outToServer.write(bytes);

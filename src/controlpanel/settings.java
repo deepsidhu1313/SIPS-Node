@@ -1,7 +1,6 @@
 package controlpanel;
 
 import com.sun.management.OperatingSystemMXBean;
-import db.SQLiteJDBC;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,40 +18,23 @@ import java.net.InetAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static controlpanel.GlobalValues.*;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import org.json.JSONObject;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 /**
  *
  * @author Nika
  */
 public class settings {
-
-    public static String OS = System.getProperty("os.name").toLowerCase();
-    public static int OS_Name = 0;
-    public static String PWD = "";
-    public static String dir_workspace = "";
-    public static String dir_appdb = "";
-    public static String dir_temp = "";
-    public static int total_threads = 1;
-    public static int process_id = 0;
-    public static int PROCESS_LIMIT = Runtime.getRuntime().availableProcessors() - 1;
-    public static int PROCESS_WAITING = 0;
-
-    public static ExecutorService processExecutor = Executors.newFixedThreadPool(PROCESS_LIMIT);
-    public static ExecutorService processDBExecutor = Executors.newFixedThreadPool(1);
-    public static SQLiteJDBC procDB = new SQLiteJDBC();
-    public static String HOST_NAME = "DummySlave";
-    public static long MEM_SIZE = 0L;
-    public static String CPU_NAME = "";
-    public static double CPU_LOAD_AVG = 0.0;
 
     public settings() {
         System.out.println(OS);
@@ -97,7 +79,11 @@ public class settings {
                         + "Please create a dir with this name");
             }
         }
-
+        if(new File("appdb/settings.json").exists()){
+        loadSettings();
+        }else{
+        saveSettings();
+        }
         processDBExecutor.execute(() -> {
             String sql = "CREATE TABLE PROC (ID    INT   PRIMARY KEY     NOT NULL,"
                     + " ALIENID  INT,"
@@ -180,38 +166,34 @@ public class settings {
             Process p;
             String cmd2 = "";
             File directory;
-            if (controlpanel.settings.OS_Name == 0) {
-                String pwd = "" + controlpanel.settings.PWD;
+            if (OS_Name == 0) {
+                String pwd = "" + PWD;
                 pb = new ProcessBuilder();
 
                 if ((directory = new File("c:\\windows\\system32\\")).exists()) {
-                    //           pb.directory(directory);
+                    pb.directory(directory);
 
                 } else if ((directory = new File("d:\\windows\\system32\\")).exists()) {
-                    //          pb.directory(directory);
+                    pb.directory(directory);
 
                 } else if ((directory = new File("e:\\windows\\system32\\")).exists()) {
-                    //       pb.directory(directory);
+                    pb.directory(directory);
 
                 } else if ((directory = new File("f:\\windows\\system32\\")).exists()) {
-                    //    pb.directory(directory);
+                    pb.directory(directory);
 
                 } else if ((directory = new File("g:\\windows\\system32\\")).exists()) {
-                    //   pb.directory(directory);
+                    pb.directory(directory);
 
                 } else if ((directory = new File("h:\\windows\\system32\\")).exists()) {
-                    //   pb.directory(directory);
+                    pb.directory(directory);
 
                 } else {
                     return CPUname = "Unidentified";
                 }
                 //"cd", "/d", "" + directory.getAbsolutePath(), "&",
-               // String cmd[] = {"cd", "/d", "" + directory.getAbsolutePath(), "&", "wmic cpu get Name"};
+                // String cmd[] = {"cd", "/d", "" + directory.getAbsolutePath(), "&", "wmic cpu get Name"};
                 String cmd[] = {"procn.bat"};
-                for (int i = 0; i <= cmd.length - 1; i++) {
-                    cmd2 += " " + cmd[i];
-                }
-                System.out.println("" + cmd2);
                 pb.command(cmd);
                 p = null;
                 p = pb.start();
@@ -239,46 +221,42 @@ public class settings {
                 System.out.println("\n\nExit Value is " + exitValue);
                 p.destroy();
 
-            } else if (controlpanel.settings.OS_Name == 2) {
+            } else if (OS_Name == 2) {
                 String cmd[] = {"cat", "/proc/cpuinfo"};
-                for (int i = 0; i <= cmd.length - 1; i++) {
-                    //   cmd2 += cmd[i];
-                }
-                System.out.println("" + cmd2);
                 pb = new ProcessBuilder(cmd);
                 pb.directory(new File("/"));
                 p = null;
                 try {
                     p = pb.start();
+
+                    BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
+
+                    BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+
+                    // read the output from the command
+                    System.out.println("Here is the standard output of the command:\n");
+
+                    String s = null;
+                    String output = "";
+                    while ((s = stdInput.readLine()) != null) {
+                        System.out.println(s);
+                        if (s.contains("model") && s.contains("name")) {
+                            CPUname = s.substring(s.indexOf(":") + 1).trim();
+                            break;
+                        }
+                    }
+                    System.out.println("Here is the standard error of the command (if any):\n");
+                    while ((s = stdError.readLine()) != null) {
+                        System.out.println(s);
+                        success = false;
+
+                    }
+                    int exitValue = p.waitFor();
+                    System.out.println("\n\nExit Value is " + exitValue);
+                    p.destroy();
                 } catch (IOException ex) {
                     Logger.getLogger(settings.class.getName()).log(Level.SEVERE, null, ex);
                 }
-
-                BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
-
-                BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-
-                // read the output from the command
-                System.out.println("Here is the standard output of the command:\n");
-
-                String s = null;
-                String output = "";
-                while ((s = stdInput.readLine()) != null) {
-                    System.out.println(s);
-                    if (s.contains("model") && s.contains("name")) {
-                        CPUname = s.substring(s.indexOf(":") + 1).trim();
-                        break;
-                    }
-                }
-                System.out.println("Here is the standard error of the command (if any):\n");
-                while ((s = stdError.readLine()) != null) {
-                    System.out.println(s);
-                    success = false;
-
-                }
-                int exitValue = p.waitFor();
-                System.out.println("\n\nExit Value is " + exitValue);
-                p.destroy();
 
             }
 
@@ -350,7 +328,7 @@ public class settings {
         return b;
     }
 
-    public static void copyFolder(File src, File dest) throws IOException {
+    public static void copyFolder(File src, File dest) {
 
         if (src.isDirectory()) {
 
@@ -375,20 +353,20 @@ public class settings {
         } else {
             //if file, then copy it
             //Use bytes stream to support all file types
-            InputStream in = new FileInputStream(src);
-            OutputStream out = new FileOutputStream(dest);
+            try (InputStream in = new FileInputStream(src); OutputStream out = new FileOutputStream(dest)) {
 
-            byte[] buffer = new byte[1024];
+                byte[] buffer = new byte[1024];
 
-            int length;
-            //copy the file content in bytes 
-            while ((length = in.read(buffer)) > 0) {
-                out.write(buffer, 0, length);
+                int length;
+                //copy the file content in bytes
+                while ((length = in.read(buffer)) > 0) {
+                    out.write(buffer, 0, length);
+                }
+                System.out.println("File copied from " + src + " to " + dest);
+
+            } catch (IOException ex) {
+                Logger.getLogger(settings.class.getName()).log(Level.SEVERE, null, ex);
             }
-
-            in.close();
-            out.close();
-            System.out.println("File copied from " + src + " to " + dest);
         }
     }
 
@@ -445,28 +423,34 @@ public class settings {
     }
 
     public static String LoadCheckSum(String ld) {
+        return readFile(ld);
+    }
+
+    public static String readFile(String location) {
         StringBuilder sb = new StringBuilder();
-        BufferedReader br = null;
-        try {
-            br = new BufferedReader(new FileReader(ld));
+        try (BufferedReader br = new BufferedReader(new FileReader(location))) {
             String line = br.readLine();
             while (line != null) {
                 sb.append(line);
                 sb.append(System.lineSeparator());
                 line = br.readLine();
             }
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(settings.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(settings.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                br.close();
-            } catch (IOException ex) {
-                Logger.getLogger(settings.class.getName()).log(Level.SEVERE, null, ex);
-            }
         }
         return sb.toString();
+    }
+
+    public static void write(File f, String text) {
+        try (FileWriter fw = new FileWriter(f);
+                PrintWriter pw = new PrintWriter(fw)) {
+            pw.print(text);
+            pw.close();
+            fw.close();
+        } catch (IOException ex) {
+            Logger.getLogger(settings.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
 
     public static void saveCheckSum(String Filename, String con) {
@@ -474,19 +458,14 @@ public class settings {
         if (f.exists()) {
             f.delete();
         }
-        try (PrintStream cstream = new PrintStream(Filename)) {
-            cstream.append(con);
-            cstream.close();
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(settings.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        write(f, con);
 
     }
 
     public static void generateCheckSumsInDirectory(String filename) {
         File f = new File(filename);
         if (f.isDirectory()) {
-          //  generateCheckSumsInDirectory(f.getAbsolutePath());
+            //  generateCheckSumsInDirectory(f.getAbsolutePath());
             for (File listFile : f.listFiles()) {
                 if (listFile.isDirectory()) {
                     generateCheckSumsInDirectory(listFile.getAbsolutePath());
@@ -498,6 +477,24 @@ public class settings {
             getCheckSum(f.getAbsolutePath());
 
         }
+    }
+
+    void loadSettings() {
+        JSONObject settings = new JSONObject(readFile("appdb/settings.json"));
+        PROCESS_LIMIT = settings.getInt("MAX_PROCESS_ALLOWED_IN_PARALLEL");
+        FILES_RESOLVER_LIMIT = settings.getInt("MAX_FILE_RESOLVE_IN_PARALLEL");
+        PING_HANDLER_LIMIT = settings.getInt("MAX_PING_RESPONSES_IN_PARALLEL");
+        PROCESS_HANDLER_LIMIT = settings.getInt("MAX_PROCESS_REQ_IN_PARALLEL");
+
+    }
+
+    void saveSettings() {
+        JSONObject settings = new JSONObject();
+        settings.put("MAX_PROCESS_ALLOWED_IN_PARALLEL", PROCESS_LIMIT);
+        settings.put("MAX_FILE_RESOLVE_IN_PARALLEL", FILES_RESOLVER_LIMIT);
+        settings.put("MAX_PING_RESPONSES_IN_PARALLEL", PING_HANDLER_LIMIT);
+        settings.put("MAX_PROCESS_REQ_IN_PARALLEL", PROCESS_HANDLER_LIMIT);
+        write(new File("appdb/settings.json"), settings.toString(4));
     }
 
 }

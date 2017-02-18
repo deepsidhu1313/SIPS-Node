@@ -5,6 +5,7 @@
  */
 package executor;
 
+import controlpanel.GlobalValues;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -23,7 +24,7 @@ public class FileReqQueServer implements Runnable {
     public static ServerSocket ss;
     public static boolean serverisRunning = false;
     public static ArrayList<FileDownQueReq> downQue = new ArrayList();
-    public static ExecutorService executorService = Executors.newFixedThreadPool(25);
+    public static ExecutorService executorService = Executors.newFixedThreadPool(GlobalValues.FILES_RESOLVER_LIMIT);
 
     public FileReqQueServer(boolean serverisrunning) throws IOException {
         serverisRunning = serverisrunning;

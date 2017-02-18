@@ -19,6 +19,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.json.JSONObject;
 
 /**
  *
@@ -44,7 +45,16 @@ public class RecieveFileBak {
                         try (Socket sock = new Socket(SERVER, SOCKET_PORT)) {
                             System.out.println("Connecting...");
                             try (OutputStream os = sock.getOutputStream(); DataOutputStream outToServer = new DataOutputStream(os)) {
-                                String sendmsg = "<Command>sendfile</Command><Body><PID>" + id + "</PID><CNO>" + cno + "</CNO><FILENAME>" + projectname + "</FILENAME><FILE>" + _item + "</FILE></Body>";
+                                JSONObject downreqJsonObj= new JSONObject();
+                                        downreqJsonObj.put("Command", "sendfile");
+                                        JSONObject downreqBodyJsonObj= new JSONObject();
+                                        downreqBodyJsonObj.put("PID", id);
+                                        downreqBodyJsonObj.put("CNO", cno);
+                                        downreqBodyJsonObj.put("FILENAME", projectname);
+                                        downreqBodyJsonObj.put("FILE", _item);
+                                        downreqJsonObj.put("BODY", downreqBodyJsonObj);
+                                
+                                String sendmsg = downreqJsonObj.toString();//"<Command>sendfile</Command><Body><PID>" + id + "</PID><CNO>" + cno + "</CNO><FILENAME>" + projectname + "</FILENAME><FILE>" + _item + "</FILE></Body>";
                                 byte[] bytes = sendmsg.getBytes("UTF-8");
                                 outToServer.writeInt(bytes.length);
                                 outToServer.write(bytes);

@@ -33,11 +33,11 @@ public class Server implements Runnable {
     public static ArrayList<Integer> localprocessID = new ArrayList();
     public static ArrayList<String> alienprocessID = new ArrayList();
     public static ExecutorService executorService = Executors.newFixedThreadPool(1000);
-public static Process[] p = new Process[1000];
-    
+    public static Process[] p = new Process[1000];
+
     public Server(boolean serverisrunning) throws IOException {
         serverisRunning = serverisrunning;
-        if (controlpanel.settings.OS_Name == 2) {
+        if (controlpanel.GlobalValues.OS_Name == 2) {
             File f = new File("process-executor.sh");
 
             if (f.exists()) {
@@ -46,7 +46,7 @@ public static Process[] p = new Process[1000];
 
             {
                 try (PrintStream out = new PrintStream(f) //new AppendFileStream
-                ) {
+                        ) {
                     out.println("#!/bin/bash ");
                     out.println("PATH=/bin:/usr/bin:/usr/local/bin");
                     out.println("WORK=${PWD}/");
@@ -63,13 +63,13 @@ public static Process[] p = new Process[1000];
             }
 
             try (PrintStream out2 = new PrintStream(f3) //new AppendFileStream
-            ) {
+                    ) {
                 out2.println("#!/bin/bash ");
                 out2.println("PATH=/bin:/usr/bin:/usr/local/bin");
                 out2.println("WORK=${PWD}/");
                 out2.println("cd  \"${WORK}${1}/\"");
                 out2.println("bash ${WORK}ant/bin/ant -Darg1=$2");
-                
+
 //out2.println("bash  simulate.sh $2");
             }
             System.out.println("Script is executable " + f.setExecutable(true));
@@ -81,7 +81,7 @@ public static Process[] p = new Process[1000];
             }
             {
                 try (PrintStream out = new PrintStream(f2) //new AppendFileStream
-                ) {
+                        ) {
                     out.println("@echo off ");
                     out.println("set PFRAMEWORK_HOME=%~dp0");
                     out.println("set arg1=%~1 ");
@@ -104,12 +104,12 @@ public static Process[] p = new Process[1000];
                 out.println("set arg2=%2 ");
                 out.println("set arg3=%3 ");
                 out.println("set arg4=%4 ");
-              //  out.println("java -jar lib1.jar 0 %arg4%");
+                //  out.println("java -jar lib1.jar 0 %arg4%");
                 out.println("cd /d %PFRAMEWORK_HOME%%arg1%");
                 out.println("CALL  %PFRAMEWORK_HOME%\\ant\\bin\\ant.bat  -Darg1= %arg2%");
-               // out.println("java -cp .;%PFRAMEWORK_HOME%lib1.jar %arg3%");
-              //  out.println(" cd %PFRAMEWORK_HOME%");
-              //  out.println("java -jar lib1.jar 1 %arg4%");
+                // out.println("java -cp .;%PFRAMEWORK_HOME%lib1.jar %arg3%");
+                //  out.println(" cd %PFRAMEWORK_HOME%");
+                //  out.println("java -jar lib1.jar 1 %arg4%");
                 out.close();
 
             }
@@ -197,58 +197,26 @@ public static Process[] p = new Process[1000];
         if (dest.exists()) {
             dest.delete();
         }
-         if (!dest.getParentFile().exists()) {
+        if (!dest.getParentFile().exists()) {
             dest.getParentFile().mkdirs();
         }
-       
+
         if (!source.exists()) {
             System.out.println("" + pathtosrc + " does not exist");
             return;
         }
-        InputStream is = null;
-        OutputStream os = null;
-        try {
-            is = new FileInputStream(source);
-            os = new FileOutputStream(dest);
+        try (InputStream is = new FileInputStream(source); OutputStream os = new FileOutputStream(dest)) {
             byte[] buffer = new byte[1024];
             int length;
             while ((length = is.read(buffer)) > 0) {
                 os.write(buffer, 0, length);
             }
             System.out.println("" + source.getAbsolutePath() + " copied to " + dest.getAbsolutePath() + " ");
-            try {
-                is.close();
-                os.close();
-            } catch (IOException ex) {
-                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-            try {
-                is.close();
-                os.close();
-            } catch (IOException x) {
-                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-            try {
-                is.close();
-                os.close();
-            } catch (IOException x) {
-                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
-        } finally {
-            try {
-                is.close();
-                os.close();
-            } catch (IOException ex) {
-                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-            }
         }
+        
+        
     }
 
     public static void main(String[] args) {

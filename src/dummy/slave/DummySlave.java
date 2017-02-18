@@ -5,12 +5,17 @@
  */
 package dummy.slave;
 
-import controlpanel.settings;
+import static controlpanel.GlobalValues.*;
 import executor.FileReqQueServer;
 import executor.PingServer;
 import executor.Server;
 import java.io.IOException;
 import java.util.concurrent.Executors;
+import controlpanel.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  *
@@ -24,19 +29,32 @@ public class DummySlave {
     public static void main(String[] args) throws IOException {
         new settings();
         if (args.length > 0) {
-            if ( (! (args[0].length()<=0))) {
-                settings.PROCESS_LIMIT = Integer.parseInt(args[0]);
-                settings.processExecutor = Executors.newFixedThreadPool(settings.PROCESS_LIMIT);
-            } else {
+            ArrayList<String> arguments = new ArrayList<>();
+            Collections.addAll(arguments, args);
+            if (arguments.contains("--mode")) {
+                int mode = Integer.parseInt(arguments.get(arguments.indexOf("--mode") + 1));
+                switch (mode) {
+                    case 0:
+                        Thread pserver = new Thread(new PingServer(true,0));
+                        pserver.start();
+                        break;
+                    case 1:
+                        Thread server = new Thread(new Server(true));
+                        server.start();
+                        Thread dqserver = new Thread(new FileReqQueServer(true));
+                        dqserver.start();
+
+                }
             }
+
+        } else {
+            Thread server = new Thread(new Server(true));
+            server.start();
+            Thread pserver = new Thread(new PingServer(true,3));
+            pserver.start();
+            Thread dqserver = new Thread(new FileReqQueServer(true));
+            dqserver.start();
         }
-        Thread server = new Thread(new Server(true));
-        server.start();
-        Thread pserver = new Thread(new PingServer(true));
-        pserver.start();
-        Thread dqserver = new Thread(new FileReqQueServer(true));
-        dqserver.start();
-        // TODO code application logic here
     }
 
 }

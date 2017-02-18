@@ -13,6 +13,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.json.JSONObject;
 
 /**
  *
@@ -40,12 +41,24 @@ public class sendOverHead implements Runnable {
             OutputStream os = s.getOutputStream();
             try (DataInputStream dIn = new DataInputStream(s.getInputStream()) //inFromServer.close();
                     ; DataOutputStream outToServer = new DataOutputStream(os)) {
-                String sendmsg = "<Command>" + cmd + "</Command>"
-                        + "<Body><PID>" + ID + "</PID>"
-                        + "<CNO>" + chunkno + "</CNO>"
-                        + "<FILENAME>" + filename + "</FILENAME>"
-                        + "<OUTPUT>" + value + "</OUTPUT>"
-                        + "<EXTCODE>" + exitCode + "</EXTCODE></Body>";
+                JSONObject sendmsgJsonObj = new JSONObject();
+                sendmsgJsonObj.put("Command", cmd);
+                JSONObject sendmsgBodyJsonObj = new JSONObject();
+                sendmsgBodyJsonObj.put("PID", ID);
+                sendmsgBodyJsonObj.put("CNO", chunkno);
+                sendmsgBodyJsonObj.put("FILENAME", filename);
+                sendmsgBodyJsonObj.put("OUTPUT", value);
+                sendmsgBodyJsonObj.put("EXTCODE", exitCode);
+                sendmsgJsonObj.put("BODY", sendmsgBodyJsonObj);
+
+                String sendmsg = sendmsgJsonObj.toString();
+
+//                        "<Command>" + cmd + "</Command>"
+//                        + "<Body><PID>" + ID + "</PID>"
+//                        + "<CNO>" + chunkno + "</CNO>"
+//                        + "<FILENAME>" + filename + "</FILENAME>"
+//                        + "<OUTPUT>" + value + "</OUTPUT>"
+//                        + "<EXTCODE>" + exitCode + "</EXTCODE></Body>";
                 byte[] bytes = sendmsg.getBytes("UTF-8");
                 outToServer.writeInt(bytes.length);
                 outToServer.write(bytes);

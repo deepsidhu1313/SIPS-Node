@@ -20,6 +20,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.json.JSONObject;
 
 /**
  *
@@ -31,9 +32,6 @@ public class FileReqQueHandler implements Runnable {
     int pnum;
     String simsql = "";
     long pdelay = 10;
-    private FileInputStream fis;
-    private BufferedInputStream bis;
-    //  private String FILE_TO_SEND;
 
     public FileReqQueHandler(Socket connection) {
         submitter = connection;
@@ -42,82 +40,87 @@ public class FileReqQueHandler implements Runnable {
     @Override
     public void run() {
         try {
-            DataInputStream dIn = new DataInputStream(submitter.getInputStream());
-            OutputStream os = submitter.getOutputStream();
-            DataOutputStream outToClient = new DataOutputStream(os);
+            DataInputStream dataInputStream = new DataInputStream(submitter.getInputStream());
+            OutputStream outputStream = submitter.getOutputStream();
+            DataOutputStream outToClient = new DataOutputStream(outputStream);
             //        BufferedOutputStream bos = new BufferedOutputStream(submitter.getOutputStream());
-            String msg = "";
-            int length = dIn.readInt();                    // read length of incoming message
+            String msg;
+            int length = dataInputStream.readInt();                    // read length of incoming message
             byte[] message = new byte[length];
 
             if (length > 0) {
-                dIn.readFully(message, 0, message.length); // read the message
+                dataInputStream.readFully(message, 0, message.length); // read the message
             }
-            String s = new String(message);
-            msg = "" + s;
-
+            msg = new String(message);
             InetAddress inetAddress = submitter.getInetAddress();
             String ipAddress = inetAddress.getHostAddress();
             if (msg.length() > 1) {
+                JSONObject messageJson = new JSONObject(message);
                 //settings.outPrintln("hurray cond 1");
                 System.out.println("IP adress of sender is " + ipAddress);
 
                 System.out.println("" + msg);
 
-                String command = msg.substring(msg.indexOf("<Command>") + 9, msg.indexOf("</Command>"));
-                String body = msg.substring(msg.indexOf("<Body>") + 6, msg.indexOf("</Body>"));
+                String command = messageJson.getString("Command");//msg.substring(msg.indexOf("<Command>") + 9, msg.indexOf("</Command>"));
+                //String body = messageJson.getString("Body");//msg.substring(msg.indexOf("<Body>") + 6, msg.indexOf("</Body>"));
                 //     System.out.println(msg);
+                JSONObject body = messageJson.getJSONObject("Body");
                 if (command.trim().equalsIgnoreCase("downloadfile")) {
                     System.out.println("finding file");
-                    String fileToSend = body.substring(body.indexOf("<FILE>") + 6, body.indexOf("</FILE>"));
-                    String pid = body.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
-                    String cno = body.substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
-                    String fname = body.substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
-                    String checksum = body.substring(body.indexOf("<CHECKSUM>") + 10, body.indexOf("</CHECKSUM>"));
-                    String ip = body.substring(body.indexOf("<IP>") + 4, body.indexOf("</IP>"));
+                    String fileToSend = body.getString("FILE");//body.substring(body.indexOf("<FILE>") + 6, body.indexOf("</FILE>"));
+                    String pid = body.getString("PID");//body.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
+                    String cno = body.getString("CNO");//body.substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
+                    String fname = body.getString("FILENAME");//body.substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
+                    String checksum = body.getString("CHECKSUM");//body.substring(body.indexOf("<CHECKSUM>") + 10, body.indexOf("</CHECKSUM>"));
+                    String ip = body.getString("IP");//body.substring(body.indexOf("<IP>") + 4, body.indexOf("</IP>"));
                     System.out.println("Accepted connection : " + submitter);
                     // send file
                     boolean notinQ = true;
-                    for (FileDownQueReq downQue : FileReqQueServer.downQue) {boolean b1 = downQue.getFilename().trim().equalsIgnoreCase(fileToSend.trim());
-                            boolean b2 = downQue.getId() == Integer.parseInt(pid.trim());
-                            boolean b3 = downQue.getChecksum().trim().equalsIgnoreCase(checksum.trim());
-                            boolean b4 = downQue.getIp().trim().equalsIgnoreCase(ip.trim());
-                            System.out.println("Compairing  :\nFilename:" + downQue.getFilename().trim()
-                                    + " with " + fileToSend.trim() + "\t" + b1
-                                    + "\nPID:" + downQue.getId() + " with " + pid + "\t" + b2
-                                    + "\nChecksum:" + downQue.getChecksum().trim() + " with " + checksum
-                                    + "\t" + b3
-                                    + "\nIP: " + downQue.getIp().trim() + " with " + ip + "\t" + b4);
+                    for (FileDownQueReq downQue : FileReqQueServer.downQue) {
+                        boolean b1 = downQue.getFilename().trim().equalsIgnoreCase(fileToSend.trim());
+                        boolean b2 = downQue.getId() == Integer.parseInt(pid.trim());
+                        boolean b3 = downQue.getChecksum().trim().equalsIgnoreCase(checksum.trim());
+                        boolean b4 = downQue.getIp().trim().equalsIgnoreCase(ip.trim());
+                        System.out.println("Compairing  :\nFilename:" + downQue.getFilename().trim()
+                                + " with " + fileToSend.trim() + "\t" + b1
+                                + "\nPID:" + downQue.getId() + " with " + pid + "\t" + b2
+                                + "\nChecksum:" + downQue.getChecksum().trim() + " with " + checksum
+                                + "\t" + b3
+                                + "\nIP: " + downQue.getIp().trim() + " with " + ip + "\t" + b4);
 
-                            if (((b1) && (b2) && (b3) && (b4))) {
+                        if (((b1) && (b2) && (b3) && (b4))) {
                             notinQ = false;
                             System.out.println("REQUEST Already IN QUE");
                             if (downQue.getFinished()) {
-                                String sendmsg = "<MSG>finished</MSG>";
+                                String sendmsg = new JSONObject().put("MSG", "finished").toString(4);//"<MSG>finished</MSG>";
 
                                 byte[] bytes = sendmsg.getBytes("UTF-8");
                                 outToClient.writeInt(bytes.length);
 
                                 outToClient.write(bytes);
 
-                                os.close();
+                                outputStream.close();
                                 outToClient.close();
                                 submitter.close();
                                 System.out.println("REQUEST Already Finished");
-
+                                break;
                             } else {
                                 long rt = downQue.getRemainingTime();
-                                String sendmsg = "<MSG>inque</MSG><RT>" + rt + "</RT>";
+                                JSONObject sobj = new JSONObject();
+                                sobj.put("MSG", "inque");
+                                sobj.put("RT", rt);
+                                String sendmsg = sobj.toString();//"<MSG>inque</MSG><RT>" + rt + "</RT>";
 
                                 byte[] bytes = sendmsg.getBytes("UTF-8");
                                 outToClient.writeInt(bytes.length);
 
                                 outToClient.write(bytes);
 
-                                os.close();
+                                outputStream.close();
                                 outToClient.close();
                                 submitter.close();
                                 System.out.println("REQUEST Already IN QUE wait for " + rt);
+                                break;
 
                             }
                         }
@@ -125,17 +128,17 @@ public class FileReqQueHandler implements Runnable {
                     }
                     if (notinQ) {
                         FileReqQueServer.downQue.add(new FileDownQueReq(ip, Integer.parseInt(pid),
-                                checksum, fileToSend, System.currentTimeMillis(), 100, 0, 0, false, body));
+                                checksum, fileToSend, System.currentTimeMillis(), 100, 0, 0, false, body.toString()));
 
                         System.out.println("REQUEST Added IN QUE");
 
-                        String sendmsg = "<MSG>addedinq</MSG>";
+                        String sendmsg = new JSONObject().put("MSG", "addedinq").toString(4);//"<MSG>addedinq</MSG>";
 
                         byte[] bytes = sendmsg.getBytes("UTF-8");
                         outToClient.writeInt(bytes.length);
 
                         outToClient.write(bytes);
-                        os.close();
+                        outputStream.close();
                         outToClient.close();
                         submitter.close();
 
@@ -156,7 +159,15 @@ public class FileReqQueHandler implements Runnable {
                                 try (Socket sock = new Socket(ip, 13133)) {
                                     System.out.println("Connecting To Download...");
                                     try (OutputStream sockos = sock.getOutputStream(); DataOutputStream outToServer = new DataOutputStream(sockos)) {
-                                        String downreqsendmsg = "<Command>sendfile</Command><Body><PID>" + pid + "</PID><CNO>" + cno + "</CNO><FILENAME>" + fname + "</FILENAME><FILE>" + fileToSend + "</FILE></Body>";
+                                        JSONObject downreqJsonObj= new JSONObject();
+                                        downreqJsonObj.put("Command", "sendfile");
+                                        JSONObject downreqBodyJsonObj= new JSONObject();
+                                        downreqBodyJsonObj.put("PID", pid);
+                                        downreqBodyJsonObj.put("CNO", cno);
+                                        downreqBodyJsonObj.put("FILENAME", fname);
+                                        downreqBodyJsonObj.put("FILE", fileToSend);
+                                        downreqJsonObj.put("BODY", downreqBodyJsonObj);
+                                        String downreqsendmsg = downreqJsonObj.toString();//"<Command>sendfile</Command><Body><PID>" + pid + "</PID><CNO>" + cno + "</CNO><FILENAME>" + fname + "</FILENAME><FILE>" + fileToSend + "</FILE></Body>";
                                         bytes = downreqsendmsg.getBytes("UTF-8");
                                         outToServer.writeInt(bytes.length);
                                         outToServer.write(bytes);
@@ -252,46 +263,46 @@ public class FileReqQueHandler implements Runnable {
                                 break;
                             }
                         }
-                    } else {
-
                     }
+//                    else {
+//
+//                    }
                     //File myFile = new File("data/" + pid + "/" + fileToSend);
 
                 } else if (command.trim().equalsIgnoreCase("downloadObject")) {
                     System.out.println("finding Object");
-                    String objToSend = body.substring(body.indexOf("<OBJECT>") + 8, body.indexOf("</OBJECT>"));
-                    String pid2 = body.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
-                    String cno2 = body.substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
-                    String classname = body.substring(body.indexOf("<CLASSNAME>") + 11, body.indexOf("</CLASSNAME>"));
-                    String instance = body.substring(body.indexOf("<INSTANCE>") + 10, body.indexOf("</INSTANCE>"));
-                    String checksum = body.substring(body.indexOf("<CHECKSUM>") + 10, body.indexOf("</CHECKSUM>"));
-                    String ip = body.substring(body.indexOf("<IP>") + 4, body.indexOf("</IP>"));
+                    String objToSend =body.getString("OBJECT");// body.substring(body.indexOf("<OBJECT>") + 8, body.indexOf("</OBJECT>"));
+                    String pid2 = body.getString("PID");//body.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
+                    String cno2 = body.getString("CNO");//body.substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
+                    String classname = body.getString("CLASSNAME");//body.substring(body.indexOf("<CLASSNAME>") + 11, body.indexOf("</CLASSNAME>"));
+                    String instance = body.getString("INSTANCE");//body.substring(body.indexOf("<INSTANCE>") + 10, body.indexOf("</INSTANCE>"));
+                    String checksum = body.getString("CHECKSUM");//body.substring(body.indexOf("<CHECKSUM>") + 10, body.indexOf("</CHECKSUM>"));
+                    String ip = body.getString("IP");//body.substring(body.indexOf("<IP>") + 4, body.indexOf("</IP>"));
 
                     System.out.println("Accepted connection : " + submitter);
                     // send file
                     String pathtoFile = "data/" + pid2 + "/sim/" + classname + "/" + objToSend + "-instance-" + instance + ".obj";
                     String lpathtoFile = "sim/" + classname + "/" + objToSend + "-instance-" + instance + ".obj";
 
-                    File myFile2 = new File(pathtoFile);
+            //        File myFile2 = new File(pathtoFile);
 
                     boolean notinQ = true;
                     for (FileDownQueReq downQue : FileReqQueServer.downQue) {
-                             boolean b1 = downQue.getFilename().trim().equalsIgnoreCase(pathtoFile.trim());
-                            boolean b2 = downQue.getId() == Integer.parseInt(pid2.trim());
-                            boolean b3 = downQue.getChecksum().trim().equalsIgnoreCase(checksum.trim());
-                            boolean b4 = downQue.getIp().trim().equalsIgnoreCase(ip.trim());
-                            System.out.println("Compairing For Download :\nFilename:" + downQue.getFilename().trim()
-                                    + " with " + pathtoFile.trim() + "\t" + b1
-                                    + "\nPID:" + downQue.getId() + " with " + pid2 + "\t" + b2
-                                    + "\nChecksum:" + downQue.getChecksum().trim() + " with " + checksum
-                                    + "\t" + b3
-                                    + "\nIP: " + downQue.getIp().trim() + " with " + ip + "\t" + b4);
+                        boolean b1 = downQue.getFilename().trim().equalsIgnoreCase(pathtoFile.trim());
+                        boolean b2 = downQue.getId() == Integer.parseInt(pid2.trim());
+                        boolean b3 = downQue.getChecksum().trim().equalsIgnoreCase(checksum.trim());
+                        boolean b4 = downQue.getIp().trim().equalsIgnoreCase(ip.trim());
+                        System.out.println("Compairing For Download :\nFilename:" + downQue.getFilename().trim()
+                                + " with " + pathtoFile.trim() + "\t" + b1
+                                + "\nPID:" + downQue.getId() + " with " + pid2 + "\t" + b2
+                                + "\nChecksum:" + downQue.getChecksum().trim() + " with " + checksum
+                                + "\t" + b3
+                                + "\nIP: " + downQue.getIp().trim() + " with " + ip + "\t" + b4);
 
-                            if (((b1) && (b2) && (b3) && (b4))) 
-                             {
+                        if (((b1) && (b2) && (b3) && (b4))) {
                             notinQ = false;
                             if (downQue.getFinished()) {
-                                String sendmsg = "<MSG>finished</MSG>";
+                                String sendmsg = new JSONObject().put("MSG", "finished").toString();//"<MSG>finished</MSG>";
 
                                 byte[] bytes = sendmsg.getBytes("UTF-8");
                                 outToClient.writeInt(bytes.length);
@@ -300,7 +311,11 @@ public class FileReqQueHandler implements Runnable {
 
                             } else {
                                 long rt = downQue.getRemainingTime();
-                                String sendmsg = "<MSG>inque</MSG><RT>" + rt + "</RT>";
+                                
+                                JSONObject sobj = new JSONObject();
+                                sobj.put("MSG", "inque");
+                                sobj.put("RT", rt);
+                                String sendmsg = sobj.toString();// "<MSG>inque</MSG><RT>" + rt + "</RT>";
 
                                 byte[] bytes = sendmsg.getBytes("UTF-8");
                                 outToClient.writeInt(bytes.length);
@@ -313,21 +328,21 @@ public class FileReqQueHandler implements Runnable {
                     }
                     if (notinQ) {
                         FileReqQueServer.downQue.add(new FileDownQueReq(ip, Integer.parseInt(pid2),
-                                checksum, pathtoFile, System.currentTimeMillis(), 100, 0, 0, false, body));
+                                checksum, pathtoFile, System.currentTimeMillis(), 100, 0, 0, false, body.toString(4)));
 
-                        String sendmsg = "<MSG>addedinq</MSG>";
+                        String sendmsg = new JSONObject().put("MSG", "addedinq").toString();//"<MSG>addedinq</MSG>";
 
                         byte[] bytes = sendmsg.getBytes("UTF-8");
                         outToClient.writeInt(bytes.length);
 
                         outToClient.write(bytes);
-                        os.close();
+                        outputStream.close();
                         outToClient.close();
                         submitter.close();
 
                         for (FileDownQueReq downQue : FileReqQueServer.downQue) {
-   
-                             boolean b1 = downQue.getFilename().trim().equalsIgnoreCase(pathtoFile.trim());
+
+                            boolean b1 = downQue.getFilename().trim().equalsIgnoreCase(pathtoFile.trim());
                             boolean b2 = downQue.getId() == Integer.parseInt(pid2.trim());
                             boolean b3 = downQue.getChecksum().trim().equalsIgnoreCase(checksum.trim());
                             boolean b4 = downQue.getIp().trim().equalsIgnoreCase(ip.trim());
@@ -338,22 +353,28 @@ public class FileReqQueHandler implements Runnable {
                                     + "\t" + b3
                                     + "\nIP: " + downQue.getIp().trim() + " with " + ip + "\t" + b4);
 
-                            if (((b1) && (b2) && (b3) && (b4))) 
-                            
-                            /*if (downQue.getFilename().trim().equalsIgnoreCase(pathtoFile.trim()) && (downQue.getId() == Integer.parseInt(pid2.trim()))
+                            if (((b1) && (b2) && (b3) && (b4))) /*if (downQue.getFilename().trim().equalsIgnoreCase(pathtoFile.trim()) && (downQue.getId() == Integer.parseInt(pid2.trim()))
                                     && (downQue.getChecksum().trim().equalsIgnoreCase(checksum.trim())) && (downQue.getIp().trim().equalsIgnoreCase(ip.trim()))) 
-                            */
-                            {
+                             */ {
 
                                 try (Socket sock = new Socket(ip, 13133)) {
                                     System.out.println("Connecting...");
                                     try (OutputStream sockos = sock.getOutputStream(); DataOutputStream outToServer = new DataOutputStream(sockos)) {
-                                        String downreqsendmsg = "<Command>resolveObject</Command>"
-                                                + "<Body><PID>" + pid2 + "</PID>"
-                                                + "<CNO>" + cno2 + "</CNO>"
-                                                + "<CLASSNAME>" + classname + "</CLASSNAME>"
-                                                + "<OBJECT>" + objToSend + "</OBJECT>"
-                                                + "<INSTANCE>" + instance + "</INSTANCE></Body>";
+                                       JSONObject downreqJsonObj= new JSONObject();
+                                        downreqJsonObj.put("Command", "resolveObject");
+                                        JSONObject downreqBodyJsonObj= new JSONObject();
+                                        downreqBodyJsonObj.put("PID", pid2);
+                                        downreqBodyJsonObj.put("CNO", cno2);
+                                        downreqBodyJsonObj.put("CLASSNAME", classname);
+                                        downreqBodyJsonObj.put("INSTANCE", instance);
+                                        downreqJsonObj.put("BODY", downreqBodyJsonObj);
+                                        String downreqsendmsg = downreqJsonObj.toString();
+//                                        String downreqsendmsg = "<Command>resolveObject</Command>"
+//                                                + "<Body><PID>" + pid2 + "</PID>"
+//                                                + "<CNO>" + cno2 + "</CNO>"
+//                                                + "<CLASSNAME>" + classname + "</CLASSNAME>"
+//                                                + "<OBJECT>" + objToSend + "</OBJECT>"
+//                                                + "<INSTANCE>" + instance + "</INSTANCE></Body>";
                                         bytes = downreqsendmsg.getBytes("UTF-8");
                                         outToServer.writeInt(bytes.length);
                                         outToServer.write(bytes);

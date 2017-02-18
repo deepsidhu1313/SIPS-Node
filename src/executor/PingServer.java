@@ -5,6 +5,7 @@
  */
 package executor;
 
+import controlpanel.GlobalValues;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -21,14 +22,10 @@ import java.util.logging.Logger;
 public class PingServer implements Runnable {
 
     public static ServerSocket ss;
-    public static int processcounter = 0;
     public static boolean serverisRunning = false;
-    public static ArrayList<Integer> localprocessID = new ArrayList();
-    public static ArrayList<String> alienprocessID = new ArrayList();
-    public static ExecutorService executorService = Executors.newFixedThreadPool(100);
-public static Process[] p = new Process[1000];
+    public static ExecutorService executorService = Executors.newFixedThreadPool(GlobalValues.PING_HANDLER_LIMIT);
     
-    public PingServer(boolean serverisrunning) throws IOException {
+    public PingServer(boolean serverisrunning,int Mode) throws IOException {
         serverisRunning = serverisrunning;
         
     }

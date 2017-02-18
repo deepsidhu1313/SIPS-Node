@@ -13,6 +13,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.json.JSONObject;
 
 /**
  *
@@ -38,20 +39,29 @@ public class sendCommOverHead implements Runnable {
         try {
             s = new Socket();
             s.connect(new InetSocketAddress(ipadd, 13131));
-            try (OutputStream os = s.getOutputStream();DataOutputStream outToServer = new DataOutputStream(os)) {
-                String sendmsg = "<Command>" + cmd + "</Command>"
-                        + "<Body><PID>" + ID + "</PID>"
-                        + "<CNO>" + chunkno + "</CNO>"
-                        + "<FILENAME>" + filename + "</FILENAME>"
-                        + "<OUTPUT>" + value + "</OUTPUT>"
-                        + "</Body>";
+            try (OutputStream os = s.getOutputStream(); DataOutputStream outToServer = new DataOutputStream(os)) {
+                JSONObject sendmsgJsonObj = new JSONObject();
+                sendmsgJsonObj.put("Command", cmd);
+                JSONObject sendmsgBodyJsonObj = new JSONObject();
+                sendmsgBodyJsonObj.put("PID", ID);
+                sendmsgBodyJsonObj.put("CNO", chunkno);
+                sendmsgBodyJsonObj.put("FILENAME", filename);
+                sendmsgBodyJsonObj.put("OUTPUT", value);
+                sendmsgJsonObj.put("BODY", sendmsgBodyJsonObj);
+                String sendmsg = sendmsgJsonObj.toString();
+//                                                "<Command>" + cmd + "</Command>"
+//                        + "<Body><PID>" + ID + "</PID>"
+//                        + "<CNO>" + chunkno + "</CNO>"
+//                        + "<FILENAME>" + filename + "</FILENAME>"
+//                        + "<OUTPUT>" + value + "</OUTPUT>"
+//                        + "</Body>";
                 byte[] bytes = sendmsg.getBytes("UTF-8");
                 outToServer.writeInt(bytes.length);
                 outToServer.write(bytes);
                 try (DataInputStream dIn = new DataInputStream(s.getInputStream())) {
                     int length = dIn.readInt();                    // read length of incoming message
                     byte[] message = new byte[length];
-                    
+
                     if (length > 0) {
                         dIn.readFully(message, 0, message.length); // read the message
                     }
@@ -60,13 +70,13 @@ public class sendCommOverHead implements Runnable {
                     } else {
                     }
                     s.close();
-              
+
                 } // read length of incoming message
 
-                outToServer.close();  
+                outToServer.close();
                 //inFromServer.close();
             }
-                
+
         } catch (IOException ex) {
             Logger.getLogger(sendOutput.class.getName()).log(Level.SEVERE, null, ex);
             try {
