@@ -79,10 +79,10 @@ public class Settings {
                         + "Please create a dir with this name");
             }
         }
-        if(new File("appdb/settings.json").exists()){
-        loadSettings();
-        }else{
-        saveSettings();
+        if (new File("appdb/settings.json").exists()) {
+            loadSettings();
+        } else {
+            saveSettings();
         }
         processDBExecutor.execute(() -> {
             String sql = "CREATE TABLE PROC (ID    INT   PRIMARY KEY     NOT NULL,"
@@ -495,6 +495,28 @@ public class Settings {
         settings.put("MAX_PING_RESPONSES_IN_PARALLEL", PING_HANDLER_LIMIT);
         settings.put("MAX_PROCESS_REQ_IN_PARALLEL", PROCESS_HANDLER_LIMIT);
         write(new File("appdb/settings.json"), settings.toString(4));
+    }
+
+    public static void outPrintln(String sout) {
+        if (VERBOSE) {
+            System.out.println(sout);
+        }
+        if (DUMP_LOG) {
+            log.append("\n" + sout);
+
+        }
+        out.append("\n" + sout);
+    }
+
+    public static void errPrintln(String sout) {
+        if (VERBOSE) {
+            System.err.println(out);
+        }
+        if (DUMP_LOG) {
+            log.append("\n" + sout);
+        }
+        err.append("\n" + sout);
+
     }
 
 }
