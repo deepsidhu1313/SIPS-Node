@@ -5,16 +5,12 @@
  */
 package dummy.slave;
 
-import static controlpanel.GlobalValues.*;
-import executor.FileReqQueServer;
-import executor.PingServer;
-import executor.Server;
+import in.co.s13.SIPS.settings.Settings;
+import in.co.s13.SIPS.executor.sockets.FileReqQueServer;
+import in.co.s13.SIPS.executor.sockets.PingServer;
+import in.co.s13.SIPS.executor.sockets.Server;
 import java.io.IOException;
-import java.util.concurrent.Executors;
-import controlpanel.*;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 
 /**
@@ -27,7 +23,7 @@ public class DummySlave {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws IOException {
-        new settings();
+        new Settings();
         if (args.length > 0) {
             ArrayList<String> arguments = new ArrayList<>();
             Collections.addAll(arguments, args);
