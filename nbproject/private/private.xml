@@ -3,7 +3,17 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/nika/NetBeansProjects/DummySlave/src/in/co/s13/settings/Settings.java</file>
+            <file>file:/home/nika/NetBeansProjects/DummySlave/src/in/co/s13/SIPS/Scanner/CheckLiveNodes.java</file>
+            <file>file:/home/nika/NetBeansProjects/DummySlave/src/in/co/s13/SIPS/virtualdb/IPAddress.java</file>
+            <file>file:/home/nika/NetBeansProjects/DummySlave/src/in/co/s13/SIPS/Scanner/NetScanner.java</file>
+            <file>file:/home/nika/NetBeansProjects/DummySlave/src/in/co/s13/SIPS/settings/GlobalValues.java</file>
+            <file>file:/home/nika/NetBeansProjects/DummySlave/src/in/co/s13/SIPS/executor/sockets/PingServer.java</file>
+            <file>file:/home/nika/NetBeansProjects/DummySlave/src/in/co/s13/SIPS/virtualdb/LiveNode.java</file>
+            <file>file:/home/nika/NetBeansProjects/DummySlave/src/in/co/s13/SIPS/datastructure/RouteTable.java</file>
+            <file>file:/home/nika/NetBeansProjects/DummySlave/src/in/co/s13/SIPS/datastructure/Route.java</file>
+            <file>file:/home/nika/NetBeansProjects/DummySlave/src/in/co/s13/SIPS/Scanner/Ping.java</file>
+            <file>file:/home/nika/NetBeansProjects/DummySlave/src/dummy/slave/DummySlave.java</file>
+            <file>file:/home/nika/NetBeansProjects/DummySlave/src/in/co/s13/SIPS/executor/sockets/handlers/PingHandler.java</file>
         </group>
     </open-files>
 </project-private>

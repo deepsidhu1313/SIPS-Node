@@ -1,11 +1,12 @@
-ant
-appdb
-cache
-dist
-ds
-store
-test
-var
+ant/
+appdb/
+build/
+cache/
+dist/
+ds/
+store/
+test/
+var/
 *.zip
 *.jar
 *.class
@@ -20,3 +21,4 @@ var
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+/nbproject/private/
