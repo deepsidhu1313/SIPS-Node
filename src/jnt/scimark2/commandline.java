@@ -38,12 +38,12 @@ public class commandline
     //    if (args.length > 0)
         {
 
-			//if (args[0].equalsIgnoreCase("-h") || 
-			//			args[0].equalsIgnoreCase("-help"))
-			{
-				System.out.println("Usage: [-large] [minimum_time]");
-			//	return;
-			}
+//			if (args[0].equalsIgnoreCase("-h") || 
+//						args[0].equalsIgnoreCase("-help"))
+//			{
+//				System.out.println("Usage: [-large] [minimum_time]");
+//				return;
+//			}
 
 			int current_arg = 0;
 			//if (args[current_arg].equalsIgnoreCase("-large"))
