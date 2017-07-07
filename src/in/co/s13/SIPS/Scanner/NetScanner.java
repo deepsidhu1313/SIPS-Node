@@ -18,6 +18,7 @@ package in.co.s13.SIPS.Scanner;
 
 import in.co.s13.SIPS.settings.Settings;
 import static in.co.s13.SIPS.settings.GlobalValues.*;
+import static in.co.s13.SIPS.tools.Util.outPrintln;
 import java.io.File;
 import java.net.InetAddress;
 import java.sql.ResultSet;
@@ -160,7 +161,7 @@ public class NetScanner implements Runnable {
         if (!hosts.contains(ip)) {
             hosts.add(ip);
 
-            Settings.outPrintln("" + ip + " is added to list");
+            outPrintln("" + ip + " is added to list");
             Collections.sort(hosts);
         }
       nodeDBExecutor.execute(() -> {
@@ -185,28 +186,28 @@ public class NetScanner implements Runnable {
 
     public static void addnetwork(String ip) {
         String str = "" + ip;
-        Settings.outPrintln(ip);
+        outPrintln(ip);
         int ind1 = str.indexOf(".");
         int ind3 = str.lastIndexOf('.');
         int ind2 = (str.substring(ind1 + 1, ind3).indexOf(".")) + (ind1 + 1);
 
-        Settings.outPrintln("ind1= " + ind1);
-        Settings.outPrintln("ind2= " + ind2);
-        Settings.outPrintln("ind3= " + ind3);
+        outPrintln("ind1= " + ind1);
+        outPrintln("ind2= " + ind2);
+        outPrintln("ind3= " + ind3);
 
         String ip1 = str.substring(0, ind1);
         String ip2 = str.substring(ind1 + 1, ind2);
         String ip3 = str.substring(ind2 + 1, ind3);
         String ip4 = str.substring(ind3 + 1);
 
-        Settings.outPrintln(ip1);
-        Settings.outPrintln(ip2);
-        Settings.outPrintln(ip3);
-        Settings.outPrintln(ip4);
+        outPrintln(ip1);
+        outPrintln(ip2);
+        outPrintln(ip3);
+        outPrintln(ip4);
 
         for (int i = 0; i <= 255; i++) {
             addip("" + ip1 + "." + ip2 + "." + ip3 + "." + i);
-            Settings.outPrintln("" + ip1 + "." + ip2 + "." + ip3 + "." + i);
+            outPrintln("" + ip1 + "." + ip2 + "." + ip3 + "." + i);
         }
 
     }

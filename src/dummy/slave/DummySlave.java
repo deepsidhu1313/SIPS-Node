@@ -16,13 +16,18 @@
  */
 package dummy.slave;
 
+import in.co.s13.SIPS.benchmarks.Benchmarks;
 import in.co.s13.SIPS.settings.Settings;
 import in.co.s13.SIPS.executor.sockets.FileReqQueServer;
 import in.co.s13.SIPS.executor.sockets.PingServer;
 import in.co.s13.SIPS.executor.sockets.Server;
+import in.co.s13.SIPS.settings.GlobalValues;
+import in.co.s13.SIPS.tools.Util;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import org.json.JSONObject;
 
 /**
  *
@@ -35,11 +40,11 @@ public class DummySlave {
      * @throws java.io.IOException
      */
     public static void main(String[] args) throws IOException {
-        new Settings();
+        Settings loadSettings = new Settings();
         if (args.length > 0) {
             ArrayList<String> arguments = new ArrayList<>();
             Collections.addAll(arguments, args);
-            if (arguments.contains("-h")||arguments.contains("--help")) {
+            if (arguments.contains("-h") || arguments.contains("--help")) {
                 System.out.println("Usage:\n"
                         + "\t java -jar SIPS-Node.jar <options>\n"
                         + "\noptions:"
@@ -49,23 +54,53 @@ public class DummySlave {
                         + "\t\t\t\t 0:Run with Ping Server (Default Mode if no mode is pecified)\n"
                         + "\t\t\t\t 1:Run Without Ping Server (Private Mode)\n"
                         + "\t\t\t\t 0:\n");
-            }else if (arguments.contains("--mode")) {
-                int mode = Integer.parseInt(arguments.get(arguments.indexOf("--mode") + 1));
+                return;
+            }
+
+            if (arguments.contains("--benchmark")) {
+                benchmark();
+            } else {
+                if (new File("appdb/benchmarks.json").exists()) {
+                    JSONObject benchmarkResults= new JSONObject(Util.readFile("appdb/benchmarks.json"));
+                    long timestamp= benchmarkResults.getLong("TIMESTAMP");
+                    if((System.currentTimeMillis()-timestamp) / (1000*60*60*24) > 1){
+                    benchmark();
+                    }else{
+                    GlobalValues.BENCHMARKING= benchmarkResults;
+                    }
+                } else {
+                    benchmark();
+                }
+            }
+
+            if (arguments.contains("--mode")) {
+                int mode = 0;
+                try {
+                    mode = Integer.parseInt(arguments.get(arguments.indexOf("--mode") + 1));
+                } catch (NumberFormatException e) {
+                    System.err.println("Use number to specify mode"
+                            + "\n Example: --mode 0 "
+                            + "Exception: " + e);
+                    return;
+                }
                 switch (mode) {
-                    /***
+                    /**
+                     * *
                      * Default mode
                      */
-                    case 0:default:
-                        Thread pingServer = new Thread(new PingServer(true,0));
+                    case 0:
+                    default:
+                        Thread pingServer = new Thread(new PingServer(true, 0));
                         pingServer.start();
                         Thread server = new Thread(new Server(true));
                         server.start();
                         Thread downloadQueueServer = new Thread(new FileReqQueServer(true));
                         downloadQueueServer.start();
                         break;
-                        /***
-                         * Private Mode
-                         */
+                    /**
+                     * *
+                     * Private Mode
+                     */
                     case 1:
                         Thread server2 = new Thread(new Server(true));
                         server2.start();
@@ -73,16 +108,32 @@ public class DummySlave {
                         downloadQueueServer2.start();
                         break;
                 }
+            } else {
+                Thread server = new Thread(new Server(true));
+                server.start();
+                Thread pingServer = new Thread(new PingServer(true, 3));
+                pingServer.start();
+                Thread downloadQueServer = new Thread(new FileReqQueServer(true));
+                downloadQueServer.start();
             }
 
-        } else {
-            Thread server = new Thread(new Server(true));
-            server.start();
-            Thread pingServer = new Thread(new PingServer(true,3));
-            pingServer.start();
-            Thread downloadQueServer = new Thread(new FileReqQueServer(true));
-            downloadQueServer.start();
         }
+    }
+
+    public static void benchmark() {
+        JSONObject benchmarkResults = new JSONObject();
+        JSONObject cpu = new JSONObject();
+        JSONObject hdd = new JSONObject();
+        cpu.put("Name", GlobalValues.CPU_NAME);
+        cpu.put("Benchmarks", Benchmarks.benchmarkCPU());
+        benchmarkResults.put("CPU", cpu);
+        hdd.put("Label", Util.getDeviceModel(Util.getDeviceFromPath(new File(".").toPath())));
+        hdd.put("Benchmarks", Benchmarks.benchmarkHDD());
+        benchmarkResults.put("HDD", hdd);
+        benchmarkResults.put("MEMORY", GlobalValues.MEM_SIZE);
+        benchmarkResults.put("TIMESTAMP", System.currentTimeMillis());
+        Util.write(new File("appdb/benchmarks.json"), benchmarkResults.toString(4));
+
     }
 
 }

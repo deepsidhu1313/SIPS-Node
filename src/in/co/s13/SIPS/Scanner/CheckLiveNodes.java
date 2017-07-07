@@ -18,6 +18,7 @@ package in.co.s13.SIPS.Scanner;
 
 import static in.co.s13.SIPS.settings.GlobalValues.*;
 import in.co.s13.SIPS.settings.Settings;
+import static in.co.s13.SIPS.tools.Util.outPrintln;
 import java.util.ArrayList;
 
 /**
@@ -30,7 +31,7 @@ public class CheckLiveNodes implements Runnable {
 
     public CheckLiveNodes() {
 
-        Settings.outPrintln("thread started");
+        outPrintln("thread started");
     }
 
     @Override

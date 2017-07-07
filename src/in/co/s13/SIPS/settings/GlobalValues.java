@@ -25,6 +25,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.json.JSONObject;
 
 /**
  *
@@ -56,6 +57,8 @@ public class GlobalValues {
     public static boolean VERBOSE, DUMP_LOG;
     public static PrintStream out,err,log;
     public static ExecutorService liveDBExecutor = Executors.newFixedThreadPool(1);
+    public static JSONObject BENCHMARKING;
+    
     
     public static ExecutorService pingExecutor;
     

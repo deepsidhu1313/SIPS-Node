@@ -21,6 +21,7 @@ import in.co.s13.SIPS.settings.GlobalValues;
 import in.co.s13.SIPS.settings.Settings;
 import static in.co.s13.SIPS.settings.GlobalValues.procDB;
 import static in.co.s13.SIPS.settings.GlobalValues.processDBExecutor;
+import in.co.s13.SIPS.tools.Util;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -127,7 +128,7 @@ public class ParallelProcess implements Runnable {
 //        }
         File d = new File(loc);
         if (d.exists()) {
-            Settings.deleteDirectory(d);
+            Util.deleteDirectory(d);
             d.mkdirs();
         }
         ArrayList<String> temp = new ArrayList<>();

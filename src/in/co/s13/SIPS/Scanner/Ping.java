@@ -18,6 +18,8 @@ package in.co.s13.SIPS.Scanner;
 
 import in.co.s13.SIPS.settings.Settings;
 import static in.co.s13.SIPS.settings.GlobalValues.*;
+import static in.co.s13.SIPS.tools.Util.errPrintln;
+import static in.co.s13.SIPS.tools.Util.outPrintln;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -62,7 +64,7 @@ class Ping implements Runnable {
 
     public void scan() {
         if (NetScanner.checking.contains(IPadress.trim())) {
-            Settings.outPrintln(IPadress + " is Already In Scan List");
+            outPrintln(IPadress + " is Already In Scan List");
             return;
         } else {
             NetScanner.checking.add(IPadress.trim());
@@ -75,10 +77,10 @@ class Ping implements Runnable {
         }
         try {
             if (adrss.isReachable(5000)) {
-                Settings.outPrintln(IPadress + " is Reachable");
+                outPrintln(IPadress + " is Reachable");
             //    System.out.println("Reachable");
             } else {
-               Settings.outPrintln(IPadress + " is not Reachable");
+               outPrintln(IPadress + " is not Reachable");
                 /*  nodeDBExecutor.execute(new UpdateAllNodeDB("UPDATE ALLN SET"
                  + " STATUS ='NOT REACHABLE'"
                  + "WHERE IP='" + IPadress.trim() + "';"));
@@ -118,9 +120,9 @@ class Ping implements Runnable {
                 ram = reply.substring(reply.indexOf("<TMEM>") + 6, reply.indexOf("</TMEM>"));
                 // String cpuload = reply.substring(reply.indexOf("<CPULOAD>") + 9, reply.indexOf("</CPULOAD>"));
                 cpuname = reply.substring(reply.indexOf("<CPUNAME>") + 9, reply.indexOf("</CPUNAME>"));
-                Settings.outPrintln("" + reply);
+                outPrintln("" + reply);
                 System.out.println(reply);
-                Settings.outPrintln("Port Opened On " + IPadress);
+                outPrintln("Port Opened On " + IPadress);
 
                 boolean isinlist = false;
                 nodeDBExecutor.execute(() -> {
@@ -256,7 +258,7 @@ class Ping implements Runnable {
             });
         } catch (IOException ex) {
             msg = "" + IPadress + " is dead";
-            Settings.errPrintln(IPadress+" "+ex);
+            errPrintln(IPadress+" "+ex);
             /*            nodeDBExecutor.execute(new UpdateAllNodeDB("UPDATE ALLN SET"
              + " STATUS ='Missing Framework'"
              + " WHERE IP='" + IPadress.trim() + "';"));

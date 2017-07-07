@@ -1,3 +1,3 @@
 # SIPS-Node
 
-A node which excutes the task allocated to it.
+A node which executes the task allocated to it.

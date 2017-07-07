@@ -19,6 +19,7 @@ package in.co.s13.SIPS.executor.sockets.handlers;
 import in.co.s13.SIPS.executor.sockets.FileReqQueServer;
 import in.co.s13.SIPS.datastructure.FileDownQueReq;
 import in.co.s13.SIPS.settings.Settings;
+import in.co.s13.SIPS.tools.Util;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
@@ -202,7 +203,7 @@ public class FileReqQueHandler implements Runnable {
 
                                             String lchecksum = "";
                                             if (new File(ip2Dir.getAbsolutePath() + ".sha").exists()) {
-                                                lchecksum = Settings.LoadCheckSum(ip2Dir.getAbsolutePath() + ".sha");
+                                                lchecksum = Util.LoadCheckSum(ip2Dir.getAbsolutePath() + ".sha");
                                             }
                                             if (reply.equalsIgnoreCase("foundfile")) {
                                                 // receive file
@@ -263,7 +264,7 @@ public class FileReqQueHandler implements Runnable {
                                                         long endtime = System.currentTimeMillis();
                                                         System.out.println("File " + fileToSend
                                                                 + " downloaded (" + downData + " bytes read) in " + (endtime - starttime) + " ms");
-                                                        Settings.saveCheckSum(ip2Dir.getAbsolutePath() + ".sha", checksum2);
+                                                        Util.saveCheckSum(ip2Dir.getAbsolutePath() + ".sha", checksum2);
                                                     }
                                                 }
                                             } else {
@@ -408,7 +409,7 @@ public class FileReqQueHandler implements Runnable {
 
                                             String lchecksum = "";
                                             if (new File(ip2Dir.getAbsolutePath() + ".sha").exists()) {
-                                                lchecksum = Settings.LoadCheckSum(ip2Dir.getAbsolutePath() + ".sha");
+                                                lchecksum = Util.LoadCheckSum(ip2Dir.getAbsolutePath() + ".sha");
                                             }
                                             if (reply.trim().equalsIgnoreCase("foundobj")) {
                                                 // receive file
@@ -468,7 +469,7 @@ public class FileReqQueHandler implements Runnable {
                                                         long endtime = System.currentTimeMillis();
                                                         System.out.println("File " + pathtoFile
                                                                 + " downloaded (" + downData + " bytes read) in " + (endtime - starttime) + " ms");
-                                                        Settings.saveCheckSum(ip2Dir.getAbsolutePath() + ".sha", checksum2);
+                                                        Util.saveCheckSum(ip2Dir.getAbsolutePath() + ".sha", checksum2);
                                                     }
                                                 }
                                             } else {

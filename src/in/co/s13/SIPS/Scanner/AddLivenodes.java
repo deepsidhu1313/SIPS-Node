@@ -19,6 +19,7 @@ package in.co.s13.SIPS.Scanner;
 import in.co.s13.SIPS.settings.Settings;
 import java.util.ArrayList;
 import static in.co.s13.SIPS.settings.GlobalValues.*;
+import static in.co.s13.SIPS.tools.Util.outPrintln;
 class AddLivenodes implements Runnable {
 
     AddLivenodes() {
@@ -50,6 +51,6 @@ class AddLivenodes implements Runnable {
 
         }
 
-        Settings.outPrintln("\nFinished all threads");
+        outPrintln("\nFinished all threads");
     }
 }

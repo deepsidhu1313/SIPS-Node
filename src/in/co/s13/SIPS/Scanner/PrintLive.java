@@ -16,7 +16,7 @@
  */
 package in.co.s13.SIPS.Scanner;
 
-import in.co.s13.SIPS.settings.Settings;
+import static in.co.s13.SIPS.tools.Util.outPrintln;
 
 
 public class PrintLive {
@@ -26,7 +26,7 @@ public class PrintLive {
     }
 
     public void print() {
-        Settings.outPrintln("Print Executing");
+        outPrintln("Print Executing");
 
      /*   for (int i = 0; i <= NetScanner.livehosts.size() - 1; i++) {
 

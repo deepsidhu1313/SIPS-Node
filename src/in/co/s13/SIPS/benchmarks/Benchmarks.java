@@ -83,13 +83,14 @@ public class Benchmarks {
         result.put("os.name: ", System.getProperty("os.name"));
         result.put("os.version: ", System.getProperty("os.version"));
 
-        return result.toString();
+        return result.toString(4);
     }
 
     /**
      * *
      * Code from
      * https://gitlab.com/jamesmarkchan/jDiskMark/blob/master/src/jdiskmark/DiskWorker.java
+     * Credits:
      *
      * @return
      */
@@ -121,7 +122,7 @@ public class Benchmarks {
         int startFileNum = 1;
         for (int m = startFileNum; m < startFileNum + numOfIterations; m++) {
             testFile = new File("test" + File.separator + "testdata" + m + ".jdm");
-            System.out.println("" + testFile.delete());
+            testFile.delete();//System.out.println("" + );
             long totalBytesWrittenInMark = 0;
             long startTime = System.nanoTime();
 
@@ -149,8 +150,8 @@ public class Benchmarks {
             double sec = (double) elapsedTimeNs / (double) 1000000000;
             double mbWritten = (double) totalBytesWrittenInMark / (double) MEGABYTE;
             double bwMbSec = (mbWritten / sec);
-            System.out.println("Write IO is " + bwMbSec + " MB/s"
-                    + "(MB written " + mbWritten + " in " + sec + " sec)");
+//            System.out.println("Write IO is " + bwMbSec + " MB/s"
+//                    + "(MB written " + mbWritten + " in " + sec + " sec)");
             maxWriteSpeed = bwMbSec > maxWriteSpeed ? bwMbSec : maxWriteSpeed;
             minWriteSpeed = (m == 1) ? bwMbSec
                     : (bwMbSec < minWriteSpeed) ? bwMbSec : minWriteSpeed;
@@ -190,24 +191,25 @@ public class Benchmarks {
             double sec = (double) elapsedTimeNs / (double) 1000000000;
             double mbRead = (double) totalBytesReadInMark / (double) MEGABYTE;
             double bwMbSec = mbRead / sec;
-            System.out.println("m:" + m + " READ IO is " + bwMbSec + " MB/s    "
-                    + "(MBread " + mbRead + " in " + sec + " sec)");
+//            System.out.println("m:" + m + " READ IO is " + bwMbSec + " MB/s    "
+//                    + "(MBread " + mbRead + " in " + sec + " sec)");
             maxReadSpeed = bwMbSec > maxReadSpeed ? bwMbSec : maxReadSpeed;
-            minReadSpeed = m == 1 ? bwMbSec
-                    : bwMbSec < minReadSpeed ? bwMbSec : minReadSpeed;
+            minReadSpeed = ((m == 1) ? bwMbSec
+                    : (bwMbSec < minReadSpeed) ? bwMbSec : minReadSpeed);
             sumReadSpeed += bwMbSec;
         }
         avgReadSpeed = sumReadSpeed / numOfIterations;
-        result.put("MaxWrite", maxWriteSpeed+" MB/s");
-        result.put("MinWrite", minWriteSpeed+" MB/s");
-        result.put("AvgWrite", avgWriteSpeed+" MB/s");
-        result.put("MaxRead", maxReadSpeed+" MB/s");
-        result.put("MinRead", minReadSpeed+" MB/s");
-        result.put("AvgRead", avgReadSpeed+" MB/s");
-        return result.toString();
+        result.put("MaxWrite", maxWriteSpeed + " MB/s");
+        result.put("MinWrite", minWriteSpeed + " MB/s");
+        result.put("AvgWrite", avgWriteSpeed + " MB/s");
+        result.put("MaxRead", maxReadSpeed + " MB/s");
+        result.put("MinRead", minReadSpeed + " MB/s");
+        result.put("AvgRead", avgReadSpeed + " MB/s");
+        return result.toString(4);
     }
 
     public static void main(String[] args) {
-
+        System.out.println("CPU Benchmark "+benchmarkCPU());
+        System.out.println("\nHDD Benchmark "+benchmarkHDD());
     }
 }

@@ -18,6 +18,7 @@ package in.co.s13.SIPS.executor.sockets.handlers;
 
 import in.co.s13.SIPS.settings.GlobalValues;
 import in.co.s13.SIPS.settings.Settings;
+import in.co.s13.SIPS.tools.Util;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -91,7 +92,7 @@ public class PingHandler implements Runnable {
                             sendmsg2Json.put("PLIMIT", GlobalValues.PROCESS_LIMIT);
                             sendmsg2Json.put("PWAIT", GlobalValues.PROCESS_WAITING);
                             sendmsg2Json.put("TMEM", GlobalValues.MEM_SIZE);
-                            sendmsg2Json.put("CPULOAD", Settings.getCPULoad());
+                            sendmsg2Json.put("CPULOAD", Util.getCPULoad());
                             sendmsg2Json.put("CPUNAME", GlobalValues.CPU_NAME);
                             
                             String sendmsg2 = sendmsg2Json.toString();
