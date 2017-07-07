@@ -53,24 +53,17 @@ public class DummySlave {
                         + "\t\t\t MODE:\n"
                         + "\t\t\t\t 0:Run with Ping Server (Default Mode if no mode is pecified)\n"
                         + "\t\t\t\t 1:Run Without Ping Server (Private Mode)\n"
-                        + "\t\t\t\t 0:\n");
+                        + "\n\t\t--benchmark:\n"
+                        + "\t\t\tRun Benchmarks on resources before booting up node\n"
+                        + "\t\t\t\t 0:\n"
+                        + "");
                 return;
             }
 
             if (arguments.contains("--benchmark")) {
                 benchmark();
             } else {
-                if (new File("appdb/benchmarks.json").exists()) {
-                    JSONObject benchmarkResults= new JSONObject(Util.readFile("appdb/benchmarks.json"));
-                    long timestamp= benchmarkResults.getLong("TIMESTAMP");
-                    if((System.currentTimeMillis()-timestamp) / (1000*60*60*24) > 1){
-                    benchmark();
-                    }else{
-                    GlobalValues.BENCHMARKING= benchmarkResults;
-                    }
-                } else {
-                    benchmark();
-                }
+                preBenchmarkingChecks();
             }
 
             if (arguments.contains("--mode")) {
@@ -109,6 +102,7 @@ public class DummySlave {
                         break;
                 }
             } else {
+                preBenchmarkingChecks();
                 Thread server = new Thread(new Server(true));
                 server.start();
                 Thread pingServer = new Thread(new PingServer(true, 3));
@@ -132,7 +126,23 @@ public class DummySlave {
         benchmarkResults.put("HDD", hdd);
         benchmarkResults.put("MEMORY", GlobalValues.MEM_SIZE);
         benchmarkResults.put("TIMESTAMP", System.currentTimeMillis());
+        GlobalValues.BENCHMARKING = benchmarkResults;
         Util.write(new File("appdb/benchmarks.json"), benchmarkResults.toString(4));
+
+    }
+
+    public static void preBenchmarkingChecks() {
+        if (new File("appdb/benchmarks.json").exists()) {
+            JSONObject benchmarkResults = new JSONObject(Util.readFile("appdb/benchmarks.json"));
+            long timestamp = benchmarkResults.getLong("TIMESTAMP");
+            if (((System.currentTimeMillis() - timestamp) / (1000 * 60 * 60 * 24)) > 1) {
+                benchmark();
+            } else {
+                GlobalValues.BENCHMARKING = benchmarkResults;
+            }
+        } else {
+            benchmark();
+        }
 
     }
 

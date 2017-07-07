@@ -55,17 +55,16 @@ public class GlobalValues {
     public static double CPU_LOAD_AVG = 0.0;
     public static ExecutorService netExecutor;
     public static boolean VERBOSE, DUMP_LOG;
-    public static PrintStream out,err,log;
+    public static PrintStream out, err, log;
     public static ExecutorService liveDBExecutor = Executors.newFixedThreadPool(1);
     public static JSONObject BENCHMARKING;
-    
-    
+
     public static ExecutorService pingExecutor;
-    
+
     public static OLDSQLiteJDBC alldb = new OLDSQLiteJDBC("appdb/all.db");
-    
+
     public static ExecutorService nodeDBExecutor = Executors.newFixedThreadPool(1);
     public static ObservableList<LiveNode> liveNodeDB = FXCollections.observableArrayList();
     public static ObservableList<IPAddress> allNodeDB = FXCollections.observableArrayList();
-    
+
 }
