@@ -34,6 +34,7 @@ import static in.co.s13.SIPS.tools.Util.isWindows;
 import static in.co.s13.SIPS.tools.Util.readFile;
 import static in.co.s13.SIPS.tools.Util.write;
 import java.net.UnknownHostException;
+import java.util.UUID;
 import org.json.JSONObject;
 
 /*
@@ -75,22 +76,21 @@ public class Settings {
         File f = new File(workingDir);
         System.out.println("" + f.getAbsolutePath());
 
-        dir_temp = "var";
         File f4 = new File(workingDir + "/" + dir_temp);
         if (!f4.exists()) {
             if (!f4.mkdir()) {
-                System.err.println("Directory for VAR couldnot be created !\n"
+                Util.errPrintln("Directory for VAR couldnot be created !\n"
                         + "Please create a dir with this name");
             }
         }
-        File f3 = new File("appdb");
+        File f3 = new File(dir_appdb);
         if (!f3.exists()) {
             if (!f3.mkdir()) {
-                System.err.println("Directory for appdb couldnot be created !\n"
+                Util.errPrintln("Directory for appdb couldnot be created !\n"
                         + "Please create a dir with this name");
             }
         }
-        if (new File("appdb/settings.json").exists()) {
+        if (new File(dir_appdb + "/settings.json").exists()) {
             loadSettings();
         } else {
             saveSettings();
@@ -101,11 +101,11 @@ public class Settings {
                     + "FNAME     TEXT,"
                     + "CNO     INT,"
                     + "IP   TEXT);";
-            File f1 = new File("appdb/proc.db");
+            File f1 = new File(dir_appdb + "/proc.db");
             if (f1.exists()) {
                 f1.delete();
             }
-            procDB.createtable("appdb/proc.db", sql);
+            procDB.createtable(dir_appdb + "/proc.db", sql);
             procDB.closeConnection();
         });
 
@@ -121,7 +121,7 @@ public class Settings {
         }
         MEM_SIZE = Util.getMemorySize();
         CPU_NAME = getCPUName();
-
+        saveSettings();
     }
 
     public static void main(String[] args) {
@@ -129,7 +129,13 @@ public class Settings {
     }
 
     void loadSettings() {
-        JSONObject settings = new JSONObject(readFile("appdb/settings.json"));
+        JSONObject settings = new JSONObject(readFile(dir_appdb + "/settings.json"));
+
+        UUID = settings.getString("UUID", "");
+
+        if (UUID.length() < 1) {
+            UUID = java.util.UUID.randomUUID() + ":" + java.util.UUID.randomUUID();
+        }
         PROCESS_LIMIT = settings.getInt("MAX_PROCESS_ALLOWED_IN_PARALLEL");
         FILES_RESOLVER_LIMIT = settings.getInt("MAX_FILE_RESOLVE_IN_PARALLEL");
         PING_HANDLER_LIMIT = settings.getInt("MAX_PING_RESPONSES_IN_PARALLEL");
@@ -139,11 +145,12 @@ public class Settings {
 
     void saveSettings() {
         JSONObject settings = new JSONObject();
+        settings.put("UUID", UUID);
         settings.put("MAX_PROCESS_ALLOWED_IN_PARALLEL", PROCESS_LIMIT);
         settings.put("MAX_FILE_RESOLVE_IN_PARALLEL", FILES_RESOLVER_LIMIT);
         settings.put("MAX_PING_RESPONSES_IN_PARALLEL", PING_HANDLER_LIMIT);
         settings.put("MAX_PROCESS_REQ_IN_PARALLEL", PROCESS_HANDLER_LIMIT);
-        write(new File("appdb/settings.json"), settings.toString(4));
+        write(new File(dir_appdb + "/settings.json"), settings.toString(4));
     }
 
 }

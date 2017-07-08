@@ -37,8 +37,9 @@ public class GlobalValues {
     public static int OS_Name = 0;
     public static String PWD = "";
     public static String dir_workspace = "";
-    public static String dir_appdb = "";
-    public static String dir_temp = "";
+    public static String dir_appdb = "appdb";
+    public static String dir_temp = "var";
+    public static String UUID = "";
     public static int total_threads = 1;
     public static int process_id = 0;
     public static int PROCESS_LIMIT = Runtime.getRuntime().availableProcessors() - 1;
@@ -55,13 +56,14 @@ public class GlobalValues {
     public static double CPU_LOAD_AVG = 0.0;
     public static ExecutorService netExecutor;
     public static boolean VERBOSE, DUMP_LOG;
+    public static String OUT_FILE = dir_appdb + "/out.log", ERR_FILE = dir_appdb + "/err.log", LOG_FILE = dir_appdb + "/app.log";
     public static PrintStream out, err, log;
     public static ExecutorService liveDBExecutor = Executors.newFixedThreadPool(1);
     public static JSONObject BENCHMARKING;
 
     public static ExecutorService pingExecutor;
 
-    public static OLDSQLiteJDBC alldb = new OLDSQLiteJDBC("appdb/all.db");
+    public static OLDSQLiteJDBC alldb = new OLDSQLiteJDBC(dir_appdb + "/all.db");
 
     public static ExecutorService nodeDBExecutor = Executors.newFixedThreadPool(1);
     public static ObservableList<LiveNode> liveNodeDB = FXCollections.observableArrayList();

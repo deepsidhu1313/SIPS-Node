@@ -490,6 +490,28 @@ public class JSONObject {
         return object;
     }
 
+    
+    /**
+     * Get the value object associated with a key.
+     *
+     * @param key
+     *            A key string.
+     * @return The object associated with the key.
+     * @throws JSONException
+     *             if the key is not found.
+     */
+    public Object get(String key,Object defaultIfNotPresent) throws JSONException {
+        if (key == null) {
+            throw new JSONException("Null key.");
+        }
+        Object object = this.opt(key);
+        if (object == null) {
+        //    throw new JSONException("JSONObject[" + quote(key) + "] not found.");
+        return defaultIfNotPresent;
+        }
+        return object;
+    }
+
     /**
     * Get the enum value associated with a key.
     * 
@@ -579,6 +601,25 @@ public class JSONObject {
                     + "] could not be converted to BigDecimal.");
         }
     }
+    /**
+     * Get the BigDecimal value associated with a key.
+     *
+     * @param key
+     *            A key string.
+     * @return The numeric value.
+     * @throws JSONException
+     *             if the key is not found or if the value
+     *             cannot be converted to BigDecimal.
+     */
+    public BigDecimal getBigDecimal(String key,BigDecimal defaultIfNotPresent) throws JSONException {
+        Object object = this.get(key,defaultIfNotPresent);
+        try {
+            return new BigDecimal(object.toString());
+        } catch (Exception e) {
+            throw new JSONException("JSONObject[" + quote(key)
+                    + "] could not be converted to BigDecimal.");
+        }
+    }
 
     /**
      * Get the double value associated with a key.
@@ -592,6 +633,27 @@ public class JSONObject {
      */
     public double getDouble(String key) throws JSONException {
         Object object = this.get(key);
+        try {
+            return object instanceof Number ? ((Number) object).doubleValue()
+                    : Double.parseDouble((String) object);
+        } catch (Exception e) {
+            throw new JSONException("JSONObject[" + quote(key)
+                    + "] is not a number.");
+        }
+    }
+
+    /**
+     * Get the double value associated with a key.
+     *
+     * @param key
+     *            A key string.
+     * @return The numeric value.
+     * @throws JSONException
+     *             if the key is not found or if the value is not a Number
+     *             object and cannot be converted to a number.
+     */
+    public double getDouble(String key, Double defaultIfNotPresent) throws JSONException {
+        Object object = this.get(key,defaultIfNotPresent);
         try {
             return object instanceof Number ? ((Number) object).doubleValue()
                     : Double.parseDouble((String) object);
@@ -621,6 +683,27 @@ public class JSONObject {
                     + "] is not an int.");
         }
     }
+    
+        /**
+     * Get the int value associated with a key.
+     *
+     * @param key
+     *            A key string.
+     * @return The integer value.
+     * @throws JSONException
+     *             if the key is not found or if the value cannot be converted
+     *             to an integer.
+     */
+    public int getInt(String key, Integer defaultIfNotPresent) throws JSONException {
+        Object object = this.get(key,defaultIfNotPresent);
+        try {
+            return object instanceof Number ? ((Number) object).intValue()
+                    : Integer.parseInt((String) object);
+        } catch (Exception e) {
+            throw new JSONException("JSONObject[" + quote(key)
+                    + "] is not an int.");
+        }
+    }
 
     /**
      * Get the JSONArray value associated with a key.
@@ -641,6 +724,24 @@ public class JSONObject {
     }
 
     /**
+     * Get the JSONArray value associated with a key.
+     *
+     * @param key
+     *            A key string.
+     * @return A JSONArray which is the value.
+     * @throws JSONException
+     *             if the key is not found or if the value is not a JSONArray.
+     */
+    public JSONArray getJSONArray(String key, JSONArray defaultIfNotPresent) throws JSONException {
+        Object object = this.get(key,defaultIfNotPresent);
+        if (object instanceof JSONArray) {
+            return (JSONArray) object;
+        }
+        throw new JSONException("JSONObject[" + quote(key)
+                + "] is not a JSONArray.");
+    }
+
+    /**
      * Get the JSONObject value associated with a key.
      *
      * @param key
@@ -651,6 +752,25 @@ public class JSONObject {
      */
     public JSONObject getJSONObject(String key) throws JSONException {
         Object object = this.get(key);
+        if (object instanceof JSONObject) {
+            return (JSONObject) object;
+        }
+        throw new JSONException("JSONObject[" + quote(key)
+                + "] is not a JSONObject.");
+    }
+
+    
+    /**
+     * Get the JSONObject value associated with a key.
+     *
+     * @param key
+     *            A key string.
+     * @return A JSONObject which is the value.
+     * @throws JSONException
+     *             if the key is not found or if the value is not a JSONObject.
+     */
+    public JSONObject getJSONObject(String key,JSONObject defaultIfNotPresent) throws JSONException {
+        Object object = this.get(key,defaultIfNotPresent);
         if (object instanceof JSONObject) {
             return (JSONObject) object;
         }
@@ -679,6 +799,28 @@ public class JSONObject {
         }
     }
 
+        /**
+     * Get the long value associated with a key.
+     *
+     * @param key
+     *            A key string.
+     * @return The long value.
+     * @throws JSONException
+     *             if the key is not found or if the value cannot be converted
+     *             to a long.
+     */
+    public long getLong(String key,Long defaultIfNotPresent) throws JSONException {
+        Object object = this.get(key,defaultIfNotPresent);
+        try {
+            return object instanceof Number ? ((Number) object).longValue()
+                    : Long.parseLong((String) object);
+        } catch (Exception e) {
+            throw new JSONException("JSONObject[" + quote(key)
+                    + "] is not a long.");
+        }
+    }
+
+    
     /**
      * Get an array of field names from a JSONObject.
      *
@@ -732,6 +874,23 @@ public class JSONObject {
      */
     public String getString(String key) throws JSONException {
         Object object = this.get(key);
+        if (object instanceof String) {
+            return (String) object;
+        }
+        throw new JSONException("JSONObject[" + quote(key) + "] not a string.");
+    }
+
+    /**
+     * Get the string associated with a key.
+     *
+     * @param key
+     *            A key string.
+     * @return A string which is the value.
+     * @throws JSONException
+     *             if there is no string value for the key.
+     */
+    public String getString(String key,String defaultIfNone) throws JSONException {
+        Object object = this.get(key,defaultIfNone);
         if (object instanceof String) {
             return (String) object;
         }

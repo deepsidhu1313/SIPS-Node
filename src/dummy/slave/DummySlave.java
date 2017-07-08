@@ -22,11 +22,13 @@ import in.co.s13.SIPS.executor.sockets.FileReqQueServer;
 import in.co.s13.SIPS.executor.sockets.PingServer;
 import in.co.s13.SIPS.executor.sockets.Server;
 import in.co.s13.SIPS.settings.GlobalValues;
+import static in.co.s13.SIPS.settings.GlobalValues.dir_appdb;
 import in.co.s13.SIPS.tools.Util;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 import org.json.JSONObject;
 
 /**
@@ -127,15 +129,15 @@ public class DummySlave {
         benchmarkResults.put("MEMORY", GlobalValues.MEM_SIZE);
         benchmarkResults.put("TIMESTAMP", System.currentTimeMillis());
         GlobalValues.BENCHMARKING = benchmarkResults;
-        Util.write(new File("appdb/benchmarks.json"), benchmarkResults.toString(4));
+        Util.write(new File(dir_appdb+"/benchmarks.json"), benchmarkResults.toString(4));
 
     }
 
     public static void preBenchmarkingChecks() {
-        if (new File("appdb/benchmarks.json").exists()) {
-            JSONObject benchmarkResults = new JSONObject(Util.readFile("appdb/benchmarks.json"));
+        if (new File(dir_appdb+"/benchmarks.json").exists()) {
+            JSONObject benchmarkResults = new JSONObject(Util.readFile(dir_appdb+"/benchmarks.json"));
             long timestamp = benchmarkResults.getLong("TIMESTAMP");
-            if (((System.currentTimeMillis() - timestamp) / (1000 * 60 * 60 * 24)) > 1) {
+            if ((TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - timestamp)) > 1) {
                 benchmark();
             } else {
                 GlobalValues.BENCHMARKING = benchmarkResults;
