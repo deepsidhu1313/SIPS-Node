@@ -31,8 +31,10 @@ import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -743,24 +745,26 @@ public class Util {
     }
 
     public static void outPrintln(String sout) {
+        String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
         if (VERBOSE) {
             System.out.println(sout);
         }
         if (DUMP_LOG) {
-            log.append("\n" + sout);
+            log.append("\n" + "[" + timestamp + "] " + sout);
 
         }
-        out.append("\n" + sout);
+        out.append("\n" + "[" + timestamp + "] " + sout);
     }
 
     public static void errPrintln(String sout) {
+        String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
         if (VERBOSE) {
             System.err.println(sout);
         }
         if (DUMP_LOG) {
-            log.append("\n" + sout);
+            log.append("\n" + "[" + timestamp + "] " + sout);
         }
-        err.append("\n" + sout);
+        err.append("\n" + "[" + timestamp + "] " + sout);
 
     }
 
