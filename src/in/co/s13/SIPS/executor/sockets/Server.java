@@ -239,7 +239,7 @@ public class Server implements Runnable {
     public void run() {
         try {
             if (ss == null || ss.isClosed()) {
-                ss = new ServerSocket(13131);
+                ss = new ServerSocket(13133);
             }
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);

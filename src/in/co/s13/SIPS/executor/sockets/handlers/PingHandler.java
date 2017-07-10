@@ -49,14 +49,14 @@ public class PingHandler implements Runnable {
       //  boolean pingThread = false;
         try {
             try (DataInputStream dataInputStream = new DataInputStream(submitter.getInputStream())) {
-                String msg ;
+                JSONObject msg ;
                 int length = dataInputStream.readInt();                    // read length of incoming message
                 byte[] message = new byte[length];
 
                 if (length > 0) {
                     dataInputStream.readFully(message, 0, message.length); // read the message
                 }
-                msg =  new String(message);
+                msg =  new JSONObject(new String(message));
 
                 InetAddress inetAddress = submitter.getInetAddress();
                 String ipAddress = inetAddress.getHostAddress();

@@ -51,7 +51,7 @@ public class FileReqQueServer implements Runnable {
     public void run() {
         try {
             if (ss == null || ss.isClosed()) {
-                ss = new ServerSocket(13136);
+                ss = new ServerSocket(13132);
             }
         } catch (IOException ex) {
             Logger.getLogger(FileReqQueServer.class.getName()).log(Level.SEVERE, null, ex);

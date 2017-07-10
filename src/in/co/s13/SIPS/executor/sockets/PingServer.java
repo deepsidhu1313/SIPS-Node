@@ -50,7 +50,7 @@ public class PingServer implements Runnable {
     public void run() {
         try {
             if (ss == null || ss.isClosed()) {
-                ss = new ServerSocket(13139);
+                ss = new ServerSocket(13131);
             }
         } catch (IOException ex) {
             Logger.getLogger(PingServer.class.getName()).log(Level.SEVERE, null, ex);
