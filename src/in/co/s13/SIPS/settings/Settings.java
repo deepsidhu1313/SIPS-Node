@@ -34,6 +34,8 @@ import static in.co.s13.SIPS.tools.Util.isWindows;
 import static in.co.s13.SIPS.tools.Util.readFile;
 import static in.co.s13.SIPS.tools.Util.write;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.UUID;
 import org.json.JSONObject;
 
@@ -121,6 +123,29 @@ public class Settings {
         }
         MEM_SIZE = Util.getMemorySize();
         CPU_NAME = getCPUName();
+        try {
+            String newstring = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
+            GlobalValues.err = new PrintStream(GlobalValues.ERR_FILE);
+            GlobalValues.err.println(Util.readFile(ERR_FILE));
+            GlobalValues.err.println("\n\n***************************************************************"
+                    + "\n***************** " + newstring + " *************************"
+                    + "\n***************************************************************\n");
+            GlobalValues.out = new PrintStream(GlobalValues.OUT_FILE);
+            GlobalValues.out.println(Util.readFile(OUT_FILE));
+            GlobalValues.out.println("\n\n***************************************************************"
+                    + "\n***************** " + newstring + " *************************"
+                    + "\n***************************************************************\n");
+
+            GlobalValues.log = new PrintStream(GlobalValues.LOG_FILE);
+            GlobalValues.log.println(Util.readFile(LOG_FILE));
+            GlobalValues.log.println("\n\n***************************************************************"
+                    + "\n***************** " + newstring + " *************************"
+                    + "\n***************************************************************\n");
+
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
         saveSettings();
     }
 
@@ -131,21 +156,21 @@ public class Settings {
     void loadSettings() {
         JSONObject settings = new JSONObject(readFile(dir_appdb + "/settings.json"));
 
-        UUID = settings.getString("UUID", "");
+        NODE_UUID = settings.getString("UUID", "");
 
-        if (UUID.length() < 1) {
-            UUID = java.util.UUID.randomUUID() + ":" + java.util.UUID.randomUUID();
+        if (NODE_UUID.length() < 1) {
+            NODE_UUID = Util.generateNodeUUID();
         }
-        PROCESS_LIMIT = settings.getInt("MAX_PROCESS_ALLOWED_IN_PARALLEL");
-        FILES_RESOLVER_LIMIT = settings.getInt("MAX_FILE_RESOLVE_IN_PARALLEL");
-        PING_HANDLER_LIMIT = settings.getInt("MAX_PING_RESPONSES_IN_PARALLEL");
-        PROCESS_HANDLER_LIMIT = settings.getInt("MAX_PROCESS_REQ_IN_PARALLEL");
+        PROCESS_LIMIT = settings.getInt("MAX_PROCESS_ALLOWED_IN_PARALLEL", 3);
+        FILES_RESOLVER_LIMIT = settings.getInt("MAX_FILE_RESOLVE_IN_PARALLEL", 3);
+        PING_HANDLER_LIMIT = settings.getInt("MAX_PING_RESPONSES_IN_PARALLEL", 3);
+        PROCESS_HANDLER_LIMIT = settings.getInt("MAX_PROCESS_REQ_IN_PARALLEL", 3);
 
     }
 
-    void saveSettings() {
+    public void saveSettings() {
         JSONObject settings = new JSONObject();
-        settings.put("UUID", UUID);
+        settings.put("UUID", NODE_UUID);
         settings.put("MAX_PROCESS_ALLOWED_IN_PARALLEL", PROCESS_LIMIT);
         settings.put("MAX_FILE_RESOLVE_IN_PARALLEL", FILES_RESOLVER_LIMIT);
         settings.put("MAX_PING_RESPONSES_IN_PARALLEL", PING_HANDLER_LIMIT);

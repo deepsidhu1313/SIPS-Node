@@ -764,4 +764,8 @@ public class Util {
 
     }
 
+    public static String generateNodeUUID() {
+        return java.util.UUID.randomUUID() + ":" + java.util.UUID.randomUUID();
+    }
+
 }

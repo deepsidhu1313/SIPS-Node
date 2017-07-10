@@ -39,7 +39,7 @@ public class GlobalValues {
     public static String dir_workspace = "";
     public static String dir_appdb = "appdb";
     public static String dir_temp = "var";
-    public static String UUID = "";
+    public static String NODE_UUID = "";
     public static int total_threads = 1;
     public static int process_id = 0;
     public static int PROCESS_LIMIT = Runtime.getRuntime().availableProcessors() - 1;
