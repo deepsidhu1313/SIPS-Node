@@ -39,15 +39,7 @@ import java.util.Date;
 import java.util.UUID;
 import org.json.JSONObject;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-/**
- *
- * @author Nika
- */
+
 public class Settings {
 
     public Settings() {
@@ -124,23 +116,25 @@ public class Settings {
         MEM_SIZE = Util.getMemorySize();
         CPU_NAME = getCPUName();
         try {
-            String newstring = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
+            String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
+            String prevContent = Util.readFile(ERR_FILE);
             GlobalValues.err = new PrintStream(GlobalValues.ERR_FILE);
-            GlobalValues.err.println(Util.readFile(ERR_FILE));
-            GlobalValues.err.println("\n\n***************************************************************"
-                    + "\n***************** " + newstring + " *************************"
-                    + "\n***************************************************************\n");
+            GlobalValues.err.println(prevContent);
+            GlobalValues.err.println("\n\n****************************************************************"
+                    + "\n**************** " + timestamp + " ************************"
+                    + "\n****************************************************************\n");
+            prevContent = Util.readFile(OUT_FILE);
             GlobalValues.out = new PrintStream(GlobalValues.OUT_FILE);
-            GlobalValues.out.println(Util.readFile(OUT_FILE));
-            GlobalValues.out.println("\n\n***************************************************************"
-                    + "\n***************** " + newstring + " *************************"
-                    + "\n***************************************************************\n");
-
+            GlobalValues.out.println(prevContent);
+            GlobalValues.out.println("\n\n****************************************************************"
+                    + "\n**************** " + timestamp + " ************************"
+                    + "\n****************************************************************\n");
+            prevContent = Util.readFile(LOG_FILE);
             GlobalValues.log = new PrintStream(GlobalValues.LOG_FILE);
-            GlobalValues.log.println(Util.readFile(LOG_FILE));
-            GlobalValues.log.println("\n\n***************************************************************"
-                    + "\n***************** " + newstring + " *************************"
-                    + "\n***************************************************************\n");
+            GlobalValues.log.println(prevContent);
+            GlobalValues.log.println("\n\n****************************************************************"
+                    + "\n**************** " + timestamp + " ************************"
+                    + "\n****************************************************************\n");
 
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
@@ -165,7 +159,8 @@ public class Settings {
         FILES_RESOLVER_LIMIT = settings.getInt("MAX_FILE_RESOLVE_IN_PARALLEL", 3);
         PING_HANDLER_LIMIT = settings.getInt("MAX_PING_RESPONSES_IN_PARALLEL", 3);
         PROCESS_HANDLER_LIMIT = settings.getInt("MAX_PROCESS_REQ_IN_PARALLEL", 3);
-
+        DUMP_LOG = settings.getBoolean("DUMP_LOG", true);
+        VERBOSE = settings.getBoolean("VERBOSE", true);
     }
 
     public void saveSettings() {
@@ -175,6 +170,9 @@ public class Settings {
         settings.put("MAX_FILE_RESOLVE_IN_PARALLEL", FILES_RESOLVER_LIMIT);
         settings.put("MAX_PING_RESPONSES_IN_PARALLEL", PING_HANDLER_LIMIT);
         settings.put("MAX_PROCESS_REQ_IN_PARALLEL", PROCESS_HANDLER_LIMIT);
+        settings.put("DUMP_LOG", DUMP_LOG);
+        settings.put("VERBOSE", VERBOSE);
+
         write(new File(dir_appdb + "/settings.json"), settings.toString(4));
     }
 

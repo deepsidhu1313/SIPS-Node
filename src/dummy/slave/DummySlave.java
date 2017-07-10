@@ -47,7 +47,7 @@ public class DummySlave {
             ArrayList<String> arguments = new ArrayList<>();
             Collections.addAll(arguments, args);
             if (arguments.contains("-h") || arguments.contains("--help")) {
-                System.out.println("Usage:\n"
+                Util.outPrintln("Usage:\n"
                         + "\t java -jar SIPS-Node.jar <options>\n"
                         + "\noptions:"
                         + "\t\t-h or --help: to show help menu\n"
@@ -87,7 +87,7 @@ public class DummySlave {
                 try {
                     limit = Integer.parseInt(arguments.get(arguments.indexOf("--set-process-limit") + 1));
                 } catch (NumberFormatException e) {
-                    System.err.println("Use number to specify limit"
+                    Util.errPrintln("Use number to specify limit"
                             + "\n Example: --set-process-limit 10 to set limit to 10 "
                             + "Exception: " + e);
                     return;
@@ -101,7 +101,7 @@ public class DummySlave {
                 try {
                     limit = Integer.parseInt(arguments.get(arguments.indexOf("--set-file-resolvers") + 1));
                 } catch (NumberFormatException e) {
-                    System.err.println("Use number to specify limit"
+                    Util.errPrintln("Use number to specify limit"
                             + "\n Example: --set-file-resolvers 10 to set limit to 10 "
                             + "Exception: " + e);
                     return;
@@ -115,7 +115,7 @@ public class DummySlave {
                 try {
                     limit = Integer.parseInt(arguments.get(arguments.indexOf("--set-ping-handlers") + 1));
                 } catch (NumberFormatException e) {
-                    System.err.println("Use number to specify limit"
+                    Util.errPrintln("Use number to specify limit"
                             + "\n Example: --set-process-handlers 10 to set limit to 10 "
                             + "Exception: " + e);
                     return;
@@ -129,7 +129,7 @@ public class DummySlave {
                 try {
                     limit = Integer.parseInt(arguments.get(arguments.indexOf("--set-process-handlers") + 1));
                 } catch (NumberFormatException e) {
-                    System.err.println("Use number to specify limit"
+                    Util.errPrintln("Use number to specify limit"
                             + "\n Example: --set-process-handlers 10 to set limit to 10 "
                             + "Exception: " + e);
                     return;
@@ -143,7 +143,7 @@ public class DummySlave {
                 try {
                     mode = Integer.parseInt(arguments.get(arguments.indexOf("--mode") + 1));
                 } catch (NumberFormatException e) {
-                    System.err.println("Use number to specify mode"
+                    Util.errPrintln("Use number to specify mode"
                             + "\n Example: --mode 0 "
                             + "Exception: " + e);
                     return;
