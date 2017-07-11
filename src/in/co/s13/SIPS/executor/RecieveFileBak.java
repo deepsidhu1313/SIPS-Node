@@ -32,10 +32,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONObject;
 
-/**
- *
- * @author NAVDEEP SINGH SIDHU <navdeepsingh.sidhu95@gmail.com>
- */
+
 public class RecieveFileBak {
 
     public final static int SOCKET_PORT = 13133;      // you may change this

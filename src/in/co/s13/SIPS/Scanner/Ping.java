@@ -16,6 +16,7 @@
  */
 package in.co.s13.SIPS.Scanner;
 
+import in.co.s13.SIPS.settings.GlobalValues;
 import in.co.s13.SIPS.settings.Settings;
 import static in.co.s13.SIPS.settings.GlobalValues.*;
 import static in.co.s13.SIPS.tools.Util.errPrintln;
@@ -34,9 +35,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import in.co.s13.SIPS.virtualdb.IPAddress;
 import in.co.s13.SIPS.virtualdb.LiveNode;
+import org.json.JSONObject;
 
 class Ping implements Runnable {
-
+    
     InetAddress adrss;
     String IPadress;
     String msg = "";
@@ -51,17 +53,17 @@ class Ping implements Runnable {
 
         // scan();
     }
-
+    
     public void run() {
 //scan(IPadress);
         Thread.currentThread().setName("Ping-" + IPadress.trim());
         if (dbcounter == 1) {
-
+            
         }
         scan();
         dbcounter++;
     }
-
+    
     public void scan() {
         if (NetScanner.checking.contains(IPadress.trim())) {
             outPrintln(IPadress + " is Already In Scan List");
@@ -69,7 +71,7 @@ class Ping implements Runnable {
         } else {
             NetScanner.checking.add(IPadress.trim());
         }
-
+        
         try {
             adrss = InetAddress.getByName(IPadress);
         } catch (UnknownHostException ex) {
@@ -78,52 +80,57 @@ class Ping implements Runnable {
         try {
             if (adrss.isReachable(5000)) {
                 outPrintln(IPadress + " is Reachable");
-            //    System.out.println("Reachable");
+                //    System.out.println("Reachable");
             } else {
-               outPrintln(IPadress + " is not Reachable");
+                outPrintln(IPadress + " is not Reachable");
                 /*  nodeDBExecutor.execute(new UpdateAllNodeDB("UPDATE ALLN SET"
                  + " STATUS ='NOT REACHABLE'"
                  + "WHERE IP='" + IPadress.trim() + "';"));
                  */
-               // System.out.println("Not Reachable");
-              nodeDBExecutor.execute(() -> {
+                // System.out.println("Not Reachable");
+                nodeDBExecutor.execute(() -> {
                     allNodeDB.stream().filter((get) -> (get.getFirstName().trim().equalsIgnoreCase(IPadress.trim()))).forEach((get) -> {
                         get.setNStatus("NOT REACHABLE");
                     });
                 });
-
+                
             }
         } catch (IOException ex) {
             Logger.getLogger(Ping.class.getName()).log(Level.SEVERE, null, ex);
         }
         Socket s = new Socket();
         try {
-            s.connect(new InetSocketAddress(IPadress, 13139));
-
+            s.connect(new InetSocketAddress(IPadress, 13131));
+            
             try (OutputStream os = s.getOutputStream(); DataInputStream dIn = new DataInputStream(s.getInputStream()); DataOutputStream outToServer = new DataOutputStream(os)) {
-                String sendmsg = "<Command>ping</Command><Body> </Body>";
+                JSONObject pingRequest = new JSONObject();
+                pingRequest.put("Command", "ping");
+                JSONObject pingRequestBody = new JSONObject();
+                pingRequestBody.put("UUID", GlobalValues.NODE_UUID);
+                pingRequest.put("Body", pingRequestBody);
+                String sendmsg = pingRequest.toString(4);
                 byte[] bytes = sendmsg.getBytes("UTF-8");
                 outToServer.writeInt(bytes.length);
                 outToServer.write(bytes);
-
+                
                 int length = dIn.readInt();                    // read length of incoming message
                 byte[] message = new byte[length];
-
+                
                 if (length > 0) {
                     dIn.readFully(message, 0, message.length); // read the message
                 }
-                String reply = new String(message);
-                osname = reply.substring(reply.indexOf("<OS>") + 4, reply.indexOf("</OS>"));
-                hostname = reply.substring(reply.indexOf("<HOSTNAME>") + 10, reply.indexOf("</HOSTNAME>"));
-                plimit = reply.substring(reply.indexOf("<PLIMIT>") + 8, reply.indexOf("</PLIMIT>"));
-                pwait = reply.substring(reply.indexOf("<PWAIT>") + 7, reply.indexOf("</PWAIT>"));
-                ram = reply.substring(reply.indexOf("<TMEM>") + 6, reply.indexOf("</TMEM>"));
+                JSONObject reply = new JSONObject(new String(message));
+                osname = reply.getString("OS");
+                hostname = reply.getString("HOSTNAME");
+                plimit = reply.getString("PLIMIT");
+                pwait = reply.getString("PWAIT");
+                ram = reply.getString("TMEM");
                 // String cpuload = reply.substring(reply.indexOf("<CPULOAD>") + 9, reply.indexOf("</CPULOAD>"));
-                cpuname = reply.substring(reply.indexOf("<CPUNAME>") + 9, reply.indexOf("</CPUNAME>"));
-                outPrintln("" + reply);
+                cpuname = reply.getString("CPUNAME");
+                outPrintln("" + reply.toString(4));
                 System.out.println(reply);
                 outPrintln("Port Opened On " + IPadress);
-
+                
                 boolean isinlist = false;
                 nodeDBExecutor.execute(() -> {
                     //     boolean isinlist1 = false;
@@ -169,7 +176,7 @@ class Ping implements Runnable {
                                         updatedRecord = true;
                                     }
                                 }
-
+                                
                                 if (!updatedRecord) {
                                     liveNodeDB.add(new LiveNode(IPadress, prf2, cnm, hostname, osname, cpuname, Integer.parseInt(plimit), Integer.parseInt(pwait), Long.parseLong(ram)));
                                 }
@@ -225,9 +232,9 @@ class Ping implements Runnable {
                         Logger.getLogger(Ping.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 });
-
+                
             }
-
+            
             s.close();
 
             /* nodeDBExecutor.execute(new UpdateAllNodeDB("UPDATE ALLN SET"
@@ -241,7 +248,7 @@ class Ping implements Runnable {
              + "PROCESSOR ='" + cpuname + "' WHERE IP='" + IPadress.trim() + "';"));
              */
             nodeDBExecutor.execute(() -> {
-
+                
                 System.out.println("Checking if " + IPadress + " exists in All");
                 for (IPAddress get : allNodeDB) {
                     if (get.getFirstName().trim().equalsIgnoreCase(IPadress.trim())) {
@@ -258,7 +265,7 @@ class Ping implements Runnable {
             });
         } catch (IOException ex) {
             msg = "" + IPadress + " is dead";
-            errPrintln(IPadress+" "+ex);
+            errPrintln(IPadress + " " + ex);
             /*            nodeDBExecutor.execute(new UpdateAllNodeDB("UPDATE ALLN SET"
              + " STATUS ='Missing Framework'"
              + " WHERE IP='" + IPadress.trim() + "';"));
@@ -268,13 +275,13 @@ class Ping implements Runnable {
                     get.setNStatus("Missing Framework");
                 });
             });
-
+            
             for (int i = 0; i < liveNodeDB.size(); i++) {
                 if (liveNodeDB.get(i).getName().trim().equalsIgnoreCase(IPadress.trim())) {
                     liveNodeDB.remove(i);
                     System.out.println("Removing  " + IPadress + " from index" + i);
                 }
-
+                
             }
             /*
              liveDBExecutor.execute(() -> {
@@ -305,15 +312,15 @@ class Ping implements Runnable {
         if (NetScanner.checking.contains(IPadress.trim())) {
             NetScanner.checking.remove(IPadress.trim());
         }
-
+        
     }
-
+    
     public boolean isLive() {
-
+        
         return live;
     }
-
+    
     public static void main(String args[]) {
-
+        
     }
 }

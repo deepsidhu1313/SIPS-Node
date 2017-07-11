@@ -51,7 +51,7 @@ public class GlobalValues {
     public static ExecutorService processDBExecutor = Executors.newFixedThreadPool(1);
     public static SQLiteJDBC procDB = new SQLiteJDBC();
     public static String HOST_NAME = "DummySlave";
-    public static long MEM_SIZE = 0L;
+    public static long MEM_SIZE = 0L, MEM_FREE=0L;
     public static String CPU_NAME = "";
     public static double CPU_LOAD_AVG = 0.0;
     public static ExecutorService netExecutor;
