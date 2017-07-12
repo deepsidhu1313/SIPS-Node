@@ -93,7 +93,7 @@ public class Resource {
        
     @Override
     public String toString() {
-        return "Resource:[" + "properties:" + properties + ", type:" + type + ", name:" + name + ']';
+        return "{Resource:[" + "properties:" + properties + ", type:" + type + ", name:" + name + "]}";
     }
 
 }

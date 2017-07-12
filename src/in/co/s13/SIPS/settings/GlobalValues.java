@@ -16,11 +16,14 @@
  */
 package in.co.s13.SIPS.settings;
 
+import in.co.s13.SIPS.datastructure.Resource;
 import in.co.s13.SIPS.db.OLDSQLiteJDBC;
 import in.co.s13.SIPS.db.SQLiteJDBC;
-import in.co.s13.SIPS.virtualdb.IPAddress;
-import in.co.s13.SIPS.virtualdb.LiveNode;
+import in.co.s13.SIPS.virtualdb.LiveDBRow;
+import in.co.s13.SIPS.virtualdb.NodeDBRow;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javafx.collections.FXCollections;
@@ -33,40 +36,85 @@ import org.json.JSONObject;
  */
 public class GlobalValues {
 
+    /**
+     * Meta Info Operating System
+     */
     public static String OS = System.getProperty("os.name").toLowerCase();
     public static int OS_Name = 0;
+
+    /**
+     * **
+     * Directories
+     */
     public static String PWD = "";
     public static String dir_workspace = "";
     public static String dir_appdb = "appdb";
     public static String dir_temp = "var";
-    public static String NODE_UUID = "";
-    public static int total_threads = 1;
+
+    /**
+     * *
+     * Resource Stats
+     */
     public static int process_id = 0;
-    public static int PROCESS_LIMIT = Runtime.getRuntime().availableProcessors() - 1;
-    public static int PROCESS_WAITING = 0;
-    public static int FILES_RESOLVER_LIMIT = 30;
-    public static int PING_HANDLER_LIMIT = 100;
-    public static int PROCESS_HANDLER_LIMIT = 100;
-    public static ExecutorService processExecutor = Executors.newFixedThreadPool(PROCESS_LIMIT);
-    public static ExecutorService processDBExecutor = Executors.newFixedThreadPool(1);
     public static SQLiteJDBC procDB = new SQLiteJDBC();
     public static String HOST_NAME = "DummySlave";
-    public static long MEM_SIZE = 0L, MEM_FREE=0L;
+    public static String NODE_UUID = "";
+    public static long MEM_SIZE = 0L, MEM_FREE = 0L, HDD_SIZE = 0L, HDD_FREE = 0L;
     public static String CPU_NAME = "";
     public static double CPU_LOAD_AVG = 0.0;
-    public static ExecutorService netExecutor;
+    public static JSONObject BENCHMARKING;
+    public static Hashtable<String, Resource> resources = new Hashtable<>(5);
+
+    /**
+     * Log Files and variables
+     */
     public static boolean VERBOSE, DUMP_LOG;
     public static String OUT_FILE = dir_appdb + "/out.log", ERR_FILE = dir_appdb + "/err.log", LOG_FILE = dir_appdb + "/app.log";
     public static PrintStream out, err, log;
-    public static ExecutorService liveDBExecutor = Executors.newFixedThreadPool(1);
-    public static JSONObject BENCHMARKING;
 
-    public static ExecutorService pingExecutor;
-
+    /**
+     * all Node DB
+     */
     public static OLDSQLiteJDBC alldb = new OLDSQLiteJDBC(dir_appdb + "/all.db");
 
+    /**
+     * Executor Limits
+     */
+    public static int total_threads = 1;
+    public static int PROCESS_WAITING = 0;
+    public static int FILES_RESOLVER_LIMIT = 10;
+    public static int PING_HANDLER_LIMIT = 10;
+    public static int PROCESS_HANDLER_LIMIT = 10;
+    public static int PROCESS_LIMIT = Runtime.getRuntime().availableProcessors() - 1;
+    /**
+     * *
+     * Executors
+     */
     public static ExecutorService nodeDBExecutor = Executors.newFixedThreadPool(1);
-    public static ObservableList<LiveNode> liveNodeDB = FXCollections.observableArrayList();
-    public static ObservableList<IPAddress> allNodeDB = FXCollections.observableArrayList();
+    public static ExecutorService processExecutor = Executors.newFixedThreadPool(PROCESS_LIMIT);
+    public static ExecutorService processDBExecutor = Executors.newFixedThreadPool(1);
+    public static ExecutorService pingExecutor = Executors.newFixedThreadPool(1);
+    public static ExecutorService liveDBExecutor = Executors.newFixedThreadPool(1);
+    public static ExecutorService netExecutor;
+
+    /**
+     * *
+     * Storage Data Structure
+     */
+    /**
+     * **
+     * Networking Vars
+     */
+    //  public static ArrayList<String> livehosts = new ArrayList();
+    //  public static ObservableList<LiveNode> liveNodes = FXCollections.observableArrayList();
+    public static Hashtable<String, LiveDBRow> liveNodeDB = new Hashtable<>();
+    public static Hashtable<String, NodeDBRow> allNodeDB = new Hashtable<>();
+    public static Hashtable<String, NodeDBRow> hosts = new Hashtable<>();
+    public static Hashtable<String, String> scanning = new Hashtable<>();
+    public static Hashtable<String, String> blacklistIPs = new Hashtable<>();
+    public static Hashtable<String, String> blacklistUUIDs = new Hashtable<>();
+    public static boolean iswriting = false;
+
+    public static int threadnumber = total_threads;
 
 }

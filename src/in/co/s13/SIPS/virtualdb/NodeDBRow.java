@@ -19,28 +19,27 @@ package in.co.s13.SIPS.virtualdb;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Objects;
+import org.json.JSONObject;
 
 /**
  *
  * @author NAVDEEP SINGH SIDHU <navdeepsingh.sidhu95@gmail.com>
  */
-public class LiveDBRow {
+public class NodeDBRow {
 
-    private int que_length, waiting_in_que;
+    private int queue_length, waiting_in_queue;
     private String uuid, operatingSytem, hostname, processor_name;
-
-    private long memory, free_memory;
+    private long memory;
     private ArrayList<String> ipAddresses;
 
-    public LiveDBRow(String uuid, String host, String os, String processor, int qlen,
-            int qwait, long ram, long free_memory) {
+    public NodeDBRow(String uuid, String host, String os, String processor, int qlen,
+            int qwait, long ram) {
         this.uuid = uuid;
         this.operatingSytem = os;
         this.hostname = host;
-        this.que_length = qlen;
-        this.waiting_in_que = qwait;
+        this.queue_length = qlen;
+        this.waiting_in_queue = qwait;
         this.memory = ram;
-        this.free_memory = free_memory;
         this.processor_name = processor;
     }
 
@@ -68,21 +67,21 @@ public class LiveDBRow {
         this.hostname = hostname;
     }
 
-    public int getQue_length() {
-        return que_length;
+    public int getQueue_length() {
+        return queue_length;
     }
 
-    public void setQue_length(int length) {
-        this.que_length = length;
+    public void setQueue_length(int length) {
+        this.queue_length = length;
     }
 
-    public int getWaiting_in_que() {
-        return waiting_in_que;
+    public int getWaiting_in_queue() {
+        return waiting_in_queue;
     }
 
-    public void setWaiting_in_que(int alreadyInQue) {
+    public void setWaiting_in_queue(int alreadyInQue) {
 
-        this.waiting_in_que = alreadyInQue;
+        this.waiting_in_queue = alreadyInQue;
     }
 
     public long getMemory() {
@@ -93,13 +92,6 @@ public class LiveDBRow {
         this.memory = Memory;
     }
 
-    public long getFree_memory() {
-        return free_memory;
-    }
-
-    public void setFree_memory(long free_memory) {
-        this.free_memory = free_memory;
-    }
 
     public ArrayList<String> getIpAddresses() {
         return ipAddresses;
@@ -110,9 +102,6 @@ public class LiveDBRow {
     }
 
 
-
-
-
     public String getProcessor_name() {
         return processor_name;
     }
@@ -121,6 +110,7 @@ public class LiveDBRow {
         this.processor_name = name;
     }
 
+ 
 
     public void addIp(String ip) {
         if (!this.ipAddresses.contains(ip)) {
@@ -134,7 +124,20 @@ public class LiveDBRow {
 
     @Override
     public String toString() {
-        return "LiveDBRow:[" +" uuid: " + uuid + ", que_length:" + que_length + ", waiting_in_que:" + waiting_in_que +  ", operatingSytem:" + operatingSytem + ", hostname:" + hostname + ", processor_name:" + processor_name + ", memory:" + memory +", free_memory:" + free_memory + ']';
+        return "NodeDBRow:[" + " uuid: " + uuid + ", que_length:" + queue_length + ", waiting_in_que:" + waiting_in_queue + ", operatingSytem:" + operatingSytem + ", hostname:" + hostname + ", processor_name:" + processor_name + ", memory:" + memory + ']';
+    }
+
+    public JSONObject toJSON() {
+        JSONObject jSONObject = new JSONObject();
+        jSONObject.put("uuid", uuid);
+        jSONObject.put("queue_length", queue_length);
+        jSONObject.put("waiting_in_queue", waiting_in_queue);
+        jSONObject.put("operatingSystem", operatingSytem);
+        jSONObject.put("hostname", hostname);
+        jSONObject.put("processor_name", processor_name);
+        jSONObject.put("memory", memory);
+
+        return jSONObject;
     }
 
     @Override
@@ -156,69 +159,64 @@ public class LiveDBRow {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final LiveDBRow other = (LiveDBRow) obj;
-        
+        final NodeDBRow other = (NodeDBRow) obj;
+
         if (!Objects.equals(this.uuid, other.uuid)) {
             return false;
         }
         return true;
     }
 
-    enum LiveDBRowComparator implements Comparator<LiveDBRow> {
+    enum LiveDBRowComparator implements Comparator<NodeDBRow> {
 
         IP_SORT {
-            public int compare(LiveDBRow o1, LiveDBRow o2) {
+            public int compare(NodeDBRow o1, NodeDBRow o2) {
                 return o1.getUuid().compareTo(o2.getUuid());
             }
         },
         OS_SORT {
-            public int compare(LiveDBRow o1, LiveDBRow o2) {
+            public int compare(NodeDBRow o1, NodeDBRow o2) {
                 return (o1.getOperatingSytem()).compareTo(o2.getOperatingSytem());
             }
         },
         HOST_SORT {
-            public int compare(LiveDBRow o1, LiveDBRow o2) {
+            public int compare(NodeDBRow o1, NodeDBRow o2) {
                 return (o1.getHostname()).compareTo(o2.getHostname());
             }
         },
         QLEN_SORT {
-            public int compare(LiveDBRow o1, LiveDBRow o2) {
-                return Integer.valueOf(o1.getQue_length()).compareTo(o2.getQue_length());
+            public int compare(NodeDBRow o1, NodeDBRow o2) {
+                return Integer.valueOf(o1.getQueue_length()).compareTo(o2.getQueue_length());
             }
         },
         QWAIT_SORT {
-            public int compare(LiveDBRow o1, LiveDBRow o2) {
-                return Integer.valueOf(o1.getWaiting_in_que()).compareTo(o2.getWaiting_in_que());
+            public int compare(NodeDBRow o1, NodeDBRow o2) {
+                return Integer.valueOf(o1.getWaiting_in_queue()).compareTo(o2.getWaiting_in_queue());
             }
         },
         RAM_SORT {
-            public int compare(LiveDBRow o1, LiveDBRow o2) {
+            public int compare(NodeDBRow o1, NodeDBRow o2) {
                 return Long.valueOf(o1.getMemory()).compareTo(o2.getMemory());
-            }
-        },
-        FREE_RAM_SORT {
-            public int compare(LiveDBRow o1, LiveDBRow o2) {
-                return Long.valueOf(o1.getFree_memory()).compareTo(o2.getFree_memory());
             }
         },
 
         PROCESSOR_SORT {
-            public int compare(LiveDBRow o1, LiveDBRow o2) {
+            public int compare(NodeDBRow o1, NodeDBRow o2) {
                 return (o1.getProcessor_name()).compareTo(o2.getProcessor_name());
             }
         };
 
-        public static Comparator<LiveDBRow> decending(final Comparator<LiveDBRow> other) {
-            return new Comparator<LiveDBRow>() {
-                public int compare(LiveDBRow o1, LiveDBRow o2) {
+        public static Comparator<NodeDBRow> decending(final Comparator<NodeDBRow> other) {
+            return new Comparator<NodeDBRow>() {
+                public int compare(NodeDBRow o1, NodeDBRow o2) {
                     return -1 * other.compare(o1, o2);
                 }
             };
         }
 
-        public static Comparator<LiveDBRow> getComparator(final LiveDBRowComparator... multipleOptions) {
-            return new Comparator<LiveDBRow>() {
-                public int compare(LiveDBRow o1, LiveDBRow o2) {
+        public static Comparator<NodeDBRow> getComparator(final LiveDBRowComparator... multipleOptions) {
+            return new Comparator<NodeDBRow>() {
+                public int compare(NodeDBRow o1, NodeDBRow o2) {
                     for (LiveDBRowComparator option : multipleOptions) {
                         int result = option.compare(o1, o2);
                         if (result != 0) {

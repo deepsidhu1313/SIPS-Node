@@ -16,6 +16,7 @@
  */
 package in.co.s13.SIPS.Scanner;
 
+import in.co.s13.SIPS.settings.GlobalValues;
 import static in.co.s13.SIPS.settings.GlobalValues.*;
 import in.co.s13.SIPS.settings.Settings;
 import static in.co.s13.SIPS.tools.Util.outPrintln;
@@ -40,7 +41,7 @@ public class CheckLiveNodes implements Runnable {
         Thread.currentThread().setName("CheckLiveNodeThread");
         ArrayList<String> livehosts = new ArrayList<>();
         {
-            if (!NetScanner.iswriting) {
+            if (!GlobalValues.iswriting) {
                 liveDBExecutor.execute(() -> {
                    /* String sql = "SELECT * FROM LIVE";
                     SQLiteJDBC livedb = new SQLiteJDBC();
@@ -53,9 +54,9 @@ public class CheckLiveNodes implements Runnable {
                     }
                     livedb.closeConnection();
                      */
-                    liveNodeDB.stream().forEach((liveget) -> {
-                        livehosts.add(liveget.getName());
-                    });
+//                    liveNodeDB.stream().forEach((liveget) -> {
+//                        livehosts.add(liveget.getName());
+//                    });
 
                     for (int i = 0; i <= livehosts.size() - 1; i++) {
                         String ip = livehosts.get(i).trim();

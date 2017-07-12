@@ -18,6 +18,8 @@ package in.co.s13.SIPS.Scanner;
 
 import java.util.ArrayList;
 import static in.co.s13.SIPS.settings.GlobalValues.*;
+import in.co.s13.SIPS.virtualdb.LiveDBRow;
+import java.util.Hashtable;
 /**
  *
  * @author Nika
@@ -25,12 +27,12 @@ import static in.co.s13.SIPS.settings.GlobalValues.*;
 public class RangePinger implements Runnable {
 
     int low, up;
-    ArrayList<String> temp;
+    Hashtable<String,LiveDBRow> temp;
 
-    public RangePinger(int min, int max, ArrayList al) {
+    public RangePinger(int min, int max, Hashtable<String,LiveDBRow> al) {
         low = min;
         up = max;
-        temp = new ArrayList(al);
+        temp = new Hashtable<>(al);
         if (up == temp.size()) {
             up--;
             System.out.println("UP equals to array , decremented");
