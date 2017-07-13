@@ -723,6 +723,20 @@ public class Util {
 
     }
 
+    public static void write(String path, String text) {
+        try (FileWriter fw = new FileWriter(new File(path));
+                PrintWriter pw = new PrintWriter(fw)) {
+            pw.print(text);
+            pw.close();
+            fw.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+
+    
+    
     public static void saveCheckSum(String Filename, String con) {
         File f = new File(Filename);
         if (f.exists()) {

@@ -19,6 +19,7 @@ package in.co.s13.SIPS.settings;
 import in.co.s13.SIPS.datastructure.Resource;
 import in.co.s13.SIPS.db.OLDSQLiteJDBC;
 import in.co.s13.SIPS.db.SQLiteJDBC;
+import in.co.s13.SIPS.tools.Util;
 import in.co.s13.SIPS.virtualdb.LiveDBRow;
 import in.co.s13.SIPS.virtualdb.NodeDBRow;
 import java.io.PrintStream;
@@ -109,12 +110,11 @@ public class GlobalValues {
     //  public static ObservableList<LiveNode> liveNodes = FXCollections.observableArrayList();
     public static Hashtable<String, LiveDBRow> liveNodeDB = new Hashtable<>();
     public static Hashtable<String, NodeDBRow> allNodeDB = new Hashtable<>();
-    public static Hashtable<String, NodeDBRow> hosts = new Hashtable<>();
+    public static ArrayList<String> hosts = new ArrayList<>();
     public static Hashtable<String, String> scanning = new Hashtable<>();
-    public static Hashtable<String, String> blacklistIPs = new Hashtable<>();
-    public static Hashtable<String, String> blacklistUUIDs = new Hashtable<>();
+    public static Hashtable<String, String> BLACKLIST = new Hashtable<>();
     public static boolean iswriting = false;
-
+    public static JSONObject blacklistJSON, networksToScanJSON, ipToScanJSON;
     public static int threadnumber = total_threads;
 
 }

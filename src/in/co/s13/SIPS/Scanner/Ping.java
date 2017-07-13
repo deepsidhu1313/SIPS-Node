@@ -17,7 +17,6 @@
 package in.co.s13.SIPS.Scanner;
 
 import in.co.s13.SIPS.settings.GlobalValues;
-import in.co.s13.SIPS.settings.Settings;
 import static in.co.s13.SIPS.settings.GlobalValues.*;
 import static in.co.s13.SIPS.tools.Util.errPrintln;
 import static in.co.s13.SIPS.tools.Util.outPrintln;
@@ -42,27 +41,19 @@ class Ping implements Runnable {
     String IPadress, UUID;
     String msg = "";
     Boolean live = false;
-    static int dbcounter = 1;
     String hostname;
     String osname, cpuname, uuid;
     long ram, freeRam;
     int plimit, pwait;
 
-    // static ArrayList livehosts = new ArrayList();
     Ping(String ip, String uuid) {
         IPadress = ip.trim();
         UUID = uuid;
-        // scan();
     }
 
     public void run() {
-//scan(IPadress);
         Thread.currentThread().setName("Ping-" + IPadress.trim());
-        if (dbcounter == 1) {
-
-        }
         scan();
-        dbcounter++;
     }
 
     public void scan() {
@@ -81,20 +72,8 @@ class Ping implements Runnable {
         try {
             if (adrss.isReachable(5000)) {
                 outPrintln(IPadress + " is Reachable");
-                //    System.out.println("Reachable");
             } else {
                 outPrintln(IPadress + " is not Reachable");
-                /*  nodeDBExecutor.execute(new UpdateAllNodeDB("UPDATE ALLN SET"
-                 + " STATUS ='NOT REACHABLE'"
-                 + "WHERE IP='" + IPadress.trim() + "';"));
-                 */
-                // System.out.println("Not Reachable");
-//                nodeDBExecutor.execute(() -> {
-//                    allNodeDB.stream().filter((get) -> (get.getFirstName().trim().equalsIgnoreCase(IPadress.trim()))).forEach((get) -> {
-//                        get.setNStatus("NOT REACHABLE");
-//                    });
-//                });
-
             }
         } catch (IOException ex) {
             Logger.getLogger(Ping.class.getName()).log(Level.SEVERE, null, ex);
@@ -173,72 +152,12 @@ class Ping implements Runnable {
                                     liveNodeDB.replace(uuid, new LiveDBRow(uuid, hostname, osname, cpuname, (plimit), (pwait), ram, freeRam));
                                     updatedRecord = true;
                                 } else {
+                                    liveNodeDB.put(uuid, new LiveDBRow(uuid, hostname, osname, cpuname, (plimit), (pwait), ram, freeRam));
 
                                 }
 
-//                                for (LiveDBRow liveNodeDB : liveNodeDB) {
-//                                    if (liveNodeDB.getName().trim().equalsIgnoreCase(IPadress.trim())) {
-//                                        liveNodeDB.setSalary(prf2);
-//                                        liveNodeDB.setClusterName(cnm);
-//                                        liveNodeDB.setHostName(hostname);
-//                                        liveNodeDB.setOsName(osname);
-//                                        liveNodeDB.setCpuName(cpuname);
-//                                        liveNodeDB.setPLimit(Integer.parseInt(plimit));
-//                                        liveNodeDB.setPWait(Integer.parseInt(pwait));
-//                                        liveNodeDB.setTMem(Long.parseLong(ram));
-//                                        updatedRecord = true;
-//                                    }
-//                                }
-//
-//                                if (!updatedRecord) {
-//                                    liveNodeDB.add(new LiveNode(IPadress, prf2, cnm, hostname, osname, cpuname, Integer.parseInt(plimit), Integer.parseInt(pwait), Long.parseLong(ram)));
-//                                }
-                                /*
-                                 sql3 = "INSERT INTO LIVE "
-                                 + "(IP, "
-                                 + "PRF,"
-                                 + "CN,"
-                                 + "HN,"
-                                 + "OS,"
-                                 + "CPU,"
-                                 + "QL,"
-                                 + "QW,"
-                                 + "RAM) VALUES('" + IPadress + "','"
-                                 + prf2 + "','"
-                                 + cnm + "','"
-                                 + hostname + "','"
-                                 + osname + "','"
-                                 + cpuname + "','"
-                                 + plimit + "','"
-                                 + pwait + "','"
-                                 + ram + "');";
-                                 //         livedb2.insert("appdb/live.db", sql3);
-                                 //        livedb2.closeConnection();*/
                             });
 
-                            /*for (int i=0;i< NetScanner.liveNodes.size();i++) {
-                             LiveNode get = NetScanner.liveNodes.get(i);
-                             if (IPadress.trim().equalsIgnoreCase(get.getName().trim()));
-                             {
-                             isinlist1 = true;
-                             /*     get.setOsName(osname);
-                             get.setHostName(hostname);
-                             get.setPLimit(Integer.parseInt(plimit));
-                             get.setPWait(Integer.parseInt(pwait));
-                             get.setTMem(Long.parseLong(ram));
-                             get.setCpuName(cpuname);
-                             get.setClusterName(clustername);
-                             get.setSalary(prf);
-                             get.setSalaryPercentage(prf);
-                                  
-                             NetScanner.liveNodes.remove(i);
-                             break;
-                             }
-                             }
-                             //if (!isinlist1)
-                             {
-                             NetScanner.liveNodes.add(new LiveNode(IPadress, prf,  clustername, hostname, osname, cpuname, Integer.parseInt(plimit), Integer.parseInt(pwait), Long.parseLong(ram)));
-                             }*/
                         }
                         alldb.closeStatement();
                     } catch (SQLException ex) {
@@ -250,84 +169,19 @@ class Ping implements Runnable {
 
             s.close();
 
-            /* nodeDBExecutor.execute(new UpdateAllNodeDB("UPDATE ALLN SET"
-             + " LEN ='" + IPadress.trim().length() + "',"
-             + " STATUS ='ONLINE',"
-             + "OS ='" + osname + "',"
-             + "HOST ='" + hostname + "',"
-             + "QLEN ='" + plimit + "',"
-             + "QWAIT ='" + pwait + "',"
-             + "RAM ='" + ram + "',"
-             + "PROCESSOR ='" + cpuname + "' WHERE IP='" + IPadress.trim() + "';"));
-             */
-//            nodeDBExecutor.execute(() -> {
-//
-//                System.out.println("Checking if " + IPadress + " exists in All");
-//                for (IPAddress get : allNodeDB) {
-//                    if (get.getFirstName().trim().equalsIgnoreCase(IPadress.trim())) {
-//                        get.setNStatus("ONLINE");
-//                        get.setOperatingSystem(osname);
-//                        get.setHostName(hostname);
-//                        get.setProcessLimit(Integer.parseInt(plimit));
-//                        get.setTotalMem(Long.parseLong(ram));
-//                        get.setProcessWaiting(Integer.parseInt(pwait));
-//                        get.setCpuName(cpuname);
-//                        System.out.println("Set OnLine on " + IPadress);
-//                    }
-//                }
-//            });
         } catch (IOException ex) {
             msg = "" + IPadress + " is dead";
             errPrintln(IPadress + " " + ex);
-            /*            nodeDBExecutor.execute(new UpdateAllNodeDB("UPDATE ALLN SET"
-             + " STATUS ='Missing Framework'"
-             + " WHERE IP='" + IPadress.trim() + "';"));
-             */
-//            nodeDBExecutor.execute(() -> {
-//                allNodeDB.stream().filter((get) -> (get.getFirstName().trim().equalsIgnoreCase(IPadress.trim()))).forEach((get) -> {
-//                    get.setNStatus("Missing Framework");
-//                });
-//            });
-//
-//            for (int i = 0; i < liveNodeDB.size(); i++) {
-//                if (liveNodeDB.get(i).getName().trim().equalsIgnoreCase(IPadress.trim())) {
-//                    liveNodeDB.remove(i);
-//                    System.out.println("Removing  " + IPadress + " from index" + i);
-//                }
-//
-//            }
             liveNodeDB.remove(IPadress.trim());
             liveNodeDB.remove(UUID.trim());
-            /*
-             liveDBExecutor.execute(() -> {
-             String sql = "DELETE FROM LIVE WHERE IP='" + IPadress + "';";
-             System.out.println("Checking if " + IPadress + " exists in Live");
-
-               
-
-             //   SQLiteJDBC livedb = new SQLiteJDBC();
-             //    livedb.delete("appdb/live.db", sql);
-             //    livedb.closeConnection();
-             });
-
-             for (int i = 0; i < NetScanner.liveNodes.size(); i++) {
-             LiveNode get = NetScanner.liveNodes.get(i);
-             if (get.getName().trim().equalsIgnoreCase(IPadress.trim())) {
-             NetScanner.liveNodes.remove(i);
-             break;
-             }
-             }
-             */
             try {
                 s.close();
             } catch (IOException ex1) {
                 Logger.getLogger(Ping.class.getName()).log(Level.SEVERE, null, ex1);
             }
         }
-//        if (scanning.contains(IPadress.trim())) {
         scanning.remove(IPadress.trim());
-//        }
-
+ 
     }
 
     public boolean isLive() {
@@ -335,7 +189,4 @@ class Ping implements Runnable {
         return live;
     }
 
-    public static void main(String args[]) {
-
-    }
 }

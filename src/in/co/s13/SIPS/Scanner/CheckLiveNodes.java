@@ -20,7 +20,10 @@ import in.co.s13.SIPS.settings.GlobalValues;
 import static in.co.s13.SIPS.settings.GlobalValues.*;
 import in.co.s13.SIPS.settings.Settings;
 import static in.co.s13.SIPS.tools.Util.outPrintln;
+import in.co.s13.SIPS.virtualdb.LiveDBRow;
 import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Hashtable;
 
 /**
  *
@@ -37,13 +40,13 @@ public class CheckLiveNodes implements Runnable {
 
     @Override
     public void run() {
-        
+
         Thread.currentThread().setName("CheckLiveNodeThread");
-        ArrayList<String> livehosts = new ArrayList<>();
+        Hashtable<String, LiveDBRow> livehosts = new Hashtable<>(GlobalValues.liveNodeDB);
         {
             if (!GlobalValues.iswriting) {
                 liveDBExecutor.execute(() -> {
-                   /* String sql = "SELECT * FROM LIVE";
+                    /* String sql = "SELECT * FROM LIVE";
                     SQLiteJDBC livedb = new SQLiteJDBC();
                     try (ResultSet rs = livedb.select("appdb/live.db", sql)) {
                     while (rs.next()) {
@@ -58,24 +61,30 @@ public class CheckLiveNodes implements Runnable {
 //                        livehosts.add(liveget.getName());
 //                    });
 
-                    for (int i = 0; i <= livehosts.size() - 1; i++) {
-                        String ip = livehosts.get(i).trim();
-                        Thread p1 = new Thread(new Ping(ip));
-                 //       p1.setPriority(Thread.NORM_PRIORITY - 1);
-                        pingExecutor.execute(p1);
+//                    for (int i = 0; i <= livehosts.keys().size() - 1; i++) {
+//                        String ip = livehosts.get(i).trim();
+//                        Thread p1 = new Thread(new Ping(ip));
+//                 //       p1.setPriority(Thread.NORM_PRIORITY - 1);
+//                        pingExecutor.execute(p1);
+//
+//                    }
+                    Enumeration<String> keys = livehosts.keys();
+                    while (keys.hasMoreElements()) {
+                        String key = keys.nextElement();
+                        LiveDBRow liveNode = livehosts.get(key);
+                        ArrayList<String> ips = liveNode.getIpAddresses();
+                        for (int i = 0; i < ips.size(); i++) {
+                            String get = ips.get(i);
+                            Thread p1 = new Thread(new Ping(get, liveNode.getUuid()));
+                            pingExecutor.execute(p1);
+                        }
 
                     }
-
                 });
 
             }
-        }}
-
-    
-
-    
-
-    
+        }
+    }
 
     public static void main(String args[]) {
         Thread chec = new Thread(new CheckLiveNodes());

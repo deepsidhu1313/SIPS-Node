@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
+import jdk.nashorn.internal.runtime.GlobalConstants;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -67,6 +69,12 @@ public class DummySlave {
                         + "\t\t\tLimit the number of threads run in parallel on this node to respond to ping request(s) from other nodes.\n"
                         + "\n\t\t--set-process-handlers <LIMIT>:\n"
                         + "\t\t\tLimit the number of threads run in parallel on this node to handle submission of new tasks.\n"
+                        + "\n\t\t--add-ip <N> IP1 IP2 ... IPN:\n"
+                        + "\t\t\tAdd N number of hosts.\n"
+                        + "\n\t\t--add-network <N> NET1 NET2 :\n"
+                        + "\t\t\tAdd N number of networks.\n"
+                        + "\n\t\t--blacklist <N> ROUGE-IP ROUGE.FQDN ROUGE-UUID :\n"
+                        + "\t\t\t Blacklist N number of Nodes identified by UUIDs, IPS or FQDNs .\n"
                         + "");
                 return;
             }
@@ -138,6 +146,89 @@ public class DummySlave {
                 loadSettings.saveSettings();
             }
 
+            /**
+             * *
+             * add new IP addresses or Hosts
+             */
+            GlobalValues.ipToScanJSON = new JSONObject(Util.readFile(dir_appdb + "/ips.json"));
+            if (arguments.contains("--add-ip")) {
+                int listSize = 0, index = 0;
+                try {
+                    index = arguments.indexOf("--add-ip");
+                    listSize = Integer.parseInt(arguments.get(index + 1));
+                } catch (NumberFormatException e) {
+                    Util.errPrintln("Use number to specify list"
+                            + "\n Example: --add-ip 3 192.168.1.12 192.168.1.30 compute-node.your-domain-name.com "
+                            + "\nto set size of list to 3 and IPs/hostname followed "
+                            + "\nException: " + e);
+                    return;
+                }
+                JSONArray jsonArray = GlobalValues.ipToScanJSON.getJSONArray("ips", new JSONArray());
+                for (int i = 0; i < listSize; i++) {
+                    jsonArray.put(arguments.get(index + i + 2));
+                }
+                GlobalValues.ipToScanJSON = new JSONObject();
+                GlobalValues.ipToScanJSON.put("ips", jsonArray);
+                Util.write(dir_appdb + "/ips.json", GlobalValues.ipToScanJSON.toString(4));
+            }
+
+            /**
+             * *
+             * add new networks to scan
+             */
+            GlobalValues.networksToScanJSON = new JSONObject(Util.readFile(dir_appdb + "/networks.json"));
+            if (arguments.contains("--add-network")) {
+                int listSize = 0, index = 0;
+                try {
+                    index = arguments.indexOf("--add-network");
+                    listSize = Integer.parseInt(arguments.get(index + 1));
+                } catch (NumberFormatException e) {
+                    Util.errPrintln("Use number to specify list"
+                            + "\n Example: --add-network 3 192.168.1.0 192.168.3.0 10.10.100.0 "
+                            + "\nto set size of list to 3 and networks followed  "
+                            + "\nException: " + e);
+                    return;
+                }
+                JSONArray jsonArray = GlobalValues.networksToScanJSON.getJSONArray("networks", new JSONArray());
+                for (int i = 0; i < listSize; i++) {
+                    jsonArray.put(arguments.get(index + i + 2));
+                }
+                GlobalValues.networksToScanJSON = new JSONObject();
+                GlobalValues.networksToScanJSON.put("networks", jsonArray);
+                Util.write(dir_appdb + "/networks.json", GlobalValues.networksToScanJSON.toString(4));
+            }
+
+            /**
+             * *
+             * blacklist nodes
+             * Put these on Reymond Reddington's List
+             */
+            GlobalValues.blacklistJSON = new JSONObject(Util.readFile(dir_appdb + "/blacklist.json"));
+            if (arguments.contains("--blacklist")) {
+                int listSize = 0, index = 0;
+                try {
+                    index = arguments.indexOf("--blacklist");
+                    listSize = Integer.parseInt(arguments.get(index + 1));
+                } catch (NumberFormatException e) {
+                    Util.errPrintln("Use number to specify list"
+                            + "\n Example: --blacklist 4 192.168.1.30 192.168.3.250 rouge-node.yourdomain.com rouge-uuid"
+                            + "\nto set size of list to 4 and hosts followed identfied by IP, FQDN or UUID  "
+                            + "\nException: " + e);
+                    return;
+                }
+                JSONArray jsonArray = GlobalValues.blacklistJSON.getJSONArray("blacklist", new JSONArray());
+                for (int i = 0; i < listSize; i++) {
+                    jsonArray.put(arguments.get(index + i + 2));
+                }
+                GlobalValues.blacklistJSON = new JSONObject();
+                GlobalValues.blacklistJSON.put("blacklist", jsonArray);
+                Util.write(dir_appdb + "/blacklist.json", GlobalValues.blacklistJSON.toString(4));
+            }
+
+            /**
+             * *
+             * Time to fire up every engine
+             */
             if (arguments.contains("--mode")) {
                 int mode = 0;
                 try {

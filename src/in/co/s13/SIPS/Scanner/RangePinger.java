@@ -19,7 +19,9 @@ package in.co.s13.SIPS.Scanner;
 import java.util.ArrayList;
 import static in.co.s13.SIPS.settings.GlobalValues.*;
 import in.co.s13.SIPS.virtualdb.LiveDBRow;
+import in.co.s13.SIPS.virtualdb.NodeDBRow;
 import java.util.Hashtable;
+
 /**
  *
  * @author Nika
@@ -27,12 +29,12 @@ import java.util.Hashtable;
 public class RangePinger implements Runnable {
 
     int low, up;
-    Hashtable<String,LiveDBRow> temp;
+    ArrayList<String> temp;
 
-    public RangePinger(int min, int max, Hashtable<String,LiveDBRow> al) {
+    public RangePinger(int min, int max, ArrayList<String> al) {
         low = min;
         up = max;
-        temp = new Hashtable<>(al);
+        temp = new ArrayList<>(al);
         if (up == temp.size()) {
             up--;
             System.out.println("UP equals to array , decremented");
@@ -49,11 +51,16 @@ public class RangePinger implements Runnable {
     public void run() {
         Thread.currentThread().setName("RangePingerThread");
         for (int i = low; i <= up; i++) {
-
-            Thread p1 = new Thread(new Ping(temp.get(i)));
-        //    p1.setPriority(Thread.NORM_PRIORITY - 1);
+            String node = temp.get(i);
+            Thread p1 = new Thread(new Ping(node, ""));
             pingExecutor.execute(p1);
+            //    p1.setPriority(Thread.NORM_PRIORITY - 1);
 
+//            ArrayList<String> ips = node.getIpAddresses();
+//            for (int j = 0; j < ips.size(); j++) {
+//                String get = ips.get(j);
+//
+//            }
         }
     }
 

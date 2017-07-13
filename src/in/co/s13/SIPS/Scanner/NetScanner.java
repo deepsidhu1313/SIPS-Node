@@ -45,26 +45,18 @@ public class NetScanner implements Runnable {
 //        hosts = new ArrayList();
 //        scanning = new ArrayList();
         addip("127.0.0.1");
-        JSONObject blacklistIPs = new JSONObject(Util.readFile(dir_appdb + "/blacklist-ips.json"));
-        JSONObject blacklistUUIDs = new JSONObject(Util.readFile(dir_appdb + "/blacklist-uuids.json"));
-        JSONObject networksToScan = new JSONObject(Util.readFile(dir_appdb + "/networks.json"));
-        JSONObject ipToScan = new JSONObject(Util.readFile(dir_appdb + "/ips.json"));
-        JSONArray blacklistIPArray = blacklistIPs.getJSONArray("blacklist", new JSONArray());
+
+        JSONArray blacklistIPArray = blacklistJSON.getJSONArray("blacklist", new JSONArray());
         for (int i = 0; i < blacklistIPArray.length(); i++) {
             String val = blacklistIPArray.getString(i);
-            GlobalValues.blacklistIPs.put(val, val);
+            GlobalValues.BLACKLIST.put(val, val);
         }
-        JSONArray blacklistUUIDArray = blacklistUUIDs.getJSONArray("blacklist", new JSONArray());
-        for (int i = 0; i < blacklistUUIDArray.length(); i++) {
-            String val = blacklistUUIDArray.getString(i);
-            GlobalValues.blacklistUUIDs.put(val, val);
-        }
-        JSONArray networksArray = networksToScan.getJSONArray("networks", new JSONArray());
+        JSONArray networksArray = networksToScanJSON.getJSONArray("networks", new JSONArray());
         for (int i = 0; i < networksArray.length(); i++) {
             String val = networksArray.getString(i);
             addnetwork(val);
         }
-        JSONArray ipsArray = ipToScan.getJSONArray("ips", new JSONArray());
+        JSONArray ipsArray = ipToScanJSON.getJSONArray("ips", new JSONArray());
         for (int i = 0; i < ipsArray.length(); i++) {
             String val = ipsArray.getString(i);
             addip(val);
@@ -157,21 +149,21 @@ public class NetScanner implements Runnable {
 //        executorService4.scheduleAtFixedRate(new GarbageCollector(), 15, 15, TimeUnit.MINUTES);
     }
 
-    public static void removeip(String ip) {
-        hosts.remove((ip));
-//        if (hosts.contains(ip)) {
-//            
-//            Collections.sort(hosts);
-//        }
-        /*     if (livehosts.contains(ip)) {
-         livehosts.remove(hosts.indexOf(ip));
-         Collections.sort(livehosts);
-         }*/
-    }
-
+//    public static void removeip(String ip) {
+//        Collections.sort(hosts, NodeDBRow.NodeDBRowComparator.getComparator(NodeDBRow.NodeDBRowComparator.UUID_SORT));
+//        hosts.remove((ip));
+////        if (hosts.contains(ip)) {
+////            
+////            
+////        }
+//        /*     if (livehosts.contains(ip)) {
+//         livehosts.remove(hosts.indexOf(ip));
+//         Collections.sort(livehosts);
+//         }*/
+//    }
     public static void addip(String ip) {
         if (!hosts.contains(ip)) {
-            hosts.put(ip, new NodeDBRow(ip, "", "", "", 0, 0, 0l));
+            hosts.add(ip);
 
             outPrintln("" + ip + " is added to list");
             //  Collections.sort(hosts);
