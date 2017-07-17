@@ -10,6 +10,7 @@
 *.zip
 *.jar
 *.class
+*.tar.gz
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
