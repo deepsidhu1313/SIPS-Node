@@ -142,104 +142,13 @@ public class Server implements Runnable {
 
     }
 
-    public static void copyFileUsingStream(File source, File dest) {
-        if (dest.exists()) {
-            dest.delete();
-        }
-        if (!dest.getParentFile().exists()) {
-            dest.getParentFile().mkdirs();
-        }
-        if (!source.exists()) {
-            try {
-                System.out.println("" + source.getCanonicalPath() + " does not exist");
-                return;
-            } catch (IOException ex) {
-                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        InputStream is = null;
-        OutputStream os = null;
-        try {
-            is = new FileInputStream(source);
-            os = new FileOutputStream(dest);
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = is.read(buffer)) > 0) {
-                os.write(buffer, 0, length);
-            }
-            System.out.println("" + source.getAbsolutePath() + " copied to " + dest.getAbsolutePath() + " ");
-
-            try {
-                is.close();
-                os.close();
-            } catch (IOException ex) {
-                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-            try {
-                is.close();
-                os.close();
-            } catch (IOException e) {
-                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
-        } catch (IOException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-            try {
-                is.close();
-                os.close();
-            } catch (IOException e) {
-                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
-        } finally {
-            try {
-                is.close();
-                os.close();
-            } catch (IOException ex) {
-                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }
-
-    public static void copyFileUsingStream(String pathtosrc, String pathtodest) {
-        File source = new File(pathtosrc);
-        File dest = new File(pathtodest);
-        if (dest.exists()) {
-            dest.delete();
-        }
-        if (!dest.getParentFile().exists()) {
-            dest.getParentFile().mkdirs();
-        }
-
-        if (!source.exists()) {
-            System.out.println("" + pathtosrc + " does not exist");
-            return;
-        }
-        try (InputStream is = new FileInputStream(source); OutputStream os = new FileOutputStream(dest)) {
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = is.read(buffer)) > 0) {
-                os.write(buffer, 0, length);
-            }
-            System.out.println("" + source.getAbsolutePath() + " copied to " + dest.getAbsolutePath() + " ");
-        } catch (IOException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        
-    }
-
-    public static void main(String[] args) {
-    }
+   
 
     @Override
     public void run() {
         try {
             if (ss == null || ss.isClosed()) {
-                ss = new ServerSocket(13133);
+                ss = new ServerSocket(GlobalValues.MAIN_SERVER_PORT);
             }
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);

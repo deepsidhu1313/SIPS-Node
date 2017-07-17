@@ -56,6 +56,13 @@ public class NetScanner implements Runnable {
             String val = networksArray.getString(i);
             addnetwork(val);
         }
+        for (int i = 0; i < GlobalValues.ipAddresses.length(); i++) {
+            String ip= GlobalValues.ipAddresses.getString(i);
+            if(!ip.startsWith("127")){
+                addnetwork(ip);
+            }
+            
+        }
         JSONArray ipsArray = ipToScanJSON.getJSONArray("ips", new JSONArray());
         for (int i = 0; i < ipsArray.length(); i++) {
             String val = ipsArray.getString(i);
@@ -216,8 +223,5 @@ public class NetScanner implements Runnable {
 
     }
 
-    public static void main(String args[]) {
-        NetScanner ns = new NetScanner();
 
-    }
 }

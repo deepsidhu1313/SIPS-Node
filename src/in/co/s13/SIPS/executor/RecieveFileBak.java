@@ -35,7 +35,7 @@ import org.json.JSONObject;
 
 public class RecieveFileBak {
 
-    public final static int SOCKET_PORT = 13133;      // you may change this
+    public final static int SOCKET_PORT = 13132;      // you may change this
     String SERVER = "";  // localhost
     public final static int FILE_SIZE = 999999999;
     ArrayList<String> logmsg = new ArrayList<>();

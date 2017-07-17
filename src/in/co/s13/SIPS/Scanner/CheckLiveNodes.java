@@ -85,10 +85,4 @@ public class CheckLiveNodes implements Runnable {
             }
         }
     }
-
-    public static void main(String args[]) {
-        Thread chec = new Thread(new CheckLiveNodes());
-        chec.start();
-
-    }
 }

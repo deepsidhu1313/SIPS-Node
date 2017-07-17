@@ -31,8 +31,11 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 class Ping implements Runnable {
@@ -43,7 +46,7 @@ class Ping implements Runnable {
     Boolean live = false;
     String hostname;
     String osname, cpuname, uuid;
-    long ram, freeRam;
+    long ram, freeRam, hdd_size, hdd_free;
     int plimit, pwait;
 
     Ping(String ip, String uuid) {
@@ -80,7 +83,7 @@ class Ping implements Runnable {
         }
         Socket s = new Socket();
         try {
-            s.connect(new InetSocketAddress(IPadress, 13131));
+            s.connect(new InetSocketAddress(IPadress, GlobalValues.PING_SERVER_PORT));
 
             try (OutputStream os = s.getOutputStream(); DataInputStream dIn = new DataInputStream(s.getInputStream()); DataOutputStream outToServer = new DataOutputStream(os)) {
                 JSONObject pingRequest = new JSONObject();
@@ -104,33 +107,23 @@ class Ping implements Runnable {
                 hostname = reply.getString("HOSTNAME");
                 plimit = reply.getInt("PLIMIT");
                 pwait = reply.getInt("PWAIT");
-                ram = reply.getInt("TMEM");
+                ram = reply.getLong("TMEM");
+                freeRam = reply.getInt("MEM_FREE");
+                hdd_free = reply.getLong("HDD_FREE");
+                hdd_size = reply.getLong("HDD_SIZE");
                 uuid = reply.getString("UUID");
                 // String cpuload = reply.substring(reply.indexOf("<CPULOAD>") + 9, reply.indexOf("</CPULOAD>"));
                 cpuname = reply.getString("CPUNAME");
+                ArrayList<String> ips = new ArrayList<String>();
+                JSONArray ipsJSONArray = reply.getJSONArray("IP_ADDRESSES", new JSONArray());
+                for (int i = 0; i < ipsJSONArray.length(); i++) {
+                    ips.add(ipsJSONArray.getString(i));
+                }
                 outPrintln("" + reply.toString(4));
                 System.out.println(reply);
                 outPrintln("Port Opened On " + IPadress);
-
-                boolean isinlist = false;
-                nodeDBExecutor.execute(() -> {
-                    //     boolean isinlist1 = false;
-                    try {
-                        String sql = "SELECT * FROM ALLN WHERE IP='" + IPadress.trim() + "';";
-                        try (ResultSet rs = alldb.select(sql)) {
-                            String clustername = "";
-                            Double prf = 0.1;
-                            while (rs.next()) {
-                                clustername = rs.getString("CLUSTER");
-                                prf = rs.getDouble("PRFM");
-                            }
-                            if (!(clustername.trim().length() > 0) || clustername.equalsIgnoreCase(" ")) {
-                                clustername = "Default";
-                            }
-                            final double prf2 = prf;
-                            final String cnm = clustername;
-                            liveDBExecutor.execute(() -> {
-                                /*   String sql3 = "UPDATE LIVE SET "
+                liveDBExecutor.execute(() -> {
+                    /*   String sql3 = "UPDATE LIVE SET "
                                  + "PRF ='" + prf2 + "',"
                                  + "CN ='" + cnm + "',"
                                  + "HN ='" + hostname + "',"
@@ -139,30 +132,52 @@ class Ping implements Runnable {
                                  + "QL ='" + plimit + "',"
                                  + "QW ='" + pwait + "',"
                                  + "RAM ='" + ram + "' WHERE IP ='" + IPadress + "';";
-                                 */
-                                //            SQLiteJDBC livedb2 = new SQLiteJDBC();
-                                //                livedb2.Update("appdb/live.db", sql3);
-                                //               livedb2.closeConnection();
-                                boolean updatedRecord = false;
-                                if (liveNodeDB.containsKey(IPadress.trim())) {
-                                    liveNodeDB.remove(IPadress.trim());
-                                }
-
-                                if (liveNodeDB.containsKey(uuid)) {
-                                    liveNodeDB.replace(uuid, new LiveDBRow(uuid, hostname, osname, cpuname, (plimit), (pwait), ram, freeRam));
-                                    updatedRecord = true;
-                                } else {
-                                    liveNodeDB.put(uuid, new LiveDBRow(uuid, hostname, osname, cpuname, (plimit), (pwait), ram, freeRam));
-
-                                }
-
-                            });
-
-                        }
-                        alldb.closeStatement();
-                    } catch (SQLException ex) {
-                        Logger.getLogger(Ping.class.getName()).log(Level.SEVERE, null, ex);
+                     */
+                    //            SQLiteJDBC livedb2 = new SQLiteJDBC();
+                    //                livedb2.Update("appdb/live.db", sql3);
+                    //               livedb2.closeConnection();
+                    boolean updatedRecord = false;
+                    if (liveNodeDB.containsKey(IPadress.trim())) {
+                        liveNodeDB.remove(IPadress.trim());
                     }
+
+                    if (liveNodeDB.containsKey(uuid)) {
+                        liveNodeDB.replace(uuid, new LiveDBRow(uuid, hostname, osname, cpuname, (plimit), (pwait), ram, freeRam, hdd_size, hdd_free));
+                        updatedRecord = true;
+                    } else {
+                        liveNodeDB.put(uuid, new LiveDBRow(uuid, hostname, osname, cpuname, (plimit), (pwait), ram, freeRam, hdd_size, hdd_free));
+
+                    }
+                    LiveDBRow live = liveNodeDB.get(uuid);
+                    for (int i = 0; i < ips.size(); i++) {
+                        String get = ips.get(i);
+                        live.addIp(get);
+                    }
+
+                });
+                boolean isinlist = false;
+                nodeDBExecutor.execute(() -> {
+//                    //     boolean isinlist1 = false;
+//                    try {
+//                        String sql = "SELECT * FROM ALLN WHERE IP='" + IPadress.trim() + "';";
+//                        try (ResultSet rs = alldb.select(sql)) {
+//                            String clustername = "";
+//                            Double prf = 0.1;
+//                            while (rs.next()) {
+//                                clustername = rs.getString("CLUSTER");
+//                                prf = rs.getDouble("PRFM");
+//                            }
+//                            if (!(clustername.trim().length() > 0) || clustername.equalsIgnoreCase(" ")) {
+//                                clustername = "Default";
+//                            }
+//                            final double prf2 = prf;
+//                            final String cnm = clustername;
+//
+//                        }
+//                        alldb.closeStatement();
+//                    } catch (SQLException ex) {
+//                        Logger.getLogger(Ping.class.getName()).log(Level.SEVERE, null, ex);
+//                    }
                 });
 
             }
@@ -181,7 +196,7 @@ class Ping implements Runnable {
             }
         }
         scanning.remove(IPadress.trim());
- 
+
     }
 
     public boolean isLive() {

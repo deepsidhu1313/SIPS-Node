@@ -29,6 +29,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -65,6 +66,7 @@ public class GlobalValues {
     public static double CPU_LOAD_AVG = 0.0;
     public static JSONObject BENCHMARKING;
     public static Hashtable<String, Resource> resources = new Hashtable<>(5);
+    public static JSONArray ipAddresses = new JSONArray();
 
     /**
      * Log Files and variables
@@ -86,7 +88,7 @@ public class GlobalValues {
     public static int FILES_RESOLVER_LIMIT = 10;
     public static int PING_HANDLER_LIMIT = 10;
     public static int PROCESS_HANDLER_LIMIT = 10;
-    public static int PROCESS_LIMIT = Runtime.getRuntime().availableProcessors() - 1;
+    public static int PROCESS_LIMIT = Runtime.getRuntime().availableProcessors() - 2;
     /**
      * *
      * Executors
@@ -116,5 +118,8 @@ public class GlobalValues {
     public static boolean iswriting = false;
     public static JSONObject blacklistJSON, networksToScanJSON, ipToScanJSON;
     public static int threadnumber = total_threads;
+    public static Hashtable<String, String> routingTable = new Hashtable<>();
+    
+    public static int PING_SERVER_PORT=13131,FILE_QUEUE_SERVER_PORT=13132,MAIN_SERVER_PORT=13133;
 
 }

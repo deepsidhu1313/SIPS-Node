@@ -44,14 +44,13 @@ public class FileReqQueServer implements Runnable {
 
     }
 
-    public static void main(String[] args) {
-    }
+   
 
     @Override
     public void run() {
         try {
             if (ss == null || ss.isClosed()) {
-                ss = new ServerSocket(13132);
+                ss = new ServerSocket(GlobalValues.FILE_QUEUE_SERVER_PORT);
             }
         } catch (IOException ex) {
             Logger.getLogger(FileReqQueServer.class.getName()).log(Level.SEVERE, null, ex);

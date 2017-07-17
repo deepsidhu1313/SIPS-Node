@@ -1,6 +1,23 @@
+/* 
+ * Copyright (C) 2017 Navdeep Singh Sidhu
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package in.co.s13.SIPS.tools;
 
 import com.sun.management.OperatingSystemMXBean;
+import in.co.s13.SIPS.executor.sockets.Server;
 import static in.co.s13.SIPS.settings.GlobalValues.DUMP_LOG;
 import static in.co.s13.SIPS.settings.GlobalValues.MEM_SIZE;
 import static in.co.s13.SIPS.settings.GlobalValues.OS;
@@ -822,7 +839,7 @@ public class Util {
      * @throws UnknownHostException If the LAN address of the machine cannot be
      * found.
      */
-    private static ArrayList<InetAddress> getLocalHostLANAddress() throws UnknownHostException {
+    public static ArrayList<InetAddress> getLocalHostLANAddress() throws UnknownHostException {
         ArrayList<InetAddress> list = new ArrayList<>();
         try {
             InetAddress candidateAddress = null;
@@ -867,6 +884,97 @@ public class Util {
             throw unknownHostException;
         }
         return list;
+    }
+    
+    
+     public static void copyFileUsingStream(File source, File dest) {
+        if (dest.exists()) {
+            dest.delete();
+        }
+        if (!dest.getParentFile().exists()) {
+            dest.getParentFile().mkdirs();
+        }
+        if (!source.exists()) {
+            try {
+                System.out.println("" + source.getCanonicalPath() + " does not exist");
+                return;
+            } catch (IOException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        InputStream is = null;
+        OutputStream os = null;
+        try {
+            is = new FileInputStream(source);
+            os = new FileOutputStream(dest);
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = is.read(buffer)) > 0) {
+                os.write(buffer, 0, length);
+            }
+            System.out.println("" + source.getAbsolutePath() + " copied to " + dest.getAbsolutePath() + " ");
+
+            try {
+                is.close();
+                os.close();
+            } catch (IOException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            try {
+                is.close();
+                os.close();
+            } catch (IOException e) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        } catch (IOException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            try {
+                is.close();
+                os.close();
+            } catch (IOException e) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        } finally {
+            try {
+                is.close();
+                os.close();
+            } catch (IOException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+    public static void copyFileUsingStream(String pathtosrc, String pathtodest) {
+        File source = new File(pathtosrc);
+        File dest = new File(pathtodest);
+        if (dest.exists()) {
+            dest.delete();
+        }
+        if (!dest.getParentFile().exists()) {
+            dest.getParentFile().mkdirs();
+        }
+
+        if (!source.exists()) {
+            System.out.println("" + pathtosrc + " does not exist");
+            return;
+        }
+        try (InputStream is = new FileInputStream(source); OutputStream os = new FileOutputStream(dest)) {
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = is.read(buffer)) > 0) {
+                os.write(buffer, 0, length);
+            }
+            System.out.println("" + source.getAbsolutePath() + " copied to " + dest.getAbsolutePath() + " ");
+        } catch (IOException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        
     }
 
     public static void main(String[] args) {

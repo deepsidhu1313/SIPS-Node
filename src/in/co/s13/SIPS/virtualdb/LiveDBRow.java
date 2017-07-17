@@ -19,6 +19,7 @@ package in.co.s13.SIPS.virtualdb;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Objects;
+import org.json.JSONObject;
 
 /**
  *
@@ -29,11 +30,11 @@ public class LiveDBRow {
     private int que_length, waiting_in_que;
     private String uuid, operatingSytem, hostname, processor_name;
 
-    private long memory, free_memory;
+    private long memory, free_memory, hdd_size, hdd_free;
     private ArrayList<String> ipAddresses;
 
     public LiveDBRow(String uuid, String host, String os, String processor, int qlen,
-            int qwait, long ram, long free_memory) {
+            int qwait, long ram, long free_memory, long hdd_size, long hdd_free) {
         this.uuid = uuid;
         this.operatingSytem = os;
         this.hostname = host;
@@ -42,6 +43,8 @@ public class LiveDBRow {
         this.memory = ram;
         this.free_memory = free_memory;
         this.processor_name = processor;
+        this.hdd_size = hdd_size;
+        this.hdd_free = hdd_free;
     }
 
     public String getUuid() {
@@ -109,10 +112,6 @@ public class LiveDBRow {
         this.ipAddresses = ipAddresses;
     }
 
-
-
-
-
     public String getProcessor_name() {
         return processor_name;
     }
@@ -121,6 +120,21 @@ public class LiveDBRow {
         this.processor_name = name;
     }
 
+    public long getHdd_size() {
+        return hdd_size;
+    }
+
+    public void setHdd_size(long hdd_size) {
+        this.hdd_size = hdd_size;
+    }
+
+    public long getHdd_free() {
+        return hdd_free;
+    }
+
+    public void setHdd_free(long hdd_free) {
+        this.hdd_free = hdd_free;
+    }
 
     public void addIp(String ip) {
         if (!this.ipAddresses.contains(ip)) {
@@ -134,7 +148,7 @@ public class LiveDBRow {
 
     @Override
     public String toString() {
-        return "LiveDBRow:[" +" uuid: " + uuid + ", que_length:" + que_length + ", waiting_in_que:" + waiting_in_que +  ", operatingSytem:" + operatingSytem + ", hostname:" + hostname + ", processor_name:" + processor_name + ", memory:" + memory +", free_memory:" + free_memory + ']';
+        return "LiveDBRow:[" + " uuid: " + uuid + ", que_length:" + que_length + ", waiting_in_que:" + waiting_in_que + ", operatingSytem:" + operatingSytem + ", hostname:" + hostname + ", processor_name:" + processor_name + ", memory:" + memory + ", free_memory:" + free_memory + ", hdd_size:" + hdd_size + ", hdd_free:" + hdd_free + ']';
     }
 
     @Override
@@ -148,6 +162,12 @@ public class LiveDBRow {
         return hash;
     }
 
+    public JSONObject toJSON() {
+        JSONObject result = new JSONObject();
+        
+        return result;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
@@ -157,7 +177,7 @@ public class LiveDBRow {
             return false;
         }
         final LiveDBRow other = (LiveDBRow) obj;
-        
+
         if (!Objects.equals(this.uuid, other.uuid)) {
             return false;
         }
@@ -201,7 +221,6 @@ public class LiveDBRow {
                 return Long.valueOf(o1.getFree_memory()).compareTo(o2.getFree_memory());
             }
         },
-
         PROCESSOR_SORT {
             public int compare(LiveDBRow o1, LiveDBRow o2) {
                 return (o1.getProcessor_name()).compareTo(o2.getProcessor_name());

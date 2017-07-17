@@ -42,15 +42,13 @@ public class PingServer implements Runnable {
         
     }
 
-   
-    public static void main(String[] args) {
-    }
+
 
     @Override
     public void run() {
         try {
             if (ss == null || ss.isClosed()) {
-                ss = new ServerSocket(13131);
+                ss = new ServerSocket(GlobalValues.PING_SERVER_PORT);
             }
         } catch (IOException ex) {
             Logger.getLogger(PingServer.class.getName()).log(Level.SEVERE, null, ex);

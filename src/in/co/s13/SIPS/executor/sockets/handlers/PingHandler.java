@@ -91,9 +91,12 @@ public class PingHandler implements Runnable {
                             sendmsg2Json.put("PLIMIT", GlobalValues.PROCESS_LIMIT);
                             sendmsg2Json.put("PWAIT", GlobalValues.PROCESS_WAITING);
                             sendmsg2Json.put("TMEM", GlobalValues.MEM_SIZE);
+                            sendmsg2Json.put("MEM_FREE", GlobalValues.MEM_FREE);
+                            sendmsg2Json.put("HDD_SIZE", GlobalValues.HDD_SIZE);
+                            sendmsg2Json.put("HDD_FREE", GlobalValues.HDD_FREE);
                             sendmsg2Json.put("CPULOAD", Util.getCPULoad());
                             sendmsg2Json.put("CPUNAME", GlobalValues.CPU_NAME);
-
+                            sendmsg2Json.put("IP_ADDRESSES", GlobalValues.ipAddresses);
                             String sendmsg2 = sendmsg2Json.toString();
                             byte[] bytes2 = sendmsg2.getBytes("UTF-8");
                             outToClient2.writeInt(bytes2.length);

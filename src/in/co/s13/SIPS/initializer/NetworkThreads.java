@@ -1,4 +1,4 @@
-/*
+/* 
  * Copyright (C) 2017 Navdeep Singh Sidhu
  *
  * This program is free software: you can redistribute it and/or modify
@@ -18,6 +18,8 @@ package in.co.s13.SIPS.initializer;
 
 import in.co.s13.SIPS.Scanner.AddLivenodes;
 import in.co.s13.SIPS.Scanner.CheckLiveNodes;
+import in.co.s13.SIPS.Scanner.NetScanner;
+import in.co.s13.SIPS.tools.IPInfo;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -29,10 +31,16 @@ import java.util.concurrent.TimeUnit;
 public class NetworkThreads {
 
     public NetworkThreads() {
+        NetScanner ns = new NetScanner();
+        Thread t = new Thread(ns);
+        t.start();
+        ScheduledExecutorService executorService3 = Executors.newScheduledThreadPool(1);
+        executorService3.scheduleAtFixedRate(new IPInfo(), 0, 90, TimeUnit.SECONDS);
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
         executorService.scheduleAtFixedRate(new AddLivenodes(), 2, 60, TimeUnit.SECONDS);
         ScheduledExecutorService executorService2 = Executors.newScheduledThreadPool(1);
         executorService2.scheduleAtFixedRate(new CheckLiveNodes(), 15, 90, TimeUnit.SECONDS);
+
     }
 
 }

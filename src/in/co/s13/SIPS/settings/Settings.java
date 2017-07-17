@@ -39,7 +39,6 @@ import java.util.Date;
 import java.util.UUID;
 import org.json.JSONObject;
 
-
 public class Settings {
 
     public Settings() {
@@ -87,6 +86,7 @@ public class Settings {
         if (new File(dir_appdb + "/settings.json").exists()) {
             loadSettings();
         } else {
+
             saveSettings();
         }
         processDBExecutor.execute(() -> {
@@ -116,6 +116,11 @@ public class Settings {
         MEM_SIZE = Util.getMemorySize();
         CPU_NAME = getCPUName();
         try {
+            ipAddresses.put(Util.getLocalHostLANAddress());
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        try {
             String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
             String prevContent = Util.readFile(ERR_FILE);
             GlobalValues.err = new PrintStream(GlobalValues.ERR_FILE);
@@ -143,9 +148,7 @@ public class Settings {
         saveSettings();
     }
 
-    public static void main(String[] args) {
-        new Settings();
-    }
+   
 
     void loadSettings() {
         JSONObject settings = new JSONObject(readFile(dir_appdb + "/settings.json"));
@@ -155,7 +158,7 @@ public class Settings {
         if (NODE_UUID.length() < 1) {
             NODE_UUID = Util.generateNodeUUID();
         }
-        PROCESS_LIMIT = settings.getInt("MAX_PROCESS_ALLOWED_IN_PARALLEL", 3);
+        PROCESS_LIMIT = settings.getInt("MAX_PROCESS_ALLOWED_IN_PARALLEL", 2);
         FILES_RESOLVER_LIMIT = settings.getInt("MAX_FILE_RESOLVE_IN_PARALLEL", 3);
         PING_HANDLER_LIMIT = settings.getInt("MAX_PING_RESPONSES_IN_PARALLEL", 3);
         PROCESS_HANDLER_LIMIT = settings.getInt("MAX_PROCESS_REQ_IN_PARALLEL", 3);
@@ -165,6 +168,10 @@ public class Settings {
 
     public void saveSettings() {
         JSONObject settings = new JSONObject();
+        
+        if (NODE_UUID.length() < 1) {
+            NODE_UUID = Util.generateNodeUUID();
+        }
         settings.put("UUID", NODE_UUID);
         settings.put("MAX_PROCESS_ALLOWED_IN_PARALLEL", PROCESS_LIMIT);
         settings.put("MAX_FILE_RESOLVE_IN_PARALLEL", FILES_RESOLVER_LIMIT);
@@ -172,7 +179,7 @@ public class Settings {
         settings.put("MAX_PROCESS_REQ_IN_PARALLEL", PROCESS_HANDLER_LIMIT);
         settings.put("DUMP_LOG", DUMP_LOG);
         settings.put("VERBOSE", VERBOSE);
-
+        
         write(new File(dir_appdb + "/settings.json"), settings.toString(4));
     }
 

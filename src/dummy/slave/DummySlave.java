@@ -21,6 +21,8 @@ import in.co.s13.SIPS.settings.Settings;
 import in.co.s13.SIPS.executor.sockets.FileReqQueServer;
 import in.co.s13.SIPS.executor.sockets.PingServer;
 import in.co.s13.SIPS.executor.sockets.Server;
+import in.co.s13.SIPS.initializer.HardwareStatThreads;
+import in.co.s13.SIPS.initializer.NetworkThreads;
 import in.co.s13.SIPS.settings.GlobalValues;
 import static in.co.s13.SIPS.settings.GlobalValues.dir_appdb;
 import in.co.s13.SIPS.tools.Util;
@@ -201,7 +203,7 @@ public class DummySlave {
             /**
              * *
              * blacklist nodes
-             * Put these on Reymond Reddington's List
+             * Put these on Raymond Reddington's List
              */
             GlobalValues.blacklistJSON = new JSONObject(Util.readFile(dir_appdb + "/blacklist.json"));
             if (arguments.contains("--blacklist")) {
@@ -246,6 +248,8 @@ public class DummySlave {
                      */
                     case 0:
                     default:
+                        new HardwareStatThreads();
+                        new NetworkThreads();
                         Thread pingServer = new Thread(new PingServer(true, 0));
                         pingServer.start();
                         Thread server = new Thread(new Server(true));
@@ -258,6 +262,9 @@ public class DummySlave {
                      * Private Mode
                      */
                     case 1:
+
+                        new HardwareStatThreads();
+                        new NetworkThreads();
                         Thread server2 = new Thread(new Server(true));
                         server2.start();
                         Thread downloadQueueServer2 = new Thread(new FileReqQueServer(true));
@@ -266,6 +273,8 @@ public class DummySlave {
                 }
             } else {
                 preBenchmarkingChecks();
+                new HardwareStatThreads();
+                new NetworkThreads();
                 Thread server = new Thread(new Server(true));
                 server.start();
                 Thread pingServer = new Thread(new PingServer(true, 3));
@@ -275,6 +284,7 @@ public class DummySlave {
             }
 
         }
+
     }
 
     public static void benchmark() {
