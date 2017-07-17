@@ -1,5 +1,4 @@
 language: java
-install: ant deps
 jdk:
   - oraclejdk8
 
@@ -16,9 +15,11 @@ addons:
 sudo: false
 
 # use framebuffer for UI 
-#before_install:
+before_install:
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
+
+install: ant deps
 
 script:
   - ant
