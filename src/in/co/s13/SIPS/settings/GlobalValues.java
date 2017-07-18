@@ -19,7 +19,6 @@ package in.co.s13.SIPS.settings;
 import in.co.s13.SIPS.datastructure.Resource;
 import in.co.s13.SIPS.db.OLDSQLiteJDBC;
 import in.co.s13.SIPS.db.SQLiteJDBC;
-import in.co.s13.SIPS.tools.Util;
 import in.co.s13.SIPS.virtualdb.LiveDBRow;
 import in.co.s13.SIPS.virtualdb.NodeDBRow;
 import java.io.PrintStream;
@@ -27,8 +26,6 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
