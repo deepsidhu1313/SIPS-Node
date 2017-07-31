@@ -40,9 +40,10 @@ public class PingHandler implements Runnable {
     String simsql = "";
     long pdelay = 10;
     long startTime;
+
     public PingHandler(Socket connection) {
         submitter = connection;
-        startTime=System.currentTimeMillis();
+        startTime = System.currentTimeMillis();
     }
 
     @Override
@@ -67,7 +68,13 @@ public class PingHandler implements Runnable {
 
                     // System.out.println("" + msg);
                     String command = msg.getString("Command");
-                    String body = msg.getString("Body");
+                    JSONObject pingRequestBody = msg.getJSONObject("Body");;
+                    String clientUUID = pingRequestBody.getString("UUID");
+                    if (GlobalValues.BLACKLIST.containsKey(clientUUID) || GlobalValues.BLACKLIST.containsKey(ipAddress)) {
+                        //send error message
+                        // bad node no cookie for u
+                    }
+
                     //     System.out.println(msg);
 //                    if (command.contains("createprocess")) {
 //                        GlobalValues.PROCESS_WAITING++;
@@ -99,7 +106,7 @@ public class PingHandler implements Runnable {
                             sendmsg2Json.put("CPUNAME", GlobalValues.CPU_NAME);
                             sendmsg2Json.put("IP_ADDRESSES", GlobalValues.ipAddresses);
                             sendmsg2Json.put("BENCHMARKS", GlobalValues.BENCHMARKING);
-                            sendmsg2Json.put("PROCESS_TIME", (System.currentTimeMillis()-startTime));
+                            sendmsg2Json.put("PROCESS_TIME", (System.currentTimeMillis() - startTime));
                             sendmsg2Json.put("ADJ_NODES", Util.getAdjacentTableInJSON());
                             sendmsg2Json.put("NON_ADJ_NODES", Util.getNonAdjacentTableInJSON());
                             String sendmsg2 = sendmsg2Json.toString();
@@ -129,7 +136,5 @@ public class PingHandler implements Runnable {
         }
 
     }
-    
-    
 
 }

@@ -178,9 +178,20 @@ class Ping implements Runnable {
                         String key = keys.next();
                         long dis = adjacentNodes.getLong(key, Long.MIN_VALUE);
                         if (NON_ADJACENT_NODES_TABLE.containsKey(key)) {
-                             NON_ADJACENT_NODES_TABLE.get(key).addHop(new Hop(key, dis));
+                             NON_ADJACENT_NODES_TABLE.get(key).addHop(new Hop(uuid, dis+distance));
                         } else {
-                            NON_ADJACENT_NODES_TABLE.put(key, new UniqueElementList(new Hop(key, dis)));
+                            NON_ADJACENT_NODES_TABLE.put(key, new UniqueElementList(new Hop(uuid, dis+distance)));
+                        }
+                    }
+                    
+                    Iterator<String> keys2 = nonAdjacentNodes.keys();
+                    while (keys2.hasNext()) {
+                        String key = keys2.next();
+                        long dis = nonAdjacentNodes.getLong(key, Long.MIN_VALUE);
+                        if (NON_ADJACENT_NODES_TABLE.containsKey(key)) {
+                             NON_ADJACENT_NODES_TABLE.get(key).addHop(new Hop(uuid, dis+distance));
+                        } else {
+                            NON_ADJACENT_NODES_TABLE.put(key, new UniqueElementList(new Hop(uuid, dis+distance)));
                         }
                     }
 
