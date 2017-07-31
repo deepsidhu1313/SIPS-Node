@@ -16,6 +16,7 @@
  */
 package in.co.s13.SIPS.datastructure;
 
+import java.util.Comparator;
 import java.util.Objects;
 
 /**
@@ -23,6 +24,7 @@ import java.util.Objects;
  * @author nika
  */
 public class Hop {
+
     private String id;
     private long distance;
 
@@ -80,6 +82,28 @@ public class Hop {
         }
         return true;
     }
-    
-    
+
+    enum HopComparator implements Comparator<Hop> {
+        DISTANCE_SORT {
+            @Override
+            public int compare(Hop o1, Hop o2) {
+                return Long.valueOf(o1.getDistance()).compareTo(o2.getDistance());
+            }
+        };
+        public static Comparator<Hop> decending(final Comparator<Hop> other) {
+            return (Hop o1, Hop o2) -> -1 * other.compare(o1, o2);
+        }
+
+        public static Comparator<Hop> getComparator(final HopComparator... multipleOptions) {
+            return (Hop o1, Hop o2) -> {
+                for (HopComparator option : multipleOptions) {
+                    int result = option.compare(o1, o2);
+                    if (result != 0) {
+                        return result;
+                    }
+                }
+                return 0;
+            };
+        }
+    }
 }

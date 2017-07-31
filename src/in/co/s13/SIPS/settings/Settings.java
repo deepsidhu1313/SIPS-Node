@@ -148,8 +148,6 @@ public class Settings {
         saveSettings();
     }
 
-   
-
     void loadSettings() {
         JSONObject settings = new JSONObject(readFile(dir_appdb + "/settings.json"));
 
@@ -164,11 +162,13 @@ public class Settings {
         PROCESS_HANDLER_LIMIT = settings.getInt("MAX_PROCESS_REQ_IN_PARALLEL", 3);
         DUMP_LOG = settings.getBoolean("DUMP_LOG", true);
         VERBOSE = settings.getBoolean("VERBOSE", true);
+        SHARED_STORAGE = settings.getBoolean("SHARED_STORAGE", SHARED_STORAGE);
+
     }
 
     public void saveSettings() {
         JSONObject settings = new JSONObject();
-        
+
         if (NODE_UUID.length() < 1) {
             NODE_UUID = Util.generateNodeUUID();
         }
@@ -179,7 +179,7 @@ public class Settings {
         settings.put("MAX_PROCESS_REQ_IN_PARALLEL", PROCESS_HANDLER_LIMIT);
         settings.put("DUMP_LOG", DUMP_LOG);
         settings.put("VERBOSE", VERBOSE);
-        
+        settings.put("SHARED_STORAGE", SHARED_STORAGE);
         write(new File(dir_appdb + "/settings.json"), settings.toString(4));
     }
 

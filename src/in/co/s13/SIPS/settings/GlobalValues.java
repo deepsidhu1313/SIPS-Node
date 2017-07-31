@@ -16,7 +16,9 @@
  */
 package in.co.s13.SIPS.settings;
 
+import in.co.s13.SIPS.datastructure.Hop;
 import in.co.s13.SIPS.datastructure.Resource;
+import in.co.s13.SIPS.datastructure.UniqueElementList;
 import in.co.s13.SIPS.db.OLDSQLiteJDBC;
 import in.co.s13.SIPS.db.SQLiteJDBC;
 import in.co.s13.SIPS.virtualdb.LiveDBRow;
@@ -64,7 +66,7 @@ public class GlobalValues {
     public static JSONObject BENCHMARKING;
     public static Hashtable<String, Resource> resources = new Hashtable<>(5);
     public static JSONArray ipAddresses = new JSONArray();
-
+    public static boolean SHARED_STORAGE=false;
     /**
      * Log Files and variables
      */
@@ -116,6 +118,8 @@ public class GlobalValues {
     public static JSONObject blacklistJSON, networksToScanJSON, ipToScanJSON;
     public static int threadnumber = total_threads;
     public static Hashtable<String, String> routingTable = new Hashtable<>();
+    public static Hashtable<String, Long> ADJACENT_NODES_TABLE = new Hashtable<>();
+    public static Hashtable<String, UniqueElementList> NON_ADJACENT_NODES_TABLE = new Hashtable<>();
     
     public static int PING_SERVER_PORT=13131,FILE_QUEUE_SERVER_PORT=13132,MAIN_SERVER_PORT=13133;
 

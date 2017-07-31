@@ -17,7 +17,9 @@
 package in.co.s13.SIPS.tools;
 
 import com.sun.management.OperatingSystemMXBean;
+import in.co.s13.SIPS.datastructure.UniqueElementList;
 import in.co.s13.SIPS.executor.sockets.Server;
+import in.co.s13.SIPS.settings.GlobalValues;
 import static in.co.s13.SIPS.settings.GlobalValues.DUMP_LOG;
 import static in.co.s13.SIPS.settings.GlobalValues.MEM_SIZE;
 import static in.co.s13.SIPS.settings.GlobalValues.OS;
@@ -57,10 +59,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.filechooser.FileSystemView;
+import org.json.JSONObject;
 
 /**
  * Utility methods for jDiskMark
@@ -752,8 +757,6 @@ public class Util {
 
     }
 
-    
-    
     public static void saveCheckSum(String Filename, String con) {
         File f = new File(Filename);
         if (f.exists()) {
@@ -885,9 +888,8 @@ public class Util {
         }
         return list;
     }
-    
-    
-     public static void copyFileUsingStream(File source, File dest) {
+
+    public static void copyFileUsingStream(File source, File dest) {
         if (dest.exists()) {
             dest.delete();
         }
@@ -973,11 +975,34 @@ public class Util {
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        
+
     }
 
+    public static synchronized JSONObject getAdjacentTableInJSON() {
+        JSONObject json = new JSONObject();
+        Enumeration<String> en = GlobalValues.ADJACENT_NODES_TABLE.keys();
+        while (en.hasMoreElements()) {
+            String key = en.nextElement();
+            Long value = GlobalValues.ADJACENT_NODES_TABLE.get(key);
+            json.put(key, value);
+        }
+        return json;
+    }
+
+    public static synchronized JSONObject getNonAdjacentTableInJSON() {
+        JSONObject json = new JSONObject();
+        Enumeration<String> en = GlobalValues.NON_ADJACENT_NODES_TABLE.keys();
+        while (en.hasMoreElements()) {
+            String key = en.nextElement();
+            UniqueElementList value = GlobalValues.NON_ADJACENT_NODES_TABLE.get(key);
+            json.put(key, value.getNearestHop().getDistance());
+        }
+        return json;
+    }
+
+    
     public static void main(String[] args) {
         Util.sysStats();
+
     }
 }

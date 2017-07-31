@@ -16,6 +16,8 @@
  */
 package in.co.s13.SIPS.Scanner;
 
+import in.co.s13.SIPS.datastructure.Hop;
+import in.co.s13.SIPS.datastructure.UniqueElementList;
 import in.co.s13.SIPS.settings.GlobalValues;
 import static in.co.s13.SIPS.settings.GlobalValues.*;
 import static in.co.s13.SIPS.tools.Util.errPrintln;
@@ -32,6 +34,7 @@ import java.net.UnknownHostException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,10 +47,6 @@ class Ping implements Runnable {
     String IPadress, UUID;
     String msg = "";
     Boolean live = false;
-    String hostname;
-    String osname, cpuname, uuid;
-    long ram, freeRam, hdd_size, hdd_free;
-    int plimit, pwait;
 
     Ping(String ip, String uuid) {
         IPadress = ip.trim();
@@ -83,8 +82,12 @@ class Ping implements Runnable {
         }
         Socket s = new Socket();
         try {
+            long startTime = System.currentTimeMillis();
             s.connect(new InetSocketAddress(IPadress, GlobalValues.PING_SERVER_PORT));
-
+            String hostname;
+            String osname, cpuname, uuid;
+            long ram, freeRam, hdd_size, hdd_free;
+            int plimit, pwait;
             try (OutputStream os = s.getOutputStream(); DataInputStream dIn = new DataInputStream(s.getInputStream()); DataOutputStream outToServer = new DataOutputStream(os)) {
                 JSONObject pingRequest = new JSONObject();
                 pingRequest.put("Command", "ping");
@@ -102,6 +105,7 @@ class Ping implements Runnable {
                 if (length > 0) {
                     dIn.readFully(message, 0, message.length); // read the message
                 }
+                long endTime = System.currentTimeMillis();
                 JSONObject reply = new JSONObject(new String(message));
                 osname = reply.getString("OS");
                 hostname = reply.getString("HOSTNAME");
@@ -112,8 +116,18 @@ class Ping implements Runnable {
                 hdd_free = reply.getLong("HDD_FREE");
                 hdd_size = reply.getLong("HDD_SIZE");
                 uuid = reply.getString("UUID");
+                long processingTime = reply.getLong("PROCESS_TIME");
+                long distance = ((endTime - startTime) - (processingTime)) / 2;
+                JSONObject adjacentNodes = reply.getJSONObject("ADJ_NODES");
+                JSONObject nonAdjacentNodes = reply.getJSONObject("NON_ADJ_NODES");
+                /**
+                 * Time to send and recieve message - Processing time of request
+                 * on that node Not very accurate to measure the distance
+                 * between nodes in terms of time but very useful
+                 */
                 // String cpuload = reply.substring(reply.indexOf("<CPULOAD>") + 9, reply.indexOf("</CPULOAD>"));
                 cpuname = reply.getString("CPUNAME");
+
                 ArrayList<String> ips = new ArrayList<String>();
                 JSONArray ipsJSONArray = reply.getJSONArray("IP_ADDRESSES", new JSONArray());
                 for (int i = 0; i < ipsJSONArray.length(); i++) {
@@ -154,6 +168,22 @@ class Ping implements Runnable {
                         live.addIp(get);
                     }
 
+                    if (ADJACENT_NODES_TABLE.containsKey(uuid)) {
+                        ADJACENT_NODES_TABLE.replace(uuid, distance);
+                    } else {
+                        ADJACENT_NODES_TABLE.put(uuid, distance);
+                    }
+                    Iterator<String> keys = adjacentNodes.keys();
+                    while (keys.hasNext()) {
+                        String key = keys.next();
+                        long dis = adjacentNodes.getLong(key, Long.MIN_VALUE);
+                        if (NON_ADJACENT_NODES_TABLE.containsKey(key)) {
+                             NON_ADJACENT_NODES_TABLE.get(key).addHop(new Hop(key, dis));
+                        } else {
+                            NON_ADJACENT_NODES_TABLE.put(key, new UniqueElementList(new Hop(key, dis)));
+                        }
+                    }
+
                 });
                 boolean isinlist = false;
                 nodeDBExecutor.execute(() -> {
@@ -189,6 +219,7 @@ class Ping implements Runnable {
             errPrintln(IPadress + " " + ex);
             liveNodeDB.remove(IPadress.trim());
             liveNodeDB.remove(UUID.trim());
+            ADJACENT_NODES_TABLE.remove(UUID.trim());
             try {
                 s.close();
             } catch (IOException ex1) {

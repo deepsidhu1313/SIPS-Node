@@ -39,9 +39,10 @@ public class PingHandler implements Runnable {
     int pnum;
     String simsql = "";
     long pdelay = 10;
-
+    long startTime;
     public PingHandler(Socket connection) {
         submitter = connection;
+        startTime=System.currentTimeMillis();
     }
 
     @Override
@@ -97,6 +98,10 @@ public class PingHandler implements Runnable {
                             sendmsg2Json.put("CPULOAD", Util.getCPULoad());
                             sendmsg2Json.put("CPUNAME", GlobalValues.CPU_NAME);
                             sendmsg2Json.put("IP_ADDRESSES", GlobalValues.ipAddresses);
+                            sendmsg2Json.put("BENCHMARKS", GlobalValues.BENCHMARKING);
+                            sendmsg2Json.put("PROCESS_TIME", (System.currentTimeMillis()-startTime));
+                            sendmsg2Json.put("ADJ_NODES", Util.getAdjacentTableInJSON());
+                            sendmsg2Json.put("NON_ADJ_NODES", Util.getNonAdjacentTableInJSON());
                             String sendmsg2 = sendmsg2Json.toString();
                             byte[] bytes2 = sendmsg2.getBytes("UTF-8");
                             outToClient2.writeInt(bytes2.length);
@@ -124,5 +129,7 @@ public class PingHandler implements Runnable {
         }
 
     }
+    
+    
 
 }

@@ -202,8 +202,7 @@ public class DummySlave {
 
             /**
              * *
-             * blacklist nodes
-             * Put these on Raymond Reddington's List
+             * blacklist nodes Put these on Raymond Reddington's List
              */
             GlobalValues.blacklistJSON = new JSONObject(Util.readFile(dir_appdb + "/blacklist.json"));
             if (arguments.contains("--blacklist")) {
@@ -225,6 +224,11 @@ public class DummySlave {
                 GlobalValues.blacklistJSON = new JSONObject();
                 GlobalValues.blacklistJSON.put("blacklist", jsonArray);
                 Util.write(dir_appdb + "/blacklist.json", GlobalValues.blacklistJSON.toString(4));
+            }
+
+            if (arguments.contains("--shared-storage")) {
+                GlobalValues.SHARED_STORAGE = true;
+                loadSettings.saveSettings();
             }
 
             /**
