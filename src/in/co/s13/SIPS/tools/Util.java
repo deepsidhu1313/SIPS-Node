@@ -17,6 +17,7 @@
 package in.co.s13.SIPS.tools;
 
 import com.sun.management.OperatingSystemMXBean;
+import in.co.s13.SIPS.datastructure.IPHostnameCombo;
 import in.co.s13.SIPS.datastructure.UniqueElementList;
 import in.co.s13.SIPS.executor.sockets.Server;
 import in.co.s13.SIPS.settings.GlobalValues;
@@ -65,6 +66,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.filechooser.FileSystemView;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -842,8 +844,8 @@ public class Util {
      * @throws UnknownHostException If the LAN address of the machine cannot be
      * found.
      */
-    public static ArrayList<InetAddress> getLocalHostLANAddress() throws UnknownHostException {
-        ArrayList<InetAddress> list = new ArrayList<>();
+    public static ArrayList<IPHostnameCombo> getLocalHostLANAddress() throws UnknownHostException {
+        ArrayList<IPHostnameCombo> list = new ArrayList<>();
         try {
             InetAddress candidateAddress = null;
             // Iterate all NICs (network interface cards)...
@@ -856,7 +858,7 @@ public class Util {
 
                         if (inetAddr.isSiteLocalAddress()) {
                             // Found non-loopback site-local address. Return it immediately...
-                            list.add(inetAddr);
+                            list.add(new IPHostnameCombo(inetAddr.getCanonicalHostName(), inetAddr.getHostAddress()));
                         } else if (candidateAddress == null) {
                             // Found non-loopback address, but not necessarily site-local.
                             // Store it as a candidate to be returned if site-local address is not subsequently found...
@@ -872,7 +874,7 @@ public class Util {
                 // Server might have a non-site-local address assigned to its NIC (or it might be running
                 // IPv6 which deprecates the "site-local" concept).
                 // Return this non-loopback candidate address...
-                list.add(candidateAddress);
+                list.add(new IPHostnameCombo(candidateAddress.getCanonicalHostName(), candidateAddress.getHostAddress()));
             }
             // At this point, we did not find a non-loopback address.
             // Fall back to returning whatever InetAddress.getLocalHost() returns...
@@ -880,7 +882,7 @@ public class Util {
             if (jdkSuppliedAddress == null) {
                 throw new UnknownHostException("The JDK InetAddress.getLocalHost() method unexpectedly returned null.");
             }
-            list.add(jdkSuppliedAddress);
+            list.add(new IPHostnameCombo(jdkSuppliedAddress.getCanonicalHostName(), jdkSuppliedAddress.getHostAddress()));
         } catch (Exception e) {
             UnknownHostException unknownHostException = new UnknownHostException("Failed to determine LAN address: " + e);
             unknownHostException.initCause(e);
@@ -1000,9 +1002,88 @@ public class Util {
         return json;
     }
 
-    
-    public static void main(String[] args) {
-        Util.sysStats();
+    public static JSONObject traceroute(String host) {
+        ArrayList<String> commands = new ArrayList<>();
+        JSONObject result = new JSONObject();
+        JSONArray array = new JSONArray();
+        if (isUnix()) {
+            commands.add("traceroute");
+        } else if (isWindows()) {
+            commands.add("tracert");
+        }
+        commands.add(host);
+        try {
+            ProcessBuilder pb = new ProcessBuilder(commands);
+            Process p = pb.start();
+            try (BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream())); BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));) { //PrintWriter outputWriter = new PrintWriter("command-out.log", "UTF-8"); PrintWriter errorWriter = new PrintWriter("command-error" + ".log", "UTF-8")
 
+                String s = null;
+                while ((s = stdInput.readLine()) != null) {
+                    System.out.println(s);
+                    String outs[] = s.trim().split("\\s+");
+                    if (outs.length > 0) {
+                        try {
+                            JSONObject hostDetail = new JSONObject();
+                            int n = Integer.parseInt(outs[0].trim());
+                            if (isUnix()) {
+                                if (outs[1].trim().contains("*")) {
+                                    continue;
+                                }
+                                System.out.println("" + Arrays.asList(outs));
+                                String hostname = outs[1].trim();
+
+//                                System.out.println(hostname+ " "+outs[2]);
+                                String ip = outs[2].trim().substring(outs[2].indexOf("(") + 1, outs[2].indexOf(")"));
+                                hostDetail.put("hostname", hostname);
+                                hostDetail.put("ip", ip);
+                                hostDetail.put("distance", outs[3].trim());
+                            } else if (isWindows()) {
+                                if (outs[1].trim().contains("*")) {
+                                    continue;
+                                }
+                                System.out.println("" + Arrays.asList(outs));
+                                hostDetail.put("distance", outs[1].trim());
+                                String hostname = "", ip = "";
+                                if (s.contains("[") && s.contains("]")) {
+                                    hostname = outs[(outs.length - 2)].trim();
+                                    ip = outs[outs.length - 1].trim().substring(outs[outs.length - 1].indexOf("[") + 1, outs[outs.length - 1].indexOf("]"));
+                                } else {
+                                    ip = outs[(outs.length - 1)].trim();
+
+                                }
+
+//                                System.out.println(hostname+ " "+outs[2]);
+                                hostDetail.put("hostname", hostname);
+                                hostDetail.put("ip", ip);
+
+                            }
+                            array.put(hostDetail);
+                        } catch (NumberFormatException e) {
+                            System.err.println(e);
+                        }
+                    }
+//                    outputWriter.println(s + "");
+                }
+                while ((s = stdError.readLine()) != null) {
+                    System.out.println(s);
+//                    errorWriter.println(s + "");
+                }
+
+            }
+
+            p.destroy();
+
+            //  System.out.println("Command in " + foldername);
+        } catch (IOException ex) {
+            // Logger.getLogger(Tools.class.getName()).log(Level.SEVERE, null, ex);
+            System.err.println(ex);
+        }
+        result.put(host, array);
+        return result;
+    }
+
+    public static void main(String[] args) throws UnknownHostException {
+//        System.out.println("" + Util.getLocalHostLANAddress());;
+//        System.out.println("" + Util.traceroute("google.com").toString(4));
     }
 }
