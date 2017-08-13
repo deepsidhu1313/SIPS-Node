@@ -1085,5 +1085,16 @@ public class Util {
     public static void main(String[] args) throws UnknownHostException {
 //        System.out.println("" + Util.getLocalHostLANAddress());;
 //        System.out.println("" + Util.traceroute("google.com").toString(4));
+//        String ip = "192.168.0.1";
+//        if (!ip.matches("(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
+//                + "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
+//                + "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
+//                + "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])")) {
+//            System.err.println("IP Format not supported: \"" + ip + "\'");
+//            
+//        }else{
+//            System.out.println("IP Format supported: \"" + ip + "\'");
+//        
+//        }
     }
 }

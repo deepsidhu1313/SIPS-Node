@@ -57,12 +57,12 @@ public class NetScanner implements Runnable {
             addnetwork(val);
         }
         for (int i = 0; i < GlobalValues.ipAddresses.length(); i++) {
-            JSONObject iface= GlobalValues.ipAddresses.getJSONObject(i);
-            String ip=iface.getString("ip");
-            if(!ip.startsWith("127")){
+            JSONObject iface = GlobalValues.ipAddresses.getJSONObject(i);
+            String ip = iface.getString("ip");
+            if (!ip.startsWith("127")) {
                 addnetwork(ip);
             }
-            
+
         }
         JSONArray ipsArray = ipToScanJSON.getJSONArray("ips", new JSONArray());
         for (int i = 0; i < ipsArray.length(); i++) {
@@ -199,6 +199,13 @@ public class NetScanner implements Runnable {
     public static void addnetwork(String ip) {
         String str = "" + ip;
         outPrintln(ip);
+        if (!ip.matches("(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
+                + "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
+                + "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
+                + "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])")) {
+            Util.errPrintln("IP Format not supported: \"" + ip + "\'");
+            return;
+        }
         int ind1 = str.indexOf(".");
         int ind3 = str.lastIndexOf('.');
         int ind2 = (str.substring(ind1 + 1, ind3).indexOf(".")) + (ind1 + 1);
@@ -223,6 +230,5 @@ public class NetScanner implements Runnable {
         }
 
     }
-
 
 }
