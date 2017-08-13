@@ -464,27 +464,27 @@ public class Util {
                 String pwd = "" + PWD;
                 pb = new ProcessBuilder();
 
-                if ((directory = new File("c:\\windows\\system32\\")).exists()) {
-                    pb.directory(directory);
-
-                } else if ((directory = new File("d:\\windows\\system32\\")).exists()) {
-                    pb.directory(directory);
-
-                } else if ((directory = new File("e:\\windows\\system32\\")).exists()) {
-                    pb.directory(directory);
-
-                } else if ((directory = new File("f:\\windows\\system32\\")).exists()) {
-                    pb.directory(directory);
-
-                } else if ((directory = new File("g:\\windows\\system32\\")).exists()) {
-                    pb.directory(directory);
-
-                } else if ((directory = new File("h:\\windows\\system32\\")).exists()) {
-                    pb.directory(directory);
-
-                } else {
-                    return CPUname = "Unidentified";
-                }
+//                if ((directory = new File("c:\\windows\\system32\\")).exists()) {
+////                    pb.directory(directory);
+//
+//                } else if ((directory = new File("d:\\windows\\system32\\")).exists()) {
+////                    pb.directory(directory);
+//
+//                } else if ((directory = new File("e:\\windows\\system32\\")).exists()) {
+////                    pb.directory(directory);
+//
+//                } else if ((directory = new File("f:\\windows\\system32\\")).exists()) {
+////                    pb.directory(directory);
+//
+//                } else if ((directory = new File("g:\\windows\\system32\\")).exists()) {
+////                    pb.directory(directory);
+//
+//                } else if ((directory = new File("h:\\windows\\system32\\")).exists()) {
+////                    pb.directory(directory);
+//
+//                } else {
+//                    return CPUname = "Unidentified";
+//                }
                 //"cd", "/d", "" + directory.getAbsolutePath(), "&",
                 // String cmd[] = {"cd", "/d", "" + directory.getAbsolutePath(), "&", "wmic cpu get Name"};
                 String cmd[] = {"procn.bat"};
