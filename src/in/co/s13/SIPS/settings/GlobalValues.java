@@ -77,7 +77,7 @@ public class GlobalValues {
     /**
      * all Node DB
      */
-    public static OLDSQLiteJDBC alldb = new OLDSQLiteJDBC(dir_appdb + "/all.db");
+    public static OLDSQLiteJDBC alldb ;
 
     /**
      * Executor Limits

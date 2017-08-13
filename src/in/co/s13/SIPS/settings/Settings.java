@@ -17,6 +17,8 @@
 package in.co.s13.SIPS.settings;
 
 import com.sun.management.OperatingSystemMXBean;
+import in.co.s13.SIPS.datastructure.IPHostnameCombo;
+import in.co.s13.SIPS.db.OLDSQLiteJDBC;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
@@ -37,12 +39,16 @@ import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class Settings {
 
     public Settings() {
-        System.out.println(OS);
+        
+    }
+    public void init(){
+    System.out.println(OS);
 
         if (isWindows()) {
             System.out.println("This is Windows");
@@ -83,12 +89,12 @@ public class Settings {
                         + "Please create a dir with this name");
             }
         }
-        if (new File(dir_appdb + "/settings.json").exists()) {
+        if (new File(dir_appdb + "/"+(SHARED_STORAGE ? HOST_NAME :"")+"settings.json").exists()) {
             loadSettings();
         } else {
-
             saveSettings();
         }
+        alldb = new OLDSQLiteJDBC(dir_appdb + "/all.db");
         processDBExecutor.execute(() -> {
             String sql = "CREATE TABLE PROC (ID    INT   PRIMARY KEY     NOT NULL,"
                     + " ALIENID  INT,"
@@ -102,11 +108,17 @@ public class Settings {
             procDB.createtable(dir_appdb + "/proc.db", sql);
             procDB.closeConnection();
         });
-
+        try {
+            ipAddresses = new JSONArray(Util.getLocalHostLANAddress());
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
+        }
         try {
             HOST_NAME = InetAddress.getLocalHost().getHostName().trim();
         } catch (UnknownHostException e) {
             System.err.println("Couldn't get Hostname" + e);
+            JSONObject ipHostnameCombo= ipAddresses.getJSONObject(0);
+            HOST_NAME= ipHostnameCombo.getString("hostname", HOST_NAME);
         }
         try (PrintStream procn = new PrintStream("procn.bat")) {
             procn.print("wmic cpu get name");
@@ -115,11 +127,7 @@ public class Settings {
         }
         MEM_SIZE = Util.getMemorySize();
         CPU_NAME = getCPUName();
-        try {
-            ipAddresses.put(Util.getLocalHostLANAddress());
-        } catch (UnknownHostException ex) {
-            Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
-        }
+
         try {
             String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
             String prevContent = Util.readFile(ERR_FILE);
@@ -147,9 +155,8 @@ public class Settings {
 
         saveSettings();
     }
-
     void loadSettings() {
-        JSONObject settings = new JSONObject(readFile(dir_appdb + "/settings.json"));
+        JSONObject settings = new JSONObject(readFile(dir_appdb + "/"+(SHARED_STORAGE ? HOST_NAME :"")+"settings.json"));
 
         NODE_UUID = settings.getString("UUID", "");
 
@@ -180,7 +187,7 @@ public class Settings {
         settings.put("DUMP_LOG", DUMP_LOG);
         settings.put("VERBOSE", VERBOSE);
         settings.put("SHARED_STORAGE", SHARED_STORAGE);
-        write(new File(dir_appdb + "/settings.json"), settings.toString(4));
+        write(new File(dir_appdb + "/"+(SHARED_STORAGE ? HOST_NAME :"")+"settings.json"), settings.toString(4));
     }
 
 }

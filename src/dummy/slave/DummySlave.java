@@ -86,6 +86,18 @@ public class DummySlave {
             } else {
                 preBenchmarkingChecks();
             }
+            /**
+             * *
+             * Important flag
+             */
+            if (arguments.contains("--shared-storage")) {
+                GlobalValues.SHARED_STORAGE = true;
+                loadSettings.init();
+                loadSettings.saveSettings();
+            } else {
+                loadSettings.init();
+
+            }
 
             if (arguments.contains("--generate-app-uuid")) {
                 GlobalValues.NODE_UUID = Util.generateNodeUUID();
@@ -226,11 +238,6 @@ public class DummySlave {
                 Util.write(dir_appdb + "/blacklist.json", GlobalValues.blacklistJSON.toString(4));
             }
 
-            if (arguments.contains("--shared-storage")) {
-                GlobalValues.SHARED_STORAGE = true;
-                loadSettings.saveSettings();
-            }
-
             /**
              * *
              * Time to fire up every engine
@@ -286,6 +293,18 @@ public class DummySlave {
                 Thread downloadQueServer = new Thread(new FileReqQueServer(true));
                 downloadQueServer.start();
             }
+
+        } else {
+            loadSettings.init();
+            preBenchmarkingChecks();
+            new HardwareStatThreads();
+            new NetworkThreads();
+            Thread server = new Thread(new Server(true));
+            server.start();
+            Thread pingServer = new Thread(new PingServer(true, 3));
+            pingServer.start();
+            Thread downloadQueServer = new Thread(new FileReqQueServer(true));
+            downloadQueServer.start();
 
         }
 

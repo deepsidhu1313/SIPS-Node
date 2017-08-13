@@ -131,7 +131,9 @@ class Ping implements Runnable {
                 ArrayList<String> ips = new ArrayList<String>();
                 JSONArray ipsJSONArray = reply.getJSONArray("IP_ADDRESSES", new JSONArray());
                 for (int i = 0; i < ipsJSONArray.length(); i++) {
-                    ips.add(ipsJSONArray.getString(i));
+                    JSONObject ifaces=ipsJSONArray.getJSONObject(i);
+                    ips.add(ifaces.getString("hostname"));
+                    ips.add(ifaces.getString("ip"));
                 }
                 outPrintln("" + reply.toString(4));
                 System.out.println(reply);
