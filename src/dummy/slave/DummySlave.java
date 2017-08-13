@@ -297,6 +297,9 @@ public class DummySlave {
         } else {
             loadSettings.init();
             preBenchmarkingChecks();
+            GlobalValues.blacklistJSON = new JSONObject(Util.readFile(dir_appdb + "/blacklist.json"));
+            GlobalValues.networksToScanJSON = new JSONObject(Util.readFile(dir_appdb + "/networks.json"));
+            GlobalValues.ipToScanJSON = new JSONObject(Util.readFile(dir_appdb + "/ips.json"));
             new HardwareStatThreads();
             new NetworkThreads();
             Thread server = new Thread(new Server(true));
