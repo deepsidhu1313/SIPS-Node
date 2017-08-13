@@ -19,10 +19,13 @@ package in.co.s13.SIPS.tools;
 import in.co.s13.SIPS.executor.sendOutput;
 import in.co.s13.SIPS.executor.sockets.Server;
 import in.co.s13.SIPS.settings.GlobalValues;
+import in.co.s13.SIPS.settings.Settings;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,7 +48,12 @@ public class HDDInfo implements Runnable {
                 String cmd[] = {"df", "", "."};
                 pb = new ProcessBuilder(cmd);
             } else if (Util.isWindows()) {
-                String cmd[] = {"wmic logicaldisk get size,freespace,caption"};
+                try (PrintStream procn = new PrintStream("hdd.bat")) {
+                    procn.print("wmic logicaldisk get size,freespace,caption");
+                } catch (FileNotFoundException ex) {
+                    Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                String cmd[] = {"hdd.bat"};
                 pb = new ProcessBuilder(cmd);
                 File file = new File(".").getAbsoluteFile();
                 File root = file.getParentFile();

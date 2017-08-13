@@ -19,9 +19,12 @@ package in.co.s13.SIPS.tools;
 import in.co.s13.SIPS.executor.sendOutput;
 import in.co.s13.SIPS.executor.sockets.Server;
 import in.co.s13.SIPS.settings.GlobalValues;
+import in.co.s13.SIPS.settings.Settings;
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -43,7 +46,12 @@ public class MemoryInfo implements Runnable {
                 String cmd[] = {"cat", "/proc/meminfo"};
                 pb = new ProcessBuilder(cmd);
             } else if (Util.isWindows()) {
-                String cmd[] = {"wmic OS get FreePhysicalMemory /Value"};
+                try (PrintStream procn = new PrintStream("ram.bat")) {
+                    procn.print("wmic OS get FreePhysicalMemory /Value");
+                } catch (FileNotFoundException ex) {
+                    Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                String cmd[] = {"ram.bat"};
                 pb = new ProcessBuilder(cmd);
             }
             Process p = pb.start();
