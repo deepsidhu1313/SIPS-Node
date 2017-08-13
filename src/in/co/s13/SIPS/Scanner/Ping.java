@@ -165,11 +165,12 @@ class Ping implements Runnable {
 
                     }
                     LiveDBRow live = liveNodeDB.get(uuid);
+                    
                     for (int i = 0; i < ips.size(); i++) {
                         String get = ips.get(i);
                         live.addIp(get);
                     }
-
+                    System.out.println("Live Node DB "+liveNodeDB.toString());
                     if (ADJACENT_NODES_TABLE.containsKey(uuid)) {
                         ADJACENT_NODES_TABLE.replace(uuid, distance);
                     } else {
@@ -223,6 +224,9 @@ class Ping implements Runnable {
 //                    }
                 });
 
+            } catch(Exception e){
+                System.err.println("Exception "+e);
+            scanning.remove(IPadress.trim());
             }
 
             s.close();
