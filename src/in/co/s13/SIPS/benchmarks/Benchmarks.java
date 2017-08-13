@@ -117,10 +117,11 @@ public class Benchmarks {
         int wUnitsTotal = true ? numOfBlocks * numOfIterations : 0;
         int rUnitsTotal = true ? numOfBlocks * numOfIterations : 0;
         int unitsTotal = wUnitsTotal + rUnitsTotal;
-
+        new File("test").mkdirs();
         float percentComplete;
         int startFileNum = 1;
         for (int m = startFileNum; m < startFileNum + numOfIterations; m++) {
+
             testFile = new File("test" + File.separator + "testdata" + m + ".jdm");
             testFile.delete();//System.out.println("" + );
             long totalBytesWrittenInMark = 0;
@@ -209,7 +210,7 @@ public class Benchmarks {
     }
 
     public static void main(String[] args) {
-        System.out.println("CPU Benchmark "+benchmarkCPU());
-        System.out.println("\nHDD Benchmark "+benchmarkHDD());
+        System.out.println("CPU Benchmark " + benchmarkCPU());
+        System.out.println("\nHDD Benchmark " + benchmarkHDD());
     }
 }
