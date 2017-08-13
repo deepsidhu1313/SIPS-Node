@@ -31,7 +31,7 @@ public class LiveDBRow {
     private String uuid, operatingSytem, hostname, processor_name;
 
     private long memory, free_memory, hdd_size, hdd_free;
-    private ArrayList<String> ipAddresses;
+    private ArrayList<String> ipAddresses= new ArrayList<>();
 
     public LiveDBRow(String uuid, String host, String os, String processor, int qlen,
             int qwait, long ram, long free_memory, long hdd_size, long hdd_free) {
