@@ -19,6 +19,7 @@ package in.co.s13.SIPS.initializer;
 import in.co.s13.SIPS.Scanner.AddLivenodes;
 import in.co.s13.SIPS.Scanner.CheckLiveNodes;
 import in.co.s13.SIPS.Scanner.NetScanner;
+import in.co.s13.SIPS.settings.GlobalValues;
 import in.co.s13.SIPS.tools.IPInfo;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -31,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 public class NetworkThreads {
 
     public NetworkThreads() {
+        GlobalValues.netExecutor= Executors.newFixedThreadPool(GlobalValues.total_threads);
         NetScanner ns = new NetScanner();
         Thread t = new Thread(ns);
         t.start();

@@ -17,8 +17,6 @@
 package in.co.s13.SIPS.Scanner;
 
 import in.co.s13.SIPS.settings.GlobalValues;
-import in.co.s13.SIPS.settings.Settings;
-import java.util.ArrayList;
 import static in.co.s13.SIPS.settings.GlobalValues.*;
 import static in.co.s13.SIPS.tools.Util.outPrintln;
 public class AddLivenodes implements Runnable {

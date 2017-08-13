@@ -82,7 +82,7 @@ public class GlobalValues {
     /**
      * Executor Limits
      */
-    public static int total_threads = 1;
+    public static int total_threads = 3;
     public static int PROCESS_WAITING = 0;
     public static int FILES_RESOLVER_LIMIT = 10;
     public static int PING_HANDLER_LIMIT = 10;

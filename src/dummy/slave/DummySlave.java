@@ -321,10 +321,10 @@ public class DummySlave {
         JSONObject cpu = new JSONObject();
         JSONObject hdd = new JSONObject();
         cpu.put("Name", GlobalValues.CPU_NAME);
-        cpu.put("Benchmarks", Benchmarks.benchmarkCPU());
+        cpu.put("Benchmarks", new JSONObject(Benchmarks.benchmarkCPU()));
         benchmarkResults.put("CPU", cpu);
         hdd.put("Label", Util.getDeviceModel(Util.getDeviceFromPath(new File(".").toPath())));
-        hdd.put("Benchmarks", Benchmarks.benchmarkHDD());
+        hdd.put("Benchmarks", new JSONObject(Benchmarks.benchmarkHDD()));
         benchmarkResults.put("HDD", hdd);
         benchmarkResults.put("MEMORY", GlobalValues.MEM_SIZE);
         benchmarkResults.put("TIMESTAMP", System.currentTimeMillis());

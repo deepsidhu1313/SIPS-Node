@@ -65,7 +65,7 @@ class Ping implements Runnable {
         } else {
             scanning.put(IPadress.trim(), IPadress);
         }
-
+        System.out.println("Scanning List:"+scanning.toString());
         try {
             adrss = InetAddress.getByName(IPadress);
         } catch (UnknownHostException ex) {
