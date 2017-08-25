@@ -17,7 +17,6 @@
 package in.co.s13.SIPS.executor.sockets.handlers;
 
 import in.co.s13.SIPS.settings.GlobalValues;
-import in.co.s13.SIPS.settings.Settings;
 import in.co.s13.SIPS.tools.Util;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -35,11 +34,9 @@ import org.json.JSONObject;
  */
 public class PingHandler implements Runnable {
 
-    Socket submitter;
-    int pnum;
-    String simsql = "";
-    long pdelay = 10;
-    long startTime;
+   private Socket submitter;
+
+   private long startTime;
 
     public PingHandler(Socket connection) {
         submitter = connection;
@@ -48,7 +45,6 @@ public class PingHandler implements Runnable {
 
     @Override
     public void run() {
-        //  boolean pingThread = false;
         try {
             try (DataInputStream dataInputStream = new DataInputStream(submitter.getInputStream())) {
                 JSONObject msg;
@@ -63,7 +59,6 @@ public class PingHandler implements Runnable {
                 InetAddress inetAddress = submitter.getInetAddress();
                 String ipAddress = inetAddress.getHostAddress();
                 if (msg.length() > 1) {
-                    //System.out.println("hurray cond 1");
                     System.out.println("IP adress of sender is " + ipAddress);
 
                     // System.out.println("" + msg);
@@ -75,21 +70,6 @@ public class PingHandler implements Runnable {
                         // bad node no cookie for u
                     }
 
-                    //     System.out.println(msg);
-//                    if (command.contains("createprocess")) {
-//                        GlobalValues.PROCESS_WAITING++;
-//                        GlobalValues.processExecutor.execute(new ParallelProcess(body, ipAddress));
-//                        System.out.println("created process");
-//
-//                        try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
-//                            String sendmsg = "OK";
-//                            byte[] bytes = sendmsg.getBytes("UTF-8");
-//                            outToClient.writeInt(bytes.length);
-//                            outToClient.write(bytes);
-//                        }
-//
-//                        submitter.close();
-//                    } else
                     if (command.equalsIgnoreCase("ping")) {
 
                         try (OutputStream os2 = submitter.getOutputStream(); DataOutputStream outToClient2 = new DataOutputStream(os2)) {
@@ -115,7 +95,7 @@ public class PingHandler implements Runnable {
                             outToClient2.writeInt(bytes2.length);
                             outToClient2.write(bytes2);
                         }
-                        System.out.println("Ping Recieved");
+//                        System.out.println("Ping Recieved");
                         //                pingThread = true;
                         submitter.close();
                     } else {

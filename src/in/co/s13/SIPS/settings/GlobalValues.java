@@ -86,6 +86,7 @@ public class GlobalValues {
     public static int PROCESS_WAITING = 0;
     public static int FILES_RESOLVER_LIMIT = 10;
     public static int PING_HANDLER_LIMIT = 10;
+    public static int API_HANDLER_LIMIT = 10;
     public static int PROCESS_HANDLER_LIMIT = 10;
     public static int PROCESS_LIMIT = Runtime.getRuntime().availableProcessors() - 2;
     /**
@@ -95,7 +96,7 @@ public class GlobalValues {
     public static ExecutorService nodeDBExecutor = Executors.newFixedThreadPool(1);
     public static ExecutorService processExecutor = Executors.newFixedThreadPool(PROCESS_LIMIT);
     public static ExecutorService processDBExecutor = Executors.newFixedThreadPool(1);
-    public static ExecutorService pingExecutor = Executors.newFixedThreadPool(1);
+    public static ExecutorService pingExecutor = Executors.newFixedThreadPool(2);
     public static ExecutorService liveDBExecutor = Executors.newFixedThreadPool(1);
     public static ExecutorService netExecutor;
 
@@ -114,13 +115,14 @@ public class GlobalValues {
     public static ArrayList<String> hosts = new ArrayList<>();
     public static Hashtable<String, String> scanning = new Hashtable<>();
     public static Hashtable<String, String> BLACKLIST = new Hashtable<>();
+    public static Hashtable<String, JSONObject> API_LIST = new Hashtable<>();
     public static boolean iswriting = false;
-    public static JSONObject blacklistJSON, networksToScanJSON, ipToScanJSON;
+    public static JSONObject blacklistJSON, networksToScanJSON, ipToScanJSON,API_JSON;
     public static int threadnumber = total_threads;
     public static Hashtable<String, String> routingTable = new Hashtable<>();
     public static Hashtable<String, Long> ADJACENT_NODES_TABLE = new Hashtable<>();
     public static Hashtable<String, UniqueElementList> NON_ADJACENT_NODES_TABLE = new Hashtable<>();
     
-    public static int PING_SERVER_PORT=13131,FILE_QUEUE_SERVER_PORT=13132,MAIN_SERVER_PORT=13133;
+    public static int PING_SERVER_PORT=13131,FILE_QUEUE_SERVER_PORT=13132,MAIN_SERVER_PORT=13133,API_SERVER_PORT=13139;
 
 }

@@ -30,8 +30,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
-import jdk.nashorn.internal.runtime.GlobalConstants;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -51,6 +52,7 @@ public class DummySlave {
             ArrayList<String> arguments = new ArrayList<>();
             Collections.addAll(arguments, args);
             if (arguments.contains("-h") || arguments.contains("--help")) {
+                loadSettings.init();
                 Util.outPrintln("Usage:\n"
                         + "\t java -jar SIPS-Node.jar <options>\n"
                         + "\noptions:"
@@ -77,8 +79,56 @@ public class DummySlave {
                         + "\t\t\tAdd N number of networks.\n"
                         + "\n\t\t--blacklist <N> ROUGE-IP ROUGE.FQDN ROUGE-UUID :\n"
                         + "\t\t\t Blacklist N number of Nodes identified by UUIDs, IPS or FQDNs .\n"
+                        + "\n\t\t--gen-api 192.168.1.12 7"
+                        + "\n\t\tgenerate api key for IPs/hostname/UUID followed by permissions"
+                        + "\n\t\t\tPermissions:"
+                        + "\n\t\t\t4: Read : Read Data From Server "
+                        + "\n\t\t\t2: Write : Change Settings of server"
+                        + "\n\t\t\t1: Execute : Execute special operations (i.e. shutdown, reboot etc)"
+                        + "\n\t\t\t4+2: Read + Write "
+                        + "\n\t\t\t4+1: Read + Execute "
+                        + "\n\t\t\t4+2+1: Read + Write + Execute "
+                        + "\n\t\t\t2+1: Write + Execute "
                         + "");
-                return;
+                System.exit(0);
+            }
+
+            /**
+             * *
+             * add new IP addresses or Hosts
+             */
+            String apiString = Util.readFile(dir_appdb + "/api.json").trim();
+            GlobalValues.API_JSON = new JSONObject((apiString.length() < 1) ? "{}" : apiString);
+            Iterator<String> it = GlobalValues.API_JSON.keys();
+            GlobalValues.API_LIST = new Hashtable<>();
+            while (it.hasNext()) {
+                String key = it.next();
+                GlobalValues.API_LIST.put(key, GlobalValues.API_JSON.getJSONObject(key));
+            }
+            if (arguments.contains("--gen-api")) {
+                int index = 0;
+                String client = "", permissions = "4";
+                try {
+                    index = arguments.indexOf("--add-ip");
+                    client = (arguments.get(index + 1));
+                    permissions = (arguments.get(index + 2));
+                } catch (Exception e) {
+                    Util.errPrintln(""
+                            + "\n Example: --gen-api 192.168.1.12 7"
+                            + "\nto generate api key for IPs/hostname/UUID followed by permissions"
+                            + "\n Permissions:"
+                            + "\n\t4: Read : Read Data From Server "
+                            + "\n\t2: Write : Change Settings of server"
+                            + "\n\t1: Execute : Execute special operations (i.e. shutdown, reboot etc)"
+                            + "\nException: " + e);
+                    System.exit(1);
+                }
+                String key = Util.generateAPIKey();
+                JSONObject info = new JSONObject();
+                info.put("key", key);
+                info.put("permissions", permissions);
+                GlobalValues.API_JSON.put(client, info);
+                Util.write(dir_appdb + "/api.json", GlobalValues.API_JSON.toString(4));
             }
 
             if (arguments.contains("--benchmark")) {
@@ -112,7 +162,8 @@ public class DummySlave {
                     Util.errPrintln("Use number to specify limit"
                             + "\n Example: --set-process-limit 10 to set limit to 10 "
                             + "Exception: " + e);
-                    return;
+                    System.exit(1);
+
                 }
                 GlobalValues.PROCESS_LIMIT = limit;
                 loadSettings.saveSettings();
@@ -126,7 +177,8 @@ public class DummySlave {
                     Util.errPrintln("Use number to specify limit"
                             + "\n Example: --set-file-resolvers 10 to set limit to 10 "
                             + "Exception: " + e);
-                    return;
+                    System.exit(1);
+
                 }
                 GlobalValues.FILES_RESOLVER_LIMIT = limit;
                 loadSettings.saveSettings();
@@ -138,11 +190,26 @@ public class DummySlave {
                     limit = Integer.parseInt(arguments.get(arguments.indexOf("--set-ping-handlers") + 1));
                 } catch (NumberFormatException e) {
                     Util.errPrintln("Use number to specify limit"
-                            + "\n Example: --set-process-handlers 10 to set limit to 10 "
+                            + "\n Example: --set-ping-handlers 10 to set limit to 10 "
                             + "Exception: " + e);
-                    return;
+                    System.exit(1);
+
                 }
                 GlobalValues.PING_HANDLER_LIMIT = limit;
+                loadSettings.saveSettings();
+            }
+            if (arguments.contains("--set-api-handlers")) {
+                int limit = GlobalValues.API_HANDLER_LIMIT;
+                try {
+                    limit = Integer.parseInt(arguments.get(arguments.indexOf("--set-api-handlers") + 1));
+                } catch (NumberFormatException e) {
+                    Util.errPrintln("Use number to specify limit"
+                            + "\n Example: --set-api-handlers 10 to set limit to 10 "
+                            + "Exception: " + e);
+                    System.exit(1);
+
+                }
+                GlobalValues.API_HANDLER_LIMIT = limit;
                 loadSettings.saveSettings();
             }
 
@@ -154,7 +221,8 @@ public class DummySlave {
                     Util.errPrintln("Use number to specify limit"
                             + "\n Example: --set-process-handlers 10 to set limit to 10 "
                             + "Exception: " + e);
-                    return;
+                    System.exit(1);
+
                 }
                 GlobalValues.PROCESS_HANDLER_LIMIT = limit;
                 loadSettings.saveSettings();
@@ -164,7 +232,8 @@ public class DummySlave {
              * *
              * add new IP addresses or Hosts
              */
-            GlobalValues.ipToScanJSON = new JSONObject(Util.readFile(dir_appdb + "/ips.json"));
+            String ipsString = Util.readFile(dir_appdb + "/ips.json").trim();
+            GlobalValues.ipToScanJSON = new JSONObject((ipsString.length() < 1) ? "{}" : ipsString);
             if (arguments.contains("--add-ip")) {
                 int listSize = 0, index = 0;
                 try {
@@ -175,7 +244,8 @@ public class DummySlave {
                             + "\n Example: --add-ip 3 192.168.1.12 192.168.1.30 compute-node.your-domain-name.com "
                             + "\nto set size of list to 3 and IPs/hostname followed "
                             + "\nException: " + e);
-                    return;
+                    System.exit(1);
+
                 }
                 JSONArray jsonArray = GlobalValues.ipToScanJSON.getJSONArray("ips", new JSONArray());
                 for (int i = 0; i < listSize; i++) {
@@ -190,7 +260,8 @@ public class DummySlave {
              * *
              * add new networks to scan
              */
-            GlobalValues.networksToScanJSON = new JSONObject(Util.readFile(dir_appdb + "/networks.json"));
+            String networksString = Util.readFile(dir_appdb + "/networks.json").trim();
+            GlobalValues.networksToScanJSON = new JSONObject((networksString.length() < 1) ? "{}" : networksString);
             if (arguments.contains("--add-network")) {
                 int listSize = 0, index = 0;
                 try {
@@ -201,7 +272,8 @@ public class DummySlave {
                             + "\n Example: --add-network 3 192.168.1.0 192.168.3.0 10.10.100.0 "
                             + "\nto set size of list to 3 and networks followed  "
                             + "\nException: " + e);
-                    return;
+                    System.exit(1);
+
                 }
                 JSONArray jsonArray = GlobalValues.networksToScanJSON.getJSONArray("networks", new JSONArray());
                 for (int i = 0; i < listSize; i++) {
@@ -216,7 +288,8 @@ public class DummySlave {
              * *
              * blacklist nodes Put these on Raymond Reddington's List
              */
-            GlobalValues.blacklistJSON = new JSONObject(Util.readFile(dir_appdb + "/blacklist.json"));
+            String blacklistString = Util.readFile(dir_appdb + "/blacklist.json").trim();
+            GlobalValues.blacklistJSON = new JSONObject((blacklistString.length() < 1) ? "{}" : blacklistString);
             if (arguments.contains("--blacklist")) {
                 int listSize = 0, index = 0;
                 try {
@@ -227,7 +300,8 @@ public class DummySlave {
                             + "\n Example: --blacklist 4 192.168.1.30 192.168.3.250 rouge-node.yourdomain.com rouge-uuid"
                             + "\nto set size of list to 4 and hosts followed identfied by IP, FQDN or UUID  "
                             + "\nException: " + e);
-                    return;
+                    System.exit(1);
+
                 }
                 JSONArray jsonArray = GlobalValues.blacklistJSON.getJSONArray("blacklist", new JSONArray());
                 for (int i = 0; i < listSize; i++) {
@@ -250,7 +324,8 @@ public class DummySlave {
                     Util.errPrintln("Use number to specify mode"
                             + "\n Example: --mode 0 "
                             + "Exception: " + e);
-                    return;
+                    System.exit(1);
+
                 }
                 switch (mode) {
                     /**
@@ -303,6 +378,8 @@ public class DummySlave {
             GlobalValues.networksToScanJSON = new JSONObject((networksString.length() < 1) ? "{}" : networksString);
             String ipsString = Util.readFile(dir_appdb + "/ips.json").trim();
             GlobalValues.ipToScanJSON = new JSONObject((ipsString.length() < 1) ? "{}" : ipsString);
+            String apiString = Util.readFile(dir_appdb + "/api.json").trim();
+            GlobalValues.API_JSON = new JSONObject((apiString.length() < 1) ? "{}" : apiString);
             new HardwareStatThreads();
             new NetworkThreads();
             Thread server = new Thread(new Server(true));

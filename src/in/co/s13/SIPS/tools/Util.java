@@ -813,6 +813,10 @@ public class Util {
         return java.util.UUID.randomUUID() + ":" + java.util.UUID.randomUUID();
     }
 
+    public static String generateAPIKey() {
+        return java.util.UUID.randomUUID().toString() ;
+    }
+
     /**
      * Returns an <code>InetAddress</code> object encapsulating what is most
      * likely the machine's LAN IP address.

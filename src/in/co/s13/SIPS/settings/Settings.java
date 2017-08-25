@@ -16,13 +16,10 @@
  */
 package in.co.s13.SIPS.settings;
 
-import com.sun.management.OperatingSystemMXBean;
-import in.co.s13.SIPS.datastructure.IPHostnameCombo;
 import in.co.s13.SIPS.db.OLDSQLiteJDBC;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
-import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,7 +35,6 @@ import static in.co.s13.SIPS.tools.Util.write;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.UUID;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -166,6 +162,7 @@ public class Settings {
         PROCESS_LIMIT = settings.getInt("MAX_PROCESS_ALLOWED_IN_PARALLEL", 2);
         FILES_RESOLVER_LIMIT = settings.getInt("MAX_FILE_RESOLVE_IN_PARALLEL", 3);
         PING_HANDLER_LIMIT = settings.getInt("MAX_PING_RESPONSES_IN_PARALLEL", 3);
+        API_HANDLER_LIMIT = settings.getInt("MAX_API_RESPONSES_IN_PARALLEL", 3);
         PROCESS_HANDLER_LIMIT = settings.getInt("MAX_PROCESS_REQ_IN_PARALLEL", 3);
         DUMP_LOG = settings.getBoolean("DUMP_LOG", true);
         VERBOSE = settings.getBoolean("VERBOSE", true);
@@ -183,6 +180,7 @@ public class Settings {
         settings.put("MAX_PROCESS_ALLOWED_IN_PARALLEL", PROCESS_LIMIT);
         settings.put("MAX_FILE_RESOLVE_IN_PARALLEL", FILES_RESOLVER_LIMIT);
         settings.put("MAX_PING_RESPONSES_IN_PARALLEL", PING_HANDLER_LIMIT);
+        settings.put("MAX_API_RESPONSES_IN_PARALLEL", API_HANDLER_LIMIT);
         settings.put("MAX_PROCESS_REQ_IN_PARALLEL", PROCESS_HANDLER_LIMIT);
         settings.put("DUMP_LOG", DUMP_LOG);
         settings.put("VERBOSE", VERBOSE);

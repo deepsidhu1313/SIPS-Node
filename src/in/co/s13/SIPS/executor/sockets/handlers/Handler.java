@@ -19,7 +19,6 @@ package in.co.s13.SIPS.executor.sockets.handlers;
 import in.co.s13.SIPS.executor.ParallelProcess;
 import in.co.s13.SIPS.executor.sockets.Server;
 import in.co.s13.SIPS.settings.GlobalValues;
-import in.co.s13.SIPS.settings.Settings;
 import static in.co.s13.SIPS.settings.GlobalValues.procDB;
 import static in.co.s13.SIPS.settings.GlobalValues.processDBExecutor;
 import java.io.DataInputStream;

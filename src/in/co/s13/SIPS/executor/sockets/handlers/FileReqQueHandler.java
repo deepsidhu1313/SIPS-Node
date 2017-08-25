@@ -18,14 +18,11 @@ package in.co.s13.SIPS.executor.sockets.handlers;
 
 import in.co.s13.SIPS.executor.sockets.FileReqQueServer;
 import in.co.s13.SIPS.datastructure.FileDownQueReq;
-import in.co.s13.SIPS.settings.Settings;
 import in.co.s13.SIPS.tools.Util;
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -43,9 +40,6 @@ import org.json.JSONObject;
 public class FileReqQueHandler implements Runnable {
 
     Socket submitter;
-    int pnum;
-    String simsql = "";
-    long pdelay = 10;
 
     public FileReqQueHandler(Socket connection) {
         submitter = connection;
