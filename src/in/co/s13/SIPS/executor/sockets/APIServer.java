@@ -36,7 +36,7 @@ public class APIServer implements Runnable {
     public static boolean serverisRunning = false;
     public static ExecutorService executorService = Executors.newFixedThreadPool(GlobalValues.API_HANDLER_LIMIT);
     
-    public APIServer(boolean serverisrunning,int Mode) throws IOException {
+    public APIServer(boolean serverisrunning) throws IOException {
         serverisRunning = serverisrunning;
         
     }

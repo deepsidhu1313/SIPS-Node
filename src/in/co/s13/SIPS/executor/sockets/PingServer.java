@@ -37,7 +37,7 @@ public class PingServer implements Runnable {
     public static boolean serverisRunning = false;
     public static ExecutorService executorService = Executors.newFixedThreadPool(GlobalValues.PING_HANDLER_LIMIT);
     
-    public PingServer(boolean serverisrunning,int Mode) throws IOException {
+    public PingServer(boolean serverisrunning) throws IOException {
         serverisRunning = serverisrunning;
         
     }

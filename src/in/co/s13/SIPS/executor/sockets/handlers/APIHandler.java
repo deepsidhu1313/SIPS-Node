@@ -35,11 +35,10 @@ import org.json.JSONObject;
 public class APIHandler implements Runnable {
 
     Socket submitter;
-   
 
     public APIHandler(Socket connection) {
         submitter = connection;
-       
+
     }
 
     @Override
@@ -61,7 +60,7 @@ public class APIHandler implements Runnable {
                 if (msg.length() > 1) {
                     //System.out.println("hurray cond 1");
                     System.out.println("IP adress of sender is " + ipAddress);
-
+                    int key_permissions = 4;
                     // System.out.println("" + msg);
                     String command = msg.getString("Command");
                     JSONObject pingRequestBody = msg.getJSONObject("Body");;
@@ -94,7 +93,8 @@ public class APIHandler implements Runnable {
 
                         }
                         String key = keyInfo.getString("key");
-                        if (key.equals(apiKey)) {
+                        key_permissions = keyInfo.getInt("permissions");;
+                        if (!key.equals(apiKey)) {
                             try (OutputStream os2 = submitter.getOutputStream(); DataOutputStream outToClient2 = new DataOutputStream(os2)) {
                                 JSONObject sendmsg2Json = new JSONObject();
                                 sendmsg2Json.put("UUID", GlobalValues.NODE_UUID);
@@ -112,7 +112,7 @@ public class APIHandler implements Runnable {
                         }
                     }
 
-                    if (command.equalsIgnoreCase("TestConnection")) {
+                    if (command.equalsIgnoreCase("TestConnection") && hasReadPermissions(key_permissions)) {
 
                         try (OutputStream os2 = submitter.getOutputStream(); DataOutputStream outToClient2 = new DataOutputStream(os2)) {
                             JSONObject sendmsg2Json = new JSONObject();
@@ -141,6 +141,7 @@ public class APIHandler implements Runnable {
                         submitter.close();
 
                     }
+
                 }
             }
 
@@ -157,4 +158,15 @@ public class APIHandler implements Runnable {
 
     }
 
+    private boolean hasReadPermissions(int key_permissions) {
+        return key_permissions == 4 || key_permissions == 5 || key_permissions == 6 || key_permissions == 7;
+    }
+
+    private boolean hasWritePermissions(int key_permissions) {
+        return key_permissions == 2 || key_permissions == 3 || key_permissions == 6 || key_permissions == 7;
+    }
+
+    private boolean hasExecutePermissions(int key_permissions) {
+        return key_permissions == 1 || key_permissions == 3 || key_permissions == 5 || key_permissions == 7;
+    }
 }

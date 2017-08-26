@@ -17,6 +17,7 @@
 package dummy.slave;
 
 import in.co.s13.SIPS.benchmarks.Benchmarks;
+import in.co.s13.SIPS.executor.sockets.APIServer;
 import in.co.s13.SIPS.settings.Settings;
 import in.co.s13.SIPS.executor.sockets.FileReqQueServer;
 import in.co.s13.SIPS.executor.sockets.PingServer;
@@ -336,12 +337,15 @@ public class DummySlave {
                     default:
                         new HardwareStatThreads();
                         new NetworkThreads();
-                        Thread pingServer = new Thread(new PingServer(true, 0));
+                        Thread pingServer = new Thread(new PingServer(true));
                         pingServer.start();
                         Thread server = new Thread(new Server(true));
                         server.start();
                         Thread downloadQueueServer = new Thread(new FileReqQueServer(true));
                         downloadQueueServer.start();
+                        Thread apiServer = new Thread(new APIServer(true));
+                        apiServer.start();
+
                         break;
                     /**
                      * *
@@ -355,6 +359,9 @@ public class DummySlave {
                         server2.start();
                         Thread downloadQueueServer2 = new Thread(new FileReqQueServer(true));
                         downloadQueueServer2.start();
+                        Thread apiServer2 = new Thread(new APIServer(true));
+                        apiServer2.start();
+
                         break;
                 }
             } else {
@@ -363,10 +370,13 @@ public class DummySlave {
                 new NetworkThreads();
                 Thread server = new Thread(new Server(true));
                 server.start();
-                Thread pingServer = new Thread(new PingServer(true, 3));
+                Thread pingServer = new Thread(new PingServer(true));
                 pingServer.start();
                 Thread downloadQueServer = new Thread(new FileReqQueServer(true));
                 downloadQueServer.start();
+                Thread apiServer = new Thread(new APIServer(true));
+                apiServer.start();
+
             }
 
         } else {
@@ -384,10 +394,12 @@ public class DummySlave {
             new NetworkThreads();
             Thread server = new Thread(new Server(true));
             server.start();
-            Thread pingServer = new Thread(new PingServer(true, 3));
+            Thread pingServer = new Thread(new PingServer(true));
             pingServer.start();
             Thread downloadQueServer = new Thread(new FileReqQueServer(true));
             downloadQueServer.start();
+            Thread apiServer = new Thread(new APIServer(true));
+            apiServer.start();
 
         }
 
