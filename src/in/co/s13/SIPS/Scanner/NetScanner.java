@@ -17,22 +17,10 @@
 package in.co.s13.SIPS.Scanner;
 
 import in.co.s13.SIPS.settings.GlobalValues;
-import in.co.s13.SIPS.settings.Settings;
 import static in.co.s13.SIPS.settings.GlobalValues.*;
 import in.co.s13.SIPS.tools.Util;
 import static in.co.s13.SIPS.tools.Util.outPrintln;
-import in.co.s13.SIPS.virtualdb.NodeDBRow;
-import java.io.File;
 import java.net.InetAddress;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

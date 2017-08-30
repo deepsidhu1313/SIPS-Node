@@ -60,12 +60,12 @@ public class APIHandler implements Runnable {
                 if (msg.length() > 1) {
                     //System.out.println("hurray cond 1");
                     System.out.println("IP adress of sender is " + ipAddress);
-                    int key_permissions = 4;
+                    int key_permissions = 0;//default value to 0, no harm done by malformed key
                     // System.out.println("" + msg);
                     String command = msg.getString("Command");
-                    JSONObject pingRequestBody = msg.getJSONObject("Body");;
-                    String clientUUID = pingRequestBody.getString("UUID");
-                    String apiKey = pingRequestBody.getString("API_KEY");
+                    JSONObject requestBody = msg.getJSONObject("Body");;
+                    String clientUUID = requestBody.getString("UUID");
+                    String apiKey = requestBody.getString("API_KEY");
                     if ((GlobalValues.BLACKLIST.containsKey(ipAddress) || GlobalValues.BLACKLIST.containsKey(clientUUID))
                             && (!GlobalValues.API_LIST.containsKey(clientUUID) || !GlobalValues.API_LIST.containsKey(ipAddress))) {
                         //send error message
@@ -111,36 +111,31 @@ public class APIHandler implements Runnable {
                             return;
                         }
                     }
+                    try (OutputStream os2 = submitter.getOutputStream(); DataOutputStream outToClient2 = new DataOutputStream(os2)) {
+                        JSONObject sendmsg2Json = new JSONObject();
+                        sendmsg2Json.put("UUID", GlobalValues.NODE_UUID);
+                        JSONObject body = new JSONObject();
 
-                    if (command.equalsIgnoreCase("TestConnection") && hasReadPermissions(key_permissions)) {
-
-                        try (OutputStream os2 = submitter.getOutputStream(); DataOutputStream outToClient2 = new DataOutputStream(os2)) {
-                            JSONObject sendmsg2Json = new JSONObject();
-                            sendmsg2Json.put("UUID", GlobalValues.NODE_UUID);
-                            JSONObject body = new JSONObject();
+                        if (command.equalsIgnoreCase("TestConnection") && hasReadPermissions(key_permissions)) {
                             body.put("Response", "Connection Successful");
-                            sendmsg2Json.put("Body", body);
-                            String sendmsg2 = sendmsg2Json.toString();
-                            byte[] bytes2 = sendmsg2.getBytes("UTF-8");
-                            outToClient2.writeInt(bytes2.length);
-                            outToClient2.write(bytes2);
-                        }
-                        submitter.close();
-                    } else {
-                        try (OutputStream os2 = submitter.getOutputStream(); DataOutputStream outToClient2 = new DataOutputStream(os2)) {
-                            JSONObject sendmsg2Json = new JSONObject();
-                            sendmsg2Json.put("UUID", GlobalValues.NODE_UUID);
-                            JSONObject body = new JSONObject();
+                        } else if (command.equalsIgnoreCase("blacklist show") && hasReadPermissions(key_permissions)) {
+                            body.put("Response", Util.getBlackListInJSON());
+                        } else if (command.equalsIgnoreCase("adjacent show") && hasReadPermissions(key_permissions)) {
+                            body.put("Response", Util.getAdjacentTableInJSON());
+                        } else if (command.equalsIgnoreCase("non-adjacent show") && hasReadPermissions(key_permissions)) {
+                            body.put("Response", Util.getNonAdjacentTableInJSON());
+                        } else if (command.equalsIgnoreCase("nodes show") && hasReadPermissions(key_permissions)) {
+                            body.put("Response", Util.getLiveNodesInJSON());
+                        } else {
                             body.put("Response", "Command not available!!");
-                            sendmsg2Json.put("Body", body);
-                            String sendmsg2 = sendmsg2Json.toString();
-                            byte[] bytes2 = sendmsg2.getBytes("UTF-8");
-                            outToClient2.writeInt(bytes2.length);
-                            outToClient2.write(bytes2);
                         }
-                        submitter.close();
-
+                        sendmsg2Json.put("Body", body);
+                        String sendmsg2 = sendmsg2Json.toString();
+                        byte[] bytes2 = sendmsg2.getBytes("UTF-8");
+                        outToClient2.writeInt(bytes2.length);
+                        outToClient2.write(bytes2);
                     }
+                    submitter.close();
 
                 }
             }

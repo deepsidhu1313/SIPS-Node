@@ -31,7 +31,7 @@ public class LiveDBRow {
     private String uuid, operatingSytem, hostname, processor_name;
 
     private long memory, free_memory, hdd_size, hdd_free;
-    private ArrayList<String> ipAddresses= new ArrayList<>();
+    private ArrayList<String> ipAddresses = new ArrayList<>();
 
     public LiveDBRow(String uuid, String host, String os, String processor, int qlen,
             int qwait, long ram, long free_memory, long hdd_size, long hdd_free) {
@@ -148,7 +148,7 @@ public class LiveDBRow {
 
     @Override
     public String toString() {
-        return "LiveDBRow:[" + " uuid: " + uuid + ", que_length:" + que_length + ", waiting_in_que:" + waiting_in_que + ", operatingSytem:" + operatingSytem + ", hostname:" + hostname + ", processor_name:" + processor_name + ", memory:" + memory + ", free_memory:" + free_memory + ", hdd_size:" + hdd_size + ", hdd_free:" + hdd_free + ']';
+        return this.toJSON().toString(4);
     }
 
     @Override
@@ -164,7 +164,17 @@ public class LiveDBRow {
 
     public JSONObject toJSON() {
         JSONObject result = new JSONObject();
-        
+        result.put("uuid", uuid);
+        result.put("que_length", que_length);
+        result.put("waiting_in_que", waiting_in_que);
+        result.put("operatingSytem", operatingSytem);
+        result.put("hostname", hostname);
+        result.put("processor_name", processor_name);
+        result.put("memory", memory);
+        result.put("free_memory", free_memory);
+        result.put("hdd_size", hdd_size);
+        result.put("hdd_free", hdd_free);
+        result.put("ipAddresses", ipAddresses);
         return result;
     }
 

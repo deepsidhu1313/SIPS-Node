@@ -16,7 +16,6 @@
  */
 package in.co.s13.SIPS.settings;
 
-import in.co.s13.SIPS.datastructure.Hop;
 import in.co.s13.SIPS.datastructure.Resource;
 import in.co.s13.SIPS.datastructure.UniqueElementList;
 import in.co.s13.SIPS.db.OLDSQLiteJDBC;

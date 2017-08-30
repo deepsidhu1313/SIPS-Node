@@ -22,7 +22,6 @@ import in.co.s13.SIPS.datastructure.UniqueElementList;
 import in.co.s13.SIPS.executor.sockets.Server;
 import in.co.s13.SIPS.settings.GlobalValues;
 import static in.co.s13.SIPS.settings.GlobalValues.DUMP_LOG;
-import static in.co.s13.SIPS.settings.GlobalValues.MEM_SIZE;
 import static in.co.s13.SIPS.settings.GlobalValues.OS;
 import static in.co.s13.SIPS.settings.GlobalValues.OS_Name;
 import static in.co.s13.SIPS.settings.GlobalValues.PWD;
@@ -31,6 +30,7 @@ import static in.co.s13.SIPS.settings.GlobalValues.err;
 import static in.co.s13.SIPS.settings.GlobalValues.log;
 import static in.co.s13.SIPS.settings.GlobalValues.out;
 import in.co.s13.SIPS.settings.Settings;
+import in.co.s13.SIPS.virtualdb.LiveDBRow;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,7 +48,6 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -60,9 +59,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Random;
-import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.filechooser.FileSystemView;
@@ -814,7 +811,7 @@ public class Util {
     }
 
     public static String generateAPIKey() {
-        return java.util.UUID.randomUUID().toString() ;
+        return java.util.UUID.randomUUID().toString();
     }
 
     /**
@@ -1002,6 +999,21 @@ public class Util {
             String key = en.nextElement();
             UniqueElementList value = GlobalValues.NON_ADJACENT_NODES_TABLE.get(key);
             json.put(key, value.getNearestHop().getDistance());
+        }
+        return json;
+    }
+
+    public static synchronized JSONObject getBlackListInJSON() {
+        return GlobalValues.blacklistJSON;
+    }
+
+    public static synchronized JSONObject getLiveNodesInJSON() {
+        JSONObject json = new JSONObject();
+        Enumeration<String> en = GlobalValues.liveNodeDB.keys();
+        while (en.hasMoreElements()) {
+            String key = en.nextElement();
+            LiveDBRow value = GlobalValues.liveNodeDB.get(key);
+            json.put(key, value.toJSON());
         }
         return json;
     }
