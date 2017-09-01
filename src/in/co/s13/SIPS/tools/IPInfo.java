@@ -26,19 +26,19 @@ import org.json.JSONArray;
  *
  * @author nika
  */
-public class IPInfo implements Runnable{
+public class IPInfo implements Runnable {
 
     public IPInfo() {
     }
 
-    
     @Override
     public void run() {
+        Thread.currentThread().setName("IP Information Thread");
         try {
             GlobalValues.ipAddresses = new JSONArray(Util.getLocalHostLANAddress());
         } catch (UnknownHostException ex) {
             Logger.getLogger(IPInfo.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
 }

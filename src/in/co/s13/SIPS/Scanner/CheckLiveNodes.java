@@ -30,21 +30,23 @@ import java.util.Hashtable;
  * @author Nika
  */
 public class CheckLiveNodes implements Runnable {
-
+    
     public static boolean livenodechecker = true;
-
+    
     public CheckLiveNodes() {
-
+        
         outPrintln("thread started");
     }
-
+    
+ 
+    
     @Override
     public void run() {
-
+        
         Thread.currentThread().setName("CheckLiveNodeThread");
-        Hashtable<String, LiveDBRow> livehosts = new Hashtable<>(GlobalValues.liveNodeDB);
+     //   Hashtable<String, LiveDBRow> livehosts = (GlobalValues.LIVE_NODE_DB);
         {
-            if (!GlobalValues.iswriting) {
+            if (!GlobalValues.IS_WRITING) {
                 liveDBExecutor.execute(() -> {
                     /* String sql = "SELECT * FROM LIVE";
                     SQLiteJDBC livedb = new SQLiteJDBC();
@@ -57,7 +59,7 @@ public class CheckLiveNodes implements Runnable {
                     }
                     livedb.closeConnection();
                      */
-//                    liveNodeDB.stream().forEach((liveget) -> {
+//                    LIVE_NODE_DB.stream().forEach((liveget) -> {
 //                        livehosts.add(liveget.getName());
 //                    });
 
@@ -68,20 +70,20 @@ public class CheckLiveNodes implements Runnable {
 //                        pingExecutor.execute(p1);
 //
 //                    }
-                    Enumeration<String> keys = livehosts.keys();
+                    Enumeration<String> keys = GlobalValues.LIVE_NODE_DB.keys();
                     while (keys.hasMoreElements()) {
                         String key = keys.nextElement();
-                        LiveDBRow liveNode = livehosts.get(key);
+                        LiveDBRow liveNode = GlobalValues.LIVE_NODE_DB.get(key);
                         ArrayList<String> ips = liveNode.getIpAddresses();
                         for (int i = 0; i < ips.size(); i++) {
                             String get = ips.get(i);
                             Thread p1 = new Thread(new Ping(get, liveNode.getUuid()));
-                            pingExecutor.execute(p1);
+                            pingExecutor.submit(p1);
                         }
-
+                        
                     }
                 });
-
+                
             }
         }
     }

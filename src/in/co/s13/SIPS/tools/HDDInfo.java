@@ -41,6 +41,7 @@ public class HDDInfo implements Runnable {
 
     @Override
     public void run() {
+        Thread.currentThread().setName("HDD Information Thread");
         try {
             ProcessBuilder pb = null;
             String currentDrive = null;

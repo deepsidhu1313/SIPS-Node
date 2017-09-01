@@ -54,6 +54,7 @@ public class PingServer implements Runnable {
             Logger.getLogger(PingServer.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+        Thread.currentThread().setName("Ping Server Thread");
         while (serverisRunning) {
             try {
                 Socket s = ss.accept();

@@ -57,6 +57,7 @@ public class APIHandler implements Runnable {
 
                 InetAddress inetAddress = submitter.getInetAddress();
                 String ipAddress = inetAddress.getHostAddress();
+                Thread.currentThread().setName("API handler for "+ipAddress);
                 if (msg.length() > 1) {
                     //System.out.println("hurray cond 1");
                     System.out.println("IP adress of sender is " + ipAddress);
@@ -127,7 +128,7 @@ public class APIHandler implements Runnable {
                         } else if (command.equalsIgnoreCase("nodes show") && hasReadPermissions(key_permissions)) {
                             body.put("Response", Util.getLiveNodesInJSON());
                         } else {
-                            body.put("Response", "Command not available!!");
+                            body.put("Response", "Command not available!! Or Incorrect Permissions");
                         }
                         sendmsg2Json.put("Body", body);
                         String sendmsg2 = sendmsg2Json.toString();

@@ -18,6 +18,7 @@ package in.co.s13.SIPS.settings;
 
 import in.co.s13.SIPS.datastructure.Resource;
 import in.co.s13.SIPS.datastructure.UniqueElementList;
+import in.co.s13.SIPS.datastructure.threadpools.FixedThreadPool;
 import in.co.s13.SIPS.db.OLDSQLiteJDBC;
 import in.co.s13.SIPS.db.SQLiteJDBC;
 import in.co.s13.SIPS.virtualdb.LiveDBRow;
@@ -65,7 +66,7 @@ public class GlobalValues {
     public static JSONObject BENCHMARKING;
     public static Hashtable<String, Resource> resources = new Hashtable<>(5);
     public static JSONArray ipAddresses = new JSONArray();
-    public static boolean SHARED_STORAGE=false;
+    public static boolean SHARED_STORAGE = false;
     /**
      * Log Files and variables
      */
@@ -76,7 +77,7 @@ public class GlobalValues {
     /**
      * all Node DB
      */
-    public static OLDSQLiteJDBC alldb ;
+    public static OLDSQLiteJDBC alldb;
 
     /**
      * Executor Limits
@@ -92,12 +93,15 @@ public class GlobalValues {
      * *
      * Executors
      */
+//    public static ExecutorService netExecutor;
+//    public static ExecutorService processExecutor = Executors.newFixedThreadPool(PROCESS_LIMIT);
+    public static ExecutorService nodeScannerExecutor = Executors.newFixedThreadPool(3);
+    public static FixedThreadPool netExecutor= new FixedThreadPool(PROCESS_LIMIT);
+    public static FixedThreadPool processExecutor= new FixedThreadPool(PROCESS_LIMIT);
+    public static FixedThreadPool pingExecutor= new FixedThreadPool(2);
     public static ExecutorService nodeDBExecutor = Executors.newFixedThreadPool(1);
-    public static ExecutorService processExecutor = Executors.newFixedThreadPool(PROCESS_LIMIT);
     public static ExecutorService processDBExecutor = Executors.newFixedThreadPool(1);
-    public static ExecutorService pingExecutor = Executors.newFixedThreadPool(2);
     public static ExecutorService liveDBExecutor = Executors.newFixedThreadPool(1);
-    public static ExecutorService netExecutor;
 
     /**
      * *
@@ -109,19 +113,20 @@ public class GlobalValues {
      */
     //  public static ArrayList<String> livehosts = new ArrayList();
     //  public static ObservableList<LiveNode> liveNodes = FXCollections.observableArrayList();
-    public static Hashtable<String, LiveDBRow> liveNodeDB = new Hashtable<>();
-    public static Hashtable<String, NodeDBRow> allNodeDB = new Hashtable<>();
-    public static ArrayList<String> hosts = new ArrayList<>();
-    public static Hashtable<String, String> scanning = new Hashtable<>();
+    public static Hashtable<String, LiveDBRow> LIVE_NODE_DB = new Hashtable<>();
+    public static Hashtable<String, LiveDBRow> NON_ADJ_LIVE_NODE_DB = new Hashtable<>();
+    public static Hashtable<String, NodeDBRow> ALL_NODE_DB = new Hashtable<>();
+    public static ArrayList<String> HOSTS = new ArrayList<>();
+    public static Hashtable<String, String> CURRENTLY_SCANNING = new Hashtable<>();
     public static Hashtable<String, String> BLACKLIST = new Hashtable<>();
     public static Hashtable<String, JSONObject> API_LIST = new Hashtable<>();
-    public static boolean iswriting = false;
-    public static JSONObject blacklistJSON, networksToScanJSON, ipToScanJSON,API_JSON;
+    public static boolean IS_WRITING = false;
+    public static JSONObject blacklistJSON, networksToScanJSON, ipToScanJSON, API_JSON;
     public static int threadnumber = total_threads;
     public static Hashtable<String, String> routingTable = new Hashtable<>();
     public static Hashtable<String, Long> ADJACENT_NODES_TABLE = new Hashtable<>();
     public static Hashtable<String, UniqueElementList> NON_ADJACENT_NODES_TABLE = new Hashtable<>();
-    
-    public static int PING_SERVER_PORT=13131,FILE_QUEUE_SERVER_PORT=13132,MAIN_SERVER_PORT=13133,API_SERVER_PORT=13139;
+
+    public static int PING_SERVER_PORT = 13131, FILE_QUEUE_SERVER_PORT = 13132, MAIN_SERVER_PORT = 13133, API_SERVER_PORT = 13139;
 
 }

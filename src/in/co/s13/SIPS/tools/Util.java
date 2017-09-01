@@ -1009,10 +1009,21 @@ public class Util {
 
     public static synchronized JSONObject getLiveNodesInJSON() {
         JSONObject json = new JSONObject();
-        Enumeration<String> en = GlobalValues.liveNodeDB.keys();
+        Enumeration<String> en = GlobalValues.LIVE_NODE_DB.keys();
         while (en.hasMoreElements()) {
             String key = en.nextElement();
-            LiveDBRow value = GlobalValues.liveNodeDB.get(key);
+            LiveDBRow value = GlobalValues.LIVE_NODE_DB.get(key);
+            json.put(key, value.toJSON());
+        }
+        return json;
+    }
+
+    public static synchronized JSONObject getNonAdjLiveNodesInJSON() {
+        JSONObject json = new JSONObject();
+        Enumeration<String> en = GlobalValues.NON_ADJ_LIVE_NODE_DB.keys();
+        while (en.hasMoreElements()) {
+            String key = en.nextElement();
+            LiveDBRow value = GlobalValues.NON_ADJ_LIVE_NODE_DB.get(key);
             json.put(key, value.toJSON());
         }
         return json;

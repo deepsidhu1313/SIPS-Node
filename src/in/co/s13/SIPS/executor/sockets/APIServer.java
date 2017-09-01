@@ -35,13 +35,11 @@ public class APIServer implements Runnable {
     public static ServerSocket ss;
     public static boolean serverisRunning = false;
     public static ExecutorService executorService = Executors.newFixedThreadPool(GlobalValues.API_HANDLER_LIMIT);
-    
+
     public APIServer(boolean serverisrunning) throws IOException {
         serverisRunning = serverisrunning;
-        
+
     }
-
-
 
     @Override
     public void run() {
@@ -52,12 +50,13 @@ public class APIServer implements Runnable {
         } catch (IOException ex) {
             Logger.getLogger(APIServer.class.getName()).log(Level.SEVERE, null, ex);
         }
+        Thread.currentThread().setName("API Server Thread");
 
         while (serverisRunning) {
             try {
                 Socket s = ss.accept();
                 System.out.println("Server is running");
-                Thread t= new Thread(new PingHandler(s));
+                Thread t = new Thread(new PingHandler(s));
                 //t.setPriority(Thread.NORM_PRIORITY+1);
                 executorService.execute(t);
 

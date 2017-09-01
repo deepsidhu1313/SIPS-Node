@@ -62,6 +62,7 @@ public class FileReqQueHandler implements Runnable {
             msg = new String(message);
             InetAddress inetAddress = submitter.getInetAddress();
             String ipAddress = inetAddress.getHostAddress();
+            Thread.currentThread().setName("File Request handler for " + ipAddress);
             if (msg.length() > 1) {
                 JSONObject messageJson = new JSONObject(message);
                 //settings.outPrintln("hurray cond 1");
@@ -167,9 +168,9 @@ public class FileReqQueHandler implements Runnable {
                                 try (Socket sock = new Socket(ip, 13133)) {
                                     System.out.println("Connecting To Download...");
                                     try (OutputStream sockos = sock.getOutputStream(); DataOutputStream outToServer = new DataOutputStream(sockos)) {
-                                        JSONObject downreqJsonObj= new JSONObject();
+                                        JSONObject downreqJsonObj = new JSONObject();
                                         downreqJsonObj.put("Command", "sendfile");
-                                        JSONObject downreqBodyJsonObj= new JSONObject();
+                                        JSONObject downreqBodyJsonObj = new JSONObject();
                                         downreqBodyJsonObj.put("PID", pid);
                                         downreqBodyJsonObj.put("CNO", cno);
                                         downreqBodyJsonObj.put("FILENAME", fname);
@@ -279,7 +280,7 @@ public class FileReqQueHandler implements Runnable {
 
                 } else if (command.trim().equalsIgnoreCase("downloadObject")) {
                     System.out.println("finding Object");
-                    String objToSend =body.getString("OBJECT");// body.substring(body.indexOf("<OBJECT>") + 8, body.indexOf("</OBJECT>"));
+                    String objToSend = body.getString("OBJECT");// body.substring(body.indexOf("<OBJECT>") + 8, body.indexOf("</OBJECT>"));
                     String pid2 = body.getString("PID");//body.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
                     String cno2 = body.getString("CNO");//body.substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
                     String classname = body.getString("CLASSNAME");//body.substring(body.indexOf("<CLASSNAME>") + 11, body.indexOf("</CLASSNAME>"));
@@ -292,8 +293,7 @@ public class FileReqQueHandler implements Runnable {
                     String pathtoFile = "data/" + pid2 + "/sim/" + classname + "/" + objToSend + "-instance-" + instance + ".obj";
                     String lpathtoFile = "sim/" + classname + "/" + objToSend + "-instance-" + instance + ".obj";
 
-            //        File myFile2 = new File(pathtoFile);
-
+                    //        File myFile2 = new File(pathtoFile);
                     boolean notinQ = true;
                     for (FileDownQueReq downQue : FileReqQueServer.downQue) {
                         boolean b1 = downQue.getFilename().trim().equalsIgnoreCase(pathtoFile.trim());
@@ -319,7 +319,7 @@ public class FileReqQueHandler implements Runnable {
 
                             } else {
                                 long rt = downQue.getRemainingTime();
-                                
+
                                 JSONObject sobj = new JSONObject();
                                 sobj.put("MSG", "inque");
                                 sobj.put("RT", rt);
@@ -368,9 +368,9 @@ public class FileReqQueHandler implements Runnable {
                                 try (Socket sock = new Socket(ip, 13133)) {
                                     System.out.println("Connecting...");
                                     try (OutputStream sockos = sock.getOutputStream(); DataOutputStream outToServer = new DataOutputStream(sockos)) {
-                                       JSONObject downreqJsonObj= new JSONObject();
+                                        JSONObject downreqJsonObj = new JSONObject();
                                         downreqJsonObj.put("Command", "resolveObject");
-                                        JSONObject downreqBodyJsonObj= new JSONObject();
+                                        JSONObject downreqBodyJsonObj = new JSONObject();
                                         downreqBodyJsonObj.put("PID", pid2);
                                         downreqBodyJsonObj.put("CNO", cno2);
                                         downreqBodyJsonObj.put("CLASSNAME", classname);

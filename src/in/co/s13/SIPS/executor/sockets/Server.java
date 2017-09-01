@@ -19,12 +19,7 @@ package in.co.s13.SIPS.executor.sockets;
 import in.co.s13.SIPS.executor.sockets.handlers.Handler;
 import in.co.s13.SIPS.settings.GlobalValues;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -142,8 +137,6 @@ public class Server implements Runnable {
 
     }
 
-   
-
     @Override
     public void run() {
         try {
@@ -154,6 +147,7 @@ public class Server implements Runnable {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+        Thread.currentThread().setName("Default Server Thread");
         while (serverisRunning) {
             try {
                 Socket s = ss.accept();

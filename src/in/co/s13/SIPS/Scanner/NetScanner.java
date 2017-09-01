@@ -30,8 +30,8 @@ public class NetScanner implements Runnable {
 
     public NetScanner() {
 //     livehosts = new ArrayList();
-//        hosts = new ArrayList();
-//        scanning = new ArrayList();
+//        HOSTS = new ArrayList();
+//        CURRENTLY_SCANNING = new ArrayList();
         addip("127.0.0.1");
 
         JSONArray blacklistIPArray = blacklistJSON.getJSONArray("blacklist", new JSONArray());
@@ -102,7 +102,7 @@ public class NetScanner implements Runnable {
 //        nodeDBExecutor.execute(() -> {
 //
 //            Thread.currentThread().setName("InsertNodeDBThread");
-//            for (String host : hosts) {
+//            for (String host : HOSTS) {
 //                String sql = "INSERT INTO ALLN (IP ,"
 //                        + " LEN ,"
 //                        + "OS ,"
@@ -127,7 +127,7 @@ public class NetScanner implements Runnable {
 //                    ResultSet rs = alldb.select(sql);
 //                    while (rs.next()) {
 //                        addip(rs.getString("IP"));
-//                        allNodeDB.add(new IPAddress(rs.getString("IP"), rs.getString("STATUS"), rs.getString("OS"), rs.getString("HOST"),
+//                        ALL_NODE_DB.add(new IPAddress(rs.getString("IP"), rs.getString("STATUS"), rs.getString("OS"), rs.getString("HOST"),
 //                                rs.getInt("QLEN"), rs.getInt("QWAIT"), rs.getLong("RAM"), rs.getDouble("PRFM"),
 //                                rs.getString("PROCESSOR"), rs.getString("CLUSTER")));
 //                    }
@@ -146,23 +146,23 @@ public class NetScanner implements Runnable {
     }
 
 //    public static void removeip(String ip) {
-//        Collections.sort(hosts, NodeDBRow.NodeDBRowComparator.getComparator(NodeDBRow.NodeDBRowComparator.UUID_SORT));
-//        hosts.remove((ip));
-////        if (hosts.contains(ip)) {
+//        Collections.sort(HOSTS, NodeDBRow.NodeDBRowComparator.getComparator(NodeDBRow.NodeDBRowComparator.UUID_SORT));
+//        HOSTS.remove((ip));
+////        if (HOSTS.contains(ip)) {
 ////            
 ////            
 ////        }
 //        /*     if (livehosts.contains(ip)) {
-//         livehosts.remove(hosts.indexOf(ip));
+//         livehosts.remove(HOSTS.indexOf(ip));
 //         Collections.sort(livehosts);
 //         }*/
 //    }
     public static void addip(String ip) {
-        if (!hosts.contains(ip)) {
-            hosts.add(ip);
+        if (!HOSTS.contains(ip)) {
+            HOSTS.add(ip);
 
             outPrintln("" + ip + " is added to list");
-            //  Collections.sort(hosts);
+            //  Collections.sort(HOSTS);
         }
 //        nodeDBExecutor.execute(() -> {
 //            {
@@ -187,13 +187,13 @@ public class NetScanner implements Runnable {
     public static void addnetwork(String ip) {
         String str = "" + ip;
         outPrintln(ip);
-        if (!ip.matches("(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
-                + "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
-                + "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
-                + "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])")) {
-            Util.errPrintln("IP Format not supported: \"" + ip + "\'");
-            return;
-        }
+//        if (!ip.matches("(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
+//                + "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
+//                + "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
+//                + "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])")) {
+//            Util.errPrintln("IP Format not supported: \"" + ip + "\'");
+//            return;
+//        }
         int ind1 = str.indexOf(".");
         int ind3 = str.lastIndexOf('.');
         int ind2 = (str.substring(ind1 + 1, ind3).indexOf(".")) + (ind1 + 1);

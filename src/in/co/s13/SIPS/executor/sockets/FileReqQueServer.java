@@ -56,6 +56,7 @@ public class FileReqQueServer implements Runnable {
             Logger.getLogger(FileReqQueServer.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+        Thread.currentThread().setName("File Server Thread");
         while (serverisRunning) {
             try {
                 Socket s = ss.accept();

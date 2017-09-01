@@ -16,9 +16,11 @@
  */
 package in.co.s13.SIPS.virtualdb;
 
+import in.co.s13.SIPS.Scanner.NetScanner;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Objects;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -32,9 +34,10 @@ public class LiveDBRow {
 
     private long memory, free_memory, hdd_size, hdd_free;
     private ArrayList<String> ipAddresses = new ArrayList<>();
+    private JSONObject benchmarking_results;
 
     public LiveDBRow(String uuid, String host, String os, String processor, int qlen,
-            int qwait, long ram, long free_memory, long hdd_size, long hdd_free) {
+            int qwait, long ram, long free_memory, long hdd_size, long hdd_free, JSONObject benchmarking_results) {
         this.uuid = uuid;
         this.operatingSytem = os;
         this.hostname = host;
@@ -45,6 +48,27 @@ public class LiveDBRow {
         this.processor_name = processor;
         this.hdd_size = hdd_size;
         this.hdd_free = hdd_free;
+        this.benchmarking_results = benchmarking_results;
+    }
+
+    public LiveDBRow(JSONObject livedbRow) {
+        uuid = livedbRow.getString("uuid");
+        que_length = livedbRow.getInt("que_length");
+        waiting_in_que = livedbRow.getInt("waiting_in_que");
+        operatingSytem = livedbRow.getString("operatingSytem");
+        hostname = livedbRow.getString("hostname");
+        processor_name = livedbRow.getString("processor_name");
+        memory = livedbRow.getLong("memory");
+        free_memory = livedbRow.getLong("free_memory");
+        hdd_size = livedbRow.getLong("hdd_size");
+        hdd_free = livedbRow.getLong("hdd_free");
+        JSONArray array= livedbRow.getJSONArray("ipAddresses");
+        for (int i = 0; i < array.length(); i++) {
+            String ip = array.getString(i);
+            addIp(ip);
+            NetScanner.addip(ip);
+        }
+        benchmarking_results = livedbRow.getJSONObject("benchmarking_results");
     }
 
     public String getUuid() {
@@ -146,6 +170,14 @@ public class LiveDBRow {
         return this.ipAddresses.remove(ip);
     }
 
+    public JSONObject getBenchmarking_results() {
+        return benchmarking_results;
+    }
+
+    public void setBenchmarking_results(JSONObject benchmarking_results) {
+        this.benchmarking_results = benchmarking_results;
+    }
+
     @Override
     public String toString() {
         return this.toJSON().toString(4);
@@ -174,7 +206,8 @@ public class LiveDBRow {
         result.put("free_memory", free_memory);
         result.put("hdd_size", hdd_size);
         result.put("hdd_free", hdd_free);
-        result.put("ipAddresses", ipAddresses);
+        result.put("ipAddresses", new JSONArray(ipAddresses));
+        result.put("benchmarking_results", benchmarking_results);
         return result;
     }
 

@@ -49,11 +49,11 @@ public class RangePinger implements Runnable {
 
     @Override
     public void run() {
-        Thread.currentThread().setName("RangePingerThread");
+        Thread.currentThread().setName("Range Pinger Thread From "+low+" to "+up+" on List With Size "+temp.size());
         for (int i = low; i <= up; i++) {
             String node = temp.get(i);
             Thread p1 = new Thread(new Ping(node, ""));
-            pingExecutor.execute(p1);
+            pingExecutor.submit(p1);
             //    p1.setPriority(Thread.NORM_PRIORITY - 1);
 
 //            ArrayList<String> ips = node.getIpAddresses();

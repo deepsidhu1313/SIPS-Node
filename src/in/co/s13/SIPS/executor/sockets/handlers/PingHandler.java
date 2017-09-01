@@ -45,6 +45,7 @@ public class PingHandler implements Runnable {
 
     @Override
     public void run() {
+        
         try {
             try (DataInputStream dataInputStream = new DataInputStream(submitter.getInputStream())) {
                 JSONObject msg;
@@ -58,6 +59,7 @@ public class PingHandler implements Runnable {
 
                 InetAddress inetAddress = submitter.getInetAddress();
                 String ipAddress = inetAddress.getHostAddress();
+                Thread.currentThread().setName("Ping handler for "+ipAddress);
                 if (msg.length() > 1) {
                     System.out.println("IP adress of sender is " + ipAddress);
 
@@ -90,6 +92,8 @@ public class PingHandler implements Runnable {
                             sendmsg2Json.put("PROCESS_TIME", (System.currentTimeMillis() - startTime));
                             sendmsg2Json.put("ADJ_NODES", Util.getAdjacentTableInJSON());
                             sendmsg2Json.put("NON_ADJ_NODES", Util.getNonAdjacentTableInJSON());
+                            sendmsg2Json.put("LIVE_NODES", Util.getLiveNodesInJSON());
+                            sendmsg2Json.put("NON_ADJ_LIVE_NODES", Util.getNonAdjLiveNodesInJSON());
                             String sendmsg2 = sendmsg2Json.toString();
                             byte[] bytes2 = sendmsg2.getBytes("UTF-8");
                             outToClient2.writeInt(bytes2.length);

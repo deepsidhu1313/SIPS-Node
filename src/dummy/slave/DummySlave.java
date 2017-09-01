@@ -49,6 +49,7 @@ public class DummySlave {
      */
     public static void main(String[] args) throws IOException {
         Settings loadSettings = new Settings();
+        Thread.currentThread().setName("Main");
         if (args.length > 0) {
             ArrayList<String> arguments = new ArrayList<>();
             Collections.addAll(arguments, args);

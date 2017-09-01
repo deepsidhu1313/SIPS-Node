@@ -40,7 +40,9 @@ public class MemoryInfo implements Runnable {
 
     @Override
     public void run() {
-        try {
+        
+        Thread.currentThread().setName("Memory Information Thread");
+                try {
             ProcessBuilder pb = null;
             if (Util.isUnix()) {
                 String cmd[] = {"cat", "/proc/meminfo"};
