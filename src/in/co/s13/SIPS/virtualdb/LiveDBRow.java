@@ -23,10 +23,7 @@ import java.util.Objects;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-/**
- *
- * @author NAVDEEP SINGH SIDHU <navdeepsingh.sidhu95@gmail.com>
- */
+
 public class LiveDBRow {
 
     private int que_length, waiting_in_que;

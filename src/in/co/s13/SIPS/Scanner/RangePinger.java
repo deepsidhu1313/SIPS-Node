@@ -18,9 +18,6 @@ package in.co.s13.SIPS.Scanner;
 
 import java.util.ArrayList;
 import static in.co.s13.SIPS.settings.GlobalValues.*;
-import in.co.s13.SIPS.virtualdb.LiveDBRow;
-import in.co.s13.SIPS.virtualdb.NodeDBRow;
-import java.util.Hashtable;
 
 /**
  *

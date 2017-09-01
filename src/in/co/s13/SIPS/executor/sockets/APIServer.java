@@ -45,7 +45,7 @@ public class APIServer implements Runnable {
     public void run() {
         try {
             if (ss == null || ss.isClosed()) {
-                ss = new ServerSocket(GlobalValues.PING_SERVER_PORT);
+                ss = new ServerSocket(GlobalValues.API_SERVER_PORT);
             }
         } catch (IOException ex) {
             Logger.getLogger(APIServer.class.getName()).log(Level.SEVERE, null, ex);

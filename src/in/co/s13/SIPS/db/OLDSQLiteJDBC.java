@@ -20,7 +20,6 @@ package in.co.s13.SIPS.db;
  *
  * @author Nika
  */
-import in.co.s13.SIPS.settings.Settings;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;

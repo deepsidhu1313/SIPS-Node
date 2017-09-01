@@ -187,13 +187,13 @@ public class NetScanner implements Runnable {
     public static void addnetwork(String ip) {
         String str = "" + ip;
         outPrintln(ip);
-//        if (!ip.matches("(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
-//                + "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
-//                + "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
-//                + "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])")) {
-//            Util.errPrintln("IP Format not supported: \"" + ip + "\'");
-//            return;
-//        }
+        if (!ip.matches("(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
+                + "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
+                + "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
+                + "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])")) {
+            Util.errPrintln("IP Format not supported: \"" + ip + "\'");
+            return;
+        }
         int ind1 = str.indexOf(".");
         int ind3 = str.lastIndexOf('.');
         int ind2 = (str.substring(ind1 + 1, ind3).indexOf(".")) + (ind1 + 1);

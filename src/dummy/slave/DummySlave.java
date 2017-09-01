@@ -111,7 +111,7 @@ public class DummySlave {
                 int index = 0;
                 String client = "", permissions = "4";
                 try {
-                    index = arguments.indexOf("--add-ip");
+                    index = arguments.indexOf("--gen-api");
                     client = (arguments.get(index + 1));
                     permissions = (arguments.get(index + 2));
                 } catch (Exception e) {
