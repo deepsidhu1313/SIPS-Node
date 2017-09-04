@@ -159,12 +159,12 @@ class Ping implements Runnable {
                     if (LIVE_NODE_DB.containsKey(IPadress.trim())) {
                         LIVE_NODE_DB.remove(IPadress.trim());
                     }
-
+                    // using endTime as Last Checked OIN timestamp, as that is the time when we hear back from node
                     if (LIVE_NODE_DB.containsKey(uuid)) {
-                        LIVE_NODE_DB.replace(uuid, new LiveDBRow(uuid, hostname, osname, cpuname, (plimit), (pwait), ram, freeRam, hdd_size, hdd_free, benchmarks));
+                        LIVE_NODE_DB.replace(uuid, new LiveDBRow(uuid, hostname, osname, cpuname, (plimit), (pwait), ram, freeRam, hdd_size, hdd_free, benchmarks, endTime));
                         updatedRecord = true;
                     } else {
-                        LIVE_NODE_DB.put(uuid, new LiveDBRow(uuid, hostname, osname, cpuname, (plimit), (pwait), ram, freeRam, hdd_size, hdd_free, benchmarks));
+                        LIVE_NODE_DB.put(uuid, new LiveDBRow(uuid, hostname, osname, cpuname, (plimit), (pwait), ram, freeRam, hdd_size, hdd_free, benchmarks, endTime));
 
                     }
                     LiveDBRow live = LIVE_NODE_DB.get(uuid);
@@ -221,7 +221,7 @@ class Ping implements Runnable {
                             }
                         }
                     }
-                    
+
                     Iterator<String> keys4 = nonAdjLiveNodes.keys();
                     while (keys4.hasNext()) {
                         String key = keys4.next();
@@ -244,7 +244,7 @@ class Ping implements Runnable {
                     }
 
                 });
-                boolean isinlist = false;
+                
 
             } catch (Exception e) {
                 System.err.println("Exception " + e);

@@ -18,9 +18,13 @@ package in.co.s13.SIPS.Scanner;
 
 import in.co.s13.SIPS.settings.GlobalValues;
 import static in.co.s13.SIPS.settings.GlobalValues.*;
-import in.co.s13.SIPS.tools.Util;
 import static in.co.s13.SIPS.tools.Util.outPrintln;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -185,15 +189,32 @@ public class NetScanner implements Runnable {
     }
 
     public static void addnetwork(String ip) {
-        String str = "" + ip;
-        outPrintln(ip);
-        if (!ip.matches("(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
-                + "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
-                + "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
-                + "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])")) {
-            Util.errPrintln("IP Format not supported: \"" + ip + "\'");
-            return;
+        try {
+            outPrintln(ip);
+            InetAddress address = InetAddress.getByName(ip);
+            if (address instanceof Inet6Address) {
+                // It's ipv6
+            } else if (address instanceof Inet4Address) {
+                // It's ipv4
+                addIPv4Network(ip);
+            }
+
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(NetScanner.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        //            if (ip.matches("(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
+        //+ "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
+//                    + "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
+//                    + "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])")) {
+//                addIPv4Network(ip);
+//            } else if (ip.matches("([0-9a-f]{1,4}:){7}([0-9a-f]){1,4}")) {
+//                
+//            }
+    }
+
+    public static void addIPv4Network(String ip) {
+        String str = "" + ip;
         int ind1 = str.indexOf(".");
         int ind3 = str.lastIndexOf('.');
         int ind2 = (str.substring(ind1 + 1, ind3).indexOf(".")) + (ind1 + 1);

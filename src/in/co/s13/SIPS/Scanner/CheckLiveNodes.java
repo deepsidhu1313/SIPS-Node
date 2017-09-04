@@ -24,66 +24,62 @@ import in.co.s13.SIPS.virtualdb.LiveDBRow;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
  * @author Nika
  */
 public class CheckLiveNodes implements Runnable {
-    
+
     public static boolean livenodechecker = true;
-    
+
     public CheckLiveNodes() {
-        
+
         outPrintln("thread started");
     }
-    
- 
-    
+
     @Override
     public void run() {
-        
+
         Thread.currentThread().setName("CheckLiveNodeThread");
-     //   Hashtable<String, LiveDBRow> livehosts = (GlobalValues.LIVE_NODE_DB);
         {
             if (!GlobalValues.IS_WRITING) {
                 liveDBExecutor.execute(() -> {
-                    /* String sql = "SELECT * FROM LIVE";
-                    SQLiteJDBC livedb = new SQLiteJDBC();
-                    try (ResultSet rs = livedb.select("appdb/live.db", sql)) {
-                    while (rs.next()) {
-                    livehosts.add(rs.getString("IP"));
-                    }
-                    } catch (SQLException ex) {
-                    Logger.getLogger(CheckLiveNodes.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    livedb.closeConnection();
-                     */
-//                    LIVE_NODE_DB.stream().forEach((liveget) -> {
-//                        livehosts.add(liveget.getName());
-//                    });
-
-//                    for (int i = 0; i <= livehosts.keys().size() - 1; i++) {
-//                        String ip = livehosts.get(i).trim();
-//                        Thread p1 = new Thread(new Ping(ip));
-//                 //       p1.setPriority(Thread.NORM_PRIORITY - 1);
-//                        pingExecutor.execute(p1);
-//
-//                    }
                     Enumeration<String> keys = GlobalValues.LIVE_NODE_DB.keys();
                     while (keys.hasMoreElements()) {
                         String key = keys.nextElement();
                         LiveDBRow liveNode = GlobalValues.LIVE_NODE_DB.get(key);
-                        ArrayList<String> ips = liveNode.getIpAddresses();
-                        for (int i = 0; i < ips.size(); i++) {
-                            String get = ips.get(i);
-                            Thread p1 = new Thread(new Ping(get, liveNode.getUuid()));
-                            pingExecutor.submit(p1);
+                        if (TimeUnit.SECONDS.convert(liveNode.getLastCheckAgo(), TimeUnit.MILLISECONDS) > 10) {
+                            ArrayList<String> ips = liveNode.getIpAddresses();
+                            for (int i = 0; i < ips.size(); i++) {
+                                String get = ips.get(i);
+                                Thread p1 = new Thread(new Ping(get, liveNode.getUuid()));
+                                p1.setPriority(Thread.NORM_PRIORITY + 2);
+                                pingExecutor.submit(p1);
+                            }
                         }
-                        
+
                     }
+
+                    Enumeration<String> keys2 = GlobalValues.NON_ADJ_LIVE_NODE_DB.keys();
+                    while (keys2.hasMoreElements()) {
+                        String key = keys2.nextElement();
+                        LiveDBRow liveNode = GlobalValues.NON_ADJ_LIVE_NODE_DB.get(key);
+                        if (TimeUnit.SECONDS.convert(liveNode.getLastCheckAgo(), TimeUnit.MILLISECONDS) > 10) {
+                            ArrayList<String> ips = liveNode.getIpAddresses();
+                            for (int i = 0; i < ips.size(); i++) {
+                                String get = ips.get(i);
+                                Thread p1 = new Thread(new Ping(get, liveNode.getUuid()));
+                                p1.setPriority(Thread.NORM_PRIORITY + 2);
+                                pingExecutor.submit(p1);
+                            }
+                        }
+
+                    }
+
                 });
-                
+
             }
         }
     }

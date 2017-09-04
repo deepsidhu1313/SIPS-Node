@@ -425,8 +425,9 @@ public class DummySlave {
 
     public static void preBenchmarkingChecks() {
         if (new File(dir_appdb + "/benchmarks.json").exists()) {
-            JSONObject benchmarkResults = new JSONObject(Util.readFile(dir_appdb + "/benchmarks.json"));
-            long timestamp = benchmarkResults.getLong("TIMESTAMP");
+            String benchmarkText = Util.readFile(dir_appdb + "/benchmarks.json").trim();
+            JSONObject benchmarkResults = new JSONObject((benchmarkText.length() < 1) ? "{}" : benchmarkText);
+            long timestamp = benchmarkResults.getLong("TIMESTAMP",0l);
             if ((TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - timestamp)) > 1) {
                 benchmark();
             } else {

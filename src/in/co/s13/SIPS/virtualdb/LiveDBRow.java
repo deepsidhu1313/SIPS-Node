@@ -23,18 +23,17 @@ import java.util.Objects;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-
 public class LiveDBRow {
 
     private int que_length, waiting_in_que;
     private String uuid, operatingSytem, hostname, processor_name;
 
-    private long memory, free_memory, hdd_size, hdd_free;
+    private long memory, free_memory, hdd_size, hdd_free, lastCheckedOn, lastCheckAgo;
     private ArrayList<String> ipAddresses = new ArrayList<>();
     private JSONObject benchmarking_results;
 
     public LiveDBRow(String uuid, String host, String os, String processor, int qlen,
-            int qwait, long ram, long free_memory, long hdd_size, long hdd_free, JSONObject benchmarking_results) {
+            int qwait, long ram, long free_memory, long hdd_size, long hdd_free, JSONObject benchmarking_results, long lastCheckedOn) {
         this.uuid = uuid;
         this.operatingSytem = os;
         this.hostname = host;
@@ -46,6 +45,7 @@ public class LiveDBRow {
         this.hdd_size = hdd_size;
         this.hdd_free = hdd_free;
         this.benchmarking_results = benchmarking_results;
+        this.lastCheckedOn = lastCheckedOn;
     }
 
     public LiveDBRow(JSONObject livedbRow) {
@@ -59,13 +59,15 @@ public class LiveDBRow {
         free_memory = livedbRow.getLong("free_memory");
         hdd_size = livedbRow.getLong("hdd_size");
         hdd_free = livedbRow.getLong("hdd_free");
-        JSONArray array= livedbRow.getJSONArray("ipAddresses");
+        JSONArray array = livedbRow.getJSONArray("ipAddresses");
         for (int i = 0; i < array.length(); i++) {
             String ip = array.getString(i);
             addIp(ip);
             NetScanner.addip(ip);
         }
         benchmarking_results = livedbRow.getJSONObject("benchmarking_results");
+        lastCheckAgo = livedbRow.getLong("lastCheckAgo");
+        lastCheckedOn = System.currentTimeMillis() - lastCheckAgo;
     }
 
     public String getUuid() {
@@ -175,6 +177,16 @@ public class LiveDBRow {
         this.benchmarking_results = benchmarking_results;
     }
 
+    public long getLastCheckAgo() {
+        return System.currentTimeMillis() - lastCheckedOn;
+    }
+
+    public long getLastCheckedOn() {
+        return lastCheckedOn;
+    }
+
+    
+    
     @Override
     public String toString() {
         return this.toJSON().toString(4);
@@ -205,6 +217,8 @@ public class LiveDBRow {
         result.put("hdd_free", hdd_free);
         result.put("ipAddresses", new JSONArray(ipAddresses));
         result.put("benchmarking_results", benchmarking_results);
+        result.put("lastCheckedOn", lastCheckedOn);
+        result.put("lastCheckAgo", getLastCheckAgo());
         return result;
     }
 

@@ -41,10 +41,11 @@ import org.json.JSONObject;
 public class Settings {
 
     public Settings() {
-        
+
     }
-    public void init(){
-    System.out.println(OS);
+
+    public void init() {
+        System.out.println(OS);
 
         if (isWindows()) {
             System.out.println("This is Windows");
@@ -85,7 +86,7 @@ public class Settings {
                         + "Please create a dir with this name");
             }
         }
-        if (new File(dir_appdb + "/"+(SHARED_STORAGE ? HOST_NAME :"")+"settings.json").exists()) {
+        if (new File(dir_appdb + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "settings.json").exists()) {
             loadSettings();
         } else {
             saveSettings();
@@ -113,8 +114,8 @@ public class Settings {
             HOST_NAME = InetAddress.getLocalHost().getHostName().trim();
         } catch (UnknownHostException e) {
             System.err.println("Couldn't get Hostname" + e);
-            JSONObject ipHostnameCombo= ipAddresses.getJSONObject(0);
-            HOST_NAME= ipHostnameCombo.getString("hostname", HOST_NAME);
+            JSONObject ipHostnameCombo = ipAddresses.getJSONObject(0);
+            HOST_NAME = ipHostnameCombo.getString("hostname", HOST_NAME);
         }
         try (PrintStream procn = new PrintStream("procn.bat")) {
             procn.print("wmic cpu get name");
@@ -151,8 +152,10 @@ public class Settings {
 
         saveSettings();
     }
+
     void loadSettings() {
-        JSONObject settings = new JSONObject(readFile(dir_appdb + "/"+(SHARED_STORAGE ? HOST_NAME :"")+"settings.json"));
+        String settingsText = readFile(dir_appdb + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "settings.json").trim();
+        JSONObject settings = new JSONObject((settingsText.length() < 1) ? "{}" : settingsText);
 
         NODE_UUID = settings.getString("UUID", "");
 
@@ -185,7 +188,7 @@ public class Settings {
         settings.put("DUMP_LOG", DUMP_LOG);
         settings.put("VERBOSE", VERBOSE);
         settings.put("SHARED_STORAGE", SHARED_STORAGE);
-        write(new File(dir_appdb + "/"+(SHARED_STORAGE ? HOST_NAME :"")+"settings.json"), settings.toString(4));
+        write(new File(dir_appdb + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "settings.json"), settings.toString(4));
     }
 
 }
