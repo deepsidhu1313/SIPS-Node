@@ -33,16 +33,14 @@ import java.util.logging.Logger;
  */
 public class PingServer implements Runnable {
 
-    public static ServerSocket ss;
-    public static boolean serverisRunning = false;
-    public static ExecutorService executorService = Executors.newFixedThreadPool(GlobalValues.PING_HANDLER_LIMIT);
-    
+    public ServerSocket ss;
+    public boolean serverisRunning = false;
+    public ExecutorService executorService = Executors.newFixedThreadPool(GlobalValues.PING_HANDLER_LIMIT);
+
     public PingServer(boolean serverisrunning) throws IOException {
         serverisRunning = serverisrunning;
-        
+
     }
-
-
 
     @Override
     public void run() {
@@ -53,13 +51,13 @@ public class PingServer implements Runnable {
         } catch (IOException ex) {
             Logger.getLogger(PingServer.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-        Thread.currentThread().setName("Ping Server Thread");
+        System.out.println("API Server is running");
+        Thread.currentThread().setName("API Server Thread");
         while (serverisRunning) {
             try {
                 Socket s = ss.accept();
-                System.out.println("Server is running");
-                Thread t= new Thread(new PingHandler(s));
+
+                Thread t = new Thread(new PingHandler(s));
                 //t.setPriority(Thread.NORM_PRIORITY+1);
                 executorService.execute(t);
 

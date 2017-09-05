@@ -16,11 +16,13 @@
  */
 package in.co.s13.SIPS.executor.sockets;
 
+import in.co.s13.SIPS.executor.sockets.handlers.APIHandler;
 import in.co.s13.SIPS.executor.sockets.handlers.PingHandler;
 import in.co.s13.SIPS.settings.GlobalValues;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -32,13 +34,17 @@ import java.util.logging.Logger;
  */
 public class APIServer implements Runnable {
 
-    public static ServerSocket ss;
-    public static boolean serverisRunning = false;
-    public static ExecutorService executorService = Executors.newFixedThreadPool(GlobalValues.API_HANDLER_LIMIT);
+    public ServerSocket ss;
+    public boolean serverisRunning = false;
+    public ExecutorService executorService = Executors.newFixedThreadPool(GlobalValues.API_HANDLER_LIMIT);
 
     public APIServer(boolean serverisrunning) throws IOException {
         serverisRunning = serverisrunning;
-
+        Iterator<String> keys = GlobalValues.API_JSON.keys();
+        while (keys.hasNext()) {
+            String key = keys.next();
+            GlobalValues.API_LIST.put(key, GlobalValues.API_JSON.getJSONObject(key));
+        }
     }
 
     @Override
@@ -55,8 +61,8 @@ public class APIServer implements Runnable {
         while (serverisRunning) {
             try {
                 Socket s = ss.accept();
-                System.out.println("Server is running");
-                Thread t = new Thread(new PingHandler(s));
+                System.out.println("API Server is running");
+                Thread t = new Thread(new APIHandler(s));
                 //t.setPriority(Thread.NORM_PRIORITY+1);
                 executorService.execute(t);
 

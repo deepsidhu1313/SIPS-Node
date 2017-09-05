@@ -35,12 +35,12 @@ import java.util.logging.Logger;
  */
 public class Server implements Runnable {
 
-    public static ServerSocket ss;
+    public  ServerSocket ss;
     public static int processcounter = 0;
     public static boolean serverisRunning = false;
     public static ArrayList<Integer> localprocessID = new ArrayList();
     public static ArrayList<String> alienprocessID = new ArrayList();
-    public static ExecutorService executorService = Executors.newFixedThreadPool(1000);
+    public ExecutorService executorService = Executors.newFixedThreadPool(1000);
     public static Process[] p = new Process[1000];
 
     public Server(boolean serverisrunning) throws IOException {
@@ -148,10 +148,11 @@ public class Server implements Runnable {
         }
 
         Thread.currentThread().setName("Default Server Thread");
+        
+                System.out.println("Server is running");
         while (serverisRunning) {
             try {
                 Socket s = ss.accept();
-                System.out.println("Server is running");
                 executorService.execute(new Handler(s));
 
             } catch (IOException ex) {

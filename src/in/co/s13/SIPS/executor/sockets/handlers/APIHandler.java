@@ -45,111 +45,110 @@ public class APIHandler implements Runnable {
     @Override
     public void run() {
         //  boolean pingThread = false;
-        try {
-            try (DataInputStream dataInputStream = new DataInputStream(submitter.getInputStream())) {
-                JSONObject msg;
-                int length = dataInputStream.readInt();                    // read length of incoming message
-                byte[] message = new byte[length];
 
-                if (length > 0) {
-                    dataInputStream.readFully(message, 0, message.length); // read the message
-                }
-                msg = new JSONObject(new String(message));
+        try (DataInputStream dataInputStream = new DataInputStream(submitter.getInputStream()); OutputStream os2 = submitter.getOutputStream(); DataOutputStream outToClient2 = new DataOutputStream(os2)) {
+            JSONObject msg;
+            int length = dataInputStream.readInt();                    // read length of incoming message
+            byte[] message = new byte[length];
 
-                InetAddress inetAddress = submitter.getInetAddress();
-                String ipAddress = inetAddress.getHostAddress();
-                Thread.currentThread().setName("API handler for " + ipAddress);
-                if (msg.length() > 1) {
-                    //System.out.println("hurray cond 1");
-                    System.out.println("IP adress of sender is " + ipAddress);
-                    int key_permissions = 0;//default value to 0, no harm done by malformed key
-                    // System.out.println("" + msg);
-                    String command = msg.getString("Command");
-                    JSONObject requestBody = msg.getJSONObject("Body");;
-                    String clientUUID = requestBody.getString("UUID");
-                    JSONArray args = requestBody.getJSONArray("ARGS", new JSONArray());
-                    String apiKey = requestBody.getString("API_KEY");
-                    if ((GlobalValues.BLACKLIST.containsKey(ipAddress) || GlobalValues.BLACKLIST.containsKey(clientUUID))
-                            && (!GlobalValues.API_LIST.containsKey(clientUUID) || !GlobalValues.API_LIST.containsKey(ipAddress))) {
-                        //send error message
-                        // bad node no cookie for u
-                        try (OutputStream os2 = submitter.getOutputStream(); DataOutputStream outToClient2 = new DataOutputStream(os2)) {
-                            JSONObject sendmsg2Json = new JSONObject();
-                            sendmsg2Json.put("UUID", GlobalValues.NODE_UUID);
-                            JSONObject body = new JSONObject();
-                            body.put("Response", "Error!!\n \tYou are not allowed.");
-                            sendmsg2Json.put("Body", body);
-                            String sendmsg2 = sendmsg2Json.toString();
-                            byte[] bytes2 = sendmsg2.getBytes("UTF-8");
-                            outToClient2.writeInt(bytes2.length);
-                            outToClient2.write(bytes2);
-                        }
+            if (length > 0) {
+                dataInputStream.readFully(message, 0, message.length); // read the message
+            }
+            msg = new JSONObject(new String(message));
 
-                        submitter.close();
-                        return;
-                    } else if ((!GlobalValues.BLACKLIST.containsKey(ipAddress) || !GlobalValues.BLACKLIST.containsKey(clientUUID))) {
-                        JSONObject keyInfo = null;
-                        if (GlobalValues.API_LIST.containsKey(clientUUID)) {
-                            keyInfo = GlobalValues.API_LIST.get(clientUUID);
-                        } else if (GlobalValues.API_LIST.containsKey(ipAddress)) {
-                            keyInfo = GlobalValues.API_LIST.get(ipAddress);
+            InetAddress inetAddress = submitter.getInetAddress();
+            String ipAddress = inetAddress.getHostAddress();
+            System.out.println("IP adress of sender is " + ipAddress);
+            Thread.currentThread().setName("API handler for " + ipAddress);
+            if (msg.length() > 1) {
+                //System.out.println("hurray cond 1");
+                int key_permissions = 0;//default value to 0, no harm done by malformed key
+                System.out.println("" + msg.toString(4));
+                String command = msg.getString("Command");
+                JSONObject requestBody = msg.getJSONObject("Body");;
+                String clientUUID = requestBody.getString("UUID");
+                JSONArray args = requestBody.getJSONArray("ARGS");
+                System.out.println("ARGS : " + args.toString());
+                String apiKey = requestBody.getString("API_KEY");
+                if ((GlobalValues.BLACKLIST.containsKey(ipAddress) || GlobalValues.BLACKLIST.containsKey(clientUUID))
+                        && (!GlobalValues.API_LIST.containsKey(clientUUID) || !GlobalValues.API_LIST.containsKey(ipAddress))) {
+                    //send error message
+                    // bad node no cookie for u
 
-                        }
-                        String key = keyInfo.getString("key");
-                        key_permissions = keyInfo.getInt("permissions");;
-                        if (!key.equals(apiKey)) {
-                            try (OutputStream os2 = submitter.getOutputStream(); DataOutputStream outToClient2 = new DataOutputStream(os2)) {
-                                JSONObject sendmsg2Json = new JSONObject();
-                                sendmsg2Json.put("UUID", GlobalValues.NODE_UUID);
-                                JSONObject body = new JSONObject();
-                                body.put("Response", "Error!!\n \tIncorrect API key.");
-                                sendmsg2Json.put("Body", body);
-                                String sendmsg2 = sendmsg2Json.toString();
-                                byte[] bytes2 = sendmsg2.getBytes("UTF-8");
-                                outToClient2.writeInt(bytes2.length);
-                                outToClient2.write(bytes2);
-                            }
+                    JSONObject sendmsg2Json = new JSONObject();
+                    sendmsg2Json.put("UUID", GlobalValues.NODE_UUID);
+                    JSONObject body = new JSONObject();
+                    body.put("Response", "Error!!\n \tYou are not allowed.");
+                    sendmsg2Json.put("Body", body);
+                    String sendmsg2 = sendmsg2Json.toString();
+                    byte[] bytes2 = sendmsg2.getBytes("UTF-8");
+                    outToClient2.writeInt(bytes2.length);
+                    outToClient2.write(bytes2);
 
-                            submitter.close();
-                            return;
-                        }
+                    submitter.close();
+                    return;
+                } else if ((!GlobalValues.BLACKLIST.containsKey(ipAddress) || !GlobalValues.BLACKLIST.containsKey(clientUUID))) {
+                    JSONObject keyInfo = null;
+                    if (GlobalValues.API_LIST.containsKey(clientUUID)) {
+                        keyInfo = GlobalValues.API_LIST.get(clientUUID);
+                    } else if (GlobalValues.API_LIST.containsKey(ipAddress)) {
+                        keyInfo = GlobalValues.API_LIST.get(ipAddress);
+
                     }
-                    try (OutputStream os2 = submitter.getOutputStream(); DataOutputStream outToClient2 = new DataOutputStream(os2)) {
+                    String key = keyInfo.getString("key");
+                    key_permissions = keyInfo.getInt("permissions");;
+                    if (!key.equals(apiKey)) {
                         JSONObject sendmsg2Json = new JSONObject();
                         sendmsg2Json.put("UUID", GlobalValues.NODE_UUID);
                         JSONObject body = new JSONObject();
-
-                        if (command.equalsIgnoreCase("TestConnection") && hasReadPermissions(key_permissions)) {
-                            body.put("Response", "Connection Successful");
-                        } else if (command.equalsIgnoreCase("blacklist")) {
-                            if (args.length() > 1 && args.getString(0).equalsIgnoreCase("show") && hasReadPermissions(key_permissions)) {
-                                body.put("Response", Util.getBlackListInJSON());
-                            }
-                        } else if (command.equalsIgnoreCase("adjacent")) {
-                            if (args.length() > 1 && args.getString(0).equalsIgnoreCase("show") && hasReadPermissions(key_permissions)) {
-                                body.put("Response", Util.getAdjacentTableInJSON());
-                            }
-                        } else if (command.equalsIgnoreCase("non-adjacent")) {
-                            if (args.length() > 1 && args.getString(0).equalsIgnoreCase("show") && hasReadPermissions(key_permissions)) {
-                                body.put("Response", Util.getNonAdjacentTableInJSON());
-                            }
-                        } else if (command.equalsIgnoreCase("nodes")) {
-                            if (args.length() > 1 && args.getString(0).equalsIgnoreCase("show") && hasReadPermissions(key_permissions)) {
-                                body.put("Response", Util.getLiveNodesInJSON());
-                            }
-                        } else {
-                            body.put("Response", "Command not available!!");
-                        }
+                        body.put("Response", "Error!!\n \tIncorrect API key.");
                         sendmsg2Json.put("Body", body);
                         String sendmsg2 = sendmsg2Json.toString();
                         byte[] bytes2 = sendmsg2.getBytes("UTF-8");
                         outToClient2.writeInt(bytes2.length);
                         outToClient2.write(bytes2);
-                    }
-                    submitter.close();
 
+                        submitter.close();
+                        return;
+                    }
                 }
+                JSONObject sendmsg2Json = new JSONObject();
+                sendmsg2Json.put("UUID", GlobalValues.NODE_UUID);
+                JSONObject body = new JSONObject();
+
+                if (command.equalsIgnoreCase("TestConnection")) {
+                    body.put("Response", "Connection Successful");
+                } else if (command.equalsIgnoreCase("blacklist")) {
+                    if (args.length() > 0 && args.getString(0).equalsIgnoreCase("show") && hasReadPermissions(key_permissions)) {
+                        body.put("Response", Util.getBlackListInJSON());
+                    }
+                } else if (command.equalsIgnoreCase("adjacent")) {
+                    if (args.length() > 0 && args.getString(0).equalsIgnoreCase("show") && hasReadPermissions(key_permissions)) {
+                        body.put("Response", Util.getAdjacentTableInJSON());
+                    }
+                } else if (command.equalsIgnoreCase("non-adjacent")) {
+                    if (args.length() > 0 && args.getString(0).equalsIgnoreCase("show") && hasReadPermissions(key_permissions)) {
+                        body.put("Response", Util.getNonAdjacentTableInJSON());
+                    }
+                } else if (command.equalsIgnoreCase("nodes")) {
+                    if (args.length() > 0
+                            && args.getString(0).equalsIgnoreCase("show")
+                            && hasReadPermissions(key_permissions)) {
+                        body.put("Response", Util.getLiveNodesInJSON());
+                    } else {
+                        body.put("Response", "Incorrect permissions or arguments!!");
+
+                    }
+                } else {
+                    body.put("Response", "Command not available!!");
+                }
+                sendmsg2Json.put("Body", body);
+                String sendmsg2 = sendmsg2Json.toString();
+                byte[] bytes2 = sendmsg2.getBytes("UTF-8");
+                outToClient2.writeInt(bytes2.length);
+                outToClient2.write(bytes2);
             }
+            submitter.close();
 
         } catch (IOException ex) {
             Logger.getLogger(APIHandler.class.getName()).log(Level.SEVERE, null, ex);
@@ -160,6 +159,9 @@ public class APIHandler implements Runnable {
             } catch (IOException ex1) {
                 Logger.getLogger(APIHandler.class.getName()).log(Level.SEVERE, null, ex1);
             }
+        } catch (Exception excep) {
+            Logger.getLogger(APIHandler.class.getName()).log(Level.SEVERE, null, excep);
+
         }
 
     }

@@ -34,10 +34,10 @@ import java.util.logging.Logger;
  */
 public class FileReqQueServer implements Runnable {
 
-    public static ServerSocket ss;
-    public static boolean serverisRunning = false;
+    public  ServerSocket ss;
+    public  boolean serverisRunning = false;
     public static ArrayList<FileDownQueReq> downQue = new ArrayList();
-    public static ExecutorService executorService = Executors.newFixedThreadPool(GlobalValues.FILES_RESOLVER_LIMIT);
+    public ExecutorService executorService = Executors.newFixedThreadPool(GlobalValues.FILES_RESOLVER_LIMIT);
 
     public FileReqQueServer(boolean serverisrunning) throws IOException {
         serverisRunning = serverisrunning;
@@ -57,10 +57,11 @@ public class FileReqQueServer implements Runnable {
         }
 
         Thread.currentThread().setName("File Server Thread");
+        
+                System.out.println("File Download Que Server is running");
         while (serverisRunning) {
             try {
                 Socket s = ss.accept();
-                System.out.println("File Download Que Server is running");
                 Thread t= new Thread(new FileReqQueHandler(s));
                 t.setPriority(Thread.NORM_PRIORITY+1);
                 t.setName("FileHandlIngThread");

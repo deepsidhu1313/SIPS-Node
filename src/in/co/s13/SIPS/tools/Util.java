@@ -1012,14 +1012,16 @@ public class Util {
         return GlobalValues.blacklistJSON;
     }
 
-    public static synchronized JSONObject getLiveNodesInJSON() {
+    public static  JSONObject getLiveNodesInJSON() {
         JSONObject json = new JSONObject();
         Enumeration<String> en = GlobalValues.LIVE_NODE_DB.keys();
         while (en.hasMoreElements()) {
             String key = en.nextElement();
+//            System.out.println("Key "+key);
             LiveDBRow value = GlobalValues.LIVE_NODE_DB.get(key);
             json.put(key, value.toJSON());
         }
+//        System.out.println("Sending "+json.toString(1));
         return json;
     }
 
