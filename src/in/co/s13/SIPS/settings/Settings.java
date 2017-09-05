@@ -154,9 +154,7 @@ public class Settings {
     }
 
     void loadSettings() {
-        String settingsText = readFile(dir_appdb + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "settings.json").trim();
-        JSONObject settings = new JSONObject((settingsText.length() < 1) ? "{}" : settingsText);
-
+        JSONObject settings = Util.readJSONFile(dir_appdb + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "settings.json");
         NODE_UUID = settings.getString("UUID", "");
 
         if (NODE_UUID.length() < 1) {
@@ -170,6 +168,7 @@ public class Settings {
         DUMP_LOG = settings.getBoolean("DUMP_LOG", true);
         VERBOSE = settings.getBoolean("VERBOSE", true);
         SHARED_STORAGE = settings.getBoolean("SHARED_STORAGE", SHARED_STORAGE);
+        PING_REQUEST_LIMIT = settings.getInt("MAX_PING_REQUESTS_IN_PARALLEL", 3);
 
     }
 
@@ -183,6 +182,7 @@ public class Settings {
         settings.put("MAX_PROCESS_ALLOWED_IN_PARALLEL", PROCESS_LIMIT);
         settings.put("MAX_FILE_RESOLVE_IN_PARALLEL", FILES_RESOLVER_LIMIT);
         settings.put("MAX_PING_RESPONSES_IN_PARALLEL", PING_HANDLER_LIMIT);
+        settings.put("MAX_PING_REQUESTS_IN_PARALLEL", PING_REQUEST_LIMIT);
         settings.put("MAX_API_RESPONSES_IN_PARALLEL", API_HANDLER_LIMIT);
         settings.put("MAX_PROCESS_REQ_IN_PARALLEL", PROCESS_HANDLER_LIMIT);
         settings.put("DUMP_LOG", DUMP_LOG);

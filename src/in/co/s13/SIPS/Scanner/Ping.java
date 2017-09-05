@@ -46,7 +46,6 @@ class Ping implements Runnable {
 
     InetAddress adrss;
     String IPadress, UUID;
-    Boolean live = false;
 
     Ping(String ip, String uuid) {
         IPadress = ip.trim();
@@ -244,7 +243,6 @@ class Ping implements Runnable {
                     }
 
                 });
-                
 
             } catch (Exception e) {
                 System.err.println("Exception " + e);
@@ -266,11 +264,6 @@ class Ping implements Runnable {
         }
         CURRENTLY_SCANNING.remove(IPadress.trim());
 
-    }
-
-    public boolean isLive() {
-
-        return live;
     }
 
 }

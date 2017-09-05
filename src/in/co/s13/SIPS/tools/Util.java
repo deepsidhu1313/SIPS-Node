@@ -732,6 +732,11 @@ public class Util {
         return sb.toString();
     }
 
+    public static JSONObject readJSONFile(String location) {
+        String content = readFile(location).trim();
+        return new JSONObject((content.length() < 1) ? "{}" : content);
+    }
+
     public static void write(File f, String text) {
         try (FileWriter fw = new FileWriter(f);
                 PrintWriter pw = new PrintWriter(fw)) {

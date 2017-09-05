@@ -99,8 +99,7 @@ public class DummySlave {
              * *
              * add new IP addresses or Hosts
              */
-            String apiString = Util.readFile(dir_appdb + "/api.json").trim();
-            GlobalValues.API_JSON = new JSONObject((apiString.length() < 1) ? "{}" : apiString);
+            GlobalValues.API_JSON = Util.readJSONFile(dir_appdb + "/api.json");
             Iterator<String> it = GlobalValues.API_JSON.keys();
             GlobalValues.API_LIST = new Hashtable<>();
             while (it.hasNext()) {
@@ -234,8 +233,7 @@ public class DummySlave {
              * *
              * add new IP addresses or Hosts
              */
-            String ipsString = Util.readFile(dir_appdb + "/ips.json").trim();
-            GlobalValues.ipToScanJSON = new JSONObject((ipsString.length() < 1) ? "{}" : ipsString);
+            GlobalValues.ipToScanJSON = Util.readJSONFile(dir_appdb + "/ips.json");
             if (arguments.contains("--add-ip")) {
                 int listSize = 0, index = 0;
                 try {
@@ -262,8 +260,7 @@ public class DummySlave {
              * *
              * add new networks to scan
              */
-            String networksString = Util.readFile(dir_appdb + "/networks.json").trim();
-            GlobalValues.networksToScanJSON = new JSONObject((networksString.length() < 1) ? "{}" : networksString);
+            GlobalValues.networksToScanJSON = Util.readJSONFile(dir_appdb + "/networks.json");
             if (arguments.contains("--add-network")) {
                 int listSize = 0, index = 0;
                 try {
@@ -290,8 +287,7 @@ public class DummySlave {
              * *
              * blacklist nodes Put these on Raymond Reddington's List
              */
-            String blacklistString = Util.readFile(dir_appdb + "/blacklist.json").trim();
-            GlobalValues.blacklistJSON = new JSONObject((blacklistString.length() < 1) ? "{}" : blacklistString);
+            GlobalValues.blacklistJSON = Util.readJSONFile(dir_appdb + "/blacklist.json");
             if (arguments.contains("--blacklist")) {
                 int listSize = 0, index = 0;
                 try {
@@ -383,14 +379,10 @@ public class DummySlave {
         } else {
             loadSettings.init();
             preBenchmarkingChecks();
-            String blacklistString = Util.readFile(dir_appdb + "/blacklist.json").trim();
-            GlobalValues.blacklistJSON = new JSONObject((blacklistString.length() < 1) ? "{}" : blacklistString);
-            String networksString = Util.readFile(dir_appdb + "/networks.json").trim();
-            GlobalValues.networksToScanJSON = new JSONObject((networksString.length() < 1) ? "{}" : networksString);
-            String ipsString = Util.readFile(dir_appdb + "/ips.json").trim();
-            GlobalValues.ipToScanJSON = new JSONObject((ipsString.length() < 1) ? "{}" : ipsString);
-            String apiString = Util.readFile(dir_appdb + "/api.json").trim();
-            GlobalValues.API_JSON = new JSONObject((apiString.length() < 1) ? "{}" : apiString);
+            GlobalValues.blacklistJSON = Util.readJSONFile(dir_appdb + "/blacklist.json");
+            GlobalValues.networksToScanJSON = Util.readJSONFile(dir_appdb + "/networks.json");
+            GlobalValues.ipToScanJSON = Util.readJSONFile(dir_appdb + "/ips.json");
+            GlobalValues.API_JSON = Util.readJSONFile(dir_appdb + "/api.json");
             new HardwareStatThreads();
             new NetworkThreads();
             Thread server = new Thread(new Server(true));
@@ -413,7 +405,7 @@ public class DummySlave {
         cpu.put("Name", GlobalValues.CPU_NAME);
         cpu.put("Benchmarks", new JSONObject(Benchmarks.benchmarkCPU()));
         benchmarkResults.put("CPU", cpu);
-        hdd.put("Label", Util.getDeviceModel(Util.getDeviceFromPath(new File(".").toPath())));
+        hdd.put("Label", Util.getDeviceModel(Util.getDeviceFromPath(new File(".").toPath())).trim());
         hdd.put("Benchmarks", new JSONObject(Benchmarks.benchmarkHDD()));
         benchmarkResults.put("HDD", hdd);
         benchmarkResults.put("MEMORY", GlobalValues.MEM_SIZE);
@@ -425,9 +417,8 @@ public class DummySlave {
 
     public static void preBenchmarkingChecks() {
         if (new File(dir_appdb + "/benchmarks.json").exists()) {
-            String benchmarkText = Util.readFile(dir_appdb + "/benchmarks.json").trim();
-            JSONObject benchmarkResults = new JSONObject((benchmarkText.length() < 1) ? "{}" : benchmarkText);
-            long timestamp = benchmarkResults.getLong("TIMESTAMP",0l);
+            JSONObject benchmarkResults = Util.readJSONFile(dir_appdb + "/benchmarks.json");
+            long timestamp = benchmarkResults.getLong("TIMESTAMP", 0l);
             if ((TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - timestamp)) > 1) {
                 benchmark();
             } else {

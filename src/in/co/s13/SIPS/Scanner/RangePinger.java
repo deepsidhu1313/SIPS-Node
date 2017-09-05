@@ -18,6 +18,8 @@ package in.co.s13.SIPS.Scanner;
 
 import java.util.ArrayList;
 import static in.co.s13.SIPS.settings.GlobalValues.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -49,6 +51,11 @@ public class RangePinger implements Runnable {
         Thread.currentThread().setName("Range Pinger Thread From "+low+" to "+up+" on List With Size "+temp.size());
         for (int i = low; i <= up; i++) {
             String node = temp.get(i);
+            try {
+                Thread.currentThread().sleep(2000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(RangePinger.class.getName()).log(Level.SEVERE, null, ex);
+            }
             Thread p1 = new Thread(new Ping(node, ""));
             pingExecutor.submit(p1);
             //    p1.setPriority(Thread.NORM_PRIORITY - 1);

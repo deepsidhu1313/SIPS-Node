@@ -86,6 +86,7 @@ public class GlobalValues {
     public static int PROCESS_WAITING = 0;
     public static int FILES_RESOLVER_LIMIT = 10;
     public static int PING_HANDLER_LIMIT = 10;
+    public static int PING_REQUEST_LIMIT = 3;
     public static int API_HANDLER_LIMIT = 10;
     public static int PROCESS_HANDLER_LIMIT = 10;
     public static int PROCESS_LIMIT = Runtime.getRuntime().availableProcessors() - 2;
@@ -95,10 +96,10 @@ public class GlobalValues {
      */
 //    public static ExecutorService netExecutor;
 //    public static ExecutorService processExecutor = Executors.newFixedThreadPool(PROCESS_LIMIT);
-    public static ExecutorService nodeScannerExecutor = Executors.newFixedThreadPool(3);
-    public static FixedThreadPool netExecutor= new FixedThreadPool(PROCESS_LIMIT);
-    public static FixedThreadPool processExecutor= new FixedThreadPool(PROCESS_LIMIT);
-    public static FixedThreadPool pingExecutor= new FixedThreadPool(2);
+    public static ExecutorService nodeScannerExecutor = Executors.newFixedThreadPool(2);
+    public static FixedThreadPool netExecutor;
+    public static FixedThreadPool processExecutor;
+    public static FixedThreadPool pingExecutor;
     public static ExecutorService nodeDBExecutor = Executors.newFixedThreadPool(1);
     public static ExecutorService processDBExecutor = Executors.newFixedThreadPool(1);
     public static ExecutorService liveDBExecutor = Executors.newFixedThreadPool(1);

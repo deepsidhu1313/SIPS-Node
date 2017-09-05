@@ -19,8 +19,11 @@ package in.co.s13.SIPS.initializer;
 import in.co.s13.SIPS.Scanner.AddLivenodes;
 import in.co.s13.SIPS.Scanner.CheckLiveNodes;
 import in.co.s13.SIPS.Scanner.NetScanner;
+import in.co.s13.SIPS.datastructure.threadpools.FixedThreadPool;
 import in.co.s13.SIPS.datastructure.threadpools.ScheduledThreadPool;
 import in.co.s13.SIPS.settings.GlobalValues;
+import static in.co.s13.SIPS.settings.GlobalValues.PING_REQUEST_LIMIT;
+import static in.co.s13.SIPS.settings.GlobalValues.PROCESS_LIMIT;
 import in.co.s13.SIPS.tools.IPInfo;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -35,7 +38,9 @@ import java.util.logging.Logger;
 public class NetworkThreads {
 
     public NetworkThreads() {
-        GlobalValues.netExecutor.changeSize(GlobalValues.total_threads);
+        GlobalValues.netExecutor = new FixedThreadPool(PROCESS_LIMIT);
+        GlobalValues.processExecutor = new FixedThreadPool(PROCESS_LIMIT);
+        GlobalValues.pingExecutor = new FixedThreadPool(PING_REQUEST_LIMIT);
         NetScanner ns = new NetScanner();
         Thread t = new Thread(ns);
         t.setName("NetScanner Thread");

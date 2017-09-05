@@ -76,11 +76,11 @@ public class Benchmarks {
 
         // print out System info
 //        System.out.println();
-        result.put("java.vendor: ", System.getProperty("java.vendor"));
-        result.put("java.version: ", System.getProperty("java.version"));
-        result.put("os.arch: ", System.getProperty("os.arch"));
-        result.put("os.name: ", System.getProperty("os.name"));
-        result.put("os.version: ", System.getProperty("os.version"));
+//        result.put("java.vendor: ", System.getProperty("java.vendor"));
+//        result.put("java.version: ", System.getProperty("java.version"));
+//        result.put("os.arch: ", System.getProperty("os.arch"));
+//        result.put("os.name: ", System.getProperty("os.name"));
+//        result.put("os.version: ", System.getProperty("os.version"));
 
         return result.toString(4);
     }
