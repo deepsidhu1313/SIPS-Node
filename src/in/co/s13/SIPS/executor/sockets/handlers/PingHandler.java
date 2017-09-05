@@ -61,7 +61,7 @@ public class PingHandler implements Runnable {
                 String ipAddress = inetAddress.getHostAddress();
                 Thread.currentThread().setName("Ping handler for "+ipAddress);
                 if (msg.length() > 1) {
-                    System.out.println("IP adress of sender is " + ipAddress);
+//                    System.out.println("IP adress of sender is " + ipAddress);
 
                     // System.out.println("" + msg);
                     String command = msg.getString("Command");

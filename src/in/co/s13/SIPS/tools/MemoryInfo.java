@@ -67,11 +67,11 @@ public class MemoryInfo implements Runnable {
                 //  output += "\n" + s;
                 if (Util.isUnix()) {
                     if (s.contains("MemTotal:")) {
-                        String dat[] = s.split(" ");
-                        GlobalValues.MEM_SIZE = Long.parseLong(dat[dat.length - 1]);
+                        String dat[] = s.split("\\s+");
+                        GlobalValues.MEM_SIZE = Long.parseLong(dat[1]);
                     } else if (s.contains("MemAvailable:")) {
-                        String dat[] = s.split(" ");
-                        GlobalValues.MEM_FREE = Long.parseLong(dat[dat.length - 1]);
+                        String dat[] = s.split("\\s+");
+                        GlobalValues.MEM_FREE = Long.parseLong(dat[1]);
                     }
                 } else if (Util.isWindows()) {
                     if(s.contains("FreePhysicalMemory")){
@@ -82,7 +82,7 @@ public class MemoryInfo implements Runnable {
 
             // output = "";
             while ((s = stdError.readLine()) != null) {
-                //Util.errPrintln(s);
+//                System.out.println(s);//Util.errPrintln(s);
                 //   output += "\n" + s;
             }
             ////System.out.println("Process executed");

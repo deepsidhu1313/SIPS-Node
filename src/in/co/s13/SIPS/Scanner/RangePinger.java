@@ -43,7 +43,7 @@ public class RangePinger implements Runnable {
 
             System.out.println("Size equals to array , decremented");
         }
-        System.out.println("Executing Ping on AL" + al + " from " + low + " to " + up);
+//        System.out.println("Executing Ping on AL" + al + " from " + low + " to " + up);
     }
 
     @Override

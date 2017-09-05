@@ -75,13 +75,13 @@ public class HDDInfo implements Runnable {
                 //  output += "\n" + s;
                 if (Util.isUnix()) {
                     if (s.contains("/dev/")) {
-                        String dat[] = s.split(" ");
+                        String dat[] = s.split("\\s+");
                         GlobalValues.HDD_SIZE = Long.parseLong(dat[1]) * 1024;
                         GlobalValues.HDD_FREE = Long.parseLong(dat[3]) * 1024;
                     }
                 } else if (Util.isWindows()) {
                     if (s.contains("" + currentDrive.toString())) {
-                        String dat[] = s.split(" ");
+                        String dat[] = s.split("\\s+");
                         GlobalValues.HDD_SIZE = Long.parseLong(dat[1]);
                         GlobalValues.HDD_FREE = Long.parseLong(dat[2]);
                     }
@@ -106,5 +106,6 @@ public class HDDInfo implements Runnable {
             Logger.getLogger(HDDInfo.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
 
 }

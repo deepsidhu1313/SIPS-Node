@@ -42,7 +42,7 @@ public class AddLivenodes implements Runnable {
         int lastUpper = 0;
         int size = nodes / threads;
         for (int i = 1; i <= threads; i++) {
-            System.out.println("Total nodes:" + nodes + " Total Threads:" + threads + " i:" + i);
+            //System.out.println("Total nodes:" + nodes + " Total Threads:" + threads + " i:" + i);
             int lower;
             if (i == 1) {
                 lower = lastUpper;

@@ -26,6 +26,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -57,7 +58,7 @@ public class APIHandler implements Runnable {
 
                 InetAddress inetAddress = submitter.getInetAddress();
                 String ipAddress = inetAddress.getHostAddress();
-                Thread.currentThread().setName("API handler for "+ipAddress);
+                Thread.currentThread().setName("API handler for " + ipAddress);
                 if (msg.length() > 1) {
                     //System.out.println("hurray cond 1");
                     System.out.println("IP adress of sender is " + ipAddress);
@@ -66,6 +67,7 @@ public class APIHandler implements Runnable {
                     String command = msg.getString("Command");
                     JSONObject requestBody = msg.getJSONObject("Body");;
                     String clientUUID = requestBody.getString("UUID");
+                    JSONArray args = requestBody.getJSONArray("ARGS", new JSONArray());
                     String apiKey = requestBody.getString("API_KEY");
                     if ((GlobalValues.BLACKLIST.containsKey(ipAddress) || GlobalValues.BLACKLIST.containsKey(clientUUID))
                             && (!GlobalValues.API_LIST.containsKey(clientUUID) || !GlobalValues.API_LIST.containsKey(ipAddress))) {
@@ -119,16 +121,24 @@ public class APIHandler implements Runnable {
 
                         if (command.equalsIgnoreCase("TestConnection") && hasReadPermissions(key_permissions)) {
                             body.put("Response", "Connection Successful");
-                        } else if (command.equalsIgnoreCase("blacklist show") && hasReadPermissions(key_permissions)) {
-                            body.put("Response", Util.getBlackListInJSON());
-                        } else if (command.equalsIgnoreCase("adjacent show") && hasReadPermissions(key_permissions)) {
-                            body.put("Response", Util.getAdjacentTableInJSON());
-                        } else if (command.equalsIgnoreCase("non-adjacent show") && hasReadPermissions(key_permissions)) {
-                            body.put("Response", Util.getNonAdjacentTableInJSON());
-                        } else if (command.equalsIgnoreCase("nodes show") && hasReadPermissions(key_permissions)) {
-                            body.put("Response", Util.getLiveNodesInJSON());
+                        } else if (command.equalsIgnoreCase("blacklist")) {
+                            if (args.length() > 1 && args.getString(0).equalsIgnoreCase("show") && hasReadPermissions(key_permissions)) {
+                                body.put("Response", Util.getBlackListInJSON());
+                            }
+                        } else if (command.equalsIgnoreCase("adjacent")) {
+                            if (args.length() > 1 && args.getString(0).equalsIgnoreCase("show") && hasReadPermissions(key_permissions)) {
+                                body.put("Response", Util.getAdjacentTableInJSON());
+                            }
+                        } else if (command.equalsIgnoreCase("non-adjacent")) {
+                            if (args.length() > 1 && args.getString(0).equalsIgnoreCase("show") && hasReadPermissions(key_permissions)) {
+                                body.put("Response", Util.getNonAdjacentTableInJSON());
+                            }
+                        } else if (command.equalsIgnoreCase("nodes")) {
+                            if (args.length() > 1 && args.getString(0).equalsIgnoreCase("show") && hasReadPermissions(key_permissions)) {
+                                body.put("Response", Util.getLiveNodesInJSON());
+                            }
                         } else {
-                            body.put("Response", "Command not available!! Or Incorrect Permissions");
+                            body.put("Response", "Command not available!!");
                         }
                         sendmsg2Json.put("Body", body);
                         String sendmsg2 = sendmsg2Json.toString();

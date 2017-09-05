@@ -64,7 +64,7 @@ class Ping implements Runnable {
         } else {
             CURRENTLY_SCANNING.put(IPadress.trim(), IPadress);
         }
-        System.out.println("Scanning List:" + CURRENTLY_SCANNING.toString());
+        //System.out.println("Scanning List:" + CURRENTLY_SCANNING.toString());
         try {
             adrss = InetAddress.getByName(IPadress);
         } catch (UnknownHostException ex) {
@@ -138,7 +138,7 @@ class Ping implements Runnable {
                     ips.add(ifaces.getString("ip"));
                 }
                 outPrintln("" + reply.toString(4));
-                System.out.println(reply);
+                //System.out.println(reply);
                 outPrintln("Port Opened On " + IPadress);
                 liveDBExecutor.execute(() -> {
                     /*   String sql3 = "UPDATE LIVE SET "
