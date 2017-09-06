@@ -17,6 +17,7 @@
 package in.co.s13.SIPS.executor.sockets;
 
 import in.co.s13.SIPS.datastructure.FileDownQueReq;
+import in.co.s13.SIPS.datastructure.threadpools.FixedThreadPool;
 import in.co.s13.SIPS.executor.sockets.handlers.FileReqQueHandler;
 import in.co.s13.SIPS.settings.GlobalValues;
 import java.io.IOException;
@@ -34,49 +35,49 @@ import java.util.logging.Logger;
  */
 public class FileReqQueServer implements Runnable {
 
-    public  ServerSocket ss;
-    public  boolean serverisRunning = false;
+    public ServerSocket ss;
+    public boolean serverisRunning = false;
     public static ArrayList<FileDownQueReq> downQue = new ArrayList();
-    public ExecutorService executorService = Executors.newFixedThreadPool(GlobalValues.FILES_RESOLVER_LIMIT);
 
     public FileReqQueServer(boolean serverisrunning) throws IOException {
         serverisRunning = serverisrunning;
-
+        GlobalValues.FILE_HANDLER_EXECUTOR_SERVICE = new FixedThreadPool(GlobalValues.FILES_RESOLVER_LIMIT);
     }
-
-   
 
     @Override
     public void run() {
         try {
             if (ss == null || ss.isClosed()) {
                 ss = new ServerSocket(GlobalValues.FILE_QUEUE_SERVER_PORT);
+
             }
         } catch (IOException ex) {
-            Logger.getLogger(FileReqQueServer.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(FileReqQueServer.class
+                    .getName()).log(Level.SEVERE, null, ex);
         }
 
         Thread.currentThread().setName("File Server Thread");
-        
-                System.out.println("File Download Que Server is running");
+
+        System.out.println("File Download Que Server is running");
         while (serverisRunning) {
             try {
                 Socket s = ss.accept();
-                Thread t= new Thread(new FileReqQueHandler(s));
-                t.setPriority(Thread.NORM_PRIORITY+1);
+                Thread t = new Thread(new FileReqQueHandler(s));
+                t.setPriority(Thread.NORM_PRIORITY + 1);
                 t.setName("FileHandlIngThread");
-                executorService.submit(t);
-              
+                GlobalValues.FILE_HANDLER_EXECUTOR_SERVICE.submit(t);
 
             } catch (IOException ex) {
-                Logger.getLogger(FileReqQueServer.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(FileReqQueServer.class
+                        .getName()).log(Level.SEVERE, null, ex);
             }
         }
         try {
             ss.close();
 
         } catch (IOException ex) {
-            Logger.getLogger(FileReqQueServer.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(FileReqQueServer.class
+                    .getName()).log(Level.SEVERE, null, ex);
         }
     }
 }

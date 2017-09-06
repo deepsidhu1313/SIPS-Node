@@ -17,10 +17,8 @@
 package in.co.s13.SIPS.executor.sockets.handlers;
 
 import in.co.s13.SIPS.executor.ParallelProcess;
-import in.co.s13.SIPS.executor.sockets.Server;
+import in.co.s13.SIPS.executor.sockets.TaskServer;
 import in.co.s13.SIPS.settings.GlobalValues;
-import static in.co.s13.SIPS.settings.GlobalValues.procDB;
-import static in.co.s13.SIPS.settings.GlobalValues.processDBExecutor;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -32,16 +30,18 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONObject;
+import static in.co.s13.SIPS.settings.GlobalValues.TASK_DB;
+import static in.co.s13.SIPS.settings.GlobalValues.TASK_DB_EXECUTOR;
 
 /**
  *
  * @author Nika
  */
-public class Handler implements Runnable {
+public class TaskHandler implements Runnable {
 
     Socket submitter;
 
-    public Handler(Socket connection) {
+    public TaskHandler(Socket connection) {
         submitter = connection;
     }
 
@@ -70,8 +70,8 @@ public class Handler implements Runnable {
                     JSONObject body = messageJson.getJSONObject("Body");//messageString.substring(messageString.indexOf("<Body>") + 6, messageString.indexOf("</Body>"));
                     System.out.println(messageString);
                     if (command.contains("createprocess")) {
-                        GlobalValues.PROCESS_WAITING++;
-                        GlobalValues.processExecutor.submit(new ParallelProcess(body, ipAddress));
+                        GlobalValues.TASK_WAITING++;
+                        GlobalValues.TASK_EXECUTOR.submit(new ParallelProcess(body, ipAddress));
                         System.out.println("created process");
 
                         try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
@@ -83,56 +83,28 @@ public class Handler implements Runnable {
 
                         }
                         submitter.close();
-                    } //                    else if (command.contains("ping")) {
-                    //
-                    //                        try (OutputStream os2 = submitter.getOutputStream(); DataOutputStream outToClient2 = new DataOutputStream(os2)) {
-                    //                            JSONObject sendmsg2Json = new JSONObject();
-                    //                            sendmsg2Json.put("OS", GlobalValues.OS);
-                    //                            sendmsg2Json.put("HOSTNAME", GlobalValues.HOST_NAME);
-                    //                            sendmsg2Json.put("PLIMIT", GlobalValues.PROCESS_LIMIT);
-                    //                            sendmsg2Json.put("PWAIT", GlobalValues.PROCESS_WAITING);
-                    //                            sendmsg2Json.put("TMEM", GlobalValues.MEM_SIZE);
-                    //                            sendmsg2Json.put("CPULOAD", Settings.getCPULoad());
-                    //                            sendmsg2Json.put("CPUNAME", GlobalValues.CPU_NAME);
-                    //                            
-                    //                            String sendmsg2 = sendmsg2Json.toString();
-                    ////                                    "<OS>" + controlpanel.GlobalValues.OS + "</OS>"
-                    ////                                    + "<HOSTNAME>" + controlpanel.GlobalValues.HOST_NAME + "</HOSTNAME>"
-                    ////                                    + "<PLIMIT>" + controlpanel.GlobalValues.PROCESS_LIMIT + "</PLIMIT>"
-                    ////                                    + "<PWAIT>" + controlpanel.GlobalValues.PROCESS_WAITING + "</PWAIT>"
-                    ////                                    + "<TMEM>" + controlpanel.GlobalValues.MEM_SIZE + "</TMEM>"
-                    ////                                    + "<CPULOAD>" + controlpanel.Settings.getCPULoad() + "</CPULOAD>"
-                    ////                                    + "<CPUNAME>" + controlpanel.GlobalValues.CPU_NAME + "</CPUNAME>";
-                    //
-                    //                            byte[] bytes2 = sendmsg2.getBytes("UTF8");
-                    //                            outToClient2.writeInt(bytes2.length);
-                    //                            outToClient2.write(bytes2);
-                    //                        }
-                    //                        submitter.close();
-                    //
-                    //                    } 
-                    else if (command.contains("kill")) {
+                    } else if (command.contains("kill")) {
                         String pid = body.getString("PID");//body.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
                         String cno = body.getString("CNO");//body.substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
 
-                        if (Server.alienprocessID.contains("" + ipAddress + "-ID-" + pid + "c" + cno)) {
+                        if (TaskServer.alienprocessID.contains("" + ipAddress + "-ID-" + pid + "c" + cno)) {
 
-                            processDBExecutor.execute(() -> {
+                            TASK_DB_EXECUTOR.execute(() -> {
                                 try {
                                     String sql = "SELECT * FROM PROC WHERE  ALIENID = '" + pid + "' AND CNO ='" + cno + "' AND IP ='" + ipAddress + "';";
 
-                                    ResultSet rs = procDB.select("appdb/proc.db", sql);
+                                    ResultSet rs = TASK_DB.select("appdb/proc.db", sql);
                                     int n = 9999;
                                     while (rs.next()) {
                                         n = rs.getInt("ID");
                                     }
-                                    procDB.closeConnection();
+                                    TASK_DB.closeConnection();
 
-                                    if (Server.p[n].isAlive()) {
-                                        Server.p[n].destroy();
+                                    if (TaskServer.p[n].isAlive()) {
+                                        TaskServer.p[n].destroy();
                                     }
                                 } catch (SQLException ex) {
-                                    Logger.getLogger(Handler.class.getName()).log(Level.SEVERE, null, ex);
+                                    Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
                                 }
                             });
 
@@ -151,13 +123,13 @@ public class Handler implements Runnable {
                 }
             }
         } catch (IOException ex) {
-            Logger.getLogger(Handler.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
             try {
                 if (!submitter.isClosed() && submitter != null) {
                     submitter.close();
                 }
             } catch (IOException ex1) {
-                Logger.getLogger(Handler.class.getName()).log(Level.SEVERE, null, ex1);
+                Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex1);
             }
         }
 

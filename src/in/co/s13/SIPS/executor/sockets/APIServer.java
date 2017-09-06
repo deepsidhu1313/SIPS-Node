@@ -16,6 +16,7 @@
  */
 package in.co.s13.SIPS.executor.sockets;
 
+import in.co.s13.SIPS.datastructure.threadpools.FixedThreadPool;
 import in.co.s13.SIPS.executor.sockets.handlers.APIHandler;
 import in.co.s13.SIPS.executor.sockets.handlers.PingHandler;
 import in.co.s13.SIPS.settings.GlobalValues;
@@ -36,7 +37,6 @@ public class APIServer implements Runnable {
 
     public ServerSocket ss;
     public boolean serverisRunning = false;
-    public ExecutorService executorService = Executors.newFixedThreadPool(GlobalValues.API_HANDLER_LIMIT);
 
     public APIServer(boolean serverisrunning) throws IOException {
         serverisRunning = serverisrunning;
@@ -45,6 +45,7 @@ public class APIServer implements Runnable {
             String key = keys.next();
             GlobalValues.API_LIST.put(key, GlobalValues.API_JSON.getJSONObject(key));
         }
+        GlobalValues.API_HANDLER_EXECUTOR_SERVICE = new FixedThreadPool(GlobalValues.API_HANDLER_LIMIT);
     }
 
     @Override
@@ -64,7 +65,7 @@ public class APIServer implements Runnable {
                 System.out.println("API Server is running");
                 Thread t = new Thread(new APIHandler(s));
                 //t.setPriority(Thread.NORM_PRIORITY+1);
-                executorService.execute(t);
+                GlobalValues.API_HANDLER_EXECUTOR_SERVICE.submit(t);
 
             } catch (IOException ex) {
                 Logger.getLogger(APIServer.class.getName()).log(Level.SEVERE, null, ex);

@@ -23,13 +23,13 @@ import in.co.s13.SIPS.datastructure.threadpools.FixedThreadPool;
 import in.co.s13.SIPS.datastructure.threadpools.ScheduledThreadPool;
 import in.co.s13.SIPS.settings.GlobalValues;
 import static in.co.s13.SIPS.settings.GlobalValues.PING_REQUEST_LIMIT;
-import static in.co.s13.SIPS.settings.GlobalValues.PROCESS_LIMIT;
 import in.co.s13.SIPS.tools.IPInfo;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static in.co.s13.SIPS.settings.GlobalValues.TASK_LIMIT;
 
 /**
  *
@@ -38,9 +38,9 @@ import java.util.logging.Logger;
 public class NetworkThreads {
 
     public NetworkThreads() {
-        GlobalValues.netExecutor = new FixedThreadPool(PROCESS_LIMIT);
-        GlobalValues.processExecutor = new FixedThreadPool(PROCESS_LIMIT);
-        GlobalValues.pingExecutor = new FixedThreadPool(PING_REQUEST_LIMIT);
+        GlobalValues.NETWORK_EXECUTOR = new FixedThreadPool(TASK_LIMIT);
+        GlobalValues.TASK_EXECUTOR = new FixedThreadPool(TASK_LIMIT);
+        GlobalValues.PING_REQUEST_EXECUTOR = new FixedThreadPool(PING_REQUEST_LIMIT);
         NetScanner ns = new NetScanner();
         Thread t = new Thread(ns);
         t.setName("NetScanner Thread");
@@ -62,7 +62,7 @@ public class NetworkThreads {
                 }
                 while (true) {
 
-                    GlobalValues.nodeScannerExecutor.submit(new AddLivenodes());
+                    GlobalValues.NODE_SCANNER_EXECUTOR.submit(new AddLivenodes());
                     int noOfHost = GlobalValues.HOSTS.size();
                     long interval = ((noOfHost * 10) < 60) ? 60 : (noOfHost * 10);
                     try {
@@ -87,7 +87,7 @@ public class NetworkThreads {
                 }
                 while (true) {
 
-                    GlobalValues.nodeScannerExecutor.submit(new CheckLiveNodes());
+                    GlobalValues.NODE_SCANNER_EXECUTOR.submit(new CheckLiveNodes());
                     int noOfHost = GlobalValues.LIVE_NODE_DB.size();
                     long interval = ((noOfHost * 5) < 60) ? 60 : (noOfHost * 5);
                     try {

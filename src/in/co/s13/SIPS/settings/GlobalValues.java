@@ -56,8 +56,8 @@ public class GlobalValues {
      * *
      * Resource Stats
      */
-    public static int process_id = 0;
-    public static SQLiteJDBC procDB = new SQLiteJDBC();
+    public static int TASK_ID = 0;
+    public static SQLiteJDBC TASK_DB = new SQLiteJDBC();
     public static String HOST_NAME = "DummySlave";
     public static String NODE_UUID = "";
     public static long MEM_SIZE = 0L, MEM_FREE = 0L, HDD_SIZE = 0L, HDD_FREE = 0L;
@@ -82,27 +82,32 @@ public class GlobalValues {
     /**
      * Executor Limits
      */
-    public static int total_threads = 3;
-    public static int PROCESS_WAITING = 0;
+    public static int TOTAL_THREADS = 3;
     public static int FILES_RESOLVER_LIMIT = 10;
     public static int PING_HANDLER_LIMIT = 10;
     public static int PING_REQUEST_LIMIT = 3;
     public static int API_HANDLER_LIMIT = 10;
-    public static int PROCESS_HANDLER_LIMIT = 10;
-    public static int PROCESS_LIMIT = Runtime.getRuntime().availableProcessors() - 2;
+    public static int TASK_HANDLER_LIMIT = 10;
+    public static int TASK_LIMIT = Runtime.getRuntime().availableProcessors() - 2;
+    public static int TASK_WAITING = 0;
     /**
      * *
      * Executors
      */
-//    public static ExecutorService netExecutor;
-//    public static ExecutorService processExecutor = Executors.newFixedThreadPool(PROCESS_LIMIT);
-    public static ExecutorService nodeScannerExecutor = Executors.newFixedThreadPool(2);
-    public static FixedThreadPool netExecutor;
-    public static FixedThreadPool processExecutor;
-    public static FixedThreadPool pingExecutor;
-    public static ExecutorService nodeDBExecutor = Executors.newFixedThreadPool(1);
-    public static ExecutorService processDBExecutor = Executors.newFixedThreadPool(1);
-    public static ExecutorService liveDBExecutor = Executors.newFixedThreadPool(1);
+    //    public static ExecutorService NETWORK_EXECUTOR;
+    //    public static ExecutorService TASK_EXECUTOR = Executors.newFixedThreadPool(TASK_LIMIT);
+    public static ExecutorService NODE_SCANNER_EXECUTOR = Executors.newFixedThreadPool(2);
+    public static FixedThreadPool NETWORK_EXECUTOR;
+    public static FixedThreadPool TASK_EXECUTOR;
+    public static FixedThreadPool PING_REQUEST_EXECUTOR;
+    public static ExecutorService NODE_DB_EXECUTOR = Executors.newFixedThreadPool(1);
+    public static ExecutorService TASK_DB_EXECUTOR = Executors.newFixedThreadPool(1);
+    public static ExecutorService LIVE_DB_EXECUTOR = Executors.newFixedThreadPool(1);
+
+    /**
+     * Server ThreadPools
+     */
+    public static FixedThreadPool API_HANDLER_EXECUTOR_SERVICE, PING_HANDLER_EXECUTOR_SERVICE, FILE_HANDLER_EXECUTOR_SERVICE, TASK_HANDLER_EXECUTOR_SERVICE;
 
     /**
      * *
@@ -123,11 +128,11 @@ public class GlobalValues {
     public static Hashtable<String, JSONObject> API_LIST = new Hashtable<>();
     public static boolean IS_WRITING = false;
     public static JSONObject blacklistJSON, networksToScanJSON, ipToScanJSON, API_JSON;
-    public static int threadnumber = total_threads;
+    public static int THREAD_NUMBER = TOTAL_THREADS;
     public static Hashtable<String, String> routingTable = new Hashtable<>();
     public static Hashtable<String, Long> ADJACENT_NODES_TABLE = new Hashtable<>();
     public static Hashtable<String, UniqueElementList> NON_ADJACENT_NODES_TABLE = new Hashtable<>();
 
-    public static int PING_SERVER_PORT = 13131, FILE_QUEUE_SERVER_PORT = 13132, MAIN_SERVER_PORT = 13133, API_SERVER_PORT = 13139;
+    public static int PING_SERVER_PORT = 13131, FILE_QUEUE_SERVER_PORT = 13132, TASK_SERVER_PORT = 13133, API_SERVER_PORT = 13139;
 
 }

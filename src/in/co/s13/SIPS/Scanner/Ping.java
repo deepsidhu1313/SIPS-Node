@@ -21,7 +21,6 @@ import in.co.s13.SIPS.datastructure.UniqueElementList;
 import in.co.s13.SIPS.settings.GlobalValues;
 import static in.co.s13.SIPS.settings.GlobalValues.ADJACENT_NODES_TABLE;
 import static in.co.s13.SIPS.settings.GlobalValues.NON_ADJACENT_NODES_TABLE;
-import static in.co.s13.SIPS.settings.GlobalValues.liveDBExecutor;
 import static in.co.s13.SIPS.tools.Util.errPrintln;
 import static in.co.s13.SIPS.tools.Util.outPrintln;
 import in.co.s13.SIPS.virtualdb.LiveDBRow;
@@ -41,6 +40,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import static in.co.s13.SIPS.settings.GlobalValues.LIVE_NODE_DB;
 import static in.co.s13.SIPS.settings.GlobalValues.CURRENTLY_SCANNING;
+import static in.co.s13.SIPS.settings.GlobalValues.LIVE_DB_EXECUTOR;
 
 class Ping implements Runnable {
 
@@ -86,7 +86,7 @@ class Ping implements Runnable {
             String hostname;
             String osname, cpuname, uuid;
             long ram, freeRam, hdd_size, hdd_free;
-            int plimit, pwait;
+            int task_limit, task_waiting;
             try (OutputStream os = s.getOutputStream(); DataInputStream dIn = new DataInputStream(s.getInputStream()); DataOutputStream outToServer = new DataOutputStream(os)) {
                 JSONObject pingRequest = new JSONObject();
                 pingRequest.put("Command", "ping");
@@ -108,8 +108,8 @@ class Ping implements Runnable {
                 JSONObject reply = new JSONObject(new String(message));
                 osname = reply.getString("OS");
                 hostname = reply.getString("HOSTNAME");
-                plimit = reply.getInt("PLIMIT");
-                pwait = reply.getInt("PWAIT");
+                task_limit = reply.getInt("TASK_LIMIT");
+                task_waiting = reply.getInt("TASK_WAITING");
                 ram = reply.getLong("TMEM");
                 freeRam = reply.getInt("MEM_FREE");
                 hdd_free = reply.getLong("HDD_FREE");
@@ -140,7 +140,7 @@ class Ping implements Runnable {
                 outPrintln("" + reply.toString(4));
                 //System.out.println(reply);
                 outPrintln("Port Opened On " + IPadress);
-                liveDBExecutor.execute(() -> {
+                LIVE_DB_EXECUTOR.execute(() -> {
                     /*   String sql3 = "UPDATE LIVE SET "
                                  + "PRF ='" + prf2 + "',"
                                  + "CN ='" + cnm + "',"
@@ -160,10 +160,10 @@ class Ping implements Runnable {
                     }
                     // using endTime as Last Checked OIN timestamp, as that is the time when we hear back from node
                     if (LIVE_NODE_DB.containsKey(uuid)) {
-                        LIVE_NODE_DB.replace(uuid, new LiveDBRow(uuid, hostname, osname, cpuname, (plimit), (pwait), ram, freeRam, hdd_size, hdd_free, benchmarks, endTime));
+                        LIVE_NODE_DB.replace(uuid, new LiveDBRow(uuid, hostname, osname, cpuname, (task_limit), (task_waiting), ram, freeRam, hdd_size, hdd_free, benchmarks, endTime));
                         updatedRecord = true;
                     } else {
-                        LIVE_NODE_DB.put(uuid, new LiveDBRow(uuid, hostname, osname, cpuname, (plimit), (pwait), ram, freeRam, hdd_size, hdd_free, benchmarks, endTime));
+                        LIVE_NODE_DB.put(uuid, new LiveDBRow(uuid, hostname, osname, cpuname, (task_limit), (task_waiting), ram, freeRam, hdd_size, hdd_free, benchmarks, endTime));
 
                     }
                     LiveDBRow live = LIVE_NODE_DB.get(uuid);

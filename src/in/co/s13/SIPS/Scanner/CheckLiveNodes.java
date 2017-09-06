@@ -45,7 +45,7 @@ public class CheckLiveNodes implements Runnable {
         Thread.currentThread().setName("CheckLiveNodeThread");
         {
             if (!GlobalValues.IS_WRITING) {
-                liveDBExecutor.execute(() -> {
+                LIVE_DB_EXECUTOR.execute(() -> {
                     Enumeration<String> keys = GlobalValues.LIVE_NODE_DB.keys();
                     while (keys.hasMoreElements()) {
                         String key = keys.nextElement();
@@ -56,7 +56,7 @@ public class CheckLiveNodes implements Runnable {
                                 String get = ips.get(i);
                                 Thread p1 = new Thread(new Ping(get, liveNode.getUuid()));
                                 p1.setPriority(Thread.NORM_PRIORITY + 2);
-                                pingExecutor.submit(p1);
+                                PING_REQUEST_EXECUTOR.submit(p1);
                             }
                         }
 
@@ -72,7 +72,7 @@ public class CheckLiveNodes implements Runnable {
                                 String get = ips.get(i);
                                 Thread p1 = new Thread(new Ping(get, liveNode.getUuid()));
                                 p1.setPriority(Thread.NORM_PRIORITY + 2);
-                                pingExecutor.submit(p1);
+                                PING_REQUEST_EXECUTOR.submit(p1);
                             }
                         }
 

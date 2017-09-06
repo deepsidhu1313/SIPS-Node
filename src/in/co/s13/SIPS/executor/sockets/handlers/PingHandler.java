@@ -79,8 +79,8 @@ public class PingHandler implements Runnable {
                             sendmsg2Json.put("UUID", GlobalValues.NODE_UUID);
                             sendmsg2Json.put("OS", GlobalValues.OS);
                             sendmsg2Json.put("HOSTNAME", GlobalValues.HOST_NAME);
-                            sendmsg2Json.put("PLIMIT", GlobalValues.PROCESS_LIMIT);
-                            sendmsg2Json.put("PWAIT", GlobalValues.PROCESS_WAITING);
+                            sendmsg2Json.put("TASK_LIMIT", GlobalValues.TASK_LIMIT);
+                            sendmsg2Json.put("TASK_WAITING", GlobalValues.TASK_WAITING);
                             sendmsg2Json.put("TMEM", GlobalValues.MEM_SIZE);
                             sendmsg2Json.put("MEM_FREE", GlobalValues.MEM_FREE);
                             sendmsg2Json.put("HDD_SIZE", GlobalValues.HDD_SIZE);

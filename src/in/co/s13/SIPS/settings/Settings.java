@@ -92,7 +92,7 @@ public class Settings {
             saveSettings();
         }
         alldb = new OLDSQLiteJDBC(dir_appdb + "/all.db");
-        processDBExecutor.execute(() -> {
+        TASK_DB_EXECUTOR.execute(() -> {
             String sql = "CREATE TABLE PROC (ID    INT   PRIMARY KEY     NOT NULL,"
                     + " ALIENID  INT,"
                     + "FNAME     TEXT,"
@@ -102,8 +102,8 @@ public class Settings {
             if (f1.exists()) {
                 f1.delete();
             }
-            procDB.createtable(dir_appdb + "/proc.db", sql);
-            procDB.closeConnection();
+            TASK_DB.createtable(dir_appdb + "/proc.db", sql);
+            TASK_DB.closeConnection();
         });
         try {
             ipAddresses = new JSONArray(Util.getLocalHostLANAddress());
@@ -160,11 +160,11 @@ public class Settings {
         if (NODE_UUID.length() < 1) {
             NODE_UUID = Util.generateNodeUUID();
         }
-        PROCESS_LIMIT = settings.getInt("MAX_PROCESS_ALLOWED_IN_PARALLEL", 2);
+        TASK_LIMIT = settings.getInt("MAX_TASK_ALLOWED_IN_PARALLEL", 2);
         FILES_RESOLVER_LIMIT = settings.getInt("MAX_FILE_RESOLVE_IN_PARALLEL", 3);
         PING_HANDLER_LIMIT = settings.getInt("MAX_PING_RESPONSES_IN_PARALLEL", 3);
         API_HANDLER_LIMIT = settings.getInt("MAX_API_RESPONSES_IN_PARALLEL", 3);
-        PROCESS_HANDLER_LIMIT = settings.getInt("MAX_PROCESS_REQ_IN_PARALLEL", 3);
+        TASK_HANDLER_LIMIT = settings.getInt("MAX_TASK_REQ_IN_PARALLEL", 3);
         DUMP_LOG = settings.getBoolean("DUMP_LOG", true);
         VERBOSE = settings.getBoolean("VERBOSE", true);
         SHARED_STORAGE = settings.getBoolean("SHARED_STORAGE", SHARED_STORAGE);
@@ -179,12 +179,12 @@ public class Settings {
             NODE_UUID = Util.generateNodeUUID();
         }
         settings.put("UUID", NODE_UUID);
-        settings.put("MAX_PROCESS_ALLOWED_IN_PARALLEL", PROCESS_LIMIT);
+        settings.put("MAX_TASK_ALLOWED_IN_PARALLEL", TASK_LIMIT);
         settings.put("MAX_FILE_RESOLVE_IN_PARALLEL", FILES_RESOLVER_LIMIT);
         settings.put("MAX_PING_RESPONSES_IN_PARALLEL", PING_HANDLER_LIMIT);
         settings.put("MAX_PING_REQUESTS_IN_PARALLEL", PING_REQUEST_LIMIT);
         settings.put("MAX_API_RESPONSES_IN_PARALLEL", API_HANDLER_LIMIT);
-        settings.put("MAX_PROCESS_REQ_IN_PARALLEL", PROCESS_HANDLER_LIMIT);
+        settings.put("MAX_TASK_REQ_IN_PARALLEL", TASK_HANDLER_LIMIT);
         settings.put("DUMP_LOG", DUMP_LOG);
         settings.put("VERBOSE", VERBOSE);
         settings.put("SHARED_STORAGE", SHARED_STORAGE);

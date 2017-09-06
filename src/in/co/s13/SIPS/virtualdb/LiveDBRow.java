@@ -25,19 +25,19 @@ import org.json.JSONObject;
 
 public class LiveDBRow {
 
-    private int que_length, waiting_in_que;
+    private int task_limit, waiting_in_que;
     private String uuid, operatingSytem, hostname, processor_name;
 
     private long memory, free_memory, hdd_size, hdd_free, lastCheckedOn, lastCheckAgo;
     private ArrayList<String> ipAddresses = new ArrayList<>();
     private JSONObject benchmarking_results;
 
-    public LiveDBRow(String uuid, String host, String os, String processor, int qlen,
+    public LiveDBRow(String uuid, String host, String os, String processor, int task_limit,
             int qwait, long ram, long free_memory, long hdd_size, long hdd_free, JSONObject benchmarking_results, long lastCheckedOn) {
         this.uuid = uuid;
         this.operatingSytem = os;
         this.hostname = host;
-        this.que_length = qlen;
+        this.task_limit = task_limit;
         this.waiting_in_que = qwait;
         this.memory = ram;
         this.free_memory = free_memory;
@@ -50,7 +50,7 @@ public class LiveDBRow {
 
     public LiveDBRow(JSONObject livedbRow) {
         uuid = livedbRow.getString("uuid");
-        que_length = livedbRow.getInt("que_length");
+        task_limit = livedbRow.getInt("task_limit");
         waiting_in_que = livedbRow.getInt("waiting_in_que");
         operatingSytem = livedbRow.getString("operatingSytem");
         hostname = livedbRow.getString("hostname");
@@ -94,12 +94,12 @@ public class LiveDBRow {
         this.hostname = hostname;
     }
 
-    public int getQue_length() {
-        return que_length;
+    public int getTask_limit() {
+        return task_limit;
     }
 
-    public void setQue_length(int length) {
-        this.que_length = length;
+    public void setTask_limit(int length) {
+        this.task_limit = length;
     }
 
     public int getWaiting_in_que() {
@@ -206,7 +206,7 @@ public class LiveDBRow {
     public JSONObject toJSON() {
         JSONObject result = new JSONObject();
         result.put("uuid", uuid);
-        result.put("que_length", que_length);
+        result.put("task_limit", task_limit);
         result.put("waiting_in_que", waiting_in_que);
         result.put("operatingSytem", operatingSytem);
         result.put("hostname", hostname);
@@ -257,7 +257,7 @@ public class LiveDBRow {
         },
         QLEN_SORT {
             public int compare(LiveDBRow o1, LiveDBRow o2) {
-                return Integer.valueOf(o1.getQue_length()).compareTo(o2.getQue_length());
+                return Integer.valueOf(o1.getTask_limit()).compareTo(o2.getTask_limit());
             }
         },
         QWAIT_SORT {

@@ -16,7 +16,8 @@
  */
 package in.co.s13.SIPS.executor.sockets;
 
-import in.co.s13.SIPS.executor.sockets.handlers.Handler;
+import in.co.s13.SIPS.datastructure.threadpools.FixedThreadPool;
+import in.co.s13.SIPS.executor.sockets.handlers.TaskHandler;
 import in.co.s13.SIPS.settings.GlobalValues;
 import java.io.File;
 import java.io.IOException;
@@ -24,8 +25,6 @@ import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,17 +32,17 @@ import java.util.logging.Logger;
  *
  * @author Nika
  */
-public class Server implements Runnable {
+public class TaskServer implements Runnable {
 
-    public  ServerSocket ss;
+    public ServerSocket ss;
     public static int processcounter = 0;
     public static boolean serverisRunning = false;
     public static ArrayList<Integer> localprocessID = new ArrayList();
     public static ArrayList<String> alienprocessID = new ArrayList();
-    public ExecutorService executorService = Executors.newFixedThreadPool(1000);
+
     public static Process[] p = new Process[1000];
 
-    public Server(boolean serverisrunning) throws IOException {
+    public TaskServer(boolean serverisrunning) throws IOException {
         serverisRunning = serverisrunning;
         if (GlobalValues.OS_Name == 2) {
             File f = new File("process-executor.sh");
@@ -135,35 +134,38 @@ public class Server implements Runnable {
             d4.mkdir();
         }
 
+        GlobalValues.TASK_HANDLER_EXECUTOR_SERVICE = new FixedThreadPool(GlobalValues.TASK_HANDLER_LIMIT);
     }
 
     @Override
     public void run() {
         try {
             if (ss == null || ss.isClosed()) {
-                ss = new ServerSocket(GlobalValues.MAIN_SERVER_PORT);
+                ss = new ServerSocket(GlobalValues.TASK_SERVER_PORT);
             }
         } catch (IOException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TaskServer.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         Thread.currentThread().setName("Default Server Thread");
-        
-                System.out.println("Server is running");
+
+        System.out.println("Server is running");
         while (serverisRunning) {
             try {
                 Socket s = ss.accept();
-                executorService.execute(new Handler(s));
+                GlobalValues.TASK_HANDLER_EXECUTOR_SERVICE.submit(new TaskHandler(s));
 
             } catch (IOException ex) {
-                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(TaskServer.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         try {
-            ss.close();
+            if (ss != null && !ss.isClosed()) {
+                ss.close();
+            }
 
         } catch (IOException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TaskServer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }

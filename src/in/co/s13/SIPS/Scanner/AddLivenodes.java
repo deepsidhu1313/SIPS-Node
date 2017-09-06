@@ -17,11 +17,11 @@
 package in.co.s13.SIPS.Scanner;
 
 import in.co.s13.SIPS.settings.GlobalValues;
-import static in.co.s13.SIPS.settings.GlobalValues.total_threads;
-import static in.co.s13.SIPS.settings.GlobalValues.netExecutor;
 import static in.co.s13.SIPS.tools.Util.outPrintln;
 import java.util.ArrayList;
 import static in.co.s13.SIPS.settings.GlobalValues.HOSTS;
+import static in.co.s13.SIPS.settings.GlobalValues.TOTAL_THREADS;
+import static in.co.s13.SIPS.settings.GlobalValues.NETWORK_EXECUTOR;
 
 public class AddLivenodes implements Runnable {
 
@@ -34,7 +34,7 @@ public class AddLivenodes implements Runnable {
     @Override
     public void run() {
         Thread.currentThread().setName("AddLiveNodeThread");
-        int threads = total_threads;
+        int threads = TOTAL_THREADS;
 //        ArrayList hst = new ArrayList(NetScanner.HOSTS);
         int nodes = GlobalValues.HOSTS.size();
         //static boolean addnodes = true;
@@ -52,7 +52,7 @@ public class AddLivenodes implements Runnable {
             }
             int upper = lastUpper + size;
             lastUpper = upper;
-            netExecutor.submit(new RangePinger(lower, upper, HOSTS));
+            NETWORK_EXECUTOR.submit(new RangePinger(lower, upper, HOSTS));
 
         }
 

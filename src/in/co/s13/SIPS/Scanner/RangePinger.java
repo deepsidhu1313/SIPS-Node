@@ -57,7 +57,7 @@ public class RangePinger implements Runnable {
                 Logger.getLogger(RangePinger.class.getName()).log(Level.SEVERE, null, ex);
             }
             Thread p1 = new Thread(new Ping(node, ""));
-            pingExecutor.submit(p1);
+            PING_REQUEST_EXECUTOR.submit(p1);
             //    p1.setPriority(Thread.NORM_PRIORITY - 1);
 
 //            ArrayList<String> ips = node.getIpAddresses();

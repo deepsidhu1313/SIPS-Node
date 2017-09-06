@@ -19,7 +19,7 @@ package in.co.s13.SIPS.tools;
 import com.sun.management.OperatingSystemMXBean;
 import in.co.s13.SIPS.datastructure.IPHostnameCombo;
 import in.co.s13.SIPS.datastructure.UniqueElementList;
-import in.co.s13.SIPS.executor.sockets.Server;
+import in.co.s13.SIPS.executor.sockets.TaskServer;
 import in.co.s13.SIPS.settings.GlobalValues;
 import static in.co.s13.SIPS.settings.GlobalValues.DUMP_LOG;
 import static in.co.s13.SIPS.settings.GlobalValues.OS;
@@ -877,7 +877,7 @@ public class Util {
             }
             if (candidateAddress != null) {
                 // We did not find a site-local address, but we found some other non-loopback address.
-                // Server might have a non-site-local address assigned to its NIC (or it might be running
+                // TaskServer might have a non-site-local address assigned to its NIC (or it might be running
                 // IPv6 which deprecates the "site-local" concept).
                 // Return this non-loopback candidate address...
                 list.add(new IPHostnameCombo(candidateAddress.getCanonicalHostName(), candidateAddress.getHostAddress()));
@@ -909,7 +909,7 @@ public class Util {
                 System.out.println("" + source.getCanonicalPath() + " does not exist");
                 return;
             } catch (IOException ex) {
-                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(TaskServer.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         InputStream is = null;
@@ -928,25 +928,25 @@ public class Util {
                 is.close();
                 os.close();
             } catch (IOException ex) {
-                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(TaskServer.class.getName()).log(Level.SEVERE, null, ex);
             }
 
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TaskServer.class.getName()).log(Level.SEVERE, null, ex);
             try {
                 is.close();
                 os.close();
             } catch (IOException e) {
-                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(TaskServer.class.getName()).log(Level.SEVERE, null, ex);
             }
 
         } catch (IOException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TaskServer.class.getName()).log(Level.SEVERE, null, ex);
             try {
                 is.close();
                 os.close();
             } catch (IOException e) {
-                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(TaskServer.class.getName()).log(Level.SEVERE, null, ex);
             }
 
         } finally {
@@ -954,7 +954,7 @@ public class Util {
                 is.close();
                 os.close();
             } catch (IOException ex) {
-                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(TaskServer.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
@@ -981,7 +981,7 @@ public class Util {
             }
             System.out.println("" + source.getAbsolutePath() + " copied to " + dest.getAbsolutePath() + " ");
         } catch (IOException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TaskServer.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }

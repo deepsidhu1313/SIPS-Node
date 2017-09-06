@@ -21,7 +21,7 @@ import in.co.s13.SIPS.executor.sockets.APIServer;
 import in.co.s13.SIPS.settings.Settings;
 import in.co.s13.SIPS.executor.sockets.FileReqQueServer;
 import in.co.s13.SIPS.executor.sockets.PingServer;
-import in.co.s13.SIPS.executor.sockets.Server;
+import in.co.s13.SIPS.executor.sockets.TaskServer;
 import in.co.s13.SIPS.initializer.HardwareStatThreads;
 import in.co.s13.SIPS.initializer.NetworkThreads;
 import in.co.s13.SIPS.settings.GlobalValues;
@@ -156,7 +156,7 @@ public class DummySlave {
             }
 
             if (arguments.contains("--set-process-limit")) {
-                int limit = GlobalValues.PROCESS_LIMIT;
+                int limit = GlobalValues.TASK_LIMIT;
                 try {
                     limit = Integer.parseInt(arguments.get(arguments.indexOf("--set-process-limit") + 1));
                 } catch (NumberFormatException e) {
@@ -166,7 +166,7 @@ public class DummySlave {
                     System.exit(1);
 
                 }
-                GlobalValues.PROCESS_LIMIT = limit;
+                GlobalValues.TASK_LIMIT = limit;
                 loadSettings.saveSettings();
             }
 
@@ -215,7 +215,7 @@ public class DummySlave {
             }
 
             if (arguments.contains("--set-process-handlers")) {
-                int limit = GlobalValues.PROCESS_HANDLER_LIMIT;
+                int limit = GlobalValues.TASK_HANDLER_LIMIT;
                 try {
                     limit = Integer.parseInt(arguments.get(arguments.indexOf("--set-process-handlers") + 1));
                 } catch (NumberFormatException e) {
@@ -225,7 +225,7 @@ public class DummySlave {
                     System.exit(1);
 
                 }
-                GlobalValues.PROCESS_HANDLER_LIMIT = limit;
+                GlobalValues.TASK_HANDLER_LIMIT = limit;
                 loadSettings.saveSettings();
             }
 
@@ -336,7 +336,7 @@ public class DummySlave {
                         new NetworkThreads();
                         Thread pingServer = new Thread(new PingServer(true));
                         pingServer.start();
-                        Thread server = new Thread(new Server(true));
+                        Thread server = new Thread(new TaskServer(true));
                         server.start();
                         Thread downloadQueueServer = new Thread(new FileReqQueServer(true));
                         downloadQueueServer.start();
@@ -352,7 +352,7 @@ public class DummySlave {
 
                         new HardwareStatThreads();
                         new NetworkThreads();
-                        Thread server2 = new Thread(new Server(true));
+                        Thread server2 = new Thread(new TaskServer(true));
                         server2.start();
                         Thread downloadQueueServer2 = new Thread(new FileReqQueServer(true));
                         downloadQueueServer2.start();
@@ -365,7 +365,7 @@ public class DummySlave {
                 preBenchmarkingChecks();
                 new HardwareStatThreads();
                 new NetworkThreads();
-                Thread server = new Thread(new Server(true));
+                Thread server = new Thread(new TaskServer(true));
                 server.start();
                 Thread pingServer = new Thread(new PingServer(true));
                 pingServer.start();
@@ -385,7 +385,7 @@ public class DummySlave {
             GlobalValues.API_JSON = Util.readJSONFile(dir_appdb + "/api.json");
             new HardwareStatThreads();
             new NetworkThreads();
-            Thread server = new Thread(new Server(true));
+            Thread server = new Thread(new TaskServer(true));
             server.start();
             Thread pingServer = new Thread(new PingServer(true));
             pingServer.start();

@@ -67,7 +67,7 @@ public class NetScanner implements Runnable {
     public void run() {
 
 //        Thread.currentThread().setName("NetworkScannerThread");
-//        nodeDBExecutor.execute(() -> {
+//        NODE_DB_EXECUTOR.execute(() -> {
 //            {
 //
 //                Thread.currentThread().setName("SelectFromALLNDBThread");
@@ -84,7 +84,7 @@ public class NetScanner implements Runnable {
 //            }
 //            alldb.closeStatement();
 //        });
-//        liveDBExecutor.execute(() -> {
+//        LIVE_DB_EXECUTOR.execute(() -> {
 //
 //            Thread.currentThread().setName("LIVEDBcreateThread");
 //            String sql = "CREATE TABLE LIVE "
@@ -103,7 +103,7 @@ public class NetScanner implements Runnable {
 //          //  livedb.createtable("appdb/live.db", sql);
 //            // livedb.closeConnection();
 //        });
-//        nodeDBExecutor.execute(() -> {
+//        NODE_DB_EXECUTOR.execute(() -> {
 //
 //            Thread.currentThread().setName("InsertNodeDBThread");
 //            for (String host : HOSTS) {
@@ -122,7 +122,7 @@ public class NetScanner implements Runnable {
 //            }
 //            alldb.closeStatement();
 //        });
-//        nodeDBExecutor.execute(() -> {
+//        NODE_DB_EXECUTOR.execute(() -> {
 //            {
 //
 //                Thread.currentThread().setName("SELECTNodeDBThread");
@@ -168,7 +168,7 @@ public class NetScanner implements Runnable {
             outPrintln("" + ip + " is added to list");
             //  Collections.sort(HOSTS);
         }
-//        nodeDBExecutor.execute(() -> {
+//        NODE_DB_EXECUTOR.execute(() -> {
 //            {
 //                String sql = "INSERT INTO ALLN (IP ,"
 //                        + " LEN ,"

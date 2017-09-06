@@ -16,10 +16,8 @@
  */
 package in.co.s13.SIPS.executor;
 
-import in.co.s13.SIPS.executor.sockets.Server;
+import in.co.s13.SIPS.executor.sockets.TaskServer;
 import in.co.s13.SIPS.settings.GlobalValues;
-import static in.co.s13.SIPS.settings.GlobalValues.procDB;
-import static in.co.s13.SIPS.settings.GlobalValues.processDBExecutor;
 import in.co.s13.SIPS.tools.Util;
 import java.io.BufferedReader;
 import java.io.File;
@@ -32,6 +30,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import static in.co.s13.SIPS.settings.GlobalValues.TASK_DB;
+import static in.co.s13.SIPS.settings.GlobalValues.TASK_DB_EXECUTOR;
 
 /**
  *
@@ -74,7 +74,7 @@ public class ParallelProcess implements Runnable {
 //            }
 //        }
         JSONObject manifest = body.getJSONObject("MANIFEST");//body.substring(body.indexOf("<MANIFEST>") + 10, body.indexOf("</MANIFEST>"));
-        counter = Server.processcounter;
+        counter = TaskServer.processcounter;
         main = body.getString("MAIN");//manifest.substring(manifest.indexOf("<MAIN>") + 6, manifest.indexOf("</MAIN>"));
         projectName = body.getString("PROJECT");//manifest.substring(manifest.indexOf("<PROJECT>") + 9, manifest.indexOf("</PROJECT>"));
 
@@ -102,18 +102,18 @@ public class ParallelProcess implements Runnable {
 //                args = tmp;
 //            }
 //        }
-        Server.processcounter++;
-        Server.alienprocessID.add("" + ip + "-ID-" + pid + "c" + cno);
-        Server.localprocessID.add(counter);
-        processDBExecutor.execute(() -> {
+        TaskServer.processcounter++;
+        TaskServer.alienprocessID.add("" + ip + "-ID-" + pid + "c" + cno);
+        TaskServer.localprocessID.add(counter);
+        TASK_DB_EXECUTOR.execute(() -> {
             String sql = "INSERT INTO PROC (ID,"
                     + " ALIENID ,"
                     + "FNAME,"
                     + "CNO     ,"
                     + "IP   ) VALUES('" + counter + "','" + pid + "','" + projectName + "','" + cno + "','" + ip + "');";
 
-            procDB.insert("appdb/proc.db", sql);
-            procDB.closeConnection();
+            TASK_DB.insert("appdb/proc.db", sql);
+            TASK_DB.closeConnection();
         });
         createProcess(ip, pid, fname, content);
 
@@ -209,7 +209,7 @@ public class ParallelProcess implements Runnable {
     @Override
     public void run() {
         try {
-            GlobalValues.PROCESS_WAITING--;
+            GlobalValues.TASK_WAITING--;
             ProcessBuilder pb = null;
             String cmd2 = "";
             Long startTime = System.currentTimeMillis();
@@ -236,16 +236,16 @@ public class ParallelProcess implements Runnable {
                 pb.directory(new File(GlobalValues.PWD));
             }
 
-            Server.p[counter] = null;
+            TaskServer.p[counter] = null;
             try {
-                Server.p[counter] = pb.start();
+                TaskServer.p[counter] = pb.start();
             } catch (IOException ex) {
                 Logger.getLogger(ParallelProcess.class.getName()).log(Level.SEVERE, null, ex);
             }
 
-            BufferedReader stdInput = new BufferedReader(new InputStreamReader(Server.p[counter].getInputStream()));
+            BufferedReader stdInput = new BufferedReader(new InputStreamReader(TaskServer.p[counter].getInputStream()));
 
-            BufferedReader stdError = new BufferedReader(new InputStreamReader(Server.p[counter].getErrorStream()));
+            BufferedReader stdError = new BufferedReader(new InputStreamReader(TaskServer.p[counter].getErrorStream()));
 
             // read the output from the command
             System.out.println("Here is the standard output of the command:\n");
@@ -295,13 +295,13 @@ public class ParallelProcess implements Runnable {
             Thread outputThread3 = new Thread(new sendOutput(ip, pid, cno, projectName, output));
             outputThread3.start();
             ////System.out.println("Process executed");
-            int exitValue = Server.p[counter].waitFor();
+            int exitValue = TaskServer.p[counter].waitFor();
             System.out.println("\n\nExit Value is " + exitValue);
             Long stopTime = System.currentTimeMillis();
             totalTime = stopTime - startTime;
             stdError.close();
             stdInput.close();
-            Server.p[counter].destroy();
+            TaskServer.p[counter].destroy();
 
         } catch (IOException | InterruptedException ex) {
             Logger.getLogger(ParallelProcess.class.getName()).log(Level.SEVERE, null, ex);

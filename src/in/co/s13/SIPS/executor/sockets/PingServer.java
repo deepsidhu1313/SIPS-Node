@@ -16,6 +16,7 @@
  */
 package in.co.s13.SIPS.executor.sockets;
 
+import in.co.s13.SIPS.datastructure.threadpools.FixedThreadPool;
 import in.co.s13.SIPS.executor.sockets.handlers.PingHandler;
 import in.co.s13.SIPS.settings.GlobalValues;
 import java.io.IOException;
@@ -35,10 +36,10 @@ public class PingServer implements Runnable {
 
     public ServerSocket ss;
     public boolean serverisRunning = false;
-    public ExecutorService executorService = Executors.newFixedThreadPool(GlobalValues.PING_HANDLER_LIMIT);
 
     public PingServer(boolean serverisrunning) throws IOException {
         serverisRunning = serverisrunning;
+        GlobalValues.PING_HANDLER_EXECUTOR_SERVICE = new FixedThreadPool(GlobalValues.PING_HANDLER_LIMIT);
 
     }
 
@@ -59,7 +60,7 @@ public class PingServer implements Runnable {
 
                 Thread t = new Thread(new PingHandler(s));
                 //t.setPriority(Thread.NORM_PRIORITY+1);
-                executorService.execute(t);
+                GlobalValues.PING_HANDLER_EXECUTOR_SERVICE.submit(t);
 
             } catch (IOException ex) {
                 Logger.getLogger(PingServer.class.getName()).log(Level.SEVERE, null, ex);
