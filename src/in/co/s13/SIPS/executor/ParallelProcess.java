@@ -112,7 +112,7 @@ public class ParallelProcess implements Runnable {
                     + "CNO     ,"
                     + "IP   ) VALUES('" + counter + "','" + pid + "','" + projectName + "','" + cno + "','" + ip + "');";
 
-            TASK_DB.insert("appdb/proc.db", sql);
+            TASK_DB.insert(GlobalValues.dir_etc+"/proc.db", sql);
             TASK_DB.closeConnection();
         });
         createProcess(ip, pid, fname, content);

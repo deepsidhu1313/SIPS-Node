@@ -22,9 +22,6 @@ import in.co.s13.SIPS.settings.GlobalValues;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,11 +31,8 @@ import java.util.logging.Logger;
  */
 public class PingServer implements Runnable {
 
-    public ServerSocket ss;
-    public boolean serverisRunning = false;
-
-    public PingServer(boolean serverisrunning) throws IOException {
-        serverisRunning = serverisrunning;
+    
+    public PingServer() throws IOException {
         GlobalValues.PING_HANDLER_EXECUTOR_SERVICE = new FixedThreadPool(GlobalValues.PING_HANDLER_LIMIT);
 
     }
@@ -46,17 +40,17 @@ public class PingServer implements Runnable {
     @Override
     public void run() {
         try {
-            if (ss == null || ss.isClosed()) {
-                ss = new ServerSocket(GlobalValues.PING_SERVER_PORT);
+            if (GlobalValues.PING_SERVER_SOCKET == null || GlobalValues.PING_SERVER_SOCKET.isClosed()) {
+                GlobalValues.PING_SERVER_SOCKET = new ServerSocket(GlobalValues.PING_SERVER_PORT);
             }
         } catch (IOException ex) {
             Logger.getLogger(PingServer.class.getName()).log(Level.SEVERE, null, ex);
         }
         System.out.println("API Server is running");
         Thread.currentThread().setName("API Server Thread");
-        while (serverisRunning) {
+        while (!GlobalValues.PING_SERVER_SOCKET.isClosed()) {
             try {
-                Socket s = ss.accept();
+                Socket s = GlobalValues.PING_SERVER_SOCKET.accept();
 
                 Thread t = new Thread(new PingHandler(s));
                 //t.setPriority(Thread.NORM_PRIORITY+1);
@@ -67,7 +61,7 @@ public class PingServer implements Runnable {
             }
         }
         try {
-            ss.close();
+            GlobalValues.PING_SERVER_SOCKET.close();
 
         } catch (IOException ex) {
             Logger.getLogger(PingServer.class.getName()).log(Level.SEVERE, null, ex);

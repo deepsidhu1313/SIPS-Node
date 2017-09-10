@@ -185,8 +185,6 @@ public class LiveDBRow {
         return lastCheckedOn;
     }
 
-    
-    
     @Override
     public String toString() {
         return this.toJSON().toString(4);
@@ -238,44 +236,114 @@ public class LiveDBRow {
         return true;
     }
 
-    enum LiveDBRowComparator implements Comparator<LiveDBRow> {
+    public enum LiveDBRowComparator implements Comparator<LiveDBRow> {
 
-        IP_SORT {
+        IP {
             public int compare(LiveDBRow o1, LiveDBRow o2) {
                 return o1.getUuid().compareTo(o2.getUuid());
             }
         },
-        OS_SORT {
+        OS {
             public int compare(LiveDBRow o1, LiveDBRow o2) {
                 return (o1.getOperatingSytem()).compareTo(o2.getOperatingSytem());
             }
         },
-        HOST_SORT {
+        HOST {
             public int compare(LiveDBRow o1, LiveDBRow o2) {
                 return (o1.getHostname()).compareTo(o2.getHostname());
             }
         },
-        QLEN_SORT {
+        QLEN {
             public int compare(LiveDBRow o1, LiveDBRow o2) {
                 return Integer.valueOf(o1.getTask_limit()).compareTo(o2.getTask_limit());
             }
         },
-        QWAIT_SORT {
+        QWAIT {
             public int compare(LiveDBRow o1, LiveDBRow o2) {
                 return Integer.valueOf(o1.getWaiting_in_que()).compareTo(o2.getWaiting_in_que());
             }
         },
-        RAM_SORT {
+        RAM {
             public int compare(LiveDBRow o1, LiveDBRow o2) {
                 return Long.valueOf(o1.getMemory()).compareTo(o2.getMemory());
             }
         },
-        FREE_RAM_SORT {
+        RAM_FREE {
             public int compare(LiveDBRow o1, LiveDBRow o2) {
                 return Long.valueOf(o1.getFree_memory()).compareTo(o2.getFree_memory());
             }
         },
-        PROCESSOR_SORT {
+        HDD_FREE {
+            public int compare(LiveDBRow o1, LiveDBRow o2) {
+                return Long.valueOf(o1.getHdd_free()).compareTo(o2.getHdd_free());
+            }
+        },
+        HDD {
+            public int compare(LiveDBRow o1, LiveDBRow o2) {
+                return Long.valueOf(o1.getHdd_size()).compareTo(o2.getHdd_size());
+            }
+        },
+        HDD_READ_SPEED {
+            public int compare(LiveDBRow o1, LiveDBRow o2) {
+                String data1[] = o1.getBenchmarking_results().getJSONObject("HDD").getJSONObject("Benchmarks").getString("AvgRead").split("\\s+");
+                double speed1 = Double.parseDouble(data1[0]);
+                String data2[] = o2.getBenchmarking_results().getJSONObject("HDD").getJSONObject("Benchmarks").getString("AvgRead").split("\\s+");
+                double speed2 = Double.parseDouble(data2[0]);
+                return Double.valueOf(speed1).compareTo(speed2);
+            }
+        },
+        HDD_WRITE_SPEED {
+            public int compare(LiveDBRow o1, LiveDBRow o2) {
+                String data1[] = o1.getBenchmarking_results().getJSONObject("HDD").getJSONObject("Benchmarks").getString("AvgWrite").split("\\s+");
+                double speed1 = Double.parseDouble(data1[0]);
+                String data2[] = o2.getBenchmarking_results().getJSONObject("HDD").getJSONObject("Benchmarks").getString("AvgWrite").split("\\s+");
+                double speed2 = Double.parseDouble(data2[0]);
+                return Double.valueOf(speed1).compareTo(speed2);
+            }
+        },
+        CPU_COMPOSITE_SCORE {
+            public int compare(LiveDBRow o1, LiveDBRow o2) {
+                double speed1 = o1.getBenchmarking_results().getJSONObject("CPU").getJSONObject("Benchmarks").getDouble("Composite Score");
+                double speed2 = o2.getBenchmarking_results().getJSONObject("CPU").getJSONObject("Benchmarks").getDouble("Composite Score");
+                return Double.valueOf(speed1).compareTo(speed2);
+            }
+        },
+        CPU_MONTE_CARLO {
+            public int compare(LiveDBRow o1, LiveDBRow o2) {
+                double speed1 = o1.getBenchmarking_results().getJSONObject("CPU").getJSONObject("Benchmarks").getDouble("Monte Carlo");
+                double speed2 = o2.getBenchmarking_results().getJSONObject("CPU").getJSONObject("Benchmarks").getDouble("Monte Carlo");
+                return Double.valueOf(speed1).compareTo(speed2);
+            }
+        },
+        CPU_FFT {
+            public int compare(LiveDBRow o1, LiveDBRow o2) {
+                double speed1 = o1.getBenchmarking_results().getJSONObject("CPU").getJSONObject("Benchmarks").getDouble("FFT");
+                double speed2 = o2.getBenchmarking_results().getJSONObject("CPU").getJSONObject("Benchmarks").getDouble("FFT");
+                return Double.valueOf(speed1).compareTo(speed2);
+            }
+        },
+        CPU_LU {
+            public int compare(LiveDBRow o1, LiveDBRow o2) {
+                double speed1 = o1.getBenchmarking_results().getJSONObject("CPU").getJSONObject("Benchmarks").getDouble("LU");
+                double speed2 = o2.getBenchmarking_results().getJSONObject("CPU").getJSONObject("Benchmarks").getDouble("LU");
+                return Double.valueOf(speed1).compareTo(speed2);
+            }
+        },
+        CPU_SOR {
+            public int compare(LiveDBRow o1, LiveDBRow o2) {
+                double speed1 = o1.getBenchmarking_results().getJSONObject("CPU").getJSONObject("Benchmarks").getDouble("SOR");
+                double speed2 = o2.getBenchmarking_results().getJSONObject("CPU").getJSONObject("Benchmarks").getDouble("SOR");
+                return Double.valueOf(speed1).compareTo(speed2);
+            }
+        },
+        CPU_SPARSE_MAT_MUL {
+            public int compare(LiveDBRow o1, LiveDBRow o2) {
+                double speed1 = o1.getBenchmarking_results().getJSONObject("CPU").getJSONObject("Benchmarks").getDouble("Sparse matmult");
+                double speed2 = o2.getBenchmarking_results().getJSONObject("CPU").getJSONObject("Benchmarks").getDouble("Sparse matmult");
+                return Double.valueOf(speed1).compareTo(speed2);
+            }
+        },
+        PROCESSOR {
             public int compare(LiveDBRow o1, LiveDBRow o2) {
                 return (o1.getProcessor_name()).compareTo(o2.getProcessor_name());
             }

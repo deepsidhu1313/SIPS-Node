@@ -79,30 +79,30 @@ public class Settings {
                         + "Please create a dir with this name");
             }
         }
-        File f3 = new File(dir_appdb);
+        File f3 = new File(dir_etc);
         if (!f3.exists()) {
             if (!f3.mkdir()) {
                 Util.errPrintln("Directory for appdb couldnot be created !\n"
                         + "Please create a dir with this name");
             }
         }
-        if (new File(dir_appdb + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "settings.json").exists()) {
+        if (new File(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "settings.json").exists()) {
             loadSettings();
         } else {
             saveSettings();
         }
-        alldb = new OLDSQLiteJDBC(dir_appdb + "/all.db");
+        alldb = new OLDSQLiteJDBC(dir_etc + "/all.db");
         TASK_DB_EXECUTOR.execute(() -> {
             String sql = "CREATE TABLE PROC (ID    INT   PRIMARY KEY     NOT NULL,"
                     + " ALIENID  INT,"
                     + "FNAME     TEXT,"
                     + "CNO     INT,"
                     + "IP   TEXT);";
-            File f1 = new File(dir_appdb + "/proc.db");
+            File f1 = new File(dir_etc + "/proc.db");
             if (f1.exists()) {
                 f1.delete();
             }
-            TASK_DB.createtable(dir_appdb + "/proc.db", sql);
+            TASK_DB.createtable(dir_etc + "/proc.db", sql);
             TASK_DB.closeConnection();
         });
         try {
@@ -154,7 +154,7 @@ public class Settings {
     }
 
     void loadSettings() {
-        JSONObject settings = Util.readJSONFile(dir_appdb + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "settings.json");
+        JSONObject settings = Util.readJSONFile(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "settings.json");
         NODE_UUID = settings.getString("UUID", "");
 
         if (NODE_UUID.length() < 1) {
@@ -188,7 +188,7 @@ public class Settings {
         settings.put("DUMP_LOG", DUMP_LOG);
         settings.put("VERBOSE", VERBOSE);
         settings.put("SHARED_STORAGE", SHARED_STORAGE);
-        write(new File(dir_appdb + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "settings.json"), settings.toString(4));
+        write(new File(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "settings.json"), settings.toString(4));
     }
 
 }

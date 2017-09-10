@@ -25,7 +25,6 @@ import in.co.s13.SIPS.executor.sockets.TaskServer;
 import in.co.s13.SIPS.initializer.HardwareStatThreads;
 import in.co.s13.SIPS.initializer.NetworkThreads;
 import in.co.s13.SIPS.settings.GlobalValues;
-import static in.co.s13.SIPS.settings.GlobalValues.dir_appdb;
 import in.co.s13.SIPS.tools.Util;
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +35,7 @@ import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import static in.co.s13.SIPS.settings.GlobalValues.dir_etc;
 
 /**
  *
@@ -99,7 +99,7 @@ public class DummySlave {
              * *
              * add new IP addresses or Hosts
              */
-            GlobalValues.API_JSON = Util.readJSONFile(dir_appdb + "/api.json");
+            GlobalValues.API_JSON = Util.readJSONFile(dir_etc + "/api.json");
             Iterator<String> it = GlobalValues.API_JSON.keys();
             GlobalValues.API_LIST = new Hashtable<>();
             while (it.hasNext()) {
@@ -129,7 +129,7 @@ public class DummySlave {
                 info.put("key", key);
                 info.put("permissions", permissions);
                 GlobalValues.API_JSON.put(client, info);
-                Util.write(dir_appdb + "/api.json", GlobalValues.API_JSON.toString(4));
+                Util.write(dir_etc + "/api.json", GlobalValues.API_JSON.toString(4));
             }
 
             if (arguments.contains("--benchmark")) {
@@ -233,7 +233,7 @@ public class DummySlave {
              * *
              * add new IP addresses or Hosts
              */
-            GlobalValues.ipToScanJSON = Util.readJSONFile(dir_appdb + "/ips.json");
+            GlobalValues.ipToScanJSON = Util.readJSONFile(dir_etc + "/ips.json");
             if (arguments.contains("--add-ip")) {
                 int listSize = 0, index = 0;
                 try {
@@ -253,14 +253,14 @@ public class DummySlave {
                 }
                 GlobalValues.ipToScanJSON = new JSONObject();
                 GlobalValues.ipToScanJSON.put("ips", jsonArray);
-                Util.write(dir_appdb + "/ips.json", GlobalValues.ipToScanJSON.toString(4));
+                Util.write(dir_etc + "/ips.json", GlobalValues.ipToScanJSON.toString(4));
             }
 
             /**
              * *
              * add new networks to scan
              */
-            GlobalValues.networksToScanJSON = Util.readJSONFile(dir_appdb + "/networks.json");
+            GlobalValues.networksToScanJSON = Util.readJSONFile(dir_etc + "/networks.json");
             if (arguments.contains("--add-network")) {
                 int listSize = 0, index = 0;
                 try {
@@ -280,14 +280,14 @@ public class DummySlave {
                 }
                 GlobalValues.networksToScanJSON = new JSONObject();
                 GlobalValues.networksToScanJSON.put("networks", jsonArray);
-                Util.write(dir_appdb + "/networks.json", GlobalValues.networksToScanJSON.toString(4));
+                Util.write(dir_etc + "/networks.json", GlobalValues.networksToScanJSON.toString(4));
             }
 
             /**
              * *
              * blacklist nodes Put these on Raymond Reddington's List
              */
-            GlobalValues.blacklistJSON = Util.readJSONFile(dir_appdb + "/blacklist.json");
+            GlobalValues.blacklistJSON = Util.readJSONFile(dir_etc + "/blacklist.json");
             if (arguments.contains("--blacklist")) {
                 int listSize = 0, index = 0;
                 try {
@@ -307,7 +307,7 @@ public class DummySlave {
                 }
                 GlobalValues.blacklistJSON = new JSONObject();
                 GlobalValues.blacklistJSON.put("blacklist", jsonArray);
-                Util.write(dir_appdb + "/blacklist.json", GlobalValues.blacklistJSON.toString(4));
+                Util.write(dir_etc + "/blacklist.json", GlobalValues.blacklistJSON.toString(4));
             }
 
             /**
@@ -334,13 +334,13 @@ public class DummySlave {
                     default:
                         new HardwareStatThreads();
                         new NetworkThreads();
-                        Thread pingServer = new Thread(new PingServer(true));
+                        Thread pingServer = new Thread(new PingServer());
                         pingServer.start();
-                        Thread server = new Thread(new TaskServer(true));
+                        Thread server = new Thread(new TaskServer());
                         server.start();
-                        Thread downloadQueueServer = new Thread(new FileReqQueServer(true));
+                        Thread downloadQueueServer = new Thread(new FileReqQueServer());
                         downloadQueueServer.start();
-                        Thread apiServer = new Thread(new APIServer(true));
+                        Thread apiServer = new Thread(new APIServer());
                         apiServer.start();
 
                         break;
@@ -352,11 +352,11 @@ public class DummySlave {
 
                         new HardwareStatThreads();
                         new NetworkThreads();
-                        Thread server2 = new Thread(new TaskServer(true));
+                        Thread server2 = new Thread(new TaskServer());
                         server2.start();
-                        Thread downloadQueueServer2 = new Thread(new FileReqQueServer(true));
+                        Thread downloadQueueServer2 = new Thread(new FileReqQueServer());
                         downloadQueueServer2.start();
-                        Thread apiServer2 = new Thread(new APIServer(true));
+                        Thread apiServer2 = new Thread(new APIServer());
                         apiServer2.start();
 
                         break;
@@ -365,13 +365,13 @@ public class DummySlave {
                 preBenchmarkingChecks();
                 new HardwareStatThreads();
                 new NetworkThreads();
-                Thread server = new Thread(new TaskServer(true));
+                Thread server = new Thread(new TaskServer());
                 server.start();
-                Thread pingServer = new Thread(new PingServer(true));
+                Thread pingServer = new Thread(new PingServer());
                 pingServer.start();
-                Thread downloadQueServer = new Thread(new FileReqQueServer(true));
+                Thread downloadQueServer = new Thread(new FileReqQueServer());
                 downloadQueServer.start();
-                Thread apiServer = new Thread(new APIServer(true));
+                Thread apiServer = new Thread(new APIServer());
                 apiServer.start();
 
             }
@@ -379,19 +379,19 @@ public class DummySlave {
         } else {
             loadSettings.init();
             preBenchmarkingChecks();
-            GlobalValues.blacklistJSON = Util.readJSONFile(dir_appdb + "/blacklist.json");
-            GlobalValues.networksToScanJSON = Util.readJSONFile(dir_appdb + "/networks.json");
-            GlobalValues.ipToScanJSON = Util.readJSONFile(dir_appdb + "/ips.json");
-            GlobalValues.API_JSON = Util.readJSONFile(dir_appdb + "/api.json");
+            GlobalValues.blacklistJSON = Util.readJSONFile(dir_etc + "/blacklist.json");
+            GlobalValues.networksToScanJSON = Util.readJSONFile(dir_etc + "/networks.json");
+            GlobalValues.ipToScanJSON = Util.readJSONFile(dir_etc + "/ips.json");
+            GlobalValues.API_JSON = Util.readJSONFile(dir_etc + "/api.json");
             new HardwareStatThreads();
             new NetworkThreads();
-            Thread server = new Thread(new TaskServer(true));
+            Thread server = new Thread(new TaskServer());
             server.start();
-            Thread pingServer = new Thread(new PingServer(true));
+            Thread pingServer = new Thread(new PingServer());
             pingServer.start();
-            Thread downloadQueServer = new Thread(new FileReqQueServer(true));
+            Thread downloadQueServer = new Thread(new FileReqQueServer());
             downloadQueServer.start();
-            Thread apiServer = new Thread(new APIServer(true));
+            Thread apiServer = new Thread(new APIServer());
             apiServer.start();
 
         }
@@ -411,13 +411,13 @@ public class DummySlave {
         benchmarkResults.put("MEMORY", GlobalValues.MEM_SIZE);
         benchmarkResults.put("TIMESTAMP", System.currentTimeMillis());
         GlobalValues.BENCHMARKING = benchmarkResults;
-        Util.write(new File(dir_appdb + "/benchmarks.json"), benchmarkResults.toString(4));
+        Util.write(new File(dir_etc + "/benchmarks.json"), benchmarkResults.toString(4));
 
     }
 
     public static void preBenchmarkingChecks() {
-        if (new File(dir_appdb + "/benchmarks.json").exists()) {
-            JSONObject benchmarkResults = Util.readJSONFile(dir_appdb + "/benchmarks.json");
+        if (new File(dir_etc + "/benchmarks.json").exists()) {
+            JSONObject benchmarkResults = Util.readJSONFile(dir_etc + "/benchmarks.json");
             long timestamp = benchmarkResults.getLong("TIMESTAMP", 0l);
             if ((TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - timestamp)) > 1) {
                 benchmark();

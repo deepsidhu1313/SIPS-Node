@@ -92,7 +92,7 @@ public class PingHandler implements Runnable {
                             sendmsg2Json.put("PROCESS_TIME", (System.currentTimeMillis() - startTime));
                             sendmsg2Json.put("ADJ_NODES", Util.getAdjacentTableInJSON());
                             sendmsg2Json.put("NON_ADJ_NODES", Util.getNonAdjacentTableInJSON());
-                            sendmsg2Json.put("LIVE_NODES", Util.getLiveNodesInJSON());
+                            sendmsg2Json.put("LIVE_NODES", Util.getAllLiveNodesInJSON());
                             sendmsg2Json.put("NON_ADJ_LIVE_NODES", Util.getNonAdjLiveNodesInJSON());
                             String sendmsg2 = sendmsg2Json.toString();
                             byte[] bytes2 = sendmsg2.getBytes("UTF-8");

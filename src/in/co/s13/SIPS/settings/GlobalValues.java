@@ -24,6 +24,7 @@ import in.co.s13.SIPS.db.SQLiteJDBC;
 import in.co.s13.SIPS.virtualdb.LiveDBRow;
 import in.co.s13.SIPS.virtualdb.NodeDBRow;
 import java.io.PrintStream;
+import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.concurrent.ExecutorService;
@@ -48,8 +49,10 @@ public class GlobalValues {
      * Directories
      */
     public static String PWD = "";
-    public static String dir_workspace = "";
-    public static String dir_appdb = "appdb";
+    public static String dir_workspace = "workspace";
+    public static String dir_etc = "etc";
+    public static String dir_bin = "bin";
+    public static String dir_log = "log";
     public static String dir_temp = "var";
 
     /**
@@ -71,7 +74,7 @@ public class GlobalValues {
      * Log Files and variables
      */
     public static boolean VERBOSE, DUMP_LOG;
-    public static String OUT_FILE = dir_appdb + "/out.log", ERR_FILE = dir_appdb + "/err.log", LOG_FILE = dir_appdb + "/app.log";
+    public static String OUT_FILE = dir_log + "/out.log", ERR_FILE = dir_log + "/err.log", LOG_FILE = dir_log + "/app.log";
     public static PrintStream out, err, log;
 
     /**
@@ -110,6 +113,21 @@ public class GlobalValues {
     public static FixedThreadPool API_HANDLER_EXECUTOR_SERVICE, PING_HANDLER_EXECUTOR_SERVICE, FILE_HANDLER_EXECUTOR_SERVICE, TASK_HANDLER_EXECUTOR_SERVICE;
 
     /**
+     * Server sockets
+     */
+    public static ServerSocket API_SERVER_SOCKET,FILE_SERVER_SOCKET,PING_SERVER_SOCKET,TASK_SERVER_SOCKET;
+    
+    /**
+     * Server states
+     */
+    public static boolean API_SERVER_IS_RUNNING,FILE_SERVER_IS_RUNNING,PING_SERVER_IS_RUNNING,TASK_SERVER_IS_RUNNING;
+    
+    
+    /***
+     * Network Scanning threads
+     */
+    public static Thread CHECK_LIVE_NODE_THREAD,NODE_SCANNING_THREAD;
+    /**
      * *
      * Storage Data Structure
      */
@@ -119,8 +137,8 @@ public class GlobalValues {
      */
     //  public static ArrayList<String> livehosts = new ArrayList();
     //  public static ObservableList<LiveNode> liveNodes = FXCollections.observableArrayList();
-    public static Hashtable<String, LiveDBRow> LIVE_NODE_DB = new Hashtable<>();
-    public static Hashtable<String, LiveDBRow> NON_ADJ_LIVE_NODE_DB = new Hashtable<>();
+    public static Hashtable<String, LiveDBRow> LIVE_NODE_ADJ_DB = new Hashtable<>();
+    public static Hashtable<String, LiveDBRow> LIVE_NODE_NON_ADJ_DB = new Hashtable<>();
     public static Hashtable<String, NodeDBRow> ALL_NODE_DB = new Hashtable<>();
     public static ArrayList<String> HOSTS = new ArrayList<>();
     public static Hashtable<String, String> CURRENTLY_SCANNING = new Hashtable<>();

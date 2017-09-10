@@ -38,9 +38,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import static in.co.s13.SIPS.settings.GlobalValues.LIVE_NODE_DB;
 import static in.co.s13.SIPS.settings.GlobalValues.CURRENTLY_SCANNING;
 import static in.co.s13.SIPS.settings.GlobalValues.LIVE_DB_EXECUTOR;
+import static in.co.s13.SIPS.settings.GlobalValues.LIVE_NODE_ADJ_DB;
 
 class Ping implements Runnable {
 
@@ -141,38 +141,26 @@ class Ping implements Runnable {
                 //System.out.println(reply);
                 outPrintln("Port Opened On " + IPadress);
                 LIVE_DB_EXECUTOR.execute(() -> {
-                    /*   String sql3 = "UPDATE LIVE SET "
-                                 + "PRF ='" + prf2 + "',"
-                                 + "CN ='" + cnm + "',"
-                                 + "HN ='" + hostname + "',"
-                                 + "OS ='" + osname + "',"
-                                 + "CPU ='" + cpuname + "',"
-                                 + "QL ='" + plimit + "',"
-                                 + "QW ='" + pwait + "',"
-                                 + "RAM ='" + ram + "' WHERE IP ='" + IPadress + "';";
-                     */
-                    //            SQLiteJDBC livedb2 = new SQLiteJDBC();
-                    //                livedb2.Update("appdb/live.db", sql3);
-                    //               livedb2.closeConnection();
+                   
                     boolean updatedRecord = false;
-                    if (LIVE_NODE_DB.containsKey(IPadress.trim())) {
-                        LIVE_NODE_DB.remove(IPadress.trim());
+                    if (LIVE_NODE_ADJ_DB.containsKey(IPadress.trim())) {
+                        LIVE_NODE_ADJ_DB.remove(IPadress.trim());
                     }
-                    // using endTime as Last Checked OIN timestamp, as that is the time when we hear back from node
-                    if (LIVE_NODE_DB.containsKey(uuid)) {
-                        LIVE_NODE_DB.replace(uuid, new LiveDBRow(uuid, hostname, osname, cpuname, (task_limit), (task_waiting), ram, freeRam, hdd_size, hdd_free, benchmarks, endTime));
+                    // using endTime as Last Checked ON timestamp, as that is the time when we hear back from node
+                    if (LIVE_NODE_ADJ_DB.containsKey(uuid)) {
+                        LIVE_NODE_ADJ_DB.replace(uuid, new LiveDBRow(uuid, hostname, osname, cpuname, (task_limit), (task_waiting), ram, freeRam, hdd_size, hdd_free, benchmarks, endTime));
                         updatedRecord = true;
                     } else {
-                        LIVE_NODE_DB.put(uuid, new LiveDBRow(uuid, hostname, osname, cpuname, (task_limit), (task_waiting), ram, freeRam, hdd_size, hdd_free, benchmarks, endTime));
+                        LIVE_NODE_ADJ_DB.put(uuid, new LiveDBRow(uuid, hostname, osname, cpuname, (task_limit), (task_waiting), ram, freeRam, hdd_size, hdd_free, benchmarks, endTime));
 
                     }
-                    LiveDBRow live = LIVE_NODE_DB.get(uuid);
+                    LiveDBRow live = LIVE_NODE_ADJ_DB.get(uuid);
 
                     for (int i = 0; i < ips.size(); i++) {
                         String get = ips.get(i);
                         live.addIp(get);
                     }
-                    System.out.println("Live Node DB " + LIVE_NODE_DB.toString());
+                    System.out.println("Live Node DB " + LIVE_NODE_ADJ_DB.toString());
                     if (ADJACENT_NODES_TABLE.containsKey(uuid)) {
                         ADJACENT_NODES_TABLE.replace(uuid, distance);
                     } else {
@@ -205,17 +193,17 @@ class Ping implements Runnable {
                         String key = keys3.next();
                         JSONObject othLiveNo = liveNodes.getJSONObject(key);
                         if (ADJACENT_NODES_TABLE.containsKey(key)) {
-                            if (LIVE_NODE_DB.containsKey(key)) {
-                                LIVE_NODE_DB.replace(key, new LiveDBRow(othLiveNo));
+                            if (LIVE_NODE_ADJ_DB.containsKey(key)) {
+                                LIVE_NODE_ADJ_DB.replace(key, new LiveDBRow(othLiveNo));
                             } else {
-                                LIVE_NODE_DB.put(key, new LiveDBRow(othLiveNo));
+                                LIVE_NODE_ADJ_DB.put(key, new LiveDBRow(othLiveNo));
 
                             }
                         } else {
-                            if (GlobalValues.NON_ADJ_LIVE_NODE_DB.containsKey(key)) {
-                                GlobalValues.NON_ADJ_LIVE_NODE_DB.replace(key, new LiveDBRow(othLiveNo));
+                            if (GlobalValues.LIVE_NODE_NON_ADJ_DB.containsKey(key)) {
+                                GlobalValues.LIVE_NODE_NON_ADJ_DB.replace(key, new LiveDBRow(othLiveNo));
                             } else {
-                                GlobalValues.NON_ADJ_LIVE_NODE_DB.put(key, new LiveDBRow(othLiveNo));
+                                GlobalValues.LIVE_NODE_NON_ADJ_DB.put(key, new LiveDBRow(othLiveNo));
 
                             }
                         }
@@ -226,17 +214,17 @@ class Ping implements Runnable {
                         String key = keys4.next();
                         JSONObject othLiveNo = nonAdjLiveNodes.getJSONObject(key);
                         if (ADJACENT_NODES_TABLE.containsKey(key)) {
-                            if (LIVE_NODE_DB.containsKey(key)) {
-                                LIVE_NODE_DB.replace(key, new LiveDBRow(othLiveNo));
+                            if (LIVE_NODE_ADJ_DB.containsKey(key)) {
+                                LIVE_NODE_ADJ_DB.replace(key, new LiveDBRow(othLiveNo));
                             } else {
-                                LIVE_NODE_DB.put(key, new LiveDBRow(othLiveNo));
+                                LIVE_NODE_ADJ_DB.put(key, new LiveDBRow(othLiveNo));
 
                             }
                         } else {
-                            if (GlobalValues.NON_ADJ_LIVE_NODE_DB.containsKey(key)) {
-                                GlobalValues.NON_ADJ_LIVE_NODE_DB.replace(key, new LiveDBRow(othLiveNo));
+                            if (GlobalValues.LIVE_NODE_NON_ADJ_DB.containsKey(key)) {
+                                GlobalValues.LIVE_NODE_NON_ADJ_DB.replace(key, new LiveDBRow(othLiveNo));
                             } else {
-                                GlobalValues.NON_ADJ_LIVE_NODE_DB.put(key, new LiveDBRow(othLiveNo));
+                                GlobalValues.LIVE_NODE_NON_ADJ_DB.put(key, new LiveDBRow(othLiveNo));
 
                             }
                         }
@@ -253,8 +241,8 @@ class Ping implements Runnable {
 
         } catch (IOException ex) {
             errPrintln(IPadress + " is dead:" + ex);
-            LIVE_NODE_DB.remove(IPadress.trim());
-            LIVE_NODE_DB.remove(UUID.trim());
+            LIVE_NODE_ADJ_DB.remove(IPadress.trim());
+            LIVE_NODE_ADJ_DB.remove(UUID.trim());
             ADJACENT_NODES_TABLE.remove(UUID.trim());
             try {
                 s.close();

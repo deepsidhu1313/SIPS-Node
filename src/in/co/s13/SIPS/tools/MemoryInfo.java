@@ -48,12 +48,12 @@ public class MemoryInfo implements Runnable {
                 String cmd[] = {"cat", "/proc/meminfo"};
                 pb = new ProcessBuilder(cmd);
             } else if (Util.isWindows()) {
-                try (PrintStream procn = new PrintStream("ram.bat")) {
+                try (PrintStream procn = new PrintStream(GlobalValues.dir_bin+"/ram.bat")) {
                     procn.print("wmic OS get FreePhysicalMemory /Value");
                 } catch (FileNotFoundException ex) {
                     Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                String cmd[] = {"ram.bat"};
+                String cmd[] = {GlobalValues.dir_bin+"/ram.bat"};
                 pb = new ProcessBuilder(cmd);
             }
             Process p = pb.start();

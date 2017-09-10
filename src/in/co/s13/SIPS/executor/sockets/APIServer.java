@@ -35,11 +35,9 @@ import java.util.logging.Logger;
  */
 public class APIServer implements Runnable {
 
-    public ServerSocket ss;
-    public boolean serverisRunning = false;
-
-    public APIServer(boolean serverisrunning) throws IOException {
-        serverisRunning = serverisrunning;
+    
+    
+    public APIServer() throws IOException {
         Iterator<String> keys = GlobalValues.API_JSON.keys();
         while (keys.hasNext()) {
             String key = keys.next();
@@ -51,17 +49,17 @@ public class APIServer implements Runnable {
     @Override
     public void run() {
         try {
-            if (ss == null || ss.isClosed()) {
-                ss = new ServerSocket(GlobalValues.API_SERVER_PORT);
+            if (GlobalValues.API_SERVER_SOCKET == null || GlobalValues.API_SERVER_SOCKET.isClosed()) {
+                GlobalValues.API_SERVER_SOCKET = new ServerSocket(GlobalValues.API_SERVER_PORT);
             }
         } catch (IOException ex) {
             Logger.getLogger(APIServer.class.getName()).log(Level.SEVERE, null, ex);
         }
         Thread.currentThread().setName("API Server Thread");
 
-        while (serverisRunning) {
+        while (!GlobalValues.API_SERVER_SOCKET.isClosed()) {
             try {
-                Socket s = ss.accept();
+                Socket s = GlobalValues.API_SERVER_SOCKET.accept();
                 System.out.println("API Server is running");
                 Thread t = new Thread(new APIHandler(s));
                 //t.setPriority(Thread.NORM_PRIORITY+1);
@@ -72,7 +70,7 @@ public class APIServer implements Runnable {
             }
         }
         try {
-            ss.close();
+            GlobalValues.API_SERVER_SOCKET.close();
 
         } catch (IOException ex) {
             Logger.getLogger(APIServer.class.getName()).log(Level.SEVERE, null, ex);

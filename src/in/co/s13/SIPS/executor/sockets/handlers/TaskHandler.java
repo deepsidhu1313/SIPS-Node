@@ -93,7 +93,7 @@ public class TaskHandler implements Runnable {
                                 try {
                                     String sql = "SELECT * FROM PROC WHERE  ALIENID = '" + pid + "' AND CNO ='" + cno + "' AND IP ='" + ipAddress + "';";
 
-                                    ResultSet rs = TASK_DB.select("appdb/proc.db", sql);
+                                    ResultSet rs = TASK_DB.select(GlobalValues.dir_etc+"/proc.db", sql);
                                     int n = 9999;
                                     while (rs.next()) {
                                         n = rs.getInt("ID");
@@ -125,7 +125,7 @@ public class TaskHandler implements Runnable {
         } catch (IOException ex) {
             Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
             try {
-                if (!submitter.isClosed() && submitter != null) {
+                if (submitter != null && !submitter.isClosed() ) {
                     submitter.close();
                 }
             } catch (IOException ex1) {

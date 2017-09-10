@@ -66,125 +66,15 @@ public class NetScanner implements Runnable {
     @Override
     public void run() {
 
-//        Thread.currentThread().setName("NetworkScannerThread");
-//        NODE_DB_EXECUTOR.execute(() -> {
-//            {
-//
-//                Thread.currentThread().setName("SelectFromALLNDBThread");
-//                try {
-//                    String sql = "SELECT  * FROM ALLN ;";
-//                    ResultSet rs = alldb.select(sql);
-//                    while (rs.next()) {
-//                        addip(rs.getString("IP"));
-//                    }
-//                } catch (SQLException ex) {
-//                    Logger.getLogger(NetScanner.class.getName()).log(Level.SEVERE, null, ex);
-//                }
-//
-//            }
-//            alldb.closeStatement();
-//        });
-//        LIVE_DB_EXECUTOR.execute(() -> {
-//
-//            Thread.currentThread().setName("LIVEDBcreateThread");
-//            String sql = "CREATE TABLE LIVE "
-//                    + "(IP TEXT PRIMARY KEY     NOT NULL, "
-//                    + "PRF DOUBLE,"
-//                    + "CN TEXT,"
-//                    + "HN TEXT,"
-//                    + "OS TEXT,"
-//                    + "CPU TEXT,"
-//                    + "QL LONG,"
-//                    + "QW LONG,"
-//                    + "RAM LONG);";
-//
-//            // SQLiteJDBC livedb = new SQLiteJDBC();
-//            new File("appdb/live.db").delete();
-//          //  livedb.createtable("appdb/live.db", sql);
-//            // livedb.closeConnection();
-//        });
-//        NODE_DB_EXECUTOR.execute(() -> {
-//
-//            Thread.currentThread().setName("InsertNodeDBThread");
-//            for (String host : HOSTS) {
-//                String sql = "INSERT INTO ALLN (IP ,"
-//                        + " LEN ,"
-//                        + "OS ,"
-//                        + "HOST ,"
-//                        + "QLEN ,"
-//                        + "QWAIT,"
-//                        + "RAM ,"
-//                        + "PRFM ,"
-//                        + "PROCESSOR ,"
-//                        + "CLUSTER ) "
-//                        + "VALUES ('" + host.trim() + "', '" + host.trim().length() + "', '', '', '','','','1.0','','' );";
-//                //   alldb.insert(sql);
-//            }
-//            alldb.closeStatement();
-//        });
-//        NODE_DB_EXECUTOR.execute(() -> {
-//            {
-//
-//                Thread.currentThread().setName("SELECTNodeDBThread");
-//                try {
-//                    String sql = "SELECT  * FROM ALLN ;";
-//                    ResultSet rs = alldb.select(sql);
-//                    while (rs.next()) {
-//                        addip(rs.getString("IP"));
-//                        ALL_NODE_DB.add(new IPAddress(rs.getString("IP"), rs.getString("STATUS"), rs.getString("OS"), rs.getString("HOST"),
-//                                rs.getInt("QLEN"), rs.getInt("QWAIT"), rs.getLong("RAM"), rs.getDouble("PRFM"),
-//                                rs.getString("PROCESSOR"), rs.getString("CLUSTER")));
-//                    }
-//                } catch (SQLException ex) {
-//                    Logger.getLogger(NetScanner.class.getName()).log(Level.SEVERE, null, ex);
-//                }
-//
-//            }
-//            alldb.closeStatement();
-//        });
-//        ScheduledExecutorService executorService3 = Executors.newScheduledThreadPool(1);
-//        executorService3.scheduleAtFixedRate(new LiveNodeTreeTable(), 3, 6, TimeUnit.SECONDS);
-//
-//        ScheduledExecutorService executorService4 = Executors.newScheduledThreadPool(1);
-//        executorService4.scheduleAtFixedRate(new GarbageCollector(), 15, 15, TimeUnit.MINUTES);
     }
 
-//    public static void removeip(String ip) {
-//        Collections.sort(HOSTS, NodeDBRow.NodeDBRowComparator.getComparator(NodeDBRow.NodeDBRowComparator.UUID_SORT));
-//        HOSTS.remove((ip));
-////        if (HOSTS.contains(ip)) {
-////            
-////            
-////        }
-//        /*     if (livehosts.contains(ip)) {
-//         livehosts.remove(HOSTS.indexOf(ip));
-//         Collections.sort(livehosts);
-//         }*/
-//    }
+
     public static void addip(String ip) {
         if (!HOSTS.contains(ip)) {
             HOSTS.add(ip);
 
             outPrintln("" + ip + " is added to list");
-            //  Collections.sort(HOSTS);
         }
-//        NODE_DB_EXECUTOR.execute(() -> {
-//            {
-//                String sql = "INSERT INTO ALLN (IP ,"
-//                        + " LEN ,"
-//                        + "OS ,"
-//                        + "HOST ,"
-//                        + "QLEN ,"
-//                        + "QWAIT,"
-//                        + "RAM ,"
-//                        + "PRFM ,"
-//                        + "PROCESSOR ,"
-//                        + "CLUSTER ) "
-//                        + "VALUES ('" + ip.trim() + "', '" + ip.trim().length() + "', '', '', '','','','1.0','','' );";
-//                //      Settings.alldb.insert(sql);
-//            }
-//            alldb.closeStatement();
-//        });
 
     }
 

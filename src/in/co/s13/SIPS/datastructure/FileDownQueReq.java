@@ -49,72 +49,72 @@ public class FileDownQueReq {
         return ip;
     }
 
-    public void setFilename(String ip) {
-        this.filename = ip;
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 
     public String getFilename() {
         return filename;
     }
 
-    public void setChecksum(String ip) {
-        this.checksum = ip;
+    public void setChecksum(String checksum) {
+        this.checksum = checksum;
     }
 
     public String getChecksum() {
         return checksum;
     }
 
-    public void setReqmsg(String ip) {
-        this.reqmsg = ip;
+    public void setReqmsg(String Reqmsg) {
+        this.reqmsg = Reqmsg;
     }
 
     public String getReqmsg() {
         return reqmsg;
     }
 
-    public void setId(int ip) {
-        this.id = ip;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public int getId() {
         return id;
     }
 
-    public void setStarttime(long ip) {
-        this.starttime = ip;
+    public void setStarttime(long starttime) {
+        this.starttime = starttime;
     }
 
     public long getStarttime() {
         return starttime;
     }
 
-    public void setRemainingTime(long ip) {
-        this.remainingTime = ip;
+    public void setRemainingTime(long remainingtime) {
+        this.remainingTime = remainingtime;
     }
 
     public long getRemainingTime() {
         return remainingTime;
     }
 
-    public void setSize(Double ip) {
-        this.size = ip;
+    public void setSize(Double size) {
+        this.size = size;
     }
 
     public double getSize() {
         return size;
     }
 
-    public void setRemainingsize(Double ip) {
-        this.remainingsize = ip;
+    public void setRemainingsize(Double remainingSize) {
+        this.remainingsize = remainingSize;
     }
 
     public double getRemainingsize() {
         return remainingsize;
     }
 
-    public void setFinished(boolean ip) {
-        this.finished = ip;
+    public void setFinished(boolean finished) {
+        this.finished = finished;
     }
 
     public boolean getFinished() {

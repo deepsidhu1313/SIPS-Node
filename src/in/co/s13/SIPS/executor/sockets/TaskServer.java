@@ -34,18 +34,15 @@ import java.util.logging.Logger;
  */
 public class TaskServer implements Runnable {
 
-    public ServerSocket ss;
     public static int processcounter = 0;
-    public static boolean serverisRunning = false;
     public static ArrayList<Integer> localprocessID = new ArrayList();
     public static ArrayList<String> alienprocessID = new ArrayList();
 
     public static Process[] p = new Process[1000];
 
-    public TaskServer(boolean serverisrunning) throws IOException {
-        serverisRunning = serverisrunning;
+    public TaskServer() throws IOException {
         if (GlobalValues.OS_Name == 2) {
-            File f = new File("process-executor.sh");
+            File f = new File(GlobalValues.dir_bin+"/process-executor.sh");
 
             if (f.exists()) {
                 f.delete();
@@ -64,7 +61,7 @@ public class TaskServer implements Runnable {
             }
             System.out.println("Script is executable " + f.setExecutable(true));
 
-            File f3 = new File("simulate.sh");
+            File f3 = new File(GlobalValues.dir_bin+"/simulate.sh");
             if (f3.exists()) {
                 f3.delete();
             }
@@ -82,7 +79,7 @@ public class TaskServer implements Runnable {
             System.out.println("Script is executable " + f.setExecutable(true));
 
         } else {
-            File f2 = new File("process-executor.bat");
+            File f2 = new File(GlobalValues.dir_bin+"/process-executor.bat");
             if (f2.exists()) {
                 f2.delete();
             }
@@ -99,7 +96,7 @@ public class TaskServer implements Runnable {
                 }
 
             }
-            File f4 = new File("simulate.bat");
+            File f4 = new File(GlobalValues.dir_bin+"/simulate.bat");
             if (f4.exists()) {
                 f4.delete();
             }
@@ -140,19 +137,19 @@ public class TaskServer implements Runnable {
     @Override
     public void run() {
         try {
-            if (ss == null || ss.isClosed()) {
-                ss = new ServerSocket(GlobalValues.TASK_SERVER_PORT);
+            if (GlobalValues.TASK_SERVER_SOCKET == null || GlobalValues.TASK_SERVER_SOCKET.isClosed()) {
+                GlobalValues.TASK_SERVER_SOCKET = new ServerSocket(GlobalValues.TASK_SERVER_PORT);
             }
         } catch (IOException ex) {
             Logger.getLogger(TaskServer.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        Thread.currentThread().setName("Default Server Thread");
+        Thread.currentThread().setName("Task Server Thread");
 
         System.out.println("Server is running");
-        while (serverisRunning) {
+        while (!GlobalValues.TASK_SERVER_SOCKET.isClosed()) {
             try {
-                Socket s = ss.accept();
+                Socket s = GlobalValues.TASK_SERVER_SOCKET.accept();
                 GlobalValues.TASK_HANDLER_EXECUTOR_SERVICE.submit(new TaskHandler(s));
 
             } catch (IOException ex) {
@@ -160,8 +157,8 @@ public class TaskServer implements Runnable {
             }
         }
         try {
-            if (ss != null && !ss.isClosed()) {
-                ss.close();
+            if (GlobalValues.TASK_SERVER_SOCKET != null && !GlobalValues.TASK_SERVER_SOCKET.isClosed()) {
+                GlobalValues.TASK_SERVER_SOCKET.close();
             }
 
         } catch (IOException ex) {

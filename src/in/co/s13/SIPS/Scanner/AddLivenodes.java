@@ -18,7 +18,6 @@ package in.co.s13.SIPS.Scanner;
 
 import in.co.s13.SIPS.settings.GlobalValues;
 import static in.co.s13.SIPS.tools.Util.outPrintln;
-import java.util.ArrayList;
 import static in.co.s13.SIPS.settings.GlobalValues.HOSTS;
 import static in.co.s13.SIPS.settings.GlobalValues.TOTAL_THREADS;
 import static in.co.s13.SIPS.settings.GlobalValues.NETWORK_EXECUTOR;

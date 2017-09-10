@@ -52,7 +52,7 @@ public class NetworkThreads {
 //        ScheduledExecutorService executorService2 = Executors.newScheduledThreadPool(1);
 //        executorService2.scheduleAtFixedRate(new CheckLiveNodes(), 15, 90, TimeUnit.SECONDS);
 
-        Thread thread = new Thread(new Runnable() {
+        GlobalValues.NODE_SCANNING_THREAD = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -74,10 +74,10 @@ public class NetworkThreads {
             }
 
         });
-        thread.setName("Add Live Nodes Scheduled Thread");
-        thread.start();
+        GlobalValues.NODE_SCANNING_THREAD.setName("Add Live Nodes Scheduled Thread");
+        GlobalValues.NODE_SCANNING_THREAD.start();
 
-        Thread thread2 = new Thread(new Runnable() {
+        GlobalValues.CHECK_LIVE_NODE_THREAD = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -88,7 +88,7 @@ public class NetworkThreads {
                 while (true) {
 
                     GlobalValues.NODE_SCANNER_EXECUTOR.submit(new CheckLiveNodes());
-                    int noOfHost = GlobalValues.LIVE_NODE_DB.size();
+                    int noOfHost = GlobalValues.LIVE_NODE_ADJ_DB.size();
                     long interval = ((noOfHost * 5) < 60) ? 60 : (noOfHost * 5);
                     try {
                         Thread.sleep(TimeUnit.MILLISECONDS.convert(interval, TimeUnit.SECONDS));
@@ -99,8 +99,8 @@ public class NetworkThreads {
             }
 
         });
-        thread2.setName("Scan Live Nodes Scheduled Thread");
-        thread2.start();
+        GlobalValues.CHECK_LIVE_NODE_THREAD.setName("Scan Live Nodes Scheduled Thread");
+        GlobalValues.CHECK_LIVE_NODE_THREAD.start();
 //        ScheduledThreadPool stp = new ScheduledThreadPool(aln, 2, 2, aln.hostList(), TimeUnit.SECONDS);
         //        CheckLiveNodes chkLN = new CheckLiveNodes();
         //        ScheduledThreadPool stp2 = new ScheduledThreadPool(chkLN, 15, 5, chkLN.hostList(), TimeUnit.SECONDS);

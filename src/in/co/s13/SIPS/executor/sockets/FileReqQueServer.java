@@ -24,8 +24,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,20 +33,17 @@ import java.util.logging.Logger;
  */
 public class FileReqQueServer implements Runnable {
 
-    public ServerSocket ss;
-    public boolean serverisRunning = false;
-    public static ArrayList<FileDownQueReq> downQue = new ArrayList();
+     public static ArrayList<FileDownQueReq> downQue = new ArrayList();
 
-    public FileReqQueServer(boolean serverisrunning) throws IOException {
-        serverisRunning = serverisrunning;
+    public FileReqQueServer() throws IOException {
         GlobalValues.FILE_HANDLER_EXECUTOR_SERVICE = new FixedThreadPool(GlobalValues.FILES_RESOLVER_LIMIT);
     }
 
     @Override
     public void run() {
         try {
-            if (ss == null || ss.isClosed()) {
-                ss = new ServerSocket(GlobalValues.FILE_QUEUE_SERVER_PORT);
+            if (GlobalValues.FILE_SERVER_SOCKET == null || GlobalValues.FILE_SERVER_SOCKET.isClosed()) {
+                GlobalValues.FILE_SERVER_SOCKET = new ServerSocket(GlobalValues.FILE_QUEUE_SERVER_PORT);
 
             }
         } catch (IOException ex) {
@@ -59,9 +54,9 @@ public class FileReqQueServer implements Runnable {
         Thread.currentThread().setName("File Server Thread");
 
         System.out.println("File Download Que Server is running");
-        while (serverisRunning) {
+        while (!GlobalValues.FILE_SERVER_SOCKET.isClosed()) {
             try {
-                Socket s = ss.accept();
+                Socket s = GlobalValues.FILE_SERVER_SOCKET.accept();
                 Thread t = new Thread(new FileReqQueHandler(s));
                 t.setPriority(Thread.NORM_PRIORITY + 1);
                 t.setName("FileHandlIngThread");
@@ -73,7 +68,7 @@ public class FileReqQueServer implements Runnable {
             }
         }
         try {
-            ss.close();
+            GlobalValues.FILE_SERVER_SOCKET.close();
 
         } catch (IOException ex) {
             Logger.getLogger(FileReqQueServer.class

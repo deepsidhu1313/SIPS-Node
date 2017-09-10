@@ -57,6 +57,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Random;
@@ -484,7 +485,7 @@ public class Util {
 //                }
                 //"cd", "/d", "" + directory.getAbsolutePath(), "&",
                 // String cmd[] = {"cd", "/d", "" + directory.getAbsolutePath(), "&", "wmic cpu get Name"};
-                String cmd[] = {"procn.bat"};
+                String cmd[] = {GlobalValues.dir_bin + "/procn.bat"};
                 pb.command(cmd);
                 p = null;
                 p = pb.start();
@@ -1012,25 +1013,66 @@ public class Util {
         return GlobalValues.blacklistJSON;
     }
 
-    public static  JSONObject getLiveNodesInJSON() {
+    public static JSONObject getAdjLiveNodesInJSON() {
         JSONObject json = new JSONObject();
-        Enumeration<String> en = GlobalValues.LIVE_NODE_DB.keys();
+        Enumeration<String> en = GlobalValues.LIVE_NODE_ADJ_DB.keys();
         while (en.hasMoreElements()) {
             String key = en.nextElement();
-//            System.out.println("Key "+key);
-            LiveDBRow value = GlobalValues.LIVE_NODE_DB.get(key);
+            LiveDBRow value = GlobalValues.LIVE_NODE_ADJ_DB.get(key);
             json.put(key, value.toJSON());
         }
-//        System.out.println("Sending "+json.toString(1));
+        return json;
+    }
+
+    public static JSONObject getAllLiveNodesInJSON() {
+        JSONObject json = new JSONObject();
+        Enumeration<String> en = GlobalValues.LIVE_NODE_ADJ_DB.keys();
+        while (en.hasMoreElements()) {
+            String key = en.nextElement();
+            LiveDBRow value = GlobalValues.LIVE_NODE_ADJ_DB.get(key);
+            json.put(key, value.toJSON());
+        }
+
+        Enumeration<String> en2 = GlobalValues.LIVE_NODE_NON_ADJ_DB.keys();
+        while (en2.hasMoreElements()) {
+            String key = en2.nextElement();
+            LiveDBRow value = GlobalValues.LIVE_NODE_NON_ADJ_DB.get(key);
+            json.put(key, value.toJSON());
+        }
+        return json;
+    }
+
+    public static JSONObject getLiveNodesInJSON(int list_mode, boolean desending, String compartorValue) {
+        JSONObject json = new JSONObject();
+        ArrayList al = new ArrayList();
+        switch (list_mode) {
+            case 0:
+                al.addAll(GlobalValues.LIVE_NODE_ADJ_DB.values());
+                break;
+            case 1:
+                al.addAll(GlobalValues.LIVE_NODE_NON_ADJ_DB.values());
+                break;
+            default:
+                al.addAll(GlobalValues.LIVE_NODE_ADJ_DB.values());
+                al.addAll(GlobalValues.LIVE_NODE_NON_ADJ_DB.values());
+                break;
+
+        }
+        if (desending) {
+            Collections.sort((al), LiveDBRow.LiveDBRowComparator.decending(LiveDBRow.LiveDBRowComparator.valueOf(compartorValue)));
+        } else {
+            Collections.sort((al), LiveDBRow.LiveDBRowComparator.getComparator(LiveDBRow.LiveDBRowComparator.valueOf(compartorValue)));
+
+        }
         return json;
     }
 
     public static synchronized JSONObject getNonAdjLiveNodesInJSON() {
         JSONObject json = new JSONObject();
-        Enumeration<String> en = GlobalValues.NON_ADJ_LIVE_NODE_DB.keys();
+        Enumeration<String> en = GlobalValues.LIVE_NODE_NON_ADJ_DB.keys();
         while (en.hasMoreElements()) {
             String key = en.nextElement();
-            LiveDBRow value = GlobalValues.NON_ADJ_LIVE_NODE_DB.get(key);
+            LiveDBRow value = GlobalValues.LIVE_NODE_NON_ADJ_DB.get(key);
             json.put(key, value.toJSON());
         }
         return json;
