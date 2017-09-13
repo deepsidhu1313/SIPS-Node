@@ -35,8 +35,6 @@ import java.util.logging.Logger;
  */
 public class APIServer implements Runnable {
 
-    
-    
     public APIServer() throws IOException {
         Iterator<String> keys = GlobalValues.API_JSON.keys();
         while (keys.hasNext()) {
@@ -56,11 +54,11 @@ public class APIServer implements Runnable {
             Logger.getLogger(APIServer.class.getName()).log(Level.SEVERE, null, ex);
         }
         Thread.currentThread().setName("API Server Thread");
+        System.out.println("API Server is running");
 
         while (!GlobalValues.API_SERVER_SOCKET.isClosed()) {
             try {
                 Socket s = GlobalValues.API_SERVER_SOCKET.accept();
-                System.out.println("API Server is running");
                 Thread t = new Thread(new APIHandler(s));
                 //t.setPriority(Thread.NORM_PRIORITY+1);
                 GlobalValues.API_HANDLER_EXECUTOR_SERVICE.submit(t);

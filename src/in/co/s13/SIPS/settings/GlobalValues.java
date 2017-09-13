@@ -113,20 +113,26 @@ public class GlobalValues {
     public static FixedThreadPool API_HANDLER_EXECUTOR_SERVICE, PING_HANDLER_EXECUTOR_SERVICE, FILE_HANDLER_EXECUTOR_SERVICE, TASK_HANDLER_EXECUTOR_SERVICE;
 
     /**
+     * *
+     * Server Threads
+     */
+    public static Thread TASK_SERVER_THREAD, API_SERVER_THREAD, PING_SERVER_THREAD, FILE_SERVER_THREAD;
+
+    /**
      * Server sockets
      */
-    public static ServerSocket API_SERVER_SOCKET,FILE_SERVER_SOCKET,PING_SERVER_SOCKET,TASK_SERVER_SOCKET;
-    
+    public static ServerSocket API_SERVER_SOCKET, FILE_SERVER_SOCKET, PING_SERVER_SOCKET, TASK_SERVER_SOCKET;
+
     /**
-     * Server states
+     * Network Scheduled Thread Conditions
      */
-    public static boolean API_SERVER_IS_RUNNING,FILE_SERVER_IS_RUNNING,PING_SERVER_IS_RUNNING,TASK_SERVER_IS_RUNNING;
-    
-    
-    /***
+    public static boolean KEEP_LIVE_NODE_SCANNER_ALIVE = true, KEEP_NODE_SCANNER_ALIVE = true;
+
+    /**
+     * *
      * Network Scanning threads
      */
-    public static Thread CHECK_LIVE_NODE_THREAD,NODE_SCANNING_THREAD;
+    public static Thread CHECK_LIVE_NODE_THREAD, NODE_SCANNING_THREAD;
     /**
      * *
      * Storage Data Structure

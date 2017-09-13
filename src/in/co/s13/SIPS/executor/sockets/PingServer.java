@@ -30,13 +30,17 @@ import java.util.logging.Logger;
  * @author Nika
  */
 public class PingServer implements Runnable {
-
     
     public PingServer() throws IOException {
-        GlobalValues.PING_HANDLER_EXECUTOR_SERVICE = new FixedThreadPool(GlobalValues.PING_HANDLER_LIMIT);
-
+        if (GlobalValues.PING_HANDLER_EXECUTOR_SERVICE == null || GlobalValues.PING_HANDLER_EXECUTOR_SERVICE.isShutdown()) {
+            GlobalValues.PING_HANDLER_EXECUTOR_SERVICE = new FixedThreadPool(GlobalValues.PING_HANDLER_LIMIT);
+        } else {
+            GlobalValues.PING_HANDLER_EXECUTOR_SERVICE.changeSize(GlobalValues.PING_HANDLER_LIMIT);
+            
+        }
+        
     }
-
+    
     @Override
     public void run() {
         try {
@@ -46,23 +50,23 @@ public class PingServer implements Runnable {
         } catch (IOException ex) {
             Logger.getLogger(PingServer.class.getName()).log(Level.SEVERE, null, ex);
         }
-        System.out.println("API Server is running");
-        Thread.currentThread().setName("API Server Thread");
+        System.out.println("PING Server is running");
+        Thread.currentThread().setName("Ping Server Thread");
         while (!GlobalValues.PING_SERVER_SOCKET.isClosed()) {
             try {
                 Socket s = GlobalValues.PING_SERVER_SOCKET.accept();
-
+                
                 Thread t = new Thread(new PingHandler(s));
                 //t.setPriority(Thread.NORM_PRIORITY+1);
                 GlobalValues.PING_HANDLER_EXECUTOR_SERVICE.submit(t);
-
+                
             } catch (IOException ex) {
                 Logger.getLogger(PingServer.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         try {
             GlobalValues.PING_SERVER_SOCKET.close();
-
+            
         } catch (IOException ex) {
             Logger.getLogger(PingServer.class.getName()).log(Level.SEVERE, null, ex);
         }

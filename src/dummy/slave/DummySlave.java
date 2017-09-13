@@ -334,14 +334,14 @@ public class DummySlave {
                     default:
                         new HardwareStatThreads();
                         new NetworkThreads();
-                        Thread pingServer = new Thread(new PingServer());
-                        pingServer.start();
-                        Thread server = new Thread(new TaskServer());
-                        server.start();
-                        Thread downloadQueueServer = new Thread(new FileReqQueServer());
-                        downloadQueueServer.start();
-                        Thread apiServer = new Thread(new APIServer());
-                        apiServer.start();
+                        GlobalValues.TASK_SERVER_THREAD = new Thread(new TaskServer());
+                        GlobalValues.TASK_SERVER_THREAD.start();
+                        GlobalValues.PING_SERVER_THREAD = new Thread(new PingServer());
+                        GlobalValues.PING_SERVER_THREAD.start();
+                        GlobalValues.FILE_SERVER_THREAD = new Thread(new FileReqQueServer());
+                        GlobalValues.FILE_SERVER_THREAD.start();
+                        GlobalValues.API_SERVER_THREAD = new Thread(new APIServer());
+                        GlobalValues.API_SERVER_THREAD.start();
 
                         break;
                     /**
@@ -352,12 +352,12 @@ public class DummySlave {
 
                         new HardwareStatThreads();
                         new NetworkThreads();
-                        Thread server2 = new Thread(new TaskServer());
-                        server2.start();
-                        Thread downloadQueueServer2 = new Thread(new FileReqQueServer());
-                        downloadQueueServer2.start();
-                        Thread apiServer2 = new Thread(new APIServer());
-                        apiServer2.start();
+                        GlobalValues.TASK_SERVER_THREAD = new Thread(new TaskServer());
+                        GlobalValues.TASK_SERVER_THREAD.start();
+                        GlobalValues.FILE_SERVER_THREAD = new Thread(new FileReqQueServer());
+                        GlobalValues.FILE_SERVER_THREAD.start();
+                        GlobalValues.API_SERVER_THREAD = new Thread(new APIServer());
+                        GlobalValues.API_SERVER_THREAD.start();
 
                         break;
                 }
@@ -365,14 +365,14 @@ public class DummySlave {
                 preBenchmarkingChecks();
                 new HardwareStatThreads();
                 new NetworkThreads();
-                Thread server = new Thread(new TaskServer());
-                server.start();
-                Thread pingServer = new Thread(new PingServer());
-                pingServer.start();
-                Thread downloadQueServer = new Thread(new FileReqQueServer());
-                downloadQueServer.start();
-                Thread apiServer = new Thread(new APIServer());
-                apiServer.start();
+                GlobalValues.TASK_SERVER_THREAD = new Thread(new TaskServer());
+                GlobalValues.TASK_SERVER_THREAD.start();
+                GlobalValues.PING_SERVER_THREAD = new Thread(new PingServer());
+                GlobalValues.PING_SERVER_THREAD.start();
+                GlobalValues.FILE_SERVER_THREAD = new Thread(new FileReqQueServer());
+                GlobalValues.FILE_SERVER_THREAD.start();
+                GlobalValues.API_SERVER_THREAD = new Thread(new APIServer());
+                GlobalValues.API_SERVER_THREAD.start();
 
             }
 
@@ -385,14 +385,14 @@ public class DummySlave {
             GlobalValues.API_JSON = Util.readJSONFile(dir_etc + "/api.json");
             new HardwareStatThreads();
             new NetworkThreads();
-            Thread server = new Thread(new TaskServer());
-            server.start();
-            Thread pingServer = new Thread(new PingServer());
-            pingServer.start();
-            Thread downloadQueServer = new Thread(new FileReqQueServer());
-            downloadQueServer.start();
-            Thread apiServer = new Thread(new APIServer());
-            apiServer.start();
+            GlobalValues.TASK_SERVER_THREAD = new Thread(new TaskServer());
+            GlobalValues.TASK_SERVER_THREAD.start();
+            GlobalValues.PING_SERVER_THREAD = new Thread(new PingServer());
+            GlobalValues.PING_SERVER_THREAD.start();
+            GlobalValues.FILE_SERVER_THREAD = new Thread(new FileReqQueServer());
+            GlobalValues.FILE_SERVER_THREAD.start();
+            GlobalValues.API_SERVER_THREAD = new Thread(new APIServer());
+            GlobalValues.API_SERVER_THREAD.start();
 
         }
 

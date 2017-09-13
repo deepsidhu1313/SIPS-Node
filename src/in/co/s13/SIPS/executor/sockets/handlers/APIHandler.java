@@ -17,6 +17,24 @@
 package in.co.s13.SIPS.executor.sockets.handlers;
 
 import in.co.s13.SIPS.settings.GlobalValues;
+import static in.co.s13.SIPS.tools.ServiceOperations.restartApiServer;
+import static in.co.s13.SIPS.tools.ServiceOperations.restartFileServer;
+import static in.co.s13.SIPS.tools.ServiceOperations.restartLiveNodeScanner;
+import static in.co.s13.SIPS.tools.ServiceOperations.restartNodeScanner;
+import static in.co.s13.SIPS.tools.ServiceOperations.restartPingServer;
+import static in.co.s13.SIPS.tools.ServiceOperations.restartTaskServer;
+import static in.co.s13.SIPS.tools.ServiceOperations.startApiServer;
+import static in.co.s13.SIPS.tools.ServiceOperations.startFileServer;
+import static in.co.s13.SIPS.tools.ServiceOperations.startLiveNodeScanner;
+import static in.co.s13.SIPS.tools.ServiceOperations.startNodeScanner;
+import static in.co.s13.SIPS.tools.ServiceOperations.startPingServer;
+import static in.co.s13.SIPS.tools.ServiceOperations.startTaskServer;
+import static in.co.s13.SIPS.tools.ServiceOperations.stopApiServer;
+import static in.co.s13.SIPS.tools.ServiceOperations.stopFileServer;
+import static in.co.s13.SIPS.tools.ServiceOperations.stopLiveNodeScanner;
+import static in.co.s13.SIPS.tools.ServiceOperations.stopNodeScanner;
+import static in.co.s13.SIPS.tools.ServiceOperations.stopPingServer;
+import static in.co.s13.SIPS.tools.ServiceOperations.stopTaskServer;
 import in.co.s13.SIPS.tools.Util;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -34,14 +52,14 @@ import org.json.JSONObject;
  * @author Nika
  */
 public class APIHandler implements Runnable {
-    
+
     Socket submitter;
-    
+
     public APIHandler(Socket connection) {
         submitter = connection;
-        
+
     }
-    
+
     @Override
     public void run() {
         //  boolean pingThread = false;
@@ -50,12 +68,12 @@ public class APIHandler implements Runnable {
             JSONObject msg;
             int length = dataInputStream.readInt();                    // read length of incoming message
             byte[] message = new byte[length];
-            
+
             if (length > 0) {
                 dataInputStream.readFully(message, 0, message.length); // read the message
             }
             msg = new JSONObject(new String(message));
-            
+
             InetAddress inetAddress = submitter.getInetAddress();
             String ipAddress = inetAddress.getHostAddress();
             System.out.println("IP adress of sender is " + ipAddress);
@@ -84,7 +102,7 @@ public class APIHandler implements Runnable {
                     byte[] bytes2 = sendmsg2.getBytes("UTF-8");
                     outToClient2.writeInt(bytes2.length);
                     outToClient2.write(bytes2);
-                    
+
                     submitter.close();
                     return;
                 } else if ((!GlobalValues.BLACKLIST.containsKey(ipAddress) || !GlobalValues.BLACKLIST.containsKey(clientUUID))) {
@@ -93,7 +111,7 @@ public class APIHandler implements Runnable {
                         keyInfo = GlobalValues.API_LIST.get(clientUUID);
                     } else if (GlobalValues.API_LIST.containsKey(ipAddress)) {
                         keyInfo = GlobalValues.API_LIST.get(ipAddress);
-                        
+
                     }
                     String key = keyInfo.getString("key");
                     key_permissions = keyInfo.getInt("permissions");;
@@ -107,7 +125,7 @@ public class APIHandler implements Runnable {
                         byte[] bytes2 = sendmsg2.getBytes("UTF-8");
                         outToClient2.writeInt(bytes2.length);
                         outToClient2.write(bytes2);
-                        
+
                         submitter.close();
                         return;
                     }
@@ -115,7 +133,7 @@ public class APIHandler implements Runnable {
                 JSONObject sendmsg2Json = new JSONObject();
                 sendmsg2Json.put("UUID", GlobalValues.NODE_UUID);
                 JSONObject body = new JSONObject();
-                
+
                 if (command.equalsIgnoreCase("TestConnection")) {
                     body.put("Response", "Connection Successful");
                 } else if (command.equalsIgnoreCase("blacklist")) {
@@ -125,7 +143,7 @@ public class APIHandler implements Runnable {
                         body.put("Response", Util.getBlackListInJSON());
                     } else {
                         body.put("Response", "Incorrect permissions or arguments!!");
-                        
+
                     }
                 } else if (command.equalsIgnoreCase("adjacent")) {
                     if (args.length() == 1 && args.getString(0).equalsIgnoreCase("show") && hasReadPermissions(key_permissions)) {
@@ -134,91 +152,91 @@ public class APIHandler implements Runnable {
                         body.put("Response", Util.getAdjacentTableInJSON());
                     } else {
                         body.put("Response", "Incorrect permissions or arguments!!");
-                        
+
                     }
                 } else if (command.equalsIgnoreCase("service")) {
                     JSONObject response = new JSONObject();
                     if (args.length() == 2 && hasExecutePermissions(key_permissions)) {
                         if (args.getString(0).equalsIgnoreCase("PING-SERVER")) {
                             if (args.getString(1).equalsIgnoreCase("start")) {
-                                
+                                startPingServer();
                             } else if (args.getString(1).equalsIgnoreCase("stop")) {
-                                
+                                stopPingServer();
                             } else if (args.getString(1).equalsIgnoreCase("restart")) {
-                                
+                                restartPingServer();
                             }
                             response.put("PING-SERVER", !GlobalValues.PING_SERVER_SOCKET.isClosed());
                         } else if (args.getString(0).equalsIgnoreCase("FILE-SERVER")) {
                             if (args.getString(1).equalsIgnoreCase("start")) {
-                                
+                                startFileServer();
                             } else if (args.getString(1).equalsIgnoreCase("stop")) {
-                                
+                                stopFileServer();
                             } else if (args.getString(1).equalsIgnoreCase("restart")) {
-                                
+                                restartFileServer();
                             }
                             response.put("FILE-SERVER", !GlobalValues.FILE_SERVER_SOCKET.isClosed());
-                        } else if (args.getString(0).equalsIgnoreCase("PING-SERVER")) {
+                        } else if (args.getString(0).equalsIgnoreCase("TASK-SERVER")) {
                             if (args.getString(1).equalsIgnoreCase("start")) {
-                                
+                                startTaskServer();
                             } else if (args.getString(1).equalsIgnoreCase("stop")) {
-                                
+                                stopTaskServer();
                             } else if (args.getString(1).equalsIgnoreCase("restart")) {
-                                
+                                restartTaskServer();
                             }
                             response.put("TASK-SERVER", !GlobalValues.TASK_SERVER_SOCKET.isClosed());
-                        } else if (args.getString(0).equalsIgnoreCase("PING-SERVER")) {
+                        } else if (args.getString(0).equalsIgnoreCase("API-SERVER")) {
                             if (args.getString(1).equalsIgnoreCase("start")) {
-                                
+                                startApiServer();
                             } else if (args.getString(1).equalsIgnoreCase("stop")) {
-                                
+                                stopApiServer();
                             } else if (args.getString(1).equalsIgnoreCase("restart")) {
-                                
+                                restartApiServer();
                             }
-                            response.put("API-SERVER", !GlobalValues.TASK_SERVER_SOCKET.isClosed());
-                        } else if (args.getString(0).equalsIgnoreCase("PING-SERVER")) {
+                            response.put("API-SERVER", !GlobalValues.API_SERVER_SOCKET.isClosed());
+                        } else if (args.getString(0).equalsIgnoreCase("LIVE-NODE-SCANNER")) {
                             if (args.getString(1).equalsIgnoreCase("start")) {
-                                
+                                startLiveNodeScanner();
                             } else if (args.getString(1).equalsIgnoreCase("stop")) {
-                                
+                                stopLiveNodeScanner();
                             } else if (args.getString(1).equalsIgnoreCase("restart")) {
-                                
+                                restartLiveNodeScanner();
                             }
                             response.put("LIVE-NODE-SCANNER", GlobalValues.CHECK_LIVE_NODE_THREAD.isAlive());
-                        } else if (args.getString(0).equalsIgnoreCase("PING-SERVER")) {
+                        } else if (args.getString(0).equalsIgnoreCase("NODE-SCANNER")) {
                             if (args.getString(1).equalsIgnoreCase("start")) {
-                                
+                                startNodeScanner();
                             } else if (args.getString(1).equalsIgnoreCase("stop")) {
-                                
+                                stopNodeScanner();
                             } else if (args.getString(1).equalsIgnoreCase("restart")) {
-                                
+                                restartNodeScanner();
                             }
                             response.put("NODE-SCANNER", GlobalValues.NODE_SCANNING_THREAD.isAlive());
                         } else {
                             response.put("Error !!!", "Unknown Service!");
-                            
+
                         }
                         body.put("Response", response);
-                        
+
                     } else if (args.length() == 1 && args.getString(0).equalsIgnoreCase("status") && hasReadPermissions(key_permissions)) {
                         response.put("PING-SERVER", !GlobalValues.PING_SERVER_SOCKET.isClosed());
                         response.put("FILE-SERVER", !GlobalValues.FILE_SERVER_SOCKET.isClosed());
                         response.put("TASK-SERVER", !GlobalValues.TASK_SERVER_SOCKET.isClosed());
-                        response.put("API-SERVER", !GlobalValues.TASK_SERVER_SOCKET.isClosed());
+                        response.put("API-SERVER", !GlobalValues.API_SERVER_SOCKET.isClosed());
                         response.put("LIVE-NODE-SCANNER", GlobalValues.CHECK_LIVE_NODE_THREAD.isAlive());
                         response.put("NODE-SCANNER", GlobalValues.NODE_SCANNING_THREAD.isAlive());
                         body.put("Response", response);
-                        
+
                     } else if (args.length() == 0 && hasReadPermissions(key_permissions)) {
                         response.put("PING-SERVER", !GlobalValues.PING_SERVER_SOCKET.isClosed());
                         response.put("FILE-SERVER", !GlobalValues.FILE_SERVER_SOCKET.isClosed());
                         response.put("TASK-SERVER", !GlobalValues.TASK_SERVER_SOCKET.isClosed());
-                        response.put("API-SERVER", !GlobalValues.TASK_SERVER_SOCKET.isClosed());
+                        response.put("API-SERVER", !GlobalValues.API_SERVER_SOCKET.isClosed());
                         response.put("LIVE-NODE-SCANNER", GlobalValues.CHECK_LIVE_NODE_THREAD.isAlive());
                         response.put("NODE-SCANNER", GlobalValues.NODE_SCANNING_THREAD.isAlive());
                         body.put("Response", response);
                     } else {
                         body.put("Response", "Incorrect permissions or arguments!!");
-                        
+
                     }
                 } else if (command.equalsIgnoreCase("non-adjacent")) {
                     if (args.length() > 0 && args.getString(0).equalsIgnoreCase("show") && hasReadPermissions(key_permissions)) {
@@ -227,7 +245,7 @@ public class APIHandler implements Runnable {
                         body.put("Response", Util.getNonAdjacentTableInJSON());
                     } else {
                         body.put("Response", "Incorrect permissions or arguments!!");
-                        
+
                     }
                 } else if (command.equalsIgnoreCase("nodes")) {
                     if (args.length() == 0
@@ -292,7 +310,7 @@ public class APIHandler implements Runnable {
                         body.put("Response", Util.getAllLiveNodesInJSON());
                     } else {
                         body.put("Response", "Incorrect permissions or arguments!!");
-                        
+
                     }
                 } else if (command.equalsIgnoreCase("help")) {
                     StringBuilder helpMessage = new StringBuilder();
@@ -316,14 +334,14 @@ public class APIHandler implements Runnable {
                                     + "CPU_MONTE_CARLO,CPU_FFT,CPU_LU,CPU_SOR,CPU_SPARSE_MAT_MUL,PROCESSOR\n"
                                     + "\t\t\t\t\torder:\n"
                                     + "\t\t\t\t\t\tasc: (default) ordered in ascending order\n"
-                                    + "\t\t\t\t\t\tdesc: (default) ordered in decending order\n");
+                                    + "\t\t\t\t\t\tdesc: ordered in decending order\n");
                     if (args.length() > 0 && args.getString(0).equalsIgnoreCase("show") && hasReadPermissions(key_permissions)) {
                         body.put("Response", helpMessage.toString());
                     } else if (args.length() == 0 && hasReadPermissions(key_permissions)) {
                         body.put("Response", helpMessage.toString());
                     } else {
                         body.put("Response", "Incorrect permissions or arguments!!");
-                        
+
                     }
                 } else {
                     body.put("Response", "Command not available!!");
@@ -335,7 +353,7 @@ public class APIHandler implements Runnable {
                 outToClient2.write(bytes2);
             }
             submitter.close();
-            
+
         } catch (IOException ex) {
             Logger.getLogger(APIHandler.class.getName()).log(Level.SEVERE, null, ex);
             try {
@@ -347,20 +365,22 @@ public class APIHandler implements Runnable {
             }
         } catch (Exception excep) {
             Logger.getLogger(APIHandler.class.getName()).log(Level.SEVERE, null, excep);
-            
+
         }
-        
+
     }
-    
+
     private boolean hasReadPermissions(int key_permissions) {
         return key_permissions == 4 || key_permissions == 5 || key_permissions == 6 || key_permissions == 7;
     }
-    
+
     private boolean hasWritePermissions(int key_permissions) {
         return key_permissions == 2 || key_permissions == 3 || key_permissions == 6 || key_permissions == 7;
     }
-    
+
     private boolean hasExecutePermissions(int key_permissions) {
         return key_permissions == 1 || key_permissions == 3 || key_permissions == 5 || key_permissions == 7;
     }
+
+
 }

@@ -17,8 +17,10 @@
 package in.co.s13.SIPS.datastructure.threadpools;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -39,7 +41,7 @@ public class FixedThreadPool {
     }
 
     private void init() {
-        System.out.println("Initialising Threadpool");
+        System.out.println("Initializing Threadpool");
         executor = Executors.newFixedThreadPool(size);
         shutdownInitiated = false;
     }
@@ -56,7 +58,8 @@ public class FixedThreadPool {
             public void run() {
                 while (!executor.isShutdown()) {
                     try {
-                        System.out.println("Waiting for threadpool to shutdown");                        Thread.sleep(1000L);
+                        System.out.println("Waiting for threadpool to shutdown");
+                        Thread.sleep(1000L);
                     } catch (InterruptedException ex) {
                         Logger.getLogger(FixedThreadPool.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -64,7 +67,7 @@ public class FixedThreadPool {
                 init();
                 for (int i = 0; i < list.size(); i++) {
                     Runnable get = list.get(i);
-                    System.out.println("Adding "+get+" to pool after restart");
+                    System.out.println("Adding " + get + " to pool after restart");
                     submit(get);
                 }
             }
@@ -85,4 +88,20 @@ public class FixedThreadPool {
         shutdownInitiated = true;
         executor.shutdown();
     }
+
+    public boolean isShutdown() {
+        return executor.isShutdown();
+    }
+
+    public boolean isTerminated() {
+        return executor.isTerminated();
+    }
+
+    public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
+        return executor.awaitTermination(timeout, TimeUnit.DAYS);
+    }
+    public List<Runnable> shutdownNow(){
+    return executor.shutdownNow();
+    }
+
 }

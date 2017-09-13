@@ -79,10 +79,26 @@ public class Settings {
                         + "Please create a dir with this name");
             }
         }
-        File f3 = new File(dir_etc);
-        if (!f3.exists()) {
-            if (!f3.mkdir()) {
-                Util.errPrintln("Directory for appdb couldnot be created !\n"
+        File detc = new File(dir_etc);
+        if (!detc.exists()) {
+            if (!detc.mkdir()) {
+                Util.errPrintln("Directory for etc couldnot be created !\n"
+                        + "Please create a dir with this name");
+            }
+        }
+        
+        File dlog = new File(dir_log);
+        if (!dlog.exists()) {
+            if (!dlog.mkdir()) {
+                Util.errPrintln("Directory for log couldnot be created !\n"
+                        + "Please create a dir with this name");
+            }
+        }
+        
+        File dbin = new File(dir_bin);
+        if (!dbin.exists()) {
+            if (!dbin.mkdir()) {
+                Util.errPrintln("Directory for log couldnot be created !\n"
                         + "Please create a dir with this name");
             }
         }

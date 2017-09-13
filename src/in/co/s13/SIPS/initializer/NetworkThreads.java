@@ -19,6 +19,8 @@ package in.co.s13.SIPS.initializer;
 import in.co.s13.SIPS.Scanner.AddLivenodes;
 import in.co.s13.SIPS.Scanner.CheckLiveNodes;
 import in.co.s13.SIPS.Scanner.NetScanner;
+import in.co.s13.SIPS.Scanner.ScheduledLiveNodeScanner;
+import in.co.s13.SIPS.Scanner.ScheduledNodeScanner;
 import in.co.s13.SIPS.datastructure.threadpools.FixedThreadPool;
 import in.co.s13.SIPS.datastructure.threadpools.ScheduledThreadPool;
 import in.co.s13.SIPS.settings.GlobalValues;
@@ -52,53 +54,11 @@ public class NetworkThreads {
 //        ScheduledExecutorService executorService2 = Executors.newScheduledThreadPool(1);
 //        executorService2.scheduleAtFixedRate(new CheckLiveNodes(), 15, 90, TimeUnit.SECONDS);
 
-        GlobalValues.NODE_SCANNING_THREAD = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(TimeUnit.MILLISECONDS.convert(2, TimeUnit.SECONDS));
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(ScheduledThreadPool.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                while (true) {
-
-                    GlobalValues.NODE_SCANNER_EXECUTOR.submit(new AddLivenodes());
-                    int noOfHost = GlobalValues.HOSTS.size();
-                    long interval = ((noOfHost * 10) < 60) ? 60 : (noOfHost * 10);
-                    try {
-                        Thread.sleep(TimeUnit.MILLISECONDS.convert(interval, TimeUnit.SECONDS));
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(ScheduledThreadPool.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-            }
-
-        });
+        GlobalValues.NODE_SCANNING_THREAD = new Thread(new ScheduledNodeScanner());
         GlobalValues.NODE_SCANNING_THREAD.setName("Add Live Nodes Scheduled Thread");
         GlobalValues.NODE_SCANNING_THREAD.start();
 
-        GlobalValues.CHECK_LIVE_NODE_THREAD = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(TimeUnit.MILLISECONDS.convert(2, TimeUnit.SECONDS));
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(ScheduledThreadPool.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                while (true) {
-
-                    GlobalValues.NODE_SCANNER_EXECUTOR.submit(new CheckLiveNodes());
-                    int noOfHost = GlobalValues.LIVE_NODE_ADJ_DB.size();
-                    long interval = ((noOfHost * 5) < 60) ? 60 : (noOfHost * 5);
-                    try {
-                        Thread.sleep(TimeUnit.MILLISECONDS.convert(interval, TimeUnit.SECONDS));
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(ScheduledThreadPool.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-            }
-
-        });
+        GlobalValues.CHECK_LIVE_NODE_THREAD = new Thread(new ScheduledLiveNodeScanner());
         GlobalValues.CHECK_LIVE_NODE_THREAD.setName("Scan Live Nodes Scheduled Thread");
         GlobalValues.CHECK_LIVE_NODE_THREAD.start();
 //        ScheduledThreadPool stp = new ScheduledThreadPool(aln, 2, 2, aln.hostList(), TimeUnit.SECONDS);
