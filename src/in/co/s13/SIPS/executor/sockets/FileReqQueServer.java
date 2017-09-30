@@ -35,7 +35,7 @@ public class FileReqQueServer implements Runnable {
 
      public static ArrayList<FileDownQueReq> downQue = new ArrayList();
 
-    public FileReqQueServer() throws IOException {
+    public FileReqQueServer()  {
         GlobalValues.FILE_HANDLER_EXECUTOR_SERVICE = new FixedThreadPool(GlobalValues.FILES_RESOLVER_LIMIT);
     }
 

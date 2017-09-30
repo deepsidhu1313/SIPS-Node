@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package in.co.s13.SIPS.virtualdb;
+package in.co.s13.SIPS.datastructure;
 
 import in.co.s13.SIPS.Scanner.NetScanner;
 import java.util.ArrayList;

@@ -23,7 +23,7 @@ import static in.co.s13.SIPS.settings.GlobalValues.ADJACENT_NODES_TABLE;
 import static in.co.s13.SIPS.settings.GlobalValues.NON_ADJACENT_NODES_TABLE;
 import static in.co.s13.SIPS.tools.Util.errPrintln;
 import static in.co.s13.SIPS.tools.Util.outPrintln;
-import in.co.s13.SIPS.virtualdb.LiveDBRow;
+import in.co.s13.SIPS.datastructure.LiveDBRow;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;

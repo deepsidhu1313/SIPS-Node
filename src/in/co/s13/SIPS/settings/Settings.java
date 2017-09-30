@@ -86,7 +86,7 @@ public class Settings {
                         + "Please create a dir with this name");
             }
         }
-        
+
         File dlog = new File(dir_log);
         if (!dlog.exists()) {
             if (!dlog.mkdir()) {
@@ -94,7 +94,7 @@ public class Settings {
                         + "Please create a dir with this name");
             }
         }
-        
+
         File dbin = new File(dir_bin);
         if (!dbin.exists()) {
             if (!dbin.mkdir()) {
@@ -133,7 +133,7 @@ public class Settings {
             JSONObject ipHostnameCombo = ipAddresses.getJSONObject(0);
             HOST_NAME = ipHostnameCombo.getString("hostname", HOST_NAME);
         }
-        try (PrintStream procn = new PrintStream("procn.bat")) {
+        try (PrintStream procn = new PrintStream(dir_bin + "/procn.bat")) {
             procn.print("wmic cpu get name");
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
@@ -176,15 +176,26 @@ public class Settings {
         if (NODE_UUID.length() < 1) {
             NODE_UUID = Util.generateNodeUUID();
         }
-        TASK_LIMIT = settings.getInt("MAX_TASK_ALLOWED_IN_PARALLEL", 2);
-        FILES_RESOLVER_LIMIT = settings.getInt("MAX_FILE_RESOLVE_IN_PARALLEL", 3);
-        PING_HANDLER_LIMIT = settings.getInt("MAX_PING_RESPONSES_IN_PARALLEL", 3);
-        API_HANDLER_LIMIT = settings.getInt("MAX_API_RESPONSES_IN_PARALLEL", 3);
-        TASK_HANDLER_LIMIT = settings.getInt("MAX_TASK_REQ_IN_PARALLEL", 3);
         DUMP_LOG = settings.getBoolean("DUMP_LOG", true);
         VERBOSE = settings.getBoolean("VERBOSE", true);
         SHARED_STORAGE = settings.getBoolean("SHARED_STORAGE", SHARED_STORAGE);
-        PING_REQUEST_LIMIT = settings.getInt("MAX_PING_REQUESTS_IN_PARALLEL", 3);
+        JSONObject serviceSettings = Util.readJSONFile(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "service_settings.json");
+        TASK_LIMIT = serviceSettings.getInt("MAX_TASK_ALLOWED_IN_PARALLEL", 2);
+        FILES_RESOLVER_LIMIT = serviceSettings.getInt("MAX_FILE_RESOLVE_IN_PARALLEL", 3);
+        PING_HANDLER_LIMIT = serviceSettings.getInt("MAX_PING_RESPONSES_IN_PARALLEL", 3);
+        API_HANDLER_LIMIT = serviceSettings.getInt("MAX_API_RESPONSES_IN_PARALLEL", 3);
+        TASK_HANDLER_LIMIT = serviceSettings.getInt("MAX_TASK_REQ_IN_PARALLEL", 3);
+        PING_REQUEST_LIMIT = serviceSettings.getInt("MAX_PING_REQUESTS_IN_PARALLEL", 3);
+        PING_SERVER_ENABLED_AT_START = serviceSettings.getBoolean("PING_SERVER_ENABLED_AT_START", PING_SERVER_ENABLED_AT_START);
+        API_SERVER_ENABLED_AT_START = serviceSettings.getBoolean("API_SERVER_ENABLED_AT_START", API_SERVER_ENABLED_AT_START);
+        FILE_SERVER_ENABLED_AT_START = serviceSettings.getBoolean("FILE_SERVER_ENABLED_AT_START", FILE_SERVER_ENABLED_AT_START);
+        TASK_SERVER_ENABLED_AT_START = serviceSettings.getBoolean("TASK_SERVER_ENABLED_AT_START", TASK_SERVER_ENABLED_AT_START);
+        NODE_SCANNER_ENABLED_AT_START = serviceSettings.getBoolean("NODE_SCANNER_ENABLED_AT_START", NODE_SCANNER_ENABLED_AT_START);
+        LIVE_NODE_SCANNER_ENABLED_AT_START = serviceSettings.getBoolean("LIVE_NODE_SCANNER_ENABLED_AT_START", LIVE_NODE_SCANNER_ENABLED_AT_START);
+        LIVE_NODE_SCANNER_INTIAL_DELAY = serviceSettings.getLong("LIVE_NODE_SCANNER_INTIAL_DELAY", LIVE_NODE_SCANNER_INTIAL_DELAY);
+        NODE_SCANNER_INTIAL_DELAY = serviceSettings.getLong("NODE_SCANNER_INTIAL_DELAY", NODE_SCANNER_INTIAL_DELAY);
+        LIVE_NODE_SCANNER_PERIODIC_DELAY = serviceSettings.getLong("LIVE_NODE_SCANNER_PERIODIC_DELAY", LIVE_NODE_SCANNER_PERIODIC_DELAY);
+        NODE_SCANNER_PERIODIC_DELAY = serviceSettings.getLong("NODE_SCANNER_PERIODIC_DELAY", NODE_SCANNER_PERIODIC_DELAY);
 
     }
 
@@ -195,16 +206,32 @@ public class Settings {
             NODE_UUID = Util.generateNodeUUID();
         }
         settings.put("UUID", NODE_UUID);
-        settings.put("MAX_TASK_ALLOWED_IN_PARALLEL", TASK_LIMIT);
-        settings.put("MAX_FILE_RESOLVE_IN_PARALLEL", FILES_RESOLVER_LIMIT);
-        settings.put("MAX_PING_RESPONSES_IN_PARALLEL", PING_HANDLER_LIMIT);
-        settings.put("MAX_PING_REQUESTS_IN_PARALLEL", PING_REQUEST_LIMIT);
-        settings.put("MAX_API_RESPONSES_IN_PARALLEL", API_HANDLER_LIMIT);
-        settings.put("MAX_TASK_REQ_IN_PARALLEL", TASK_HANDLER_LIMIT);
+
         settings.put("DUMP_LOG", DUMP_LOG);
         settings.put("VERBOSE", VERBOSE);
         settings.put("SHARED_STORAGE", SHARED_STORAGE);
         write(new File(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "settings.json"), settings.toString(4));
+
+        JSONObject serviceSettings = new JSONObject();
+        serviceSettings.put("MAX_TASK_ALLOWED_IN_PARALLEL", TASK_LIMIT);
+        serviceSettings.put("MAX_FILE_RESOLVE_IN_PARALLEL", FILES_RESOLVER_LIMIT);
+        serviceSettings.put("MAX_PING_RESPONSES_IN_PARALLEL", PING_HANDLER_LIMIT);
+        serviceSettings.put("MAX_PING_REQUESTS_IN_PARALLEL", PING_REQUEST_LIMIT);
+        serviceSettings.put("MAX_API_RESPONSES_IN_PARALLEL", API_HANDLER_LIMIT);
+        serviceSettings.put("MAX_TASK_REQ_IN_PARALLEL", TASK_HANDLER_LIMIT);
+        serviceSettings.put("PING_SERVER_ENABLED_AT_START", PING_SERVER_ENABLED_AT_START);
+        serviceSettings.put("API_SERVER_ENABLED_AT_START", API_SERVER_ENABLED_AT_START);
+        serviceSettings.put("FILE_SERVER_ENABLED_AT_START", FILE_SERVER_ENABLED_AT_START);
+        serviceSettings.put("TASK_SERVER_ENABLED_AT_START", TASK_SERVER_ENABLED_AT_START);
+        serviceSettings.put("NODE_SCANNER_ENABLED_AT_START", NODE_SCANNER_ENABLED_AT_START);
+        serviceSettings.put("LIVE_NODE_SCANNER_ENABLED_AT_START", LIVE_NODE_SCANNER_ENABLED_AT_START);
+        serviceSettings.put("LIVE_NODE_SCANNER_INTIAL_DELAY", LIVE_NODE_SCANNER_INTIAL_DELAY);
+        serviceSettings.put("NODE_SCANNER_INTIAL_DELAY", NODE_SCANNER_INTIAL_DELAY);
+        serviceSettings.put("LIVE_NODE_SCANNER_PERIODIC_DELAY", LIVE_NODE_SCANNER_PERIODIC_DELAY);
+        serviceSettings.put("NODE_SCANNER_PERIODIC_DELAY", NODE_SCANNER_PERIODIC_DELAY);
+
+        write(new File(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "service_settings.json"), serviceSettings.toString(4));
+
     }
 
 }

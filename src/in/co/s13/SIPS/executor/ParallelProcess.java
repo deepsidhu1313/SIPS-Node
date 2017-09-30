@@ -32,6 +32,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import static in.co.s13.SIPS.settings.GlobalValues.TASK_DB;
 import static in.co.s13.SIPS.settings.GlobalValues.TASK_DB_EXECUTOR;
+import java.util.Collections;
 
 /**
  *
@@ -43,10 +44,11 @@ public class ParallelProcess implements Runnable {
     ArrayList<String> fname = new ArrayList<>();
     ArrayList<String> fileLog = new ArrayList<>();
     ArrayList<String> content = new ArrayList<>();
-    ArrayList<String> libList = new ArrayList<>();
-    ArrayList<String> attachments = new ArrayList<>();
-    ArrayList<String> libListLocal = new ArrayList<>();
-    ArrayList<String> attachmentsLocal = new ArrayList<>();
+    JSONArray libs, attachments;
+//    ArrayList<String> libList = new ArrayList<>();
+//    ArrayList<String> attachments = new ArrayList<>();
+//    ArrayList<String> libListLocal = new ArrayList<>();
+//    ArrayList<String> attachmentsLocal = new ArrayList<>();
 
     String loc;
     boolean success = true;
@@ -78,11 +80,10 @@ public class ParallelProcess implements Runnable {
         main = body.getString("MAIN");//manifest.substring(manifest.indexOf("<MAIN>") + 6, manifest.indexOf("</MAIN>"));
         projectName = body.getString("PROJECT");//manifest.substring(manifest.indexOf("<PROJECT>") + 9, manifest.indexOf("</PROJECT>"));
 
-        
-        JSONArray lib= manifest.getJSONArray("LIB");
-        JSONArray attach= manifest.getJSONArray("ATTCH");
-        args=manifest.getString("ARGS");
-        
+        libs = manifest.getJSONArray("LIB");
+        attachments = manifest.getJSONArray("ATTCH");
+        args = manifest.getString("ARGS");
+
 //        String[] lines = manifest.split("\n");
 //        for (String line : lines) {
 //            if (line.contains("<LIB>")) {
@@ -112,7 +113,7 @@ public class ParallelProcess implements Runnable {
                     + "CNO     ,"
                     + "IP   ) VALUES('" + counter + "','" + pid + "','" + projectName + "','" + cno + "','" + ip + "');";
 
-            TASK_DB.insert(GlobalValues.dir_etc+"/proc.db", sql);
+            TASK_DB.insert(GlobalValues.dir_etc + "/proc.db", sql);
             TASK_DB.closeConnection();
         });
         createProcess(ip, pid, fname, content);
@@ -131,13 +132,20 @@ public class ParallelProcess implements Runnable {
             d.mkdirs();
         }
         ArrayList<String> temp = new ArrayList<>();
-        temp.addAll(libList);
-        temp.addAll(attachments);
+        for (int i = 0; i < libs.length(); i++) {
+            String s = libs.getString(i);
+            temp.add(s);
+        }
+        for (int i = 0; i < attachments.length(); i++) {
+            String s = attachments.getString(i);
+            temp.add(s);
+        }
+
         generateScript(loc, args, main);
 
         if (!temp.isEmpty()) {
             System.out.println("Downloading files : " + temp);
-            RecieveFileBak recieveFile = new RecieveFileBak(ip, pid, cno, projectName, loc, temp);
+            RecieveFile recieveFile = new RecieveFile(ip, pid, cno, projectName, loc, temp);
             fileLog = recieveFile.getFileLog();
         } else {
             System.out.println("No File To Download");

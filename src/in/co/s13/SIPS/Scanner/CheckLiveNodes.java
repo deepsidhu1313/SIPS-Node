@@ -19,7 +19,7 @@ package in.co.s13.SIPS.Scanner;
 import in.co.s13.SIPS.settings.GlobalValues;
 import static in.co.s13.SIPS.settings.GlobalValues.*;
 import static in.co.s13.SIPS.tools.Util.outPrintln;
-import in.co.s13.SIPS.virtualdb.LiveDBRow;
+import in.co.s13.SIPS.datastructure.LiveDBRow;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.concurrent.TimeUnit;

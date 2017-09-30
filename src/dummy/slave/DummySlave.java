@@ -36,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import static in.co.s13.SIPS.settings.GlobalValues.dir_etc;
+import in.co.s13.SIPS.tools.ServiceOperations;
 
 /**
  *
@@ -334,14 +335,10 @@ public class DummySlave {
                     default:
                         new HardwareStatThreads();
                         new NetworkThreads();
-                        GlobalValues.TASK_SERVER_THREAD = new Thread(new TaskServer());
-                        GlobalValues.TASK_SERVER_THREAD.start();
-                        GlobalValues.PING_SERVER_THREAD = new Thread(new PingServer());
-                        GlobalValues.PING_SERVER_THREAD.start();
-                        GlobalValues.FILE_SERVER_THREAD = new Thread(new FileReqQueServer());
-                        GlobalValues.FILE_SERVER_THREAD.start();
-                        GlobalValues.API_SERVER_THREAD = new Thread(new APIServer());
-                        GlobalValues.API_SERVER_THREAD.start();
+                        ServiceOperations.initApiServerAtStartUp();
+                        ServiceOperations.initPingServerAtStartUp();
+                        ServiceOperations.initFileServerAtStartUp();
+                        ServiceOperations.initTaskServerAtStartUp();
 
                         break;
                     /**
@@ -352,12 +349,9 @@ public class DummySlave {
 
                         new HardwareStatThreads();
                         new NetworkThreads();
-                        GlobalValues.TASK_SERVER_THREAD = new Thread(new TaskServer());
-                        GlobalValues.TASK_SERVER_THREAD.start();
-                        GlobalValues.FILE_SERVER_THREAD = new Thread(new FileReqQueServer());
-                        GlobalValues.FILE_SERVER_THREAD.start();
-                        GlobalValues.API_SERVER_THREAD = new Thread(new APIServer());
-                        GlobalValues.API_SERVER_THREAD.start();
+                        ServiceOperations.initApiServerAtStartUp();
+                        ServiceOperations.initFileServerAtStartUp();
+                        ServiceOperations.initTaskServerAtStartUp();
 
                         break;
                 }
@@ -365,14 +359,10 @@ public class DummySlave {
                 preBenchmarkingChecks();
                 new HardwareStatThreads();
                 new NetworkThreads();
-                GlobalValues.TASK_SERVER_THREAD = new Thread(new TaskServer());
-                GlobalValues.TASK_SERVER_THREAD.start();
-                GlobalValues.PING_SERVER_THREAD = new Thread(new PingServer());
-                GlobalValues.PING_SERVER_THREAD.start();
-                GlobalValues.FILE_SERVER_THREAD = new Thread(new FileReqQueServer());
-                GlobalValues.FILE_SERVER_THREAD.start();
-                GlobalValues.API_SERVER_THREAD = new Thread(new APIServer());
-                GlobalValues.API_SERVER_THREAD.start();
+                ServiceOperations.initApiServerAtStartUp();
+                ServiceOperations.initPingServerAtStartUp();
+                ServiceOperations.initFileServerAtStartUp();
+                ServiceOperations.initTaskServerAtStartUp();
 
             }
 
@@ -385,15 +375,10 @@ public class DummySlave {
             GlobalValues.API_JSON = Util.readJSONFile(dir_etc + "/api.json");
             new HardwareStatThreads();
             new NetworkThreads();
-            GlobalValues.TASK_SERVER_THREAD = new Thread(new TaskServer());
-            GlobalValues.TASK_SERVER_THREAD.start();
-            GlobalValues.PING_SERVER_THREAD = new Thread(new PingServer());
-            GlobalValues.PING_SERVER_THREAD.start();
-            GlobalValues.FILE_SERVER_THREAD = new Thread(new FileReqQueServer());
-            GlobalValues.FILE_SERVER_THREAD.start();
-            GlobalValues.API_SERVER_THREAD = new Thread(new APIServer());
-            GlobalValues.API_SERVER_THREAD.start();
-
+            ServiceOperations.initApiServerAtStartUp();
+            ServiceOperations.initPingServerAtStartUp();
+            ServiceOperations.initFileServerAtStartUp();
+            ServiceOperations.initTaskServerAtStartUp();
         }
 
     }

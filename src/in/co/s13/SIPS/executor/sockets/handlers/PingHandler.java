@@ -65,7 +65,7 @@ public class PingHandler implements Runnable {
 
                     // System.out.println("" + msg);
                     String command = msg.getString("Command");
-                    JSONObject pingRequestBody = msg.getJSONObject("Body");;
+                    JSONObject pingRequestBody = msg.getJSONObject("Body");
                     String clientUUID = pingRequestBody.getString("UUID");
                     if (GlobalValues.BLACKLIST.containsKey(clientUUID) || GlobalValues.BLACKLIST.containsKey(ipAddress)) {
                         //send error message

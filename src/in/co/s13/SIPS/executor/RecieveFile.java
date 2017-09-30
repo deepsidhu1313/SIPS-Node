@@ -16,6 +16,7 @@
  */
 package in.co.s13.SIPS.executor;
 
+import in.co.s13.SIPS.settings.GlobalValues;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -33,14 +34,14 @@ import java.util.logging.Logger;
 import org.json.JSONObject;
 
 
-public class RecieveFileBak {
+public class RecieveFile {
 
-    public final static int SOCKET_PORT = 13132;      // you may change this
-    String SERVER = "";  // localhost
+    public final static int SOCKET_PORT = GlobalValues.FILE_QUEUE_SERVER_PORT;      
+    String SERVER = ""; 
     public final static int FILE_SIZE = 999999999;
     ArrayList<String> logmsg = new ArrayList<>();
 
-    public RecieveFileBak(String IP, String id, String cno, String projectname, String localFolder, ArrayList<String> FileList) {
+    public RecieveFile(String IP, String id, String cno, String projectname, String localFolder, ArrayList<String> FileList) {
         SERVER = IP;
         ExecutorService rfExecutor = Executors.newFixedThreadPool(5);
         FileList.stream().forEach((_item) -> {
@@ -115,7 +116,7 @@ public class RecieveFileBak {
                             }
                         }
                     } catch (IOException ex) {
-                        Logger.getLogger(RecieveFileBak.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(RecieveFile.class.getName()).log(Level.SEVERE, null, ex);
                     }
 
                 });
@@ -127,7 +128,7 @@ public class RecieveFileBak {
         try {
             rfExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
         } catch (InterruptedException ex) {
-            Logger.getLogger(RecieveFileBak.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(RecieveFile.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }

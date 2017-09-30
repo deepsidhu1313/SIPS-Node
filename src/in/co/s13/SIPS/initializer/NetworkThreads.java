@@ -32,6 +32,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static in.co.s13.SIPS.settings.GlobalValues.TASK_LIMIT;
+import in.co.s13.SIPS.tools.ServiceOperations;
+import java.security.Provider;
 
 /**
  *
@@ -54,17 +56,9 @@ public class NetworkThreads {
 //        ScheduledExecutorService executorService2 = Executors.newScheduledThreadPool(1);
 //        executorService2.scheduleAtFixedRate(new CheckLiveNodes(), 15, 90, TimeUnit.SECONDS);
 
-        GlobalValues.NODE_SCANNING_THREAD = new Thread(new ScheduledNodeScanner());
-        GlobalValues.NODE_SCANNING_THREAD.setName("Add Live Nodes Scheduled Thread");
-        GlobalValues.NODE_SCANNING_THREAD.start();
-
-        GlobalValues.CHECK_LIVE_NODE_THREAD = new Thread(new ScheduledLiveNodeScanner());
-        GlobalValues.CHECK_LIVE_NODE_THREAD.setName("Scan Live Nodes Scheduled Thread");
-        GlobalValues.CHECK_LIVE_NODE_THREAD.start();
-//        ScheduledThreadPool stp = new ScheduledThreadPool(aln, 2, 2, aln.hostList(), TimeUnit.SECONDS);
-        //        CheckLiveNodes chkLN = new CheckLiveNodes();
-        //        ScheduledThreadPool stp2 = new ScheduledThreadPool(chkLN, 15, 5, chkLN.hostList(), TimeUnit.SECONDS);
-
+        ServiceOperations.initNodeScannerAtStartUp();
+        ServiceOperations.initLiveNodeScannerAtStartUp();
+      
     }
 
 }

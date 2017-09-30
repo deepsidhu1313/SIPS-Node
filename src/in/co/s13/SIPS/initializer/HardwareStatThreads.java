@@ -34,7 +34,7 @@ public class HardwareStatThreads {
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
         executorService.scheduleAtFixedRate(new MemoryInfo(), 0, 60, TimeUnit.SECONDS);
         ScheduledExecutorService executorService2 = Executors.newScheduledThreadPool(1);
-        executorService2.scheduleAtFixedRate(new HDDInfo(), 10, 90, TimeUnit.SECONDS);
+        executorService2.scheduleAtFixedRate(new HDDInfo(), 2, 90, TimeUnit.SECONDS);
     }
 
 }

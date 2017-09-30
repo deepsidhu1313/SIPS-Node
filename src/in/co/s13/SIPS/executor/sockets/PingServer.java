@@ -31,7 +31,7 @@ import java.util.logging.Logger;
  */
 public class PingServer implements Runnable {
     
-    public PingServer() throws IOException {
+    public PingServer()  {
         if (GlobalValues.PING_HANDLER_EXECUTOR_SERVICE == null || GlobalValues.PING_HANDLER_EXECUTOR_SERVICE.isShutdown()) {
             GlobalValues.PING_HANDLER_EXECUTOR_SERVICE = new FixedThreadPool(GlobalValues.PING_HANDLER_LIMIT);
         } else {

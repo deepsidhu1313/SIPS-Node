@@ -35,13 +35,15 @@ import java.util.logging.Logger;
  */
 public class APIServer implements Runnable {
 
-    public APIServer() throws IOException {
+    public APIServer() {
         Iterator<String> keys = GlobalValues.API_JSON.keys();
         while (keys.hasNext()) {
             String key = keys.next();
             GlobalValues.API_LIST.put(key, GlobalValues.API_JSON.getJSONObject(key));
         }
-        GlobalValues.API_HANDLER_EXECUTOR_SERVICE = new FixedThreadPool(GlobalValues.API_HANDLER_LIMIT);
+        if (GlobalValues.API_HANDLER_EXECUTOR_SERVICE == null || GlobalValues.API_HANDLER_EXECUTOR_SERVICE.isShutdown()) {
+            GlobalValues.API_HANDLER_EXECUTOR_SERVICE = new FixedThreadPool(GlobalValues.API_HANDLER_LIMIT);
+        }
     }
 
     @Override

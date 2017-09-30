@@ -16,19 +16,23 @@
  */
 package in.co.s13.SIPS.settings;
 
+import in.co.s13.SIPS.datastructure.DistributionDBRow;
 import in.co.s13.SIPS.datastructure.Resource;
 import in.co.s13.SIPS.datastructure.UniqueElementList;
 import in.co.s13.SIPS.datastructure.threadpools.FixedThreadPool;
 import in.co.s13.SIPS.db.OLDSQLiteJDBC;
 import in.co.s13.SIPS.db.SQLiteJDBC;
-import in.co.s13.SIPS.virtualdb.LiveDBRow;
-import in.co.s13.SIPS.virtualdb.NodeDBRow;
+import in.co.s13.SIPS.datastructure.LiveDBRow;
+import in.co.s13.SIPS.datastructure.NodeDBRow;
+import in.co.s13.SIPS.datastructure.Result;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -91,6 +95,7 @@ public class GlobalValues {
     public static int PING_REQUEST_LIMIT = 3;
     public static int API_HANDLER_LIMIT = 10;
     public static int TASK_HANDLER_LIMIT = 10;
+    public static int TASK_FINISH_LISTENER_HANDLER_LIMIT = 10;
     public static int TASK_LIMIT = Runtime.getRuntime().availableProcessors() - 2;
     public static int TASK_WAITING = 0;
     /**
@@ -106,22 +111,29 @@ public class GlobalValues {
     public static ExecutorService NODE_DB_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService TASK_DB_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService LIVE_DB_EXECUTOR = Executors.newFixedThreadPool(1);
+public static ExecutorService DIST_DB_EXECUTOR = Executors.newFixedThreadPool(1);
+public static ExecutorService RESULT_DB_EXECUTOR = Executors.newFixedThreadPool(1);
 
     /**
      * Server ThreadPools
      */
-    public static FixedThreadPool API_HANDLER_EXECUTOR_SERVICE, PING_HANDLER_EXECUTOR_SERVICE, FILE_HANDLER_EXECUTOR_SERVICE, TASK_HANDLER_EXECUTOR_SERVICE;
+    public static FixedThreadPool API_HANDLER_EXECUTOR_SERVICE, PING_HANDLER_EXECUTOR_SERVICE, FILE_HANDLER_EXECUTOR_SERVICE, TASK_HANDLER_EXECUTOR_SERVICE,TASK_FINISH_LISTENER_HANDLER_EXECUTOR_SERVICE;
 
     /**
      * *
      * Server Threads
      */
-    public static Thread TASK_SERVER_THREAD, API_SERVER_THREAD, PING_SERVER_THREAD, FILE_SERVER_THREAD;
+    public static Thread TASK_SERVER_THREAD, API_SERVER_THREAD, PING_SERVER_THREAD, FILE_SERVER_THREAD,TASK_FINISH_LISTENER_SERVER_THREAD;
 
     /**
      * Server sockets
      */
-    public static ServerSocket API_SERVER_SOCKET, FILE_SERVER_SOCKET, PING_SERVER_SOCKET, TASK_SERVER_SOCKET;
+    public static ServerSocket API_SERVER_SOCKET, FILE_SERVER_SOCKET, PING_SERVER_SOCKET, TASK_SERVER_SOCKET,TASK_FINISH_LISTENER_SERVER_SOCKET;
+
+    /**
+     * Socket Ports
+     */
+        public static int PING_SERVER_PORT = 13131, FILE_QUEUE_SERVER_PORT = 13132, TASK_SERVER_PORT = 13133,TASK_FINISH_LISTENER_SERVER_PORT = 13134, API_SERVER_PORT = 13139;
 
     /**
      * Network Scheduled Thread Conditions
@@ -133,6 +145,13 @@ public class GlobalValues {
      * Network Scanning threads
      */
     public static Thread CHECK_LIVE_NODE_THREAD, NODE_SCANNING_THREAD;
+
+    /**
+     * Services Vars
+     */
+    public static boolean PING_SERVER_ENABLED_AT_START = true, API_SERVER_ENABLED_AT_START = true, FILE_SERVER_ENABLED_AT_START = true, TASK_SERVER_ENABLED_AT_START = true, NODE_SCANNER_ENABLED_AT_START = true, LIVE_NODE_SCANNER_ENABLED_AT_START = true,TASK_FINISH_LISTENER_SERVER_ENABLED_AT_START = true;
+
+    public static long NODE_SCANNER_INTIAL_DELAY = 2L, LIVE_NODE_SCANNER_INTIAL_DELAY = 2L, NODE_SCANNER_PERIODIC_DELAY = 5L, LIVE_NODE_SCANNER_PERIODIC_DELAY = 5L;
     /**
      * *
      * Storage Data Structure
@@ -157,6 +176,12 @@ public class GlobalValues {
     public static Hashtable<String, Long> ADJACENT_NODES_TABLE = new Hashtable<>();
     public static Hashtable<String, UniqueElementList> NON_ADJACENT_NODES_TABLE = new Hashtable<>();
 
-    public static int PING_SERVER_PORT = 13131, FILE_QUEUE_SERVER_PORT = 13132, TASK_SERVER_PORT = 13133, API_SERVER_PORT = 13139;
+    
+    /**
+     * Task Storage
+     */
 
+     public static Hashtable<String,Hashtable<String,DistributionDBRow>> MASTER_DIST_DB = new Hashtable<>();
+   public static Hashtable<String,Result> RESULT_DB = new Hashtable<>();
+    
 }

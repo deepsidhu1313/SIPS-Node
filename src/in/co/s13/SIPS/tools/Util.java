@@ -30,7 +30,7 @@ import static in.co.s13.SIPS.settings.GlobalValues.err;
 import static in.co.s13.SIPS.settings.GlobalValues.log;
 import static in.co.s13.SIPS.settings.GlobalValues.out;
 import in.co.s13.SIPS.settings.Settings;
-import in.co.s13.SIPS.virtualdb.LiveDBRow;
+import in.co.s13.SIPS.datastructure.LiveDBRow;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
