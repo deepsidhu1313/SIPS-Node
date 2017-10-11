@@ -87,25 +87,25 @@ public class TaskHandler implements Runnable {
                         String pid = body.getString("PID");//body.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
                         String cno = body.getString("CNO");//body.substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
 
-                        if (TaskServer.alienprocessID.contains("" + ipAddress + "-ID-" + pid + "c" + cno)) {
+                        if (GlobalValues.TASK_DB.containsKey("" + ipAddress + "-ID-" + pid + "c" + cno)) {
 
                             TASK_DB_EXECUTOR.execute(() -> {
-                                try {
-                                    String sql = "SELECT * FROM PROC WHERE  ALIENID = '" + pid + "' AND CNO ='" + cno + "' AND IP ='" + ipAddress + "';";
-
-                                    ResultSet rs = TASK_DB.select(GlobalValues.dir_etc+"/proc.db", sql);
-                                    int n = 9999;
-                                    while (rs.next()) {
-                                        n = rs.getInt("ID");
+                                    Process p= GlobalValues.TASK_DB.get("" + ipAddress + "-ID-" + pid + "c" + cno).getProcess();
+                                    if (p.isAlive()) {
+                                        p.destroy();
                                     }
-                                    TASK_DB.closeConnection();
-
-                                    if (TaskServer.p[n].isAlive()) {
-                                        TaskServer.p[n].destroy();
-                                    }
-                                } catch (SQLException ex) {
-                                    Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
-                                }
+//                                try {
+////                                    String sql = "SELECT * FROM PROC WHERE  ALIENID = '" + pid + "' AND CNO ='" + cno + "' AND IP ='" + ipAddress + "';";
+////
+////                                    ResultSet rs = TASK_DB.select(GlobalValues.dir_etc+"/proc.db", sql);
+////                                    int n = 9999;
+////                                    while (rs.next()) {
+////                                        n = rs.getInt("ID");
+////                                    }
+////                                    TASK_DB.closeConnection();
+//                                } catch (SQLException ex) {
+//                                    Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
+//                                }
                             });
 
                         }

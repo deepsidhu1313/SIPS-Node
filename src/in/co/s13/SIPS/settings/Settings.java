@@ -108,19 +108,19 @@ public class Settings {
             saveSettings();
         }
         alldb = new OLDSQLiteJDBC(dir_etc + "/all.db");
-        TASK_DB_EXECUTOR.execute(() -> {
-            String sql = "CREATE TABLE PROC (ID    INT   PRIMARY KEY     NOT NULL,"
-                    + " ALIENID  INT,"
-                    + "FNAME     TEXT,"
-                    + "CNO     INT,"
-                    + "IP   TEXT);";
-            File f1 = new File(dir_etc + "/proc.db");
-            if (f1.exists()) {
-                f1.delete();
-            }
-            TASK_DB.createtable(dir_etc + "/proc.db", sql);
-            TASK_DB.closeConnection();
-        });
+//        TASK_DB_EXECUTOR.execute(() -> {
+//            String sql = "CREATE TABLE PROC (ID    INT   PRIMARY KEY     NOT NULL,"
+//                    + " ALIENID  INT,"
+//                    + "FNAME     TEXT,"
+//                    + "CNO     INT,"
+//                    + "IP   TEXT);";
+//            File f1 = new File(dir_etc + "/proc.db");
+//            if (f1.exists()) {
+//                f1.delete();
+//            }
+//            TASK_DB.createtable(dir_etc + "/proc.db", sql);
+//            TASK_DB.closeConnection();
+//        });
         try {
             ipAddresses = new JSONArray(Util.getLocalHostLANAddress());
         } catch (UnknownHostException ex) {
