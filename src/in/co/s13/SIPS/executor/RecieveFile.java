@@ -1,0 +1,209 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package in.co.s13.SIPS.executor;
+
+
+import in.co.s13.SIPS.settings.GlobalValues;
+import in.co.s13.SIPS.tools.Util;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ *
+ * @author NAVDEEP SINGH SIDHU <navdeepsingh.sidhu95@gmail.com>
+ */
+public class RecieveFile {
+
+    public final static int SOCKET_PORT = 13133;      // you may change this
+    String SERVER = "";  // localhost
+    public final static int FILE_SIZE = 999999999;
+    ArrayList<String> logmsg = new ArrayList<>();
+    int MAX_THREADSLEEP = 100000, sleepcounter = 0;
+
+    public RecieveFile(String IP, String id, String cno, String projectname, String localFolder, ArrayList<String> FileList) {
+        SERVER = IP;
+        ExecutorService rfExecutor = Executors.newFixedThreadPool(5);
+        FileList.stream().forEach((_item) -> {
+            if (_item.trim().length() > 0) {
+                Thread rt = new Thread(() -> {
+
+                    int bytesRead;
+                    int current = 0;
+                    // fos = null;
+                    // bos = null;
+                    // sock = null;
+                    File ipDir, ip2Dir = null;
+                    String lchecksum = "";
+                    String checksum = "";
+                    {
+                        try (Socket sock = new Socket(SERVER, SOCKET_PORT)) {
+                            System.out.println("Connecting...");
+                            try (OutputStream os = sock.getOutputStream(); DataOutputStream outToServer = new DataOutputStream(os)) {
+                                String sendmsg = "<Command>sendfileChecksum</Command><Body><PID>" + id + "</PID><CNO>" + cno + "</CNO><FILENAME>" + projectname + "</FILENAME><FILE>" + _item + "</FILE></Body>";
+                                byte[] bytes = sendmsg.getBytes("UTF-8");
+                                outToServer.writeInt(bytes.length);
+                                outToServer.write(bytes);
+                                try (DataInputStream dIn = new DataInputStream(sock.getInputStream())) {
+                                    int length = dIn.readInt();                    // read length of incoming message
+                                    byte[] message = new byte[length];
+
+                                    if (length > 0) {
+                                        dIn.readFully(message, 0, message.length); // read the message
+                                    }
+                                    String reply = new String(message);
+                                    ipDir = new File("cache/" + IP);
+                                    if (!ipDir.exists()) {
+                                        ipDir.mkdirs();
+                                    }
+                                    //String filename = new File(_item).getName();
+                                    ip2Dir = new File(ipDir.getAbsolutePath() + "/" + _item);
+                                    if (ip2Dir.exists()) {
+                                        lchecksum = Util.LoadCheckSum(ip2Dir.getAbsolutePath() + ".sha");
+                                    }
+                                    if (reply.equalsIgnoreCase("foundfile")) {
+                                        // receive file
+                                        length = dIn.readInt();                    // read length of incoming message
+                                        message = new byte[length];
+
+                                        if (length > 0) {
+                                            dIn.readFully(message, 0, message.length); // read the message
+                                        }
+                                        checksum = new String(message);
+                                        System.out.println("CheckSum Recieved " + checksum);
+                                        sock.close();
+                                    } else {
+                                        System.out.println("Couldn't find file");
+                                        logmsg.add("Couldn't Find File on Master, Plz check file exists in Frameworks data directory " + _item);
+                                    }
+                                }
+                            }
+                        } catch (IOException ex) {
+                            Logger.getLogger(RecieveFile.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+//InputStream is = sock.getInputStream();
+                        //if (lchecksum.trim().length() > 0)
+                        boolean Ndownloaded = true;
+                        long starttime = System.currentTimeMillis();
+
+                        while (Ndownloaded) {
+                            String nmsg = "";
+                            if (new File(ip2Dir.getAbsolutePath() + ".sha").exists()) {
+                                lchecksum = Util.LoadCheckSum(ip2Dir.getAbsolutePath() + ".sha");
+                            }
+                            if (lchecksum.trim().equalsIgnoreCase(checksum.trim())) {
+                                Util.copyFileUsingStream(ip2Dir.getAbsolutePath(), localFolder + "/" + _item);
+                                Ndownloaded = false;
+                            } else {
+
+                                try (Socket sock = new Socket("127.0.0.1", 13136)) {
+                                    //System.out.println("Connecting...");
+                                    try (OutputStream os = sock.getOutputStream(); DataOutputStream outToServer = new DataOutputStream(os)) {
+                                        String sendmsg = "<Command>downloadfile</Command><Body><PID>" + id + "</PID><CNO>" + cno + "</CNO><FILENAME>" + projectname + "</FILENAME><FILE>" + _item + "</FILE><IP>" + SERVER + "</IP><CHECKSUM>" + checksum + "</CHECKSUM></Body>";
+                                        byte[] bytes = sendmsg.getBytes("UTF-8");
+                                        outToServer.writeInt(bytes.length);
+                                        outToServer.write(bytes);
+                                        try (DataInputStream dIn = new DataInputStream(sock.getInputStream())) {
+                                            int length = dIn.readInt();                    // read length of incoming message
+                                            byte[] message = new byte[length];
+
+                                            if (length > 0) {
+                                                dIn.readFully(message, 0, message.length); // read the message
+                                            }
+                                            String reply = new String(message);
+                                            String rpl = reply.substring(reply.indexOf("<MSG>") + 5, reply.indexOf("</MSG>"));
+                                            if (rpl.equalsIgnoreCase("finished")) {
+                                                // receive file
+
+                                                sock.close();
+                                                if (new File(ip2Dir.getAbsolutePath() + ".sha").exists()) {
+                                                    lchecksum = Util.LoadCheckSum(ip2Dir.getAbsolutePath() + ".sha");
+                                                }
+                                                if (lchecksum.trim().equalsIgnoreCase(checksum.trim())) {
+                                                    Util.copyFileUsingStream(ip2Dir.getAbsolutePath(), localFolder + "/" + _item);
+                                                    Ndownloaded = false;
+                                                }
+
+                                            } else if (rpl.equalsIgnoreCase("inque")) {
+                                                String vl = reply.substring(reply.indexOf("<RT>") + 4, reply.indexOf("</RT>"));
+                                                sock.close();
+                                                double valts = Double.parseDouble(vl);
+                                                if (valts < 1000) {
+                                                    valts = 1000.0;
+                                                }
+                                                long stime = (long) ((valts * 0.13) + 13);
+                                                long start = System.currentTimeMillis();
+                                                Thread.sleep(stime);
+                                                long end = System.currentTimeMillis();
+                                                Thread eiq = new Thread(new sendSleeptime("sleeptime", IP, id, cno, projectname, "" + (end - start)));
+                                                eiq.setPriority(Thread.NORM_PRIORITY + 1);
+                                                GlobalValues.sleepexecutorService.execute(eiq);
+
+                                            } else if (rpl.equalsIgnoreCase("addedinq")) {
+                                                sock.close();
+                                                long start = System.currentTimeMillis();
+
+                                                Thread.currentThread().sleep(500);
+                                                long end = System.currentTimeMillis();
+                                                Thread eiq = new Thread(new sendSleeptime("sleeptime", IP, id, cno, projectname, "" + (end - start)));
+                                                eiq.setPriority(Thread.NORM_PRIORITY + 1);
+                                                GlobalValues.sleepexecutorService.execute(eiq);
+
+                                            } else {
+                                                System.out.println("Couldn't find file");
+                                                logmsg.add("Couldn't Find File on Master, Plz check file exists in Frameworks data directory " + _item);
+                                            }
+                                        } catch (InterruptedException ex) {
+                                            Logger.getLogger(RecieveFile.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
+                                    }
+                                } catch (IOException ex) {
+                                    Logger.getLogger(RecieveFile.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+
+                            }
+
+                            if (sleepcounter > MAX_THREADSLEEP) {
+                                break;
+                            }
+                            sleepcounter++;
+                        }
+                        long endtime = System.currentTimeMillis();
+                        Thread t2 = new Thread(new sendCommOverHead("ComOH", IP, id, cno, projectname, "" + (endtime - starttime)));
+                        t2.start();
+
+                    } // read length of incoming message
+                }
+                );
+                rfExecutor.submit(rt);
+            }
+        });
+
+        rfExecutor.shutdown();
+        try {
+            rfExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+
+        } catch (InterruptedException ex) {
+            Logger.getLogger(RecieveFile.class
+                    .getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+
+    public ArrayList<String> getFileLog() {
+        return logmsg;
+    }
+
+}
