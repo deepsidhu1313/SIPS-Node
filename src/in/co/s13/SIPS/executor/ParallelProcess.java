@@ -39,7 +39,7 @@ public class ParallelProcess implements Runnable {
     JSONObject manifest;
     String loc;
     boolean success = true;
-    int counter = 0;
+    long counter = 0;
     Long totalTime;
     int opfrequecy = 250000;
     private Process process;
@@ -63,7 +63,7 @@ public class ParallelProcess implements Runnable {
         }
 
         manifest = body.getJSONObject("MANIFEST");//substring(body.indexOf("<MANIFEST>") + 10, body.indexOf("</MANIFEST>"));
-        counter = GlobalValues.TASK_ID;
+        counter = GlobalValues.TASK_ID.get();
         main = manifest.getString("MAIN");//substring(manifest.indexOf("<MAIN>") + 6, manifest.indexOf("</MAIN>"));
         projectName = manifest.getString("PROJECT");//substring(manifest.indexOf("<PROJECT>") + 9, manifest.indexOf("</PROJECT>"));
 
@@ -145,9 +145,9 @@ public class ParallelProcess implements Runnable {
             opfrequecy = manifest.getInt("OUTPUTFREQUENCY", opfrequecy);//Integer.parseInt(tmp.trim());
 
         }
-        GlobalValues.TASK_ID++;
-        GlobalValues.TASK_DB.put("" + ip + "-ID-" + pid + "c" + cno,new TaskDBRow(pid, projectName, ipadd, counter, process));
-        GlobalValues.localprocessID.add(counter);
+        GlobalValues.TASK_ID.incrementAndGet();
+        GlobalValues.TASK_DB.put("" + ip + "-ID-" + pid + "c" + cno,new TaskDBRow(pid, projectName, ipadd, (int) counter, process));
+        //GlobalValues.localprocessID.add(counter);
 //        processDBExecutor.execute(() -> {
 //            String sql = "INSERT INTO PROC (ID,"
 //                    + " ALIENID ,"
@@ -269,7 +269,7 @@ public class ParallelProcess implements Runnable {
         Thread eiq = new Thread(new sendStartInQue("startinque", ip, pid, cno, projectName, "" + System.currentTimeMillis()));
         eiq.start();
         try {
-            GlobalValues.TASK_WAITING--;
+            GlobalValues.TASK_WAITING.decrementAndGet();
             ProcessBuilder pb = null;
             String cmd2 = "";
             Long startTime = System.currentTimeMillis();

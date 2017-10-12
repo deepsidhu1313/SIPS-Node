@@ -76,10 +76,10 @@ public class sendCommOverHead implements Runnable {
                     if (length > 0) {
                         dIn.readFully(message, 0, message.length); // read the message
                     }
-                    String reply = new String(message);
-                    if (reply.contains("OK")) {
-                    } else {
-                    }
+//                    String reply = new String(message);
+//                    if (reply.contains("OK")) {
+//                    } else {
+//                    }
                     s.close();
 
                 } // read length of incoming message

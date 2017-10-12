@@ -18,13 +18,13 @@ import java.util.logging.Logger;
  *
  * @author Nika
  */
-public class sendStartInQue implements Runnable {
+public class sendEnterInQue implements Runnable {
 
     String ipadd = "", ID = "", outPut = "", filename = "", value = "", cmd, chunkno;
 
     
 
-    public sendStartInQue(String overheadName, String ip, String PID, String chunknumber, String Filename, String value) {
+    public sendEnterInQue(String overheadName, String ip, String PID, String chunknumber, String Filename, String value) {
         ipadd = ip;
         ID = PID;
         filename = Filename;
@@ -55,10 +55,10 @@ public class sendStartInQue implements Runnable {
                     if (length > 0) {
                         dIn.readFully(message, 0, message.length); // read the message
                     }
-//                    String reply = new String(message);
-//                    if (reply.contains("OK")) {
-//                    } else {
-//                    }
+                    String reply = new String(message);
+                    if (reply.contains("OK")) {
+                    } else {
+                    }
                 }
                 s.close();
                 //inFromServer.close();

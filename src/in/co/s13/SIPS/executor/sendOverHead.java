@@ -79,10 +79,10 @@ public class sendOverHead implements Runnable {
                 if (length > 0) {
                     dIn.readFully(message, 0, message.length); // read the message
                 }
-                String reply = new String(message);
-                if (reply.contains("OK")) {
-                } else {
-                }
+//                String reply = new String(message);
+//                if (reply.contains("OK")) {
+//                } else {
+//                }
                 s.close();
             }
         } catch (IOException ex) {

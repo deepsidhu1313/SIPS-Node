@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicLong;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.json.JSONArray;
@@ -64,7 +65,7 @@ public class GlobalValues {
      * *
      * Resource Stats
      */
-    public static int TASK_ID = 0;
+    public static AtomicLong TASK_ID = new AtomicLong(0);
 //    public static SQLiteJDBC TASK_DB = new SQLiteJDBC();
     public static String HOST_NAME = "DummySlave";
     public static String NODE_UUID = "";
@@ -98,7 +99,7 @@ public class GlobalValues {
     public static int TASK_HANDLER_LIMIT = 10;
     public static int TASK_FINISH_LISTENER_HANDLER_LIMIT = 10;
     public static int TASK_LIMIT = Runtime.getRuntime().availableProcessors() - 2;
-    public static int TASK_WAITING = 0;
+    public static AtomicLong TASK_WAITING = new AtomicLong(0);
     /**
      * *
      * Executors

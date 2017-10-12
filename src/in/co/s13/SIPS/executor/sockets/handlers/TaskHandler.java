@@ -16,9 +16,12 @@
  */
 package in.co.s13.SIPS.executor.sockets.handlers;
 
+import in.co.s13.SIPS.datastructure.DistributionDBRow;
 import in.co.s13.SIPS.executor.ParallelProcess;
+import in.co.s13.SIPS.executor.PrintToFile;
 import in.co.s13.SIPS.executor.sockets.TaskServer;
 import in.co.s13.SIPS.settings.GlobalValues;
+import static in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -32,6 +35,7 @@ import java.util.logging.Logger;
 import org.json.JSONObject;
 import static in.co.s13.SIPS.settings.GlobalValues.TASK_DB;
 import static in.co.s13.SIPS.settings.GlobalValues.TASK_DB_EXECUTOR;
+import java.util.Hashtable;
 
 /**
  *
@@ -70,7 +74,7 @@ public class TaskHandler implements Runnable {
                     JSONObject body = messageJson.getJSONObject("Body");//messageString.substring(messageString.indexOf("<Body>") + 6, messageString.indexOf("</Body>"));
                     System.out.println(messageString);
                     if (command.contains("createprocess")) {
-                        GlobalValues.TASK_WAITING++;
+                        GlobalValues.TASK_WAITING.incrementAndGet();
                         GlobalValues.TASK_EXECUTOR.submit(new ParallelProcess(body, ipAddress));
                         System.out.println("created process");
 
@@ -83,30 +87,201 @@ public class TaskHandler implements Runnable {
 
                         }
                         submitter.close();
+                    } else if (command.contains("ComOH")) {
+                        String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
+                        String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
+                        String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
+                        String content = body.getString("OUTPUT");//.substring(body.indexOf("<OUTPUT>") + 8, body.indexOf("</OUTPUT>"));
+                        //   String ExitCode = body.substring(body.indexOf("<EXTCODE>") + 9, body.indexOf("</EXTCODE>"));
+
+                        int p = Integer.parseInt(pid);
+
+                        try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
+                            String sendmsg = "OK";
+
+                            byte[] bytes = sendmsg.getBytes("UTF-8");
+                            outToClient.writeInt(bytes.length);
+                            outToClient.write(bytes);
+
+                        }
+                        submitter.close();
+                        Hashtable<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
+                        DistributionDBRow get = DistTable.get(ipAddress + "-" + cno.trim());
+                        get.setNoh(get.getNoh() + Long.parseLong(content));
+//                        
+//                        FXSplitTabs.distDBExecutor.execute(() -> {
+//                            {
+//                                System.out.println("size of master dist db " + FXSplitTabs.MasterDistDB.size());
+//                                int csize = FXSplitTabs.MasterDistDB.size();
+//                                while (csize <= p) {
+//                                    try {
+//                                        System.out.println("Waiting for Master DB to Create table " + p);
+//                                        Thread.currentThread().sleep(10000);
+//                                        csize = FXSplitTabs.MasterDistDB.size();
+//                                    } catch (InterruptedException ex) {
+//                                        Logger.getLogger(Handler.class.getName()).log(Level.SEVERE, null, ex);
+//                                    }
+//                                }
+//                                for (int i = 0; i < FXSplitTabs.MasterDistDB.get(p).size(); i++) {
+//                                    DistributionDBRow get = FXSplitTabs.MasterDistDB.get(p).get(i);
+//                                    if (get.getIp().trim().equalsIgnoreCase(ipAddress) && get.getCno() == Integer.parseInt(cno)) {
+//                                        get.setNoh(get.getNoh() + Long.parseLong(content));
+//                                    }
+//                                }
+//                            }
+//                        });
+
+                    } else if (command.contains("startinq")) {
+                        String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
+                        String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
+                        String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
+                        String content = body.getString("OUTPUT");//.substring(body.indexOf("<OUTPUT>") + 8, body.indexOf("</OUTPUT>"));
+                        //   String ExitCode = body.substring(body.indexOf("<EXTCODE>") + 9, body.indexOf("</EXTCODE>"));
+//                        System.out.println(msg);
+                        int p = Integer.parseInt(pid);
+                        try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
+                            String sendmsg = "OK";
+
+                            byte[] bytes = sendmsg.getBytes("UTF-8");
+                            outToClient.writeInt(bytes.length);
+                            outToClient.write(bytes);
+
+                        }
+                        submitter.close();
+                        Hashtable<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
+                        DistributionDBRow get = DistTable.get(ipAddress + "-" + cno.trim());
+                        get.setStartinq(Long.parseLong(content));
+                        get.setWaitinq(get.getStartinq() - get.getEntrinq());
+//                        
+//                        FXSplitTabs.distDBExecutor.execute(() -> {
+//                            {
+//                                System.out.println("size of master dist db " + FXSplitTabs.MasterDistDB.size());
+//                                int csize = FXSplitTabs.MasterDistDB.size();
+//                                while (csize <= p) {
+//                                    try {
+//                                        System.out.println("Waiting for Master DB to Create table " + p);
+//                                        Thread.currentThread().sleep(10000);
+//                                        csize = FXSplitTabs.MasterDistDB.size();
+//                                    } catch (InterruptedException ex) {
+//                                        Logger.getLogger(Handler.class.getName()).log(Level.SEVERE, null, ex);
+//                                    }
+//                                }
+//                                for (int i = 0; i < FXSplitTabs.MasterDistDB.get(p).size(); i++) {
+//                                    DistributionDBRow get = FXSplitTabs.MasterDistDB.get(p).get(i);
+//                                    if (get.getIp().trim().equalsIgnoreCase(ipAddress) && get.getCno() == Integer.parseInt(cno)) {
+//                                        get.setStartinq(Long.parseLong(content));
+//                                        get.setWaitinq(get.getStartinq() - get.getEntrinq());
+//                                    }
+//                                }
+//                            }
+//                        });
+
+                    } else if (command.contains("enterinq")) {
+                        String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
+                        String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
+                        String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
+                        String content = body.getString("OUTPUT");//.substring(body.indexOf("<OUTPUT>") + 8, body.indexOf("</OUTPUT>"));
+                        //   String ExitCode = body.substring(body.indexOf("<EXTCODE>") + 9, body.indexOf("</EXTCODE>"));
+//                        System.out.println(msg);
+                        int p = Integer.parseInt(pid);
+                        try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
+                            String sendmsg = "OK";
+
+                            byte[] bytes = sendmsg.getBytes("UTF-8");
+                            outToClient.writeInt(bytes.length);
+                            outToClient.write(bytes);
+
+                        }
+                        submitter.close();
+                        Hashtable<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
+                        DistributionDBRow get = DistTable.get(ipAddress + "-" + cno.trim());
+                        get.setEntrinq(Long.parseLong(content));
+                        get.setWaitinq(get.getStartinq() - get.getEntrinq());
+//
+//                        
+//                        FXSplitTabs.distDBExecutor.execute(() -> {
+//                            {
+//                                System.out.println("size of master dist db " + FXSplitTabs.MasterDistDB.size());
+//                                int csize = FXSplitTabs.MasterDistDB.size();
+//                                while (csize <= p) {
+//                                    try {
+//                                        System.out.println("Waiting for Master DB to Create table " + p);
+//                                        Thread.currentThread().sleep(10000);
+//                                        csize = FXSplitTabs.MasterDistDB.size();
+//                                    } catch (InterruptedException ex) {
+//                                        Logger.getLogger(Handler.class.getName()).log(Level.SEVERE, null, ex);
+//                                    }
+//                                }
+//                                for (int i = 0; i < FXSplitTabs.MasterDistDB.get(p).size(); i++) {
+//                                    DistributionDBRow get = FXSplitTabs.MasterDistDB.get(p).get(i);
+//                                    if (get.getIp().trim().equalsIgnoreCase(ipAddress) && get.getCno() == Integer.parseInt(cno)) {
+//                                        get.setEntrinq(Long.parseLong(content));
+//                                        get.setWaitinq(get.getStartinq() - get.getEntrinq());
+//
+//                                    }
+//                                }
+//                            }
+//                        });
+
+                    } else if (command.contains("sleeptime")) {
+                        String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
+                        String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
+                        String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
+                        String content = body.getString("OUTPUT");//.substring(body.indexOf("<OUTPUT>") + 8, body.indexOf("</OUTPUT>"));
+                        //   String ExitCode = body.substring(body.indexOf("<EXTCODE>") + 9, body.indexOf("</EXTCODE>"));
+//                        System.out.println(msg);
+                        int p = Integer.parseInt(pid);
+
+                        /*    try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
+                         String sendmsg = "OK";
+
+                         byte[] bytes = sendmsg.getBytes("UTF-8");
+                         outToClient.writeInt(bytes.length);
+                         outToClient.write(bytes);
+
+                         }
+                         */
+                        submitter.close();
+                        Hashtable<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
+                        DistributionDBRow get = DistTable.get(ipAddress + "-" + cno.trim());
+                        get.setSleeptime(get.getSleeptime() + Long.parseLong(content));
+//                                    
+//                        
+//                        FXSplitTabs.distDBExecutor.execute(() -> {
+//                            {
+//                                System.out.println("size of master dist db " + FXSplitTabs.MasterDistDB.size());
+//                                int csize = FXSplitTabs.MasterDistDB.size();
+//                                while (csize <= p) {
+//                                    try {
+//                                        System.out.println("Waiting for Master DB to Create table " + p);
+//                                        Thread.currentThread().sleep(10000);
+//                                        csize = FXSplitTabs.MasterDistDB.size();
+//                                    } catch (InterruptedException ex) {
+//                                        Logger.getLogger(Handler.class.getName()).log(Level.SEVERE, null, ex);
+//                                    }
+//                                }
+//                                for (int i = 0; i < FXSplitTabs.MasterDistDB.get(p).size(); i++) {
+//                                    DistributionDBRow get = FXSplitTabs.MasterDistDB.get(p).get(i);
+//                                    if (get.getIp().trim().equalsIgnoreCase(ipAddress) && get.getCno() == Integer.parseInt(cno)) {
+//                                        get.setSleeptime(get.getSleeptime() + Long.parseLong(content));
+//                                    }
+//                                }
+//                            }
+//                        });
+
                     } else if (command.contains("kill")) {
                         String pid = body.getString("PID");//body.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
                         String cno = body.getString("CNO");//body.substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
 
                         if (GlobalValues.TASK_DB.containsKey("" + ipAddress + "-ID-" + pid + "c" + cno)) {
-
-                            TASK_DB_EXECUTOR.execute(() -> {
-                                    Process p= GlobalValues.TASK_DB.get("" + ipAddress + "-ID-" + pid + "c" + cno).getProcess();
-                                    if (p.isAlive()) {
-                                        p.destroy();
-                                    }
-//                                try {
-////                                    String sql = "SELECT * FROM PROC WHERE  ALIENID = '" + pid + "' AND CNO ='" + cno + "' AND IP ='" + ipAddress + "';";
-////
-////                                    ResultSet rs = TASK_DB.select(GlobalValues.dir_etc+"/proc.db", sql);
-////                                    int n = 9999;
-////                                    while (rs.next()) {
-////                                        n = rs.getInt("ID");
-////                                    }
-////                                    TASK_DB.closeConnection();
-//                                } catch (SQLException ex) {
-//                                    Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
-//                                }
-                            });
+                            Process p = GlobalValues.TASK_DB.get("" + ipAddress + "-ID-" + pid + "c" + cno).getProcess();
+                            if (p.isAlive()) {
+                                p.destroy();
+                            }
+//                            TASK_DB_EXECUTOR.execute(() -> {
+//                                   
+//
+//                            });
 
                         }
                         try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
@@ -119,13 +294,34 @@ public class TaskHandler implements Runnable {
                         }
                         submitter.close();
 
+                    } else if (command.contains("printoutput")) {
+                              String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
+                        String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
+                        String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
+                        String content = body.getString("OUTPUT");//.substring(body.indexOf("<OUTPUT>") + 8, body.indexOf("</OUTPUT>"));
+                        int p = Integer.parseInt(pid);
+                        String output = content;
+                         try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) 
+                         {
+                            String sendmsg = "OK";
+
+                            byte[] bytes = sendmsg.getBytes("UTF-8");
+                            outToClient.writeInt(bytes.length);
+                            outToClient.write(bytes);
+                        }
+
+                        
+
+                        Thread outToFile = new Thread(new PrintToFile(fname, pid, cno, content));
+                        outToFile.start();
+                        submitter.close();
                     }
                 }
             }
         } catch (IOException ex) {
             Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
             try {
-                if (submitter != null && !submitter.isClosed() ) {
+                if (submitter != null && !submitter.isClosed()) {
                     submitter.close();
                 }
             } catch (IOException ex1) {
