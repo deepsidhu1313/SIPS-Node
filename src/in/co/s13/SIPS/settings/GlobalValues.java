@@ -115,7 +115,7 @@ public class GlobalValues {
     public static ExecutorService LIVE_DB_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService DIST_DB_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService RESULT_DB_EXECUTOR = Executors.newFixedThreadPool(1);
-public static ExecutorService sleepexecutorService = Executors.newFixedThreadPool(1);
+    public static ExecutorService sleepexecutorService = Executors.newFixedThreadPool(1);
 
     /**
      * Server ThreadPools
@@ -137,7 +137,11 @@ public static ExecutorService sleepexecutorService = Executors.newFixedThreadPoo
      * Socket Ports
      */
     public static int PING_SERVER_PORT = 13131, FILE_QUEUE_SERVER_PORT = 13132, TASK_SERVER_PORT = 13133, TASK_FINISH_LISTENER_SERVER_PORT = 13134, API_SERVER_PORT = 13139;
-
+    
+    /**
+     * Server Flags
+     */
+    public static boolean API_SERVER_IS_RUNNING=true,FILE_SERVER_IS_RUNNING=true,PING_SERVER_IS_RUNNING=true,TASK_SERVER_IS_RUNNING=true,TASK_FINISH_SERVER_IS_RUNNING=true;
     /**
      * Network Scheduled Thread Conditions
      */

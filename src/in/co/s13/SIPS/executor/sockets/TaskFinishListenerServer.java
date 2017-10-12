@@ -43,7 +43,7 @@ public class TaskFinishListenerServer implements Runnable {
         }
 
         Util.outPrintln("Finish Server is running");
-        for (; !GlobalValues.TASK_FINISH_LISTENER_SERVER_SOCKET.isClosed();) {
+        while (GlobalValues.TASK_FINISH_SERVER_IS_RUNNING) {
             try {
                 Socket s = GlobalValues.TASK_FINISH_LISTENER_SERVER_SOCKET.accept();
                 Thread t = new Thread(new TaskFinishListenerHandler(s));

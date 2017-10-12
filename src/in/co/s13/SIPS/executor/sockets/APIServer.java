@@ -58,7 +58,7 @@ public class APIServer implements Runnable {
         Thread.currentThread().setName("API Server Thread");
         System.out.println("API Server is running");
 
-        while (!GlobalValues.API_SERVER_SOCKET.isClosed()) {
+        while (GlobalValues.API_SERVER_IS_RUNNING) {
             try {
                 Socket s = GlobalValues.API_SERVER_SOCKET.accept();
                 Thread t = new Thread(new APIHandler(s));

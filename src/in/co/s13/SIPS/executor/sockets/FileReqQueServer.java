@@ -54,7 +54,7 @@ public class FileReqQueServer implements Runnable {
         Thread.currentThread().setName("File Server Thread");
 
         System.out.println("File Download Que Server is running");
-        while (!GlobalValues.FILE_SERVER_SOCKET.isClosed()) {
+        while (GlobalValues.FILE_SERVER_IS_RUNNING) {
             try {
                 Socket s = GlobalValues.FILE_SERVER_SOCKET.accept();
                 Thread t = new Thread(new FileReqQueHandler(s));

@@ -147,7 +147,7 @@ public class TaskServer implements Runnable {
         Thread.currentThread().setName("Task Server Thread");
 
         System.out.println("Server is running");
-        while (!GlobalValues.TASK_SERVER_SOCKET.isClosed()) {
+        while (GlobalValues.TASK_SERVER_IS_RUNNING) {
             try {
                 Socket s = GlobalValues.TASK_SERVER_SOCKET.accept();
                 GlobalValues.TASK_HANDLER_EXECUTOR_SERVICE.submit(new TaskHandler(s));

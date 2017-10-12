@@ -52,7 +52,7 @@ public class PingServer implements Runnable {
         }
         System.out.println("PING Server is running");
         Thread.currentThread().setName("Ping Server Thread");
-        while (!GlobalValues.PING_SERVER_SOCKET.isClosed()) {
+        while (GlobalValues.PING_SERVER_IS_RUNNING) {
             try {
                 Socket s = GlobalValues.PING_SERVER_SOCKET.accept();
                 

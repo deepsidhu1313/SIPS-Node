@@ -38,6 +38,7 @@ public class ServiceOperations {
     }
 
     public static synchronized void startPingServer() {
+        GlobalValues.PING_SERVER_IS_RUNNING = true;
         if ((GlobalValues.PING_SERVER_SOCKET == null || GlobalValues.PING_SERVER_SOCKET.isClosed()) && (GlobalValues.PING_SERVER_THREAD == null || !GlobalValues.PING_SERVER_THREAD.isAlive())) {
             GlobalValues.PING_SERVER_THREAD = new Thread(new PingServer());
             GlobalValues.PING_SERVER_THREAD.start();
@@ -45,13 +46,14 @@ public class ServiceOperations {
     }
 
     public static synchronized void stopPingServer() {
-        if (GlobalValues.PING_SERVER_SOCKET != null && !GlobalValues.PING_SERVER_SOCKET.isClosed()) {
-            try {
-                GlobalValues.PING_SERVER_SOCKET.close();
-            } catch (IOException ex) {
-                Logger.getLogger(ServiceOperations.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+        GlobalValues.PING_SERVER_IS_RUNNING = false;
+//        if (GlobalValues.PING_SERVER_SOCKET != null && !GlobalValues.PING_SERVER_SOCKET.isClosed()) {
+//            try {
+//                GlobalValues.PING_SERVER_SOCKET.close();
+//            } catch (IOException ex) {
+//                Logger.getLogger(ServiceOperations.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//        }
     }
 
     public static synchronized void restartPingServer() {
@@ -66,6 +68,7 @@ public class ServiceOperations {
     }
 
     public static synchronized void startApiServer() {
+        GlobalValues.API_SERVER_IS_RUNNING = true;
         if ((GlobalValues.API_SERVER_SOCKET == null || GlobalValues.API_SERVER_SOCKET.isClosed()) && (GlobalValues.API_SERVER_THREAD == null || !GlobalValues.API_SERVER_THREAD.isAlive())) {
             GlobalValues.API_SERVER_THREAD = new Thread(new PingServer());
             GlobalValues.API_SERVER_THREAD.start();
@@ -73,13 +76,14 @@ public class ServiceOperations {
     }
 
     public static synchronized void stopApiServer() {
-        if (GlobalValues.API_SERVER_SOCKET != null && !GlobalValues.API_SERVER_SOCKET.isClosed()) {
-            try {
-                GlobalValues.API_SERVER_SOCKET.close();
-            } catch (IOException ex) {
-                Logger.getLogger(ServiceOperations.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+        GlobalValues.API_SERVER_IS_RUNNING = false;
+//        if (GlobalValues.API_SERVER_SOCKET != null && !GlobalValues.API_SERVER_SOCKET.isClosed()) {
+//            try {
+//                GlobalValues.API_SERVER_SOCKET.close();
+//            } catch (IOException ex) {
+//                Logger.getLogger(ServiceOperations.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//        }
     }
 
     public static synchronized void restartApiServer() {
@@ -94,6 +98,7 @@ public class ServiceOperations {
     }
 
     public static synchronized void startTaskServer() {
+        GlobalValues.TASK_SERVER_IS_RUNNING = true;
         if ((GlobalValues.TASK_SERVER_SOCKET == null || GlobalValues.TASK_SERVER_SOCKET.isClosed()) && (GlobalValues.TASK_SERVER_THREAD == null || !GlobalValues.TASK_SERVER_THREAD.isAlive())) {
             GlobalValues.TASK_SERVER_THREAD = new Thread(new PingServer());
             GlobalValues.TASK_SERVER_THREAD.start();
@@ -101,13 +106,14 @@ public class ServiceOperations {
     }
 
     public static synchronized void stopTaskServer() {
-        if (GlobalValues.TASK_SERVER_SOCKET != null && !GlobalValues.TASK_SERVER_SOCKET.isClosed()) {
-            try {
-                GlobalValues.TASK_SERVER_SOCKET.close();
-            } catch (IOException ex) {
-                Logger.getLogger(ServiceOperations.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+        GlobalValues.TASK_SERVER_IS_RUNNING = false;
+//        if (GlobalValues.TASK_SERVER_SOCKET != null && !GlobalValues.TASK_SERVER_SOCKET.isClosed()) {
+//            try {
+//                GlobalValues.TASK_SERVER_SOCKET.close();
+//            } catch (IOException ex) {
+//                Logger.getLogger(ServiceOperations.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//        }
     }
 
     public static synchronized void restartTaskServer() {
@@ -122,6 +128,7 @@ public class ServiceOperations {
     }
 
     public static synchronized void startFileServer() {
+        GlobalValues.FILE_SERVER_IS_RUNNING = true;
         if ((GlobalValues.FILE_SERVER_SOCKET == null || GlobalValues.FILE_SERVER_SOCKET.isClosed()) && (GlobalValues.FILE_SERVER_THREAD == null || !GlobalValues.FILE_SERVER_THREAD.isAlive())) {
             GlobalValues.FILE_SERVER_THREAD = new Thread(new PingServer());
             GlobalValues.FILE_SERVER_THREAD.start();
@@ -129,13 +136,14 @@ public class ServiceOperations {
     }
 
     public static synchronized void stopFileServer() {
-        if (GlobalValues.FILE_SERVER_SOCKET != null && !GlobalValues.FILE_SERVER_SOCKET.isClosed()) {
-            try {
-                GlobalValues.FILE_SERVER_SOCKET.close();
-            } catch (IOException ex) {
-                Logger.getLogger(ServiceOperations.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+        GlobalValues.FILE_SERVER_IS_RUNNING = false;
+//        if (GlobalValues.FILE_SERVER_SOCKET != null && !GlobalValues.FILE_SERVER_SOCKET.isClosed()) {
+//            try {
+//                GlobalValues.FILE_SERVER_SOCKET.close();
+//            } catch (IOException ex) {
+//                Logger.getLogger(ServiceOperations.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//        }
     }
 
     public static synchronized void restartFileServer() {
@@ -208,8 +216,7 @@ public class ServiceOperations {
         stopLiveNodeScanner();
         startLiveNodeScanner();
     }
-    
-   
+
     public static synchronized void initTaskFinishListenerServerAtStartUp() {
         if (GlobalValues.TASK_FINISH_LISTENER_SERVER_ENABLED_AT_START) {
             startTaskFinishListenerServer();
@@ -217,6 +224,7 @@ public class ServiceOperations {
     }
 
     public static synchronized void startTaskFinishListenerServer() {
+        GlobalValues.TASK_FINISH_SERVER_IS_RUNNING = true;
         if ((GlobalValues.TASK_FINISH_LISTENER_SERVER_SOCKET == null || GlobalValues.TASK_FINISH_LISTENER_SERVER_SOCKET.isClosed()) && (GlobalValues.TASK_FINISH_LISTENER_SERVER_THREAD == null || !GlobalValues.TASK_FINISH_LISTENER_SERVER_THREAD.isAlive())) {
             GlobalValues.TASK_FINISH_LISTENER_SERVER_THREAD = new Thread(new TaskFinishListenerServer());
             GlobalValues.TASK_FINISH_LISTENER_SERVER_THREAD.start();
@@ -224,19 +232,19 @@ public class ServiceOperations {
     }
 
     public static synchronized void stopTaskFinishListenerServer() {
-        if (GlobalValues.TASK_FINISH_LISTENER_SERVER_SOCKET != null && !GlobalValues.TASK_FINISH_LISTENER_SERVER_SOCKET.isClosed()) {
-            try {
-                GlobalValues.TASK_FINISH_LISTENER_SERVER_SOCKET.close();
-            } catch (IOException ex) {
-                Logger.getLogger(ServiceOperations.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+        GlobalValues.TASK_FINISH_SERVER_IS_RUNNING = false;
+//        if (GlobalValues.TASK_FINISH_LISTENER_SERVER_SOCKET != null && !GlobalValues.TASK_FINISH_LISTENER_SERVER_SOCKET.isClosed()) {
+//            try {
+//                GlobalValues.TASK_FINISH_LISTENER_SERVER_SOCKET.close();
+//            } catch (IOException ex) {
+//                Logger.getLogger(ServiceOperations.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//        }
     }
 
     public static synchronized void restartTaskFinishListenerServer() {
         stopTaskFinishListenerServer();
         startTaskFinishListenerServer();
     }
- 
-    
+
 }
