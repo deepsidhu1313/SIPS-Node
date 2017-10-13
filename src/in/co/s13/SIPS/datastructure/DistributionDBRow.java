@@ -6,10 +6,6 @@
 package in.co.s13.SIPS.datastructure;
 
 import java.util.Comparator;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleLongProperty;
-import javafx.beans.property.SimpleStringProperty;
 
 /**
  *
