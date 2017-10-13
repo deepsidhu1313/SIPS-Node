@@ -17,235 +17,235 @@ import javafx.beans.property.SimpleStringProperty;
  */
 public class DistributionDBRow {
 
-    private SimpleIntegerProperty id;
-    private SimpleStringProperty ip;
-    private SimpleDoubleProperty prfm;
-    private SimpleIntegerProperty pid, cno, vartype, scheduler, exitcode;
-    private SimpleLongProperty lstarttime, lendtime, lexctime, nexecutiontime, noh, poh,entrinq,startinq,waitinq,sleeptime;
-    private SimpleStringProperty chunksize, lowlimit, uplimit, counter;
+    private Integer id;
+    private String ip;
+    private Double prfm;
+    private Integer pid, cno, vartype, scheduler, exitcode;
+    private Long lstarttime, lendtime, lexctime, nexecutiontime, noh, poh,entrinq,startinq,waitinq,sleeptime;
+    private String chunksize, lowlimit, uplimit, counter;
 
     public DistributionDBRow(int id, String ip, int pid, int cno, int vartype, int scheduler,
             long lstarttime, long lendtime, long lexctime, long nexecutiontime, long noh, long poh,
             long entrinq,long startinq,long waitinq,long sleeptime,
             String chunksize, String lowlimit, String uplimit, String counter, double prfm, int exitcode) {
-        this.id = new SimpleIntegerProperty(id);
-        this.ip = new SimpleStringProperty(ip);
-        this.pid = new SimpleIntegerProperty(pid);
-        this.cno = new SimpleIntegerProperty(cno);
-        this.vartype = new SimpleIntegerProperty(vartype);
-        this.scheduler = new SimpleIntegerProperty(scheduler);
-        this.lstarttime = new SimpleLongProperty(lstarttime);
-        this.lendtime = new SimpleLongProperty(lendtime);
-        this.lexctime =new SimpleLongProperty( lexctime);
-        this.nexecutiontime =new SimpleLongProperty( nexecutiontime);
-        this.noh = new SimpleLongProperty(noh);
-        this.poh = new SimpleLongProperty(poh);
-        this.chunksize = new SimpleStringProperty(chunksize);
-        this.lowlimit = new SimpleStringProperty(lowlimit);
-        this.uplimit = new SimpleStringProperty(uplimit);
-        this.counter = new SimpleStringProperty(counter);
-        this.prfm = new SimpleDoubleProperty(prfm);
-        this.exitcode = new SimpleIntegerProperty(exitcode);
-         this.entrinq=new SimpleLongProperty(entrinq);
-         this.startinq=new SimpleLongProperty(startinq);
-         this.waitinq=new SimpleLongProperty(waitinq);
-         this.sleeptime=new SimpleLongProperty(sleeptime);
+        this.id = (id);
+        this.ip = (ip);
+        this.pid = (pid);
+        this.cno = (cno);
+        this.vartype = (vartype);
+        this.scheduler = (scheduler);
+        this.lstarttime = (lstarttime);
+        this.lendtime = (lendtime);
+        this.lexctime =( lexctime);
+        this.nexecutiontime =( nexecutiontime);
+        this.noh = (noh);
+        this.poh = (poh);
+        this.chunksize = (chunksize);
+        this.lowlimit = (lowlimit);
+        this.uplimit = (uplimit);
+        this.counter = (counter);
+        this.prfm = (prfm);
+        this.exitcode = (exitcode);
+         this.entrinq=(entrinq);
+         this.startinq=(startinq);
+         this.waitinq=(waitinq);
+         this.sleeptime=(sleeptime);
     }
 
     public int getId() {
-        return id.get();
+        return id;
     }
 
     public void setId(int id) {
-        this.id.set(id);
+        this.id=(id);
     }
 
     public String getIp() {
-        return ip.get();
+        return ip;
     }
 
     public void setIp(String ip) {
-        this.ip.set(ip);
+        this.ip=(ip);
     }
 
     public int getPid() {
-        return pid.get();
+        return pid;
     }
 
     public void setPid(int pid) {
-        this.pid.set(pid);
+        this.pid=(pid);
     }
 
     public int getCno() {
-        return cno.get();
+        return cno;
     }
 
     public void setCno(int cno) {
-        this.cno.set(cno);
+        this.cno=(cno);
     }
 
     public int getVartype() {
-        return vartype.get();
+        return vartype;
     }
 
     public void setVartype(int vartype) {
-        this.vartype.set(vartype);
+        this.vartype=(vartype);
     }
 
     public int getScheduler() {
-        return scheduler.get();
+        return scheduler;
     }
 
     public void setScheduler(int scheduler) {
-        this.scheduler.set(scheduler);
+        this.scheduler=(scheduler);
     }
 
     public long getLstarttime() {
-        return lstarttime.get();
+        return lstarttime;
     }
 
     public void setLstarttime(long lstarttime) {
 
-        this.lstarttime.set(lstarttime);
+        this.lstarttime=(lstarttime);
     }
 
     public long getLendtime() {
-        return lendtime.get();
+        return lendtime;
     }
 
     public void setLendtime(long lendtime) {
-        this.lendtime.set(lendtime);
+        this.lendtime=(lendtime);
     }
 
     public long getLexctime() {
-        return lexctime.get();
+        return lexctime;
     }
 
     public void setLexctime(long lexctime) {
-        this.lexctime.set(lexctime);
+        this.lexctime=(lexctime);
     }
 
     public long getNexecutiontime() {
-        return nexecutiontime.get();
+        return nexecutiontime;
     }
 
     public void setNexecutiontime(long nexecutiontime) {
-        this.nexecutiontime.set(nexecutiontime);
+        this.nexecutiontime=(nexecutiontime);
     }
 
     public long getNoh() {
-        return noh.get();
+        return noh;
     }
 
     public void setNoh(long noh) {
-        this.noh.set(noh);
+        this.noh=(noh);
     }
 
     public long getPoh() {
-        return poh.get();
+        return poh;
     }
 
     public void setPoh(long poh) {
-        this.poh.set(poh);
+        this.poh=(poh);
     }
 
     
     
     
     public void setStartinq(long poh) {
-        this.startinq.set(poh);
+        this.startinq=(poh);
     }
 
     public long getStartinq() {
-        return startinq.get();
+        return startinq;
     }
     
     
     public void setEntrinq(long poh) {
-        this.entrinq.set(poh);
+        this.entrinq=(poh);
     }
 
     public long getEntrinq() {
-        return entrinq.get();
+        return entrinq;
     }
     
     
     public void setWaitinq(long poh) {
-        this.waitinq.set(poh);
+        this.waitinq=(poh);
     }
 
     public long getWaitinq() {
-        return waitinq.get();
+        return waitinq;
     }
     
     public void setSleeptime(long poh) {
-        this.sleeptime.set(poh);
+        this.sleeptime=(poh);
     }
 
     public long getSleeptime() {
-        return sleeptime.get();
+        return sleeptime;
     }
     
     
     
     
     public String getChunksize() {
-        return chunksize.get();
+        return chunksize;
     }
 
     
     
     
     public void setChunksize(String chunksize) {
-        this.chunksize.set(chunksize);
+        this.chunksize=(chunksize);
     }
 
     public String getLowlimit() {
-        return lowlimit.get();
+        return lowlimit;
     }
 
     public void setLowlimit(String lowlimit) {
-        this.lowlimit.set(lowlimit);
+        this.lowlimit=(lowlimit);
     }
 
     public String getUplimit() {
-        return uplimit.get();
+        return uplimit;
     }
 
     public void setUplimit(String uplimit) {
-        this.uplimit.set(uplimit);
+        this.uplimit=(uplimit);
     }
 
     public String getCounter() {
-        return counter.get();
+        return counter;
     }
 
     public void setCounter(String counter) {
-        this.counter.set(counter);
+        this.counter=(counter);
     }
 
     public double getPrfm() {
-        return prfm.get();
+        return prfm;
     }
 
     public void setPrfm(double prfm) {
-        this.prfm.set(prfm);
+        this.prfm=(prfm);
     }
 
     public int getExitcode() {
-        return exitcode.get();
+        return exitcode;
     }
 
     public void setExitcode(int exitcode) {
-        this.exitcode.set(exitcode);
+        this.exitcode=(exitcode);
     }
 
     @Override
     public String toString() {
-        return "" + id.get() + "\t" + ip.get() + "\t" + pid.get() + "\t" + cno.get() + "\t"
-                + vartype.get() + "\t" + scheduler.get() + "\t" + lstarttime.get() + "\t" + lendtime.get() + "\t"
-                + lexctime.get() + "\t" + nexecutiontime.get() + "\t" + noh.get() + "\t" + poh.get() + "\t" + chunksize.get() + "\t"
-                + lowlimit.get() + "\t" + uplimit.get() + "\t" + counter.get() + "\t" + prfm.get() + "\t" + exitcode.get() + "\n";
+        return "" + id + "\t" + ip + "\t" + pid + "\t" + cno + "\t"
+                + vartype + "\t" + scheduler + "\t" + lstarttime + "\t" + lendtime + "\t"
+                + lexctime + "\t" + nexecutiontime + "\t" + noh + "\t" + poh + "\t" + chunksize + "\t"
+                + lowlimit + "\t" + uplimit + "\t" + counter + "\t" + prfm + "\t" + exitcode + "\n";
 
     }
 

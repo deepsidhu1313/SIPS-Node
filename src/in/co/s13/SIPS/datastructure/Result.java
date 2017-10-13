@@ -16,162 +16,162 @@ import javafx.beans.property.SimpleStringProperty;
  */
  public  class Result {
 
-        private SimpleStringProperty fileName;
-        private SimpleStringProperty PID;
-        private SimpleStringProperty starttime;
-        private SimpleStringProperty endTime;
-        private SimpleStringProperty totalTime;
-        private SimpleStringProperty parsingOH;
-        private SimpleStringProperty networkOH;
-        private SimpleStringProperty chunkSize;
-        private SimpleStringProperty totalChunks;
-        private SimpleStringProperty totalNodes;
-        private SimpleStringProperty avgLoad;
-        private SimpleStringProperty avgWaitinq;
-        private SimpleStringProperty avgSleeptime;
-        private SimpleStringProperty finished;
-        private SimpleIntegerProperty scheduler;
+        private String fileName;
+        private String PID;
+        private String starttime;
+        private String endTime;
+        private String totalTime;
+        private String parsingOH;
+        private String networkOH;
+        private String chunkSize;
+        private String totalChunks;
+        private String totalNodes;
+        private String avgLoad;
+        private String avgWaitinq;
+        private String avgSleeptime;
+        private String finished;
+        private Integer scheduler;
 
         public Result(String fName, String id,int scheduler, String startTime, String EndTime,
                 String TotalTime, String NOH, String ParsingOH,
                 String CHUNKSIZE, String TCHUNK, String TNODES, 
                 String cpuload,String avgSleeptime,String avgWaitinq, String FINISHED) {
-            this.fileName = new SimpleStringProperty(fName);
-            this.PID = new SimpleStringProperty(id);
-            this.scheduler=new SimpleIntegerProperty(scheduler);
-            this.starttime = new SimpleStringProperty(startTime);
-            this.endTime = new SimpleStringProperty(EndTime);
-            this.totalTime = new SimpleStringProperty(TotalTime);
-            this.networkOH = new SimpleStringProperty(NOH);
-            this.parsingOH = new SimpleStringProperty(ParsingOH);
-            this.chunkSize = new SimpleStringProperty(CHUNKSIZE);
-            this.totalChunks = new SimpleStringProperty(TCHUNK);
-            this.totalNodes = new SimpleStringProperty(TNODES);
-            this.avgLoad = new SimpleStringProperty(cpuload);
-            this.finished = new SimpleStringProperty(FINISHED);
-            this.avgWaitinq= new SimpleStringProperty(avgWaitinq);
-            this.avgSleeptime= new SimpleStringProperty(avgSleeptime);
+            this.fileName = new String(fName);
+            this.PID = new String(id);
+            this.scheduler=new Integer(scheduler);
+            this.starttime = new String(startTime);
+            this.endTime = new String(EndTime);
+            this.totalTime = new String(TotalTime);
+            this.networkOH = new String(NOH);
+            this.parsingOH = new String(ParsingOH);
+            this.chunkSize = new String(CHUNKSIZE);
+            this.totalChunks = new String(TCHUNK);
+            this.totalNodes = new String(TNODES);
+            this.avgLoad = new String(cpuload);
+            this.finished = new String(FINISHED);
+            this.avgWaitinq= new String(avgWaitinq);
+            this.avgSleeptime= new String(avgSleeptime);
         }
 
         public String getFileName() {
-            return fileName.get();
+            return fileName;
         }
 
         public void setFileName(String fName) {
-            fileName.set(fName);
+            fileName=(fName);
         }
 
         public String getPID() {
-            return PID.get();
+            return PID;
         }
 
         public void setPID(String fName) {
-            PID.set(fName);
+            PID=(fName);
         }
 
         
         public int getScheduler() {
-            return scheduler.get();
+            return scheduler;
         }
 
         public void setScheduler(int fName) {
-            scheduler.set(fName);
+            scheduler=(fName);
         }
         
         public String getStartTime() {
-            return starttime.get();
+            return starttime;
         }
 
         public void setStartTime(String fName) {
-            starttime.set(fName);
+            starttime=(fName);
         }
 
         public String getEndTime() {
-            return endTime.get();
+            return endTime;
         }
 
         public void setEndTime(String fName) {
-            endTime.set(fName);
+            endTime=(fName);
         }
 
         public String getTotalTime() {
-            return totalTime.get();
+            return totalTime;
         }
 
         public void setTotalTime(String fName) {
-            totalTime.set(fName);
+            totalTime=(fName);
         }
 
         public String getNetworkOH() {
-            return networkOH.get();
+            return networkOH;
         }
 
         public void setNetworkOH(String fName) {
-            networkOH.set(fName);
+            networkOH=(fName);
         }
 
         public String getParsingOH() {
-            return this.parsingOH.get();
+            return this.parsingOH;
         }
 
         public void setParsingOH(String p) {
-            this.parsingOH.set(p);
+            this.parsingOH=(p);
         }
 
         public String getChunkSize() {
-            return chunkSize.get();
+            return chunkSize;
         }
 
         public void setChunkSize(String fName) {
-            chunkSize.set(fName);
+            chunkSize=(fName);
         }
 
         public String getTotalChunks() {
-            return totalChunks.get();
+            return totalChunks;
         }
 
         public void setTotalChunks(String fName) {
-            totalChunks.set(fName);
+            totalChunks=(fName);
         }
 
         public String getTotalNodes() {
-            return totalNodes.get();
+            return totalNodes;
         }
 
         public void setTotalNodes(String fName) {
-            totalNodes.set(fName);
+            totalNodes=(fName);
         }
 
          public String getAvgWaitinq() {
-            return avgWaitinq.get();
+            return avgWaitinq;
         }
 
         public void setAvgWaitinq(String fName) {
-            avgWaitinq.set(fName);
+            avgWaitinq=(fName);
         }
         
          public String getAvgSleeptime() {
-            return avgSleeptime.get();
+            return avgSleeptime;
         }
 
         public void setAvgSleeptime(String fName) {
-            avgSleeptime.set(fName);
+            avgSleeptime=(fName);
         }
         
         public String getAvgLoad() {
-            return avgLoad.get();
+            return avgLoad;
         }
 
         public void setAvgLoad(String l) {
-            avgLoad.set(l);
+            avgLoad=(l);
         }
 
         public String getFinished() {
-            return finished.get();
+            return finished;
         }
 
         public void setFinished(String fName) {
-            finished.set(fName);
+            finished=(fName);
         }
 
          enum ResultComparator implements Comparator<Result> {
