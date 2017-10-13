@@ -21,7 +21,6 @@ import in.co.s13.SIPS.Scanner.ScheduledNodeScanner;
 import in.co.s13.SIPS.executor.sockets.PingServer;
 import in.co.s13.SIPS.executor.sockets.TaskFinishListenerServer;
 import in.co.s13.SIPS.settings.GlobalValues;
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -137,9 +136,9 @@ public class ServiceOperations {
 
     public static synchronized void stopFileServer() {
         GlobalValues.FILE_SERVER_IS_RUNNING = false;
-//        if (GlobalValues.FILE_SERVER_SOCKET != null && !GlobalValues.FILE_SERVER_SOCKET.isClosed()) {
+//        if (GlobalValues.FILE_DOWNLOAD_SERVER_SOCKET != null && !GlobalValues.FILE_DOWNLOAD_SERVER_SOCKET.isClosed()) {
 //            try {
-//                GlobalValues.FILE_SERVER_SOCKET.close();
+//                GlobalValues.FILE_DOWNLOAD_SERVER_SOCKET.close();
 //            } catch (IOException ex) {
 //                Logger.getLogger(ServiceOperations.class.getName()).log(Level.SEVERE, null, ex);
 //            }
@@ -149,6 +148,36 @@ public class ServiceOperations {
     public static synchronized void restartFileServer() {
         stopFileServer();
         startFileServer();
+    }
+    
+        public static synchronized void initFileDownloadServerAtStartUp() {
+        if (GlobalValues.FILE_DOWNLOAD_SERVER_ENABLED_AT_START) {
+            startFileDownloadServer();
+        }
+    }
+
+    public static synchronized void startFileDownloadServer() {
+        GlobalValues.FILE_DOWNLOAD_SERVER_IS_RUNNING = true;
+        if ((GlobalValues.FILE_DOWNLOAD_SERVER_SOCKET == null || GlobalValues.FILE_DOWNLOAD_SERVER_SOCKET.isClosed()) && (GlobalValues.FILE_DOWNLOAD_SERVER_THREAD == null || !GlobalValues.FILE_DOWNLOAD_SERVER_THREAD.isAlive())) {
+            GlobalValues.FILE_DOWNLOAD_SERVER_THREAD = new Thread(new PingServer());
+            GlobalValues.FILE_DOWNLOAD_SERVER_THREAD.start();
+        }
+    }
+
+    public static synchronized void stopFileDownloadServer() {
+        GlobalValues.FILE_DOWNLOAD_SERVER_IS_RUNNING = false;
+//        if (GlobalValues.FILE_DOWNLOAD_SERVER_SOCKET != null && !GlobalValues.FILE_DOWNLOAD_SERVER_SOCKET.isClosed()) {
+//            try {
+//                GlobalValues.FILE_DOWNLOAD_SERVER_SOCKET.close();
+//            } catch (IOException ex) {
+//                Logger.getLogger(ServiceOperations.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//        }
+    }
+
+    public static synchronized void restartFileDownloadServer() {
+        stopFileDownloadServer();
+        startFileDownloadServer();
     }
 
     public static synchronized void initLiveNodeScannerAtStartUp() {

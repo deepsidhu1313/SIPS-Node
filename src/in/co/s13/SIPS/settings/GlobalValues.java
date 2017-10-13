@@ -17,24 +17,23 @@
 package in.co.s13.SIPS.settings;
 
 import in.co.s13.SIPS.datastructure.DistributionDBRow;
+import in.co.s13.SIPS.datastructure.FileDownQueReq;
 import in.co.s13.SIPS.datastructure.Resource;
 import in.co.s13.SIPS.datastructure.UniqueElementList;
 import in.co.s13.SIPS.datastructure.threadpools.FixedThreadPool;
 import in.co.s13.SIPS.db.OLDSQLiteJDBC;
-import in.co.s13.SIPS.db.SQLiteJDBC;
 import in.co.s13.SIPS.datastructure.LiveDBRow;
 import in.co.s13.SIPS.datastructure.NodeDBRow;
 import in.co.s13.SIPS.datastructure.Result;
 import in.co.s13.SIPS.datastructure.TaskDBRow;
+import in.co.s13.SIPS.executor.DownloadFile;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -73,7 +72,7 @@ public class GlobalValues {
     public static String CPU_NAME = "";
     public static double CPU_LOAD_AVG = 0.0;
     public static JSONObject BENCHMARKING;
-    public static Hashtable<String, Resource> resources = new Hashtable<>(5);
+    public static ConcurrentHashMap<String, Resource> resources = new ConcurrentHashMap<>(5);
     public static JSONArray ipAddresses = new JSONArray();
     public static boolean SHARED_STORAGE = false;
     /**
@@ -115,33 +114,33 @@ public class GlobalValues {
     public static ExecutorService LIVE_DB_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService DIST_DB_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService RESULT_DB_EXECUTOR = Executors.newFixedThreadPool(1);
-    public static ExecutorService sleepexecutorService = Executors.newFixedThreadPool(1);
+    public static ExecutorService SEND_SLEEPTIME_EXECUTOR_SERVICE = Executors.newFixedThreadPool(1);
 
     /**
      * Server ThreadPools
      */
-    public static FixedThreadPool API_HANDLER_EXECUTOR_SERVICE, PING_HANDLER_EXECUTOR_SERVICE, FILE_HANDLER_EXECUTOR_SERVICE, TASK_HANDLER_EXECUTOR_SERVICE, TASK_FINISH_LISTENER_HANDLER_EXECUTOR_SERVICE;
+    public static FixedThreadPool API_HANDLER_EXECUTOR_SERVICE, PING_HANDLER_EXECUTOR_SERVICE, FILE_DOWNLOAD_HANDLER_EXECUTOR_SERVICE,FILE_HANDLER_EXECUTOR_SERVICE, TASK_HANDLER_EXECUTOR_SERVICE, TASK_FINISH_LISTENER_HANDLER_EXECUTOR_SERVICE;
 
     /**
      * *
      * Server Threads
      */
-    public static Thread TASK_SERVER_THREAD, API_SERVER_THREAD, PING_SERVER_THREAD, FILE_SERVER_THREAD, TASK_FINISH_LISTENER_SERVER_THREAD;
+    public static Thread TASK_SERVER_THREAD, API_SERVER_THREAD, PING_SERVER_THREAD, FILE_DOWNLOAD_SERVER_THREAD, TASK_FINISH_LISTENER_SERVER_THREAD,FILE_SERVER_THREAD;
 
     /**
      * Server sockets
      */
-    public static ServerSocket API_SERVER_SOCKET, FILE_SERVER_SOCKET, PING_SERVER_SOCKET, TASK_SERVER_SOCKET, TASK_FINISH_LISTENER_SERVER_SOCKET;
+    public static ServerSocket API_SERVER_SOCKET, FILE_DOWNLOAD_SERVER_SOCKET,FILE_SERVER_SOCKET, PING_SERVER_SOCKET, TASK_SERVER_SOCKET, TASK_FINISH_LISTENER_SERVER_SOCKET;
 
     /**
      * Socket Ports
      */
-    public static int PING_SERVER_PORT = 13131, FILE_QUEUE_SERVER_PORT = 13132, TASK_SERVER_PORT = 13133, TASK_FINISH_LISTENER_SERVER_PORT = 13134, API_SERVER_PORT = 13139;
+    public static int PING_SERVER_PORT = 13131, FILE_DOWNLOAD_SERVER_PORT = 13132, TASK_SERVER_PORT = 13133, TASK_FINISH_LISTENER_SERVER_PORT = 13134,FILE_SERVER_PORT = 13135, API_SERVER_PORT = 13139;
     
     /**
      * Server Flags
      */
-    public static boolean API_SERVER_IS_RUNNING=true,FILE_SERVER_IS_RUNNING=true,PING_SERVER_IS_RUNNING=true,TASK_SERVER_IS_RUNNING=true,TASK_FINISH_SERVER_IS_RUNNING=true;
+    public static boolean API_SERVER_IS_RUNNING=true,FILE_DOWNLOAD_SERVER_IS_RUNNING=true,FILE_SERVER_IS_RUNNING=true,PING_SERVER_IS_RUNNING=true,TASK_SERVER_IS_RUNNING=true,TASK_FINISH_SERVER_IS_RUNNING=true;
     /**
      * Network Scheduled Thread Conditions
      */
@@ -156,7 +155,7 @@ public class GlobalValues {
     /**
      * Services Vars
      */
-    public static boolean PING_SERVER_ENABLED_AT_START = true, API_SERVER_ENABLED_AT_START = true, FILE_SERVER_ENABLED_AT_START = true, TASK_SERVER_ENABLED_AT_START = true, NODE_SCANNER_ENABLED_AT_START = true, LIVE_NODE_SCANNER_ENABLED_AT_START = true, TASK_FINISH_LISTENER_SERVER_ENABLED_AT_START = true;
+    public static boolean PING_SERVER_ENABLED_AT_START = true, API_SERVER_ENABLED_AT_START = true, FILE_DOWNLOAD_SERVER_ENABLED_AT_START = true,FILE_SERVER_ENABLED_AT_START = true, TASK_SERVER_ENABLED_AT_START = true, NODE_SCANNER_ENABLED_AT_START = true, LIVE_NODE_SCANNER_ENABLED_AT_START = true, TASK_FINISH_LISTENER_SERVER_ENABLED_AT_START = true;
 
     public static long NODE_SCANNER_INTIAL_DELAY = 2L, LIVE_NODE_SCANNER_INTIAL_DELAY = 2L, NODE_SCANNER_PERIODIC_DELAY = 5L, LIVE_NODE_SCANNER_PERIODIC_DELAY = 5L;
     /**
@@ -169,31 +168,38 @@ public class GlobalValues {
      */
     //  public static ArrayList<String> livehosts = new ArrayList();
     //  public static ObservableList<LiveNode> liveNodes = FXCollections.observableArrayList();
-    public static Hashtable<String, LiveDBRow> LIVE_NODE_ADJ_DB = new Hashtable<>();
-    public static Hashtable<String, LiveDBRow> LIVE_NODE_NON_ADJ_DB = new Hashtable<>();
-    public static Hashtable<String, NodeDBRow> ALL_NODE_DB = new Hashtable<>();
+    public static ConcurrentHashMap<String, LiveDBRow> LIVE_NODE_ADJ_DB = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<String, LiveDBRow> LIVE_NODE_NON_ADJ_DB = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<String, NodeDBRow> ALL_NODE_DB = new ConcurrentHashMap<>();
     public static ArrayList<String> HOSTS = new ArrayList<>();
-    public static Hashtable<String, String> CURRENTLY_SCANNING = new Hashtable<>();
-    public static Hashtable<String, String> BLACKLIST = new Hashtable<>();
-    public static Hashtable<String, JSONObject> API_LIST = new Hashtable<>();
+    public static ConcurrentHashMap<String, String> CURRENTLY_SCANNING = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<String, String> BLACKLIST = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<String, JSONObject> API_LIST = new ConcurrentHashMap<>();
     public static boolean IS_WRITING = false;
     public static JSONObject blacklistJSON, networksToScanJSON, ipToScanJSON, API_JSON;
     public static int THREAD_NUMBER = TOTAL_THREADS;
-    public static Hashtable<String, String> ROUTING_TABLE = new Hashtable<>();
-    public static Hashtable<String, Long> ADJACENT_NODES_TABLE = new Hashtable<>();
-    public static Hashtable<String, UniqueElementList> NON_ADJACENT_NODES_TABLE = new Hashtable<>();
+    public static ConcurrentHashMap<String, String> ROUTING_TABLE = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<String, Long> ADJACENT_NODES_TABLE = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<String, UniqueElementList> NON_ADJACENT_NODES_TABLE = new ConcurrentHashMap<>();
 
     /**
      * Task Storage
      */
-    public static Hashtable<String, Hashtable<String, DistributionDBRow>> MASTER_DIST_DB = new Hashtable<>();
-    public static Hashtable<String, Result> RESULT_DB = new Hashtable<>();
+    public static ConcurrentHashMap<String, ConcurrentHashMap<String, DistributionDBRow>> MASTER_DIST_DB = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<String, Result> RESULT_DB = new ConcurrentHashMap<>();
     
     /**
      * Task Server Vars
      */
-//    public static Hashtable<String,String> ALIEN_PROCESS_ID= new Hashtable<>();
+//    public static ConcurrentHashMap<String,String> ALIEN_PROCESS_ID= new ConcurrentHashMap<>();
     public static ArrayList<Integer> localprocessID= new ArrayList<>();
-    public static Hashtable<String,TaskDBRow> TASK_DB= new Hashtable<>();
+    public static ConcurrentHashMap<String,TaskDBRow> TASK_DB= new ConcurrentHashMap<>();
+    
+    /**
+     * Download Server Que
+     */
+    
+    public static ConcurrentHashMap<String,FileDownQueReq> DOWNLOAD_QUEUE= new ConcurrentHashMap<>();
+    
     
 }

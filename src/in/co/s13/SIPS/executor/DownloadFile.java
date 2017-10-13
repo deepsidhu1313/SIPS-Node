@@ -20,12 +20,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.json.JSONObject;
 
 /**
  *
  * @author NAVDEEP SINGH SIDHU <navdeepsingh.sidhu95@gmail.com>
  */
-public class RecieveFile {
+public class DownloadFile {
 
     public final static int SOCKET_PORT = 13133;      // you may change this
     String SERVER = "";  // localhost
@@ -33,7 +34,7 @@ public class RecieveFile {
     ArrayList<String> logmsg = new ArrayList<>();
     int MAX_THREADSLEEP = 100000, sleepcounter = 0;
 
-    public RecieveFile(String IP, String id, String cno, String projectname, String localFolder, ArrayList<String> FileList) {
+    public DownloadFile(String IP, String id, String cno, String projectname, String localFolder, ArrayList<String> FileList) {
         SERVER = IP;
         ExecutorService rfExecutor = Executors.newFixedThreadPool(5);
         FileList.stream().forEach((_item) -> {
@@ -52,7 +53,16 @@ public class RecieveFile {
                         try (Socket sock = new Socket(SERVER, SOCKET_PORT)) {
                             System.out.println("Connecting...");
                             try (OutputStream os = sock.getOutputStream(); DataOutputStream outToServer = new DataOutputStream(os)) {
-                                String sendmsg = "<Command>sendfileChecksum</Command><Body><PID>" + id + "</PID><CNO>" + cno + "</CNO><FILENAME>" + projectname + "</FILENAME><FILE>" + _item + "</FILE></Body>";
+                                 JSONObject sendMsgJSON= new JSONObject();
+                                 sendMsgJSON.put("Command", "sendfileChecksum");
+                                 JSONObject sendMsgJSONBody= new JSONObject();
+                                 
+                                 sendMsgJSONBody.put("PID", id);
+                                 sendMsgJSONBody.put("CNO", cno);
+                                 sendMsgJSONBody.put("FILENAME", projectname);
+                                 sendMsgJSONBody.put("FILE", _item);
+                                 sendMsgJSON.put("Body", sendMsgJSONBody);
+                                String sendmsg = sendMsgJSON.toString();
                                 byte[] bytes = sendmsg.getBytes("UTF-8");
                                 outToServer.writeInt(bytes.length);
                                 outToServer.write(bytes);
@@ -91,7 +101,7 @@ public class RecieveFile {
                                 }
                             }
                         } catch (IOException ex) {
-                            Logger.getLogger(RecieveFile.class.getName()).log(Level.SEVERE, null, ex);
+                            Logger.getLogger(DownloadFile.class.getName()).log(Level.SEVERE, null, ex);
                         }
 //InputStream is = sock.getInputStream();
                         //if (lchecksum.trim().length() > 0)
@@ -108,10 +118,22 @@ public class RecieveFile {
                                 Ndownloaded = false;
                             } else {
 
-                                try (Socket sock = new Socket("127.0.0.1", 13136)) {
+                                try (Socket sock = new Socket("127.0.0.1", GlobalValues.FILE_DOWNLOAD_SERVER_PORT)) {
                                     //System.out.println("Connecting...");
                                     try (OutputStream os = sock.getOutputStream(); DataOutputStream outToServer = new DataOutputStream(os)) {
-                                        String sendmsg = "<Command>downloadfile</Command><Body><PID>" + id + "</PID><CNO>" + cno + "</CNO><FILENAME>" + projectname + "</FILENAME><FILE>" + _item + "</FILE><IP>" + SERVER + "</IP><CHECKSUM>" + checksum + "</CHECKSUM></Body>";
+                                         JSONObject sendMsgJSON= new JSONObject();
+                                 sendMsgJSON.put("Command", "downloadfile");
+                                 JSONObject sendMsgJSONBody= new JSONObject();
+                                 
+                                 sendMsgJSONBody.put("PID", id);
+                                 sendMsgJSONBody.put("CNO", cno);
+                                 sendMsgJSONBody.put("FILENAME", projectname);
+                                 sendMsgJSONBody.put("FILE", _item);
+                                 sendMsgJSONBody.put("IP", SERVER);
+                                 sendMsgJSONBody.put("CHECKSUM", checksum);
+                                 sendMsgJSON.put("Body", sendMsgJSONBody);
+                                
+                                        String sendmsg = sendMsgJSON.toString();//"<Command>downloadfile</Command><Body><PID>" + id + "</PID><CNO>" + cno + "</CNO><FILENAME>" + projectname + "</FILENAME><FILE>" + _item + "</FILE><IP>" + SERVER + "</IP><CHECKSUM>" + checksum + "</CHECKSUM></Body>";
                                         byte[] bytes = sendmsg.getBytes("UTF-8");
                                         outToServer.writeInt(bytes.length);
                                         outToServer.write(bytes);
@@ -122,8 +144,8 @@ public class RecieveFile {
                                             if (length > 0) {
                                                 dIn.readFully(message, 0, message.length); // read the message
                                             }
-                                            String reply = new String(message);
-                                            String rpl = reply.substring(reply.indexOf("<MSG>") + 5, reply.indexOf("</MSG>"));
+                                            JSONObject reply = new JSONObject(new String(message));
+                                            String rpl = reply.getString("MSG");//substring(reply.indexOf("<MSG>") + 5, reply.indexOf("</MSG>"));
                                             if (rpl.equalsIgnoreCase("finished")) {
                                                 // receive file
 
@@ -137,9 +159,9 @@ public class RecieveFile {
                                                 }
 
                                             } else if (rpl.equalsIgnoreCase("inque")) {
-                                                String vl = reply.substring(reply.indexOf("<RT>") + 4, reply.indexOf("</RT>"));
+//                                                String vl = reply.substring(reply.indexOf("<RT>") + 4, reply.indexOf("</RT>"));
                                                 sock.close();
-                                                double valts = Double.parseDouble(vl);
+                                                double valts = reply.getDouble("RT");
                                                 if (valts < 1000) {
                                                     valts = 1000.0;
                                                 }
@@ -149,7 +171,7 @@ public class RecieveFile {
                                                 long end = System.currentTimeMillis();
                                                 Thread eiq = new Thread(new sendSleeptime("sleeptime", IP, id, cno, projectname, "" + (end - start)));
                                                 eiq.setPriority(Thread.NORM_PRIORITY + 1);
-                                                GlobalValues.sleepexecutorService.execute(eiq);
+                                                GlobalValues.SEND_SLEEPTIME_EXECUTOR_SERVICE.execute(eiq);
 
                                             } else if (rpl.equalsIgnoreCase("addedinq")) {
                                                 sock.close();
@@ -159,18 +181,18 @@ public class RecieveFile {
                                                 long end = System.currentTimeMillis();
                                                 Thread eiq = new Thread(new sendSleeptime("sleeptime", IP, id, cno, projectname, "" + (end - start)));
                                                 eiq.setPriority(Thread.NORM_PRIORITY + 1);
-                                                GlobalValues.sleepexecutorService.execute(eiq);
+                                                GlobalValues.SEND_SLEEPTIME_EXECUTOR_SERVICE.execute(eiq);
 
                                             } else {
                                                 System.out.println("Couldn't find file");
                                                 logmsg.add("Couldn't Find File on Master, Plz check file exists in Frameworks data directory " + _item);
                                             }
                                         } catch (InterruptedException ex) {
-                                            Logger.getLogger(RecieveFile.class.getName()).log(Level.SEVERE, null, ex);
+                                            Logger.getLogger(DownloadFile.class.getName()).log(Level.SEVERE, null, ex);
                                         }
                                     }
                                 } catch (IOException ex) {
-                                    Logger.getLogger(RecieveFile.class.getName()).log(Level.SEVERE, null, ex);
+                                    Logger.getLogger(DownloadFile.class.getName()).log(Level.SEVERE, null, ex);
                                 }
 
                             }
@@ -196,7 +218,7 @@ public class RecieveFile {
             rfExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
 
         } catch (InterruptedException ex) {
-            Logger.getLogger(RecieveFile.class
+            Logger.getLogger(DownloadFile.class
                     .getName()).log(Level.SEVERE, null, ex);
         }
 

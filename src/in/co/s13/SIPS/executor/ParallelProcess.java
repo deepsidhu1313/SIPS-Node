@@ -95,11 +95,11 @@ public class ParallelProcess implements Runnable {
                 }
             }
             if (manifest.has("JVMARGS")) {
-                JSONArray tmp = manifest.getJSONArray("LIB");//line.substring(line.indexOf("<LIB>") + 5, line.indexOf("</LIB>"));
+                JSONArray tmp = manifest.getJSONArray("JVMARGS");//line.substring(line.indexOf("<LIB>") + 5, line.indexOf("</LIB>"));
                 if (tmp.length() > 0) {
                     for (int i = 0; i < tmp.length(); i++) {
-                        String tmp2 = (tmp.getString(i));
                         double reqMem = 0, avalMem = GlobalValues.MEM_SIZE;
+                        String tmp2 = tmp.getString(i);
                         if (tmp2.trim().contains("-Xmx")) {
                             if (tmp2.trim().substring(tmp2.trim().length() - 1).equalsIgnoreCase("m")) {
                                 reqMem = Double.parseDouble(tmp2.trim().substring(tmp2.trim().indexOf("-Xmx") + 4, tmp2.trim().lastIndexOf("m")));
@@ -146,7 +146,7 @@ public class ParallelProcess implements Runnable {
 
         }
         GlobalValues.TASK_ID.incrementAndGet();
-        GlobalValues.TASK_DB.put("" + ip + "-ID-" + pid + "c" + cno,new TaskDBRow(pid, projectName, ipadd, (int) counter, process));
+        GlobalValues.TASK_DB.put("" + ip + "-ID-" + pid + "c" + cno, new TaskDBRow(pid, projectName, ipadd, (int) counter, process));
         //GlobalValues.localprocessID.add(counter);
 //        processDBExecutor.execute(() -> {
 //            String sql = "INSERT INTO PROC (ID,"
@@ -181,7 +181,7 @@ public class ParallelProcess implements Runnable {
         generateScript(loc, main);
 
         if (!temp.isEmpty()) {
-            RecieveFile recieveFile = new RecieveFile(ip, pid, cno, projectName, loc, temp);
+            DownloadFile recieveFile = new DownloadFile(ip, pid, cno, projectName, loc, temp);
             fileLog = recieveFile.getFileLog();
         }
 

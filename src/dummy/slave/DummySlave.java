@@ -17,11 +17,7 @@
 package dummy.slave;
 
 import in.co.s13.SIPS.benchmarks.Benchmarks;
-import in.co.s13.SIPS.executor.sockets.APIServer;
 import in.co.s13.SIPS.settings.Settings;
-import in.co.s13.SIPS.executor.sockets.FileReqQueServer;
-import in.co.s13.SIPS.executor.sockets.PingServer;
-import in.co.s13.SIPS.executor.sockets.TaskServer;
 import in.co.s13.SIPS.initializer.HardwareStatThreads;
 import in.co.s13.SIPS.initializer.NetworkThreads;
 import in.co.s13.SIPS.settings.GlobalValues;
@@ -30,13 +26,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import static in.co.s13.SIPS.settings.GlobalValues.dir_etc;
 import in.co.s13.SIPS.tools.ServiceOperations;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
@@ -102,7 +98,7 @@ public class DummySlave {
              */
             GlobalValues.API_JSON = Util.readJSONFile(dir_etc + "/api.json");
             Iterator<String> it = GlobalValues.API_JSON.keys();
-            GlobalValues.API_LIST = new Hashtable<>();
+            GlobalValues.API_LIST = new  ConcurrentHashMap<>();
             while (it.hasNext()) {
                 String key = it.next();
                 GlobalValues.API_LIST.put(key, GlobalValues.API_JSON.getJSONObject(key));

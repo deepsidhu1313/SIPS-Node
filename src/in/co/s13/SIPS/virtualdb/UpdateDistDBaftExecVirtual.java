@@ -13,11 +13,10 @@ import in.co.s13.SIPS.settings.GlobalValues;
 import in.co.s13.SIPS.tools.Util;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Hashtable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.collections.ObservableList;
 import static in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
@@ -38,7 +37,7 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
     // BigDecimal chunkSize = BigDecimal.ZERO;
 
     int counter = 0, vartype;
-    Hashtable<String, DistributionDBRow> DistTable;
+     ConcurrentHashMap<String, DistributionDBRow> DistTable;
 
     public UpdateDistDBaftExecVirtual(Long endTime, Long ExecTime, String filename, String ip, String PID, String CNO, String EXITCODE) {
         dbloc = "data/" + PID + "/dist-db/dist-" + PID + ".db";

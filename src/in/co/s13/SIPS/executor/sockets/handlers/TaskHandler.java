@@ -35,7 +35,7 @@ import java.util.logging.Logger;
 import org.json.JSONObject;
 import static in.co.s13.SIPS.settings.GlobalValues.TASK_DB;
 import static in.co.s13.SIPS.settings.GlobalValues.TASK_DB_EXECUTOR;
-import java.util.Hashtable;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
@@ -105,7 +105,7 @@ public class TaskHandler implements Runnable {
 
                         }
                         submitter.close();
-                        Hashtable<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
+                         ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
                         DistributionDBRow get = DistTable.get(ipAddress + "-" + cno.trim());
                         get.setNoh(get.getNoh() + Long.parseLong(content));
 //                        
@@ -148,7 +148,7 @@ public class TaskHandler implements Runnable {
 
                         }
                         submitter.close();
-                        Hashtable<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
+                         ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
                         DistributionDBRow get = DistTable.get(ipAddress + "-" + cno.trim());
                         get.setStartinq(Long.parseLong(content));
                         get.setWaitinq(get.getStartinq() - get.getEntrinq());
@@ -193,7 +193,7 @@ public class TaskHandler implements Runnable {
 
                         }
                         submitter.close();
-                        Hashtable<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
+                         ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
                         DistributionDBRow get = DistTable.get(ipAddress + "-" + cno.trim());
                         get.setEntrinq(Long.parseLong(content));
                         get.setWaitinq(get.getStartinq() - get.getEntrinq());
@@ -242,7 +242,7 @@ public class TaskHandler implements Runnable {
                          }
                          */
                         submitter.close();
-                        Hashtable<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
+                         ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
                         DistributionDBRow get = DistTable.get(ipAddress + "-" + cno.trim());
                         get.setSleeptime(get.getSleeptime() + Long.parseLong(content));
 //                                    

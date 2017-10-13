@@ -9,10 +9,8 @@ import in.co.s13.SIPS.datastructure.DistributionDBRow;
 import in.co.s13.SIPS.db.SQLiteJDBC;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Hashtable;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import static in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
@@ -33,7 +31,7 @@ public class createDistributionDBVirtual implements Runnable {
     int counter = 0;
     int vartype = 0;
     int Scheduler = 0;
-    Hashtable<String,DistributionDBRow> DistDBTable = new Hashtable<>();
+     ConcurrentHashMap<String,DistributionDBRow> DistDBTable = new  ConcurrentHashMap<>();
 
     public createDistributionDBVirtual(String fileName, String pid, ArrayList IP, ArrayList starttime, ArrayList parsingoverhead, ArrayList chunksze, int vart, ArrayList lower, ArrayList upper, int schudle) {
         dbloc = "data/" + pid + "/dist-db/dist-" + pid + ".db";

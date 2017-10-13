@@ -17,6 +17,7 @@
 package in.co.s13.SIPS.executor.sockets.handlers;
 
 import in.co.s13.SIPS.settings.GlobalValues;
+import in.co.s13.SIPS.tools.ServiceOperations;
 import static in.co.s13.SIPS.tools.ServiceOperations.restartApiServer;
 import static in.co.s13.SIPS.tools.ServiceOperations.restartFileServer;
 import static in.co.s13.SIPS.tools.ServiceOperations.restartLiveNodeScanner;
@@ -166,6 +167,15 @@ public class APIHandler implements Runnable {
                                 restartPingServer();
                             }
                             response.put("PING-SERVER", !GlobalValues.PING_SERVER_SOCKET.isClosed());
+                        } else if (args.getString(0).equalsIgnoreCase("FILE-DOWNLOAD-SERVER")) {
+                            if (args.getString(1).equalsIgnoreCase("start")) {
+                                ServiceOperations.startFileDownloadServer();
+                            } else if (args.getString(1).equalsIgnoreCase("stop")) {
+                                ServiceOperations.stopFileDownloadServer();
+                            } else if (args.getString(1).equalsIgnoreCase("restart")) {
+                                ServiceOperations.restartFileDownloadServer();
+                            }
+                            response.put("FILE-DOWNLOAD-SERVER", !GlobalValues.FILE_DOWNLOAD_SERVER_SOCKET.isClosed());
                         } else if (args.getString(0).equalsIgnoreCase("FILE-SERVER")) {
                             if (args.getString(1).equalsIgnoreCase("start")) {
                                 startFileServer();
@@ -220,6 +230,7 @@ public class APIHandler implements Runnable {
                     } else if (args.length() == 1 && args.getString(0).equalsIgnoreCase("status") && hasReadPermissions(key_permissions)) {
                         response.put("PING-SERVER", !GlobalValues.PING_SERVER_SOCKET.isClosed());
                         response.put("FILE-SERVER", !GlobalValues.FILE_SERVER_SOCKET.isClosed());
+                        response.put("FILE-DOWNLOAD-SERVER", !GlobalValues.FILE_DOWNLOAD_SERVER_SOCKET.isClosed());
                         response.put("TASK-SERVER", !GlobalValues.TASK_SERVER_SOCKET.isClosed());
                         response.put("API-SERVER", !GlobalValues.API_SERVER_SOCKET.isClosed());
                         response.put("LIVE-NODE-SCANNER", GlobalValues.CHECK_LIVE_NODE_THREAD.isAlive());
@@ -229,6 +240,7 @@ public class APIHandler implements Runnable {
                     } else if (args.length() == 0 && hasReadPermissions(key_permissions)) {
                         response.put("PING-SERVER", !GlobalValues.PING_SERVER_SOCKET.isClosed());
                         response.put("FILE-SERVER", !GlobalValues.FILE_SERVER_SOCKET.isClosed());
+                        response.put("FILE-DOWNLOAD-SERVER", !GlobalValues.FILE_DOWNLOAD_SERVER_SOCKET.isClosed());
                         response.put("TASK-SERVER", !GlobalValues.TASK_SERVER_SOCKET.isClosed());
                         response.put("API-SERVER", !GlobalValues.API_SERVER_SOCKET.isClosed());
                         response.put("LIVE-NODE-SCANNER", GlobalValues.CHECK_LIVE_NODE_THREAD.isAlive());

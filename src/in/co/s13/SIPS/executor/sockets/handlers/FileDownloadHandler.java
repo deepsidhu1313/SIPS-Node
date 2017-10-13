@@ -16,8 +16,8 @@
  */
 package in.co.s13.SIPS.executor.sockets.handlers;
 
-import in.co.s13.SIPS.executor.sockets.FileReqQueServer;
 import in.co.s13.SIPS.datastructure.FileDownQueReq;
+import in.co.s13.SIPS.settings.GlobalValues;
 import in.co.s13.SIPS.tools.Util;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
@@ -37,11 +37,11 @@ import org.json.JSONObject;
  *
  * @author Nika
  */
-public class FileReqQueHandler implements Runnable {
+public class FileDownloadHandler implements Runnable {
 
     Socket submitter;
 
-    public FileReqQueHandler(Socket connection) {
+    public FileDownloadHandler(Socket connection) {
         submitter = connection;
     }
 
@@ -84,20 +84,22 @@ public class FileReqQueHandler implements Runnable {
                     String ip = body.getString("IP");//body.substring(body.indexOf("<IP>") + 4, body.indexOf("</IP>"));
                     System.out.println("Accepted connection : " + submitter);
                     // send file
-                    boolean notinQ = true;
-                    for (FileDownQueReq downQue : FileReqQueServer.downQue) {
-                        boolean b1 = downQue.getFilename().trim().equalsIgnoreCase(fileToSend.trim());
-                        boolean b2 = downQue.getId() == Integer.parseInt(pid.trim());
-                        boolean b3 = downQue.getChecksum().trim().equalsIgnoreCase(checksum.trim());
-                        boolean b4 = downQue.getIp().trim().equalsIgnoreCase(ip.trim());
-                        System.out.println("Compairing  :\nFilename:" + downQue.getFilename().trim()
-                                + " with " + fileToSend.trim() + "\t" + b1
-                                + "\nPID:" + downQue.getId() + " with " + pid + "\t" + b2
-                                + "\nChecksum:" + downQue.getChecksum().trim() + " with " + checksum
-                                + "\t" + b3
-                                + "\nIP: " + downQue.getIp().trim() + " with " + ip + "\t" + b4);
-
-                        if (((b1) && (b2) && (b3) && (b4))) {
+                    boolean notinQ = true; //for
+                    {FileDownQueReq downQue = GlobalValues.DOWNLOAD_QUEUE.get(fileToSend.trim()+"-"+pid.trim()+"-"+checksum.trim()+"-"+ip.trim());
+                     {
+//                        boolean b1 = downQue.getFilename().trim().equalsIgnoreCase(fileToSend.trim());
+//                        boolean b2 = downQue.getId() == Integer.parseInt(pid.trim());
+//                        boolean b3 = downQue.getChecksum().trim().equalsIgnoreCase(checksum.trim());
+//                        boolean b4 = downQue.getIp().trim().equalsIgnoreCase(ip.trim());
+//                        System.out.println("Compairing  :\nFilename:" + downQue.getFilename().trim()
+//                                + " with " + fileToSend.trim() + "\t" + b1
+//                                + "\nPID:" + downQue.getId() + " with " + pid + "\t" + b2
+//                                + "\nChecksum:" + downQue.getChecksum().trim() + " with " + checksum
+//                                + "\t" + b3
+//                                + "\nIP: " + downQue.getIp().trim() + " with " + ip + "\t" + b4);
+//
+//                        if (((b1) && (b2) && (b3) && (b4))) 
+                        {
                             notinQ = false;
                             System.out.println("REQUEST Already IN QUE");
                             if (downQue.getFinished()) {
@@ -112,7 +114,7 @@ public class FileReqQueHandler implements Runnable {
                                 outToClient.close();
                                 submitter.close();
                                 System.out.println("REQUEST Already Finished");
-                                break;
+                            //    break;
                             } else {
                                 long rt = downQue.getRemainingTime();
                                 JSONObject sobj = new JSONObject();
@@ -129,14 +131,15 @@ public class FileReqQueHandler implements Runnable {
                                 outToClient.close();
                                 submitter.close();
                                 System.out.println("REQUEST Already IN QUE wait for " + rt);
-                                break;
+                              //  break;
 
                             }
                         }
 
-                    }
+                    }}
                     if (notinQ) {
-                        FileReqQueServer.downQue.add(new FileDownQueReq(ip, Integer.parseInt(pid),
+                        GlobalValues.DOWNLOAD_QUEUE.put(fileToSend.trim()+"-"+pid.trim()+"-"+checksum.trim()+"-"+ip.trim(),
+                                new FileDownQueReq(ip, Integer.parseInt(pid),
                                 checksum, fileToSend, System.currentTimeMillis(), 100, 0, 0, false, body.toString()));
 
                         System.out.println("REQUEST Added IN QUE");
@@ -151,21 +154,23 @@ public class FileReqQueHandler implements Runnable {
                         outToClient.close();
                         submitter.close();
 
-                        for (FileDownQueReq downQue : FileReqQueServer.downQue) {
-                            boolean b1 = downQue.getFilename().trim().equalsIgnoreCase(fileToSend.trim());
-                            boolean b2 = downQue.getId() == Integer.parseInt(pid.trim());
-                            boolean b3 = downQue.getChecksum().trim().equalsIgnoreCase(checksum.trim());
-                            boolean b4 = downQue.getIp().trim().equalsIgnoreCase(ip.trim());
-                            System.out.println("Compairing For Download :\nFilename:" + downQue.getFilename().trim()
-                                    + " with " + fileToSend.trim() + "\t" + b1
-                                    + "\nPID:" + downQue.getId() + " with " + pid + "\t" + b2
-                                    + "\nChecksum:" + downQue.getChecksum().trim() + " with " + checksum
-                                    + "\t" + b3
-                                    + "\nIP: " + downQue.getIp().trim() + " with " + ip + "\t" + b4);
-
-                            if (((b1) && (b2) && (b3) && (b4))) {
+                         FileDownQueReq downQue = GlobalValues.DOWNLOAD_QUEUE.get(fileToSend.trim()+"-"+pid.trim()+"-"+checksum.trim()+"-"+ip.trim());
+                     {
+//                            boolean b1 = downQue.getFilename().trim().equalsIgnoreCase(fileToSend.trim());
+//                            boolean b2 = downQue.getId() == Integer.parseInt(pid.trim());
+//                            boolean b3 = downQue.getChecksum().trim().equalsIgnoreCase(checksum.trim());
+//                            boolean b4 = downQue.getIp().trim().equalsIgnoreCase(ip.trim());
+//                            System.out.println("Compairing For Download :\nFilename:" + downQue.getFilename().trim()
+//                                    + " with " + fileToSend.trim() + "\t" + b1
+//                                    + "\nPID:" + downQue.getId() + " with " + pid + "\t" + b2
+//                                    + "\nChecksum:" + downQue.getChecksum().trim() + " with " + checksum
+//                                    + "\t" + b3
+//                                    + "\nIP: " + downQue.getIp().trim() + " with " + ip + "\t" + b4);
+//
+//                            if (((b1) && (b2) && (b3) && (b4))) 
+                            {
                                 System.out.println("Downloading File Now");
-                                try (Socket sock = new Socket(ip, 13133)) {
+                                try (Socket sock = new Socket(ip, GlobalValues.FILE_SERVER_PORT)) {
                                     System.out.println("Connecting To Download...");
                                     try (OutputStream sockos = sock.getOutputStream(); DataOutputStream outToServer = new DataOutputStream(sockos)) {
                                         JSONObject downreqJsonObj = new JSONObject();
@@ -269,7 +274,7 @@ public class FileReqQueHandler implements Runnable {
                                         } // read length of incoming message // read length of incoming message
                                     }
                                 }
-                                break;
+//                                break;
                             }
                         }
                     }
@@ -295,7 +300,8 @@ public class FileReqQueHandler implements Runnable {
 
                     //        File myFile2 = new File(pathtoFile);
                     boolean notinQ = true;
-                    for (FileDownQueReq downQue : FileReqQueServer.downQue) {
+                     FileDownQueReq downQue = GlobalValues.DOWNLOAD_QUEUE.get(pathtoFile.trim()+"-"+pid2.trim()+"-"+checksum.trim()+"-"+ip.trim());
+                     {
                         boolean b1 = downQue.getFilename().trim().equalsIgnoreCase(pathtoFile.trim());
                         boolean b2 = downQue.getId() == Integer.parseInt(pid2.trim());
                         boolean b3 = downQue.getChecksum().trim().equalsIgnoreCase(checksum.trim());
@@ -335,7 +341,7 @@ public class FileReqQueHandler implements Runnable {
 
                     }
                     if (notinQ) {
-                        FileReqQueServer.downQue.add(new FileDownQueReq(ip, Integer.parseInt(pid2),
+                        GlobalValues.DOWNLOAD_QUEUE.put(pathtoFile.trim()+"-"+pid2.trim()+"-"+checksum.trim()+"-"+ip.trim(),new FileDownQueReq(ip, Integer.parseInt(pid2),
                                 checksum, pathtoFile, System.currentTimeMillis(), 100, 0, 0, false, body.toString(4)));
 
                         String sendmsg = new JSONObject().put("MSG", "addedinq").toString();//"<MSG>addedinq</MSG>";
@@ -348,24 +354,26 @@ public class FileReqQueHandler implements Runnable {
                         outToClient.close();
                         submitter.close();
 
-                        for (FileDownQueReq downQue : FileReqQueServer.downQue) {
+                         FileDownQueReq downQue2 = GlobalValues.DOWNLOAD_QUEUE.get(pathtoFile.trim()+"-"+pid2.trim()+"-"+checksum.trim()+"-"+ip.trim());
+                     
+                        {
 
-                            boolean b1 = downQue.getFilename().trim().equalsIgnoreCase(pathtoFile.trim());
-                            boolean b2 = downQue.getId() == Integer.parseInt(pid2.trim());
-                            boolean b3 = downQue.getChecksum().trim().equalsIgnoreCase(checksum.trim());
-                            boolean b4 = downQue.getIp().trim().equalsIgnoreCase(ip.trim());
-                            System.out.println("Compairing For Download :\nFilename:" + downQue.getFilename().trim()
-                                    + " with " + pathtoFile.trim() + "\t" + b1
-                                    + "\nPID:" + downQue.getId() + " with " + pid2 + "\t" + b2
-                                    + "\nChecksum:" + downQue.getChecksum().trim() + " with " + checksum
-                                    + "\t" + b3
-                                    + "\nIP: " + downQue.getIp().trim() + " with " + ip + "\t" + b4);
+//                            boolean b1 = downQue2.getFilename().trim().equalsIgnoreCase(pathtoFile.trim());
+//                            boolean b2 = downQue2.getId() == Integer.parseInt(pid2.trim());
+//                            boolean b3 = downQue2.getChecksum().trim().equalsIgnoreCase(checksum.trim());
+//                            boolean b4 = downQue2.getIp().trim().equalsIgnoreCase(ip.trim());
+//                            System.out.println("Compairing For Download :\nFilename:" + downQue2.getFilename().trim()
+//                                    + " with " + pathtoFile.trim() + "\t" + b1
+//                                    + "\nPID:" + downQue2.getId() + " with " + pid2 + "\t" + b2
+//                                    + "\nChecksum:" + downQue2.getChecksum().trim() + " with " + checksum
+//                                    + "\t" + b3
+//                                    + "\nIP: " + downQue2.getIp().trim() + " with " + ip + "\t" + b4);
+//
+//                            if (((b1) && (b2) && (b3) && (b4))) /*if (downQue.getFilename().trim().equalsIgnoreCase(pathtoFile.trim()) && (downQue.getId() == Integer.parseInt(pid2.trim()))
+//                                    && (downQue.getChecksum().trim().equalsIgnoreCase(checksum.trim())) && (downQue.getIp().trim().equalsIgnoreCase(ip.trim()))) 
+                              {
 
-                            if (((b1) && (b2) && (b3) && (b4))) /*if (downQue.getFilename().trim().equalsIgnoreCase(pathtoFile.trim()) && (downQue.getId() == Integer.parseInt(pid2.trim()))
-                                    && (downQue.getChecksum().trim().equalsIgnoreCase(checksum.trim())) && (downQue.getIp().trim().equalsIgnoreCase(ip.trim()))) 
-                             */ {
-
-                                try (Socket sock = new Socket(ip, 13133)) {
+                                try (Socket sock = new Socket(ip, GlobalValues.FILE_SERVER_PORT)) {
                                     System.out.println("Connecting...");
                                     try (OutputStream sockos = sock.getOutputStream(); DataOutputStream outToServer = new DataOutputStream(sockos)) {
                                         JSONObject downreqJsonObj = new JSONObject();
@@ -449,17 +457,17 @@ public class FileReqQueHandler implements Runnable {
                                                             while (fileLen > 0 && ((n = sockdin.read(buf, 0, (int) Math.min(buf.length, fileLen))) != -1)) {
                                                                 bos.write(buf, 0, n);
                                                                 fileLen -= n;
-                                                                downQue.setRemainingsize(fileLen);
+                                                                downQue2.setRemainingsize(fileLen);
                                                                 Long elapsedTime = System.currentTimeMillis() - starttime;
                                                                 Long allTimeForDownloading = (elapsedTime * (downData / (downData - fileLen)));
                                                                 Long remainingTime = allTimeForDownloading - elapsedTime;
-                                                                downQue.setRemainingTime(remainingTime);
+                                                                downQue2.setRemainingTime(remainingTime);
                                                                 //            System.out.println("Remaining "+fileLen);
                                                             }
                                                             bos.flush();
                                                         }
-                                                        downQue.setFinished(true);
-                                                        downQue.setChecksum(checksum2);
+                                                        downQue2.setFinished(true);
+                                                        downQue2.setChecksum(checksum2);
                                                         long endtime = System.currentTimeMillis();
                                                         System.out.println("File " + pathtoFile
                                                                 + " downloaded (" + downData + " bytes read) in " + (endtime - starttime) + " ms");
@@ -473,7 +481,7 @@ public class FileReqQueHandler implements Runnable {
                                         } // read length of incoming message // read length of incoming message
                                     }
                                 }
-                                break;
+//                                break;
                             }
                         }
                     } else {
@@ -485,15 +493,15 @@ public class FileReqQueHandler implements Runnable {
 
             }
         } catch (UnsupportedEncodingException ex) {
-            Logger.getLogger(FileReqQueHandler.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(FileDownloadHandler.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(FileReqQueHandler.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(FileDownloadHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
         {
             try {
                 submitter.close();
             } catch (IOException ex) {
-                Logger.getLogger(FileReqQueHandler.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(FileDownloadHandler.class.getName()).log(Level.SEVERE, null, ex);
             }
 
         }
