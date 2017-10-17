@@ -17,7 +17,6 @@
 package in.co.s13.SIPS.datastructure;
 
 import in.co.s13.SIPS.Scanner.NetScanner;
-import in.co.s13.SIPS.settings.GlobalValues;
 import static in.co.s13.SIPS.settings.GlobalValues.ADJACENT_NODES_TABLE;
 import static in.co.s13.SIPS.settings.GlobalValues.NON_ADJACENT_NODES_TABLE;
 import java.util.ArrayList;

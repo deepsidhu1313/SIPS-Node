@@ -43,7 +43,7 @@ public class ScheduledLiveNodeScanner implements Runnable {
 
             GlobalValues.NODE_SCANNER_EXECUTOR.submit(new CheckLiveNodes());
             int noOfHost = GlobalValues.LIVE_NODE_ADJ_DB.size();
-            long interval = ((noOfHost * 5) < 60) ? 60 : (noOfHost * 5);
+            long interval = ((noOfHost * 5) < 30) ? 30 : (noOfHost * 5);
             long intervalMillis = TimeUnit.MILLISECONDS.convert(interval, TimeUnit.SECONDS);
             while (GlobalValues.KEEP_LIVE_NODE_SCANNER_ALIVE && (intervalMillis > 0)) {
                 Util.outPrintln(""+Thread.currentThread().getName()+" is going to sleep for 5 sec of remaining time "+intervalMillis+" ms");

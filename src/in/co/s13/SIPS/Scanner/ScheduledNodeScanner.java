@@ -34,7 +34,7 @@ public class ScheduledNodeScanner implements Runnable {
     @Override
     public void run() {
         try {
-         Util.outPrintln(""+Thread.currentThread().getName()+" is going to sleep for 2 sec");
+//         Util.outPrintln(""+Thread.currentThread().getName()+" is going to sleep for 2 sec");
                Thread.sleep(TimeUnit.MILLISECONDS.convert(2, TimeUnit.SECONDS));
         } catch (InterruptedException ex) {
             Logger.getLogger(ScheduledNodeScanner.class.getName()).log(Level.SEVERE, null, ex);
@@ -43,10 +43,10 @@ public class ScheduledNodeScanner implements Runnable {
 
             GlobalValues.NODE_SCANNER_EXECUTOR.submit(new AddLivenodes());
             int noOfHost = GlobalValues.HOSTS.size();
-            long interval = ((noOfHost * 10) < 60) ? 60 : (noOfHost * 10);
+            long interval = ((noOfHost * 10) < 30) ? 30 : (noOfHost * 10);
             long intervalMillis = TimeUnit.MILLISECONDS.convert(interval, TimeUnit.SECONDS);
             while (GlobalValues.KEEP_NODE_SCANNER_ALIVE && (intervalMillis > 0)) {
-            Util.outPrintln(""+Thread.currentThread().getName()+" is going to sleep for 5 sec of remaining time "+intervalMillis+" ms");
+//            Util.outPrintln(""+Thread.currentThread().getName()+" is going to sleep for 5 sec of remaining time "+intervalMillis+" ms");
                        try {
                     Thread.sleep(5000L);
                 } catch (InterruptedException ex) {
