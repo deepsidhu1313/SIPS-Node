@@ -98,7 +98,7 @@ public class DummySlave {
              */
             GlobalValues.API_JSON = Util.readJSONFile(dir_etc + "/api.json");
             Iterator<String> it = GlobalValues.API_JSON.keys();
-            GlobalValues.API_LIST = new  ConcurrentHashMap<>();
+            GlobalValues.API_LIST = new ConcurrentHashMap<>();
             while (it.hasNext()) {
                 String key = it.next();
                 GlobalValues.API_LIST.put(key, GlobalValues.API_JSON.getJSONObject(key));
@@ -335,7 +335,7 @@ public class DummySlave {
                         ServiceOperations.initPingServerAtStartUp();
                         ServiceOperations.initFileServerAtStartUp();
                         ServiceOperations.initTaskServerAtStartUp();
-
+                        ServiceOperations.initFileDownloadServerAtStartUp();
                         break;
                     /**
                      * *
@@ -348,7 +348,7 @@ public class DummySlave {
                         ServiceOperations.initApiServerAtStartUp();
                         ServiceOperations.initFileServerAtStartUp();
                         ServiceOperations.initTaskServerAtStartUp();
-
+                        ServiceOperations.initFileDownloadServerAtStartUp();
                         break;
                 }
             } else {
@@ -359,6 +359,7 @@ public class DummySlave {
                 ServiceOperations.initPingServerAtStartUp();
                 ServiceOperations.initFileServerAtStartUp();
                 ServiceOperations.initTaskServerAtStartUp();
+                ServiceOperations.initFileDownloadServerAtStartUp();
 
             }
 
@@ -375,6 +376,8 @@ public class DummySlave {
             ServiceOperations.initPingServerAtStartUp();
             ServiceOperations.initFileServerAtStartUp();
             ServiceOperations.initTaskServerAtStartUp();
+            ServiceOperations.initFileDownloadServerAtStartUp();
+
         }
 
     }

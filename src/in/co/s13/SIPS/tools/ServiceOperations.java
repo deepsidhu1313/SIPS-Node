@@ -18,9 +18,14 @@ package in.co.s13.SIPS.tools;
 
 import in.co.s13.SIPS.Scanner.ScheduledLiveNodeScanner;
 import in.co.s13.SIPS.Scanner.ScheduledNodeScanner;
+import in.co.s13.SIPS.executor.sockets.APIServer;
+import in.co.s13.SIPS.executor.sockets.FileDownloadServer;
+import in.co.s13.SIPS.executor.sockets.FileServer;
 import in.co.s13.SIPS.executor.sockets.PingServer;
 import in.co.s13.SIPS.executor.sockets.TaskFinishListenerServer;
+import in.co.s13.SIPS.executor.sockets.TaskServer;
 import in.co.s13.SIPS.settings.GlobalValues;
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -69,7 +74,7 @@ public class ServiceOperations {
     public static synchronized void startApiServer() {
         GlobalValues.API_SERVER_IS_RUNNING = true;
         if ((GlobalValues.API_SERVER_SOCKET == null || GlobalValues.API_SERVER_SOCKET.isClosed()) && (GlobalValues.API_SERVER_THREAD == null || !GlobalValues.API_SERVER_THREAD.isAlive())) {
-            GlobalValues.API_SERVER_THREAD = new Thread(new PingServer());
+            GlobalValues.API_SERVER_THREAD = new Thread(new APIServer());
             GlobalValues.API_SERVER_THREAD.start();
         }
     }
@@ -96,10 +101,10 @@ public class ServiceOperations {
         }
     }
 
-    public static synchronized void startTaskServer() {
+    public static synchronized void startTaskServer()  {
         GlobalValues.TASK_SERVER_IS_RUNNING = true;
         if ((GlobalValues.TASK_SERVER_SOCKET == null || GlobalValues.TASK_SERVER_SOCKET.isClosed()) && (GlobalValues.TASK_SERVER_THREAD == null || !GlobalValues.TASK_SERVER_THREAD.isAlive())) {
-            GlobalValues.TASK_SERVER_THREAD = new Thread(new PingServer());
+            GlobalValues.TASK_SERVER_THREAD = new Thread(new TaskServer());
             GlobalValues.TASK_SERVER_THREAD.start();
         }
     }
@@ -126,10 +131,10 @@ public class ServiceOperations {
         }
     }
 
-    public static synchronized void startFileServer() {
+    public static synchronized void startFileServer()  {
         GlobalValues.FILE_SERVER_IS_RUNNING = true;
         if ((GlobalValues.FILE_SERVER_SOCKET == null || GlobalValues.FILE_SERVER_SOCKET.isClosed()) && (GlobalValues.FILE_SERVER_THREAD == null || !GlobalValues.FILE_SERVER_THREAD.isAlive())) {
-            GlobalValues.FILE_SERVER_THREAD = new Thread(new PingServer());
+            GlobalValues.FILE_SERVER_THREAD = new Thread(new FileServer());
             GlobalValues.FILE_SERVER_THREAD.start();
         }
     }
@@ -159,7 +164,7 @@ public class ServiceOperations {
     public static synchronized void startFileDownloadServer() {
         GlobalValues.FILE_DOWNLOAD_SERVER_IS_RUNNING = true;
         if ((GlobalValues.FILE_DOWNLOAD_SERVER_SOCKET == null || GlobalValues.FILE_DOWNLOAD_SERVER_SOCKET.isClosed()) && (GlobalValues.FILE_DOWNLOAD_SERVER_THREAD == null || !GlobalValues.FILE_DOWNLOAD_SERVER_THREAD.isAlive())) {
-            GlobalValues.FILE_DOWNLOAD_SERVER_THREAD = new Thread(new PingServer());
+            GlobalValues.FILE_DOWNLOAD_SERVER_THREAD = new Thread(new FileDownloadServer());
             GlobalValues.FILE_DOWNLOAD_SERVER_THREAD.start();
         }
     }
@@ -187,7 +192,8 @@ public class ServiceOperations {
     }
 
     public static synchronized void startLiveNodeScanner() {
-        if ((GlobalValues.KEEP_LIVE_NODE_SCANNER_ALIVE == false) && (GlobalValues.CHECK_LIVE_NODE_THREAD == null || !GlobalValues.CHECK_LIVE_NODE_THREAD.isAlive())) {
+        //(GlobalValues.KEEP_LIVE_NODE_SCANNER_ALIVE == false) &&
+        if ( (GlobalValues.CHECK_LIVE_NODE_THREAD == null || !GlobalValues.CHECK_LIVE_NODE_THREAD.isAlive())) {
             GlobalValues.KEEP_LIVE_NODE_SCANNER_ALIVE = true;
             GlobalValues.CHECK_LIVE_NODE_THREAD = new Thread(new ScheduledLiveNodeScanner());
             GlobalValues.CHECK_LIVE_NODE_THREAD.setName("Scan Live Nodes Scheduled Thread");
@@ -220,7 +226,8 @@ public class ServiceOperations {
     }
 
     public static synchronized void startNodeScanner() {
-        if ((GlobalValues.KEEP_NODE_SCANNER_ALIVE == false) && (GlobalValues.NODE_SCANNING_THREAD == null || !GlobalValues.NODE_SCANNING_THREAD.isAlive())) {
+        //(GlobalValues.KEEP_NODE_SCANNER_ALIVE == false) &&
+        if ( (GlobalValues.NODE_SCANNING_THREAD == null || !GlobalValues.NODE_SCANNING_THREAD.isAlive())) {
             GlobalValues.KEEP_NODE_SCANNER_ALIVE = true;
             GlobalValues.NODE_SCANNING_THREAD = new Thread(new ScheduledNodeScanner());
             GlobalValues.NODE_SCANNING_THREAD.setName("Add Live Nodes Scheduled Thread");

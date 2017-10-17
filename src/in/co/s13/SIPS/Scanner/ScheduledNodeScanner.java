@@ -17,6 +17,7 @@
 package in.co.s13.SIPS.Scanner;
 
 import in.co.s13.SIPS.settings.GlobalValues;
+import in.co.s13.SIPS.tools.Util;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,7 +34,8 @@ public class ScheduledNodeScanner implements Runnable {
     @Override
     public void run() {
         try {
-            Thread.sleep(TimeUnit.MILLISECONDS.convert(2, TimeUnit.SECONDS));
+         Util.outPrintln(""+Thread.currentThread().getName()+" is going to sleep for 2 sec");
+               Thread.sleep(TimeUnit.MILLISECONDS.convert(2, TimeUnit.SECONDS));
         } catch (InterruptedException ex) {
             Logger.getLogger(ScheduledNodeScanner.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -44,7 +46,8 @@ public class ScheduledNodeScanner implements Runnable {
             long interval = ((noOfHost * 10) < 60) ? 60 : (noOfHost * 10);
             long intervalMillis = TimeUnit.MILLISECONDS.convert(interval, TimeUnit.SECONDS);
             while (GlobalValues.KEEP_NODE_SCANNER_ALIVE && (intervalMillis > 0)) {
-                try {
+            Util.outPrintln(""+Thread.currentThread().getName()+" is going to sleep for 5 sec of remaining time "+intervalMillis+" ms");
+                       try {
                     Thread.sleep(5000L);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(ScheduledLiveNodeScanner.class.getName()).log(Level.SEVERE, null, ex);

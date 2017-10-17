@@ -1044,7 +1044,7 @@ public class Util {
 
     public static JSONObject getLiveNodesInJSON(int list_mode, boolean desending, String compartorValue) {
         JSONObject json = new JSONObject();
-        ArrayList al = new ArrayList();
+        ArrayList<LiveDBRow> al = new ArrayList();
         switch (list_mode) {
             case 0:
                 al.addAll(GlobalValues.LIVE_NODE_ADJ_DB.values());
@@ -1064,6 +1064,11 @@ public class Util {
             Collections.sort((al), LiveDBRow.LiveDBRowComparator.getComparator(LiveDBRow.LiveDBRowComparator.valueOf(compartorValue)));
 
         }
+        for (int i = 0; i < al.size(); i++) {
+            LiveDBRow live = al.get(i);
+            json.put(live.getUuid(), live.toJSON());
+        }
+
         return json;
     }
 

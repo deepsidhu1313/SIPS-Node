@@ -17,6 +17,9 @@
 package in.co.s13.SIPS.datastructure;
 
 import in.co.s13.SIPS.Scanner.NetScanner;
+import in.co.s13.SIPS.settings.GlobalValues;
+import static in.co.s13.SIPS.settings.GlobalValues.ADJACENT_NODES_TABLE;
+import static in.co.s13.SIPS.settings.GlobalValues.NON_ADJACENT_NODES_TABLE;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Objects;
@@ -31,6 +34,7 @@ public class LiveDBRow {
     private long memory, free_memory, hdd_size, hdd_free, lastCheckedOn, lastCheckAgo;
     private ArrayList<String> ipAddresses = new ArrayList<>();
     private JSONObject benchmarking_results;
+    private long distanceFromCurrent;
 
     public LiveDBRow(String uuid, String host, String os, String processor, int task_limit,
             int qwait, long ram, long free_memory, long hdd_size, long hdd_free, JSONObject benchmarking_results, long lastCheckedOn) {
@@ -185,6 +189,18 @@ public class LiveDBRow {
         return lastCheckedOn;
     }
 
+    public long getDistanceFromCurrent() {
+        if (ADJACENT_NODES_TABLE.containsKey(uuid)) {
+            this.distanceFromCurrent = ADJACENT_NODES_TABLE.get(uuid);
+        } else if (NON_ADJACENT_NODES_TABLE.containsKey(uuid)) {
+            UniqueElementList uniqueElementList = NON_ADJACENT_NODES_TABLE.get(uuid);
+            uniqueElementList.sortElementsInAscendingOrderDistance();
+            Hop hop = uniqueElementList.getNearestHop();
+            this.distanceFromCurrent = hop.getDistance();
+        }
+        return distanceFromCurrent;
+    }
+
     @Override
     public String toString() {
         return this.toJSON().toString(4);
@@ -213,10 +229,11 @@ public class LiveDBRow {
         result.put("free_memory", free_memory);
         result.put("hdd_size", hdd_size);
         result.put("hdd_free", hdd_free);
-        result.put("ipAddresses", new JSONArray(ipAddresses));
+        result.put("ipAddresses", new JSONArray(ipAddresses.toArray()));
         result.put("benchmarking_results", benchmarking_results);
         result.put("lastCheckedOn", lastCheckedOn);
         result.put("lastCheckAgo", getLastCheckAgo());
+        result.put("distanceFromCurrent", getDistanceFromCurrent());
         return result;
     }
 
@@ -271,6 +288,11 @@ public class LiveDBRow {
         RAM_FREE {
             public int compare(LiveDBRow o1, LiveDBRow o2) {
                 return Long.valueOf(o1.getFree_memory()).compareTo(o2.getFree_memory());
+            }
+        },
+        DISTANCE_FROM_CURRENT {
+            public int compare(LiveDBRow o1, LiveDBRow o2) {
+                return Long.valueOf(o1.getDistanceFromCurrent()).compareTo(o2.getDistanceFromCurrent());
             }
         },
         HDD_FREE {

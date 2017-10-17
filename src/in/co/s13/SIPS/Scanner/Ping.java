@@ -41,6 +41,7 @@ import org.json.JSONObject;
 import static in.co.s13.SIPS.settings.GlobalValues.CURRENTLY_SCANNING;
 import static in.co.s13.SIPS.settings.GlobalValues.LIVE_DB_EXECUTOR;
 import static in.co.s13.SIPS.settings.GlobalValues.LIVE_NODE_ADJ_DB;
+import in.co.s13.SIPS.tools.Util;
 
 class Ping implements Runnable {
 
@@ -64,7 +65,7 @@ class Ping implements Runnable {
         } else {
             CURRENTLY_SCANNING.put(IPadress.trim(), IPadress);
         }
-        //System.out.println("Scanning List:" + CURRENTLY_SCANNING.toString());
+        Util.outPrintln("Scanning List:" + CURRENTLY_SCANNING.toString());
         try {
             adrss = InetAddress.getByName(IPadress);
         } catch (UnknownHostException ex) {
@@ -160,7 +161,7 @@ class Ping implements Runnable {
                         String get = ips.get(i);
                         live.addIp(get);
                     }
-                    System.out.println("Live Node DB " + LIVE_NODE_ADJ_DB.toString());
+//                    System.out.println("Live Node DB " + LIVE_NODE_ADJ_DB.toString());
                     if (ADJACENT_NODES_TABLE.containsKey(uuid)) {
                         ADJACENT_NODES_TABLE.replace(uuid, distance);
                     } else {
@@ -231,11 +232,12 @@ class Ping implements Runnable {
                     }
 
                 });
-
-            } catch (Exception e) {
-                System.err.println("Exception " + e);
-                CURRENTLY_SCANNING.remove(IPadress.trim());
-            }
+    Util.outPrintln("\n\n**************************Live Nodes******************* \n"+Util.getAllLiveNodesInJSON().toString(4));
+            } 
+//            catch (Exception e) {
+//                System.err.println("Exception " + e);
+//                CURRENTLY_SCANNING.remove(IPadress.trim());
+//            }
 
             s.close();
 
@@ -251,7 +253,7 @@ class Ping implements Runnable {
             }
         }
         CURRENTLY_SCANNING.remove(IPadress.trim());
-
+        
     }
 
 }

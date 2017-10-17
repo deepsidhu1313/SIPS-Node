@@ -33,7 +33,7 @@ import java.util.logging.Logger;
 public class FileServer implements Runnable {
 
 
-    public FileServer() throws IOException {
+    public FileServer()  {
           GlobalValues.FILE_HANDLER_EXECUTOR_SERVICE = new FixedThreadPool(GlobalValues.FILES_RESOLVER_LIMIT);
     
     }

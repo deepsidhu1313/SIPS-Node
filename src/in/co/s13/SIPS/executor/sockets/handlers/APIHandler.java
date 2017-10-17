@@ -375,11 +375,7 @@ public class APIHandler implements Runnable {
             } catch (IOException ex1) {
                 Logger.getLogger(APIHandler.class.getName()).log(Level.SEVERE, null, ex1);
             }
-        } catch (Exception excep) {
-            Logger.getLogger(APIHandler.class.getName()).log(Level.SEVERE, null, excep);
-
         }
-
     }
 
     private boolean hasReadPermissions(int key_permissions) {

@@ -7,6 +7,9 @@
 /store/
 /test/
 /var/
+/bin/
+/etc
+/log
 *.zip
 *.jar
 *.class

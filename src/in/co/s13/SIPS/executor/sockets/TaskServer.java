@@ -20,6 +20,7 @@ import in.co.s13.SIPS.datastructure.threadpools.FixedThreadPool;
 import in.co.s13.SIPS.executor.sockets.handlers.TaskHandler;
 import in.co.s13.SIPS.settings.GlobalValues;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.ServerSocket;
@@ -40,7 +41,7 @@ public class TaskServer implements Runnable {
 
 //    public static Process[] p = new Process[1000];
 
-    public TaskServer() throws IOException {
+    public TaskServer() {
         if (GlobalValues.OS_Name == 2) {
             File f = new File(GlobalValues.dir_bin+"/process-executor.sh");
 
@@ -57,6 +58,8 @@ public class TaskServer implements Runnable {
                     out.println("cd  \"${WORK}${1}/\"");
                     out.println("bash ${WORK}ant/bin/ant");
                     //       out.println("bash process-executor.sh \"$3\"");
+                } catch (FileNotFoundException ex) {
+                    Logger.getLogger(TaskServer.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
             System.out.println("Script is executable " + f.setExecutable(true));
@@ -75,6 +78,8 @@ public class TaskServer implements Runnable {
                 out2.println("bash ${WORK}ant/bin/ant -Darg1=$2");
 
 //out2.println("bash  simulate.sh $2");
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(TaskServer.class.getName()).log(Level.SEVERE, null, ex);
             }
             System.out.println("Script is executable " + f.setExecutable(true));
 
@@ -93,6 +98,8 @@ public class TaskServer implements Runnable {
                     // out.println("set arg3=%3 ");
                     out.println("cd /d %PFRAMEWORK_HOME%%arg1%");
                     out.println("CALL %PFRAMEWORK_HOME%\\ant\\bin\\ant.bat");
+                } catch (FileNotFoundException ex) {
+                    Logger.getLogger(TaskServer.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
             }
@@ -101,20 +108,23 @@ public class TaskServer implements Runnable {
                 f4.delete();
             }
             {
-                PrintStream out = new PrintStream(f4); //new AppendFileStream
-                out.println("@echo off ");
-                out.println("set PFRAMEWORK_HOME=%~dp0");
-                out.println("set arg1=%~1 ");
-                out.println("set arg2=%2 ");
-                out.println("set arg3=%3 ");
-                out.println("set arg4=%4 ");
-                //  out.println("java -jar lib1.jar 0 %arg4%");
-                out.println("cd /d %PFRAMEWORK_HOME%%arg1%");
-                out.println("CALL  %PFRAMEWORK_HOME%\\ant\\bin\\ant.bat  -Darg1= %arg2%");
-                // out.println("java -cp .;%PFRAMEWORK_HOME%lib1.jar %arg3%");
-                //  out.println(" cd %PFRAMEWORK_HOME%");
-                //  out.println("java -jar lib1.jar 1 %arg4%");
-                out.close();
+                try (PrintStream out = new PrintStream(f4) //new AppendFileStream
+                ) {
+                    out.println("@echo off ");
+                    out.println("set PFRAMEWORK_HOME=%~dp0");
+                    out.println("set arg1=%~1 ");
+                    out.println("set arg2=%2 ");
+                    out.println("set arg3=%3 ");
+                    out.println("set arg4=%4 ");
+                    //  out.println("java -jar lib1.jar 0 %arg4%");
+                    out.println("cd /d %PFRAMEWORK_HOME%%arg1%");
+                    out.println("CALL  %PFRAMEWORK_HOME%\\ant\\bin\\ant.bat  -Darg1= %arg2%");
+                    // out.println("java -cp .;%PFRAMEWORK_HOME%lib1.jar %arg3%");
+                    //  out.println(" cd %PFRAMEWORK_HOME%");
+                    //  out.println("java -jar lib1.jar 1 %arg4%");
+                } catch (FileNotFoundException ex) {
+                    Logger.getLogger(TaskServer.class.getName()).log(Level.SEVERE, null, ex);
+                }
 
             }
         }
