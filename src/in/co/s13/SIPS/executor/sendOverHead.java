@@ -51,7 +51,8 @@ public class sendOverHead implements Runnable {
             s.connect(new InetSocketAddress(ipadd, 13135));
             OutputStream os = s.getOutputStream();
             try (DataInputStream dIn = new DataInputStream(s.getInputStream()) //inFromServer.close();
-                    ; DataOutputStream outToServer = new DataOutputStream(os)) {
+                    ;
+                     DataOutputStream outToServer = new DataOutputStream(os)) {
                 JSONObject sendmsgJsonObj = new JSONObject();
                 sendmsgJsonObj.put("Command", cmd);
                 JSONObject sendmsgBodyJsonObj = new JSONObject();

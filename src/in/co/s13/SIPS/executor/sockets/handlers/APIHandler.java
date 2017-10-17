@@ -221,6 +221,15 @@ public class APIHandler implements Runnable {
                                 restartNodeScanner();
                             }
                             response.put("NODE-SCANNER", GlobalValues.NODE_SCANNING_THREAD.isAlive());
+                        } else if (args.getString(0).equalsIgnoreCase("LOG-ROTATE")) {
+                            if (args.getString(1).equalsIgnoreCase("start")) {
+                                ServiceOperations.startLogRotate();
+                            } else if (args.getString(1).equalsIgnoreCase("stop")) {
+                                ServiceOperations.stopLogRotate();
+                            } else if (args.getString(1).equalsIgnoreCase("restart")) {
+                                ServiceOperations.restartLogRotate();
+                            }
+                            response.put("LOG-ROTATE", GlobalValues.LOG_ROTATE_THREAD.isAlive());
                         } else {
                             response.put("Error !!!", "Unknown Service!");
 
@@ -235,6 +244,7 @@ public class APIHandler implements Runnable {
                         response.put("API-SERVER", !GlobalValues.API_SERVER_SOCKET.isClosed());
                         response.put("LIVE-NODE-SCANNER", GlobalValues.CHECK_LIVE_NODE_THREAD.isAlive());
                         response.put("NODE-SCANNER", GlobalValues.NODE_SCANNING_THREAD.isAlive());
+                        response.put("LOG-ROTATE", GlobalValues.LOG_ROTATE_THREAD.isAlive());
                         body.put("Response", response);
 
                     } else if (args.length() == 0 && hasReadPermissions(key_permissions)) {
@@ -245,6 +255,7 @@ public class APIHandler implements Runnable {
                         response.put("API-SERVER", !GlobalValues.API_SERVER_SOCKET.isClosed());
                         response.put("LIVE-NODE-SCANNER", GlobalValues.CHECK_LIVE_NODE_THREAD.isAlive());
                         response.put("NODE-SCANNER", GlobalValues.NODE_SCANNING_THREAD.isAlive());
+                        response.put("LOG-ROTATE", GlobalValues.LOG_ROTATE_THREAD.isAlive());
                         body.put("Response", response);
                     } else {
                         body.put("Response", "Incorrect permissions or arguments!!");
@@ -389,6 +400,5 @@ public class APIHandler implements Runnable {
     private boolean hasExecutePermissions(int key_permissions) {
         return key_permissions == 1 || key_permissions == 3 || key_permissions == 5 || key_permissions == 7;
     }
-
 
 }

@@ -170,7 +170,7 @@ public class NodeDBRow {
         return true;
     }
 
-   public enum NodeDBRowComparator implements Comparator<NodeDBRow> {
+    public enum NodeDBRowComparator implements Comparator<NodeDBRow> {
 
         UUID_SORT {
             public int compare(NodeDBRow o1, NodeDBRow o2) {

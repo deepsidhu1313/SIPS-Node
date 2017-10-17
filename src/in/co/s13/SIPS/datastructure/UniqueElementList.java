@@ -31,7 +31,7 @@ public class UniqueElementList {
     public UniqueElementList() {
     }
 
-    public UniqueElementList(Hop ... h) {
+    public UniqueElementList(Hop... h) {
         for (int i = 0; i < h.length; i++) {
             Hop hop = h[i];
             this.addHop(hop);

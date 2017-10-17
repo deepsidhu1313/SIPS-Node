@@ -29,10 +29,10 @@ public class InsertResultWareHouse implements Runnable {
     String projectName;
     SQLiteJDBC resWH = new SQLiteJDBC();
     int SCHEDULER, PID;
-    String STARTTIME, ENDTIME, TOTALTIME, NOH, POH, CHUNKSIZE, TCHUNKS, TNODES, FINISHED,AVGWAITINQ,AVGSLEEP;
+    String STARTTIME, ENDTIME, TOTALTIME, NOH, POH, CHUNKSIZE, TCHUNKS, TNODES, FINISHED, AVGWAITINQ, AVGSLEEP;
     double PRFM;
 
-    public InsertResultWareHouse(int PID, String Project, int SCHEDULER, String STARTTIME, String ENDTIME, String TOTALTIME, String NOH, String POH, String CHUNKSIZE, String TCHUNKS, String TNODES, double PRFM, String FINISHED,String AVGWAITINQ,String AVGSLEEP) {
+    public InsertResultWareHouse(int PID, String Project, int SCHEDULER, String STARTTIME, String ENDTIME, String TOTALTIME, String NOH, String POH, String CHUNKSIZE, String TCHUNKS, String TNODES, double PRFM, String FINISHED, String AVGWAITINQ, String AVGSLEEP) {
 
         this.projectName = Project;
         this.STARTTIME = STARTTIME;
@@ -47,14 +47,14 @@ public class InsertResultWareHouse implements Runnable {
         this.PRFM = PRFM;
         this.SCHEDULER = SCHEDULER;
         this.PID = PID;
-        this.AVGSLEEP=AVGSLEEP;
-        this.AVGWAITINQ=AVGWAITINQ;
+        this.AVGSLEEP = AVGSLEEP;
+        this.AVGWAITINQ = AVGWAITINQ;
     }
 
     @Override
     public void run() {
-         Thread.currentThread().setName("InsertResDBWHThread");
-        
+        Thread.currentThread().setName("InsertResDBWHThread");
+
         String sql = "";
         if (counter == 1) {
             sql = "CREATE TABLE RESULTWH"

@@ -18,6 +18,7 @@ package in.co.s13.SIPS.virtualdb;
 
 import in.co.s13.SIPS.datastructure.Result;
 import in.co.s13.SIPS.settings.GlobalValues;
+
 /**
  *
  * @author Nika
@@ -26,8 +27,9 @@ public class UpdateResultDBbefExecVirtual implements Runnable {
 
     String dbloc, sql, fname, chunksize, pid, tchunks, tnodes, poh;
     Long startTime;
-int Scheduler=0;
-    public UpdateResultDBbefExecVirtual(String filename, String PID, Long Starttime, String ChunkSize, String TotalChunks, String TotalNodes, String ParsingOH,int schedule) {
+    int Scheduler = 0;
+
+    public UpdateResultDBbefExecVirtual(String filename, String PID, Long Starttime, String ChunkSize, String TotalChunks, String TotalNodes, String ParsingOH, int schedule) {
         dbloc = "appdb/results.db";
         startTime = Starttime;
         fname = filename;
@@ -36,12 +38,12 @@ int Scheduler=0;
         tnodes = TotalNodes;
         poh = ParsingOH;
         pid = PID;
-        Scheduler=schedule;
+        Scheduler = schedule;
     }
 
     @Override
     public void run() {
-       // SQLiteJDBC db = new SQLiteJDBC();
+        // SQLiteJDBC db = new SQLiteJDBC();
         sql = "INSERT INTO RESULT "
                 + "("
                 + "PID ,Filename,"
@@ -54,7 +56,7 @@ int Scheduler=0;
                 + "FINISHED)"
                 + " VALUES ('" + pid + "','" + fname + "','" + Scheduler + "','" + startTime + "','" + poh + "','" + chunksize + "','" + tchunks + "','" + tnodes + "','false');";
         //db.insert(dbloc, sql);
-        GlobalValues.RESULT_DB.put(pid,new Result(fname, pid, Scheduler, ""+startTime, "", "", "", poh, chunksize, tchunks,tnodes, "","","", "false"));
+        GlobalValues.RESULT_DB.put(pid, new Result(fname, pid, Scheduler, "" + startTime, "", "", "", poh, chunksize, tchunks, tnodes, "", "", "", "false"));
         /*  sql = "UPDATE  RESULT set "
          + "PID ='"+pid+"',"
          + " StartTime ='"+startTime+"',"
@@ -66,8 +68,7 @@ int Scheduler=0;
       
          */
         // db.closeConnection();
-      
-        
+
     }
 
 }

@@ -81,7 +81,6 @@ public class Benchmarks {
 //        result.put("os.arch: ", System.getProperty("os.arch"));
 //        result.put("os.name: ", System.getProperty("os.name"));
 //        result.put("os.version: ", System.getProperty("os.version"));
-
         return result.toString(4);
     }
 

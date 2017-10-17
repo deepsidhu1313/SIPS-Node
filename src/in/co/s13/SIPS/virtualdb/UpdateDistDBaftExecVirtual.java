@@ -48,7 +48,7 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
     // BigDecimal chunkSize = BigDecimal.ZERO;
 
     int counter = 0, vartype;
-     ConcurrentHashMap<String, DistributionDBRow> DistTable;
+    ConcurrentHashMap<String, DistributionDBRow> DistTable;
 
     public UpdateDistDBaftExecVirtual(Long endTime, Long ExecTime, String filename, String ip, String PID, String CNO, String EXITCODE) {
         dbloc = "data/" + PID + "/dist-db/dist-" + PID + ".db";

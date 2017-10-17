@@ -82,7 +82,6 @@ public class NativeProcess {
         return "NativeProcess{" + "id=" + id + '}';
     }
 
-    
     public boolean isAlive() {
         return p.isAlive();
     }

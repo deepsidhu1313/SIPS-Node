@@ -38,12 +38,10 @@ public class TaskServer implements Runnable {
 //    public static int processcounter = 0;
 //    public static ArrayList<Integer> localprocessID = new ArrayList();
 //    public static ArrayList<String> alienprocessID = new ArrayList();
-
 //    public static Process[] p = new Process[1000];
-
     public TaskServer() {
         if (GlobalValues.OS_Name == 2) {
-            File f = new File(GlobalValues.dir_bin+"/process-executor.sh");
+            File f = new File(GlobalValues.dir_bin + "/process-executor.sh");
 
             if (f.exists()) {
                 f.delete();
@@ -64,7 +62,7 @@ public class TaskServer implements Runnable {
             }
             System.out.println("Script is executable " + f.setExecutable(true));
 
-            File f3 = new File(GlobalValues.dir_bin+"/simulate.sh");
+            File f3 = new File(GlobalValues.dir_bin + "/simulate.sh");
             if (f3.exists()) {
                 f3.delete();
             }
@@ -84,7 +82,7 @@ public class TaskServer implements Runnable {
             System.out.println("Script is executable " + f.setExecutable(true));
 
         } else {
-            File f2 = new File(GlobalValues.dir_bin+"/process-executor.bat");
+            File f2 = new File(GlobalValues.dir_bin + "/process-executor.bat");
             if (f2.exists()) {
                 f2.delete();
             }
@@ -103,13 +101,13 @@ public class TaskServer implements Runnable {
                 }
 
             }
-            File f4 = new File(GlobalValues.dir_bin+"/simulate.bat");
+            File f4 = new File(GlobalValues.dir_bin + "/simulate.bat");
             if (f4.exists()) {
                 f4.delete();
             }
             {
                 try (PrintStream out = new PrintStream(f4) //new AppendFileStream
-                ) {
+                        ) {
                     out.println("@echo off ");
                     out.println("set PFRAMEWORK_HOME=%~dp0");
                     out.println("set arg1=%~1 ");

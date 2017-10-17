@@ -101,7 +101,7 @@ public class ServiceOperations {
         }
     }
 
-    public static synchronized void startTaskServer()  {
+    public static synchronized void startTaskServer() {
         GlobalValues.TASK_SERVER_IS_RUNNING = true;
         if ((GlobalValues.TASK_SERVER_SOCKET == null || GlobalValues.TASK_SERVER_SOCKET.isClosed()) && (GlobalValues.TASK_SERVER_THREAD == null || !GlobalValues.TASK_SERVER_THREAD.isAlive())) {
             GlobalValues.TASK_SERVER_THREAD = new Thread(new TaskServer());
@@ -131,7 +131,7 @@ public class ServiceOperations {
         }
     }
 
-    public static synchronized void startFileServer()  {
+    public static synchronized void startFileServer() {
         GlobalValues.FILE_SERVER_IS_RUNNING = true;
         if ((GlobalValues.FILE_SERVER_SOCKET == null || GlobalValues.FILE_SERVER_SOCKET.isClosed()) && (GlobalValues.FILE_SERVER_THREAD == null || !GlobalValues.FILE_SERVER_THREAD.isAlive())) {
             GlobalValues.FILE_SERVER_THREAD = new Thread(new FileServer());
@@ -154,8 +154,8 @@ public class ServiceOperations {
         stopFileServer();
         startFileServer();
     }
-    
-        public static synchronized void initFileDownloadServerAtStartUp() {
+
+    public static synchronized void initFileDownloadServerAtStartUp() {
         if (GlobalValues.FILE_DOWNLOAD_SERVER_ENABLED_AT_START) {
             startFileDownloadServer();
         }
@@ -193,7 +193,7 @@ public class ServiceOperations {
 
     public static synchronized void startLiveNodeScanner() {
         //(GlobalValues.KEEP_LIVE_NODE_SCANNER_ALIVE == false) &&
-        if ( (GlobalValues.CHECK_LIVE_NODE_THREAD == null || !GlobalValues.CHECK_LIVE_NODE_THREAD.isAlive())) {
+        if ((GlobalValues.CHECK_LIVE_NODE_THREAD == null || !GlobalValues.CHECK_LIVE_NODE_THREAD.isAlive())) {
             GlobalValues.KEEP_LIVE_NODE_SCANNER_ALIVE = true;
             GlobalValues.CHECK_LIVE_NODE_THREAD = new Thread(new ScheduledLiveNodeScanner());
             GlobalValues.CHECK_LIVE_NODE_THREAD.setName("Scan Live Nodes Scheduled Thread");
@@ -227,7 +227,7 @@ public class ServiceOperations {
 
     public static synchronized void startNodeScanner() {
         //(GlobalValues.KEEP_NODE_SCANNER_ALIVE == false) &&
-        if ( (GlobalValues.NODE_SCANNING_THREAD == null || !GlobalValues.NODE_SCANNING_THREAD.isAlive())) {
+        if ((GlobalValues.NODE_SCANNING_THREAD == null || !GlobalValues.NODE_SCANNING_THREAD.isAlive())) {
             GlobalValues.KEEP_NODE_SCANNER_ALIVE = true;
             GlobalValues.NODE_SCANNING_THREAD = new Thread(new ScheduledNodeScanner());
             GlobalValues.NODE_SCANNING_THREAD.setName("Add Live Nodes Scheduled Thread");
@@ -281,6 +281,39 @@ public class ServiceOperations {
     public static synchronized void restartTaskFinishListenerServer() {
         stopTaskFinishListenerServer();
         startTaskFinishListenerServer();
+    }
+
+    public static synchronized void initLogRotateAtStartUp() {
+        if (GlobalValues.LOG_ROTATE_ENABLED_AT_START) {
+            startLogRotate();
+        }
+    }
+
+    public static synchronized void startLogRotate() {
+        if ((GlobalValues.LOG_ROTATE_THREAD == null || !GlobalValues.LOG_ROTATE_THREAD.isAlive())) {
+            GlobalValues.KEEP_LOG_ROTATE_ALIVE = true;
+            GlobalValues.LOG_ROTATE_THREAD = new Thread(new LogRotate());
+            GlobalValues.LOG_ROTATE_THREAD.setName("Log Rotate Scheduled Thread");
+            GlobalValues.LOG_ROTATE_THREAD.start();
+        }
+    }
+
+    public static synchronized void stopLogRotate() {
+        if (GlobalValues.KEEP_LOG_ROTATE_ALIVE == true || GlobalValues.LOG_ROTATE_THREAD.isAlive()) {
+            GlobalValues.KEEP_LOG_ROTATE_ALIVE = false;
+            while (GlobalValues.LOG_ROTATE_THREAD.isAlive()) {
+                try {
+                    Thread.sleep(1000L);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(ServiceOperations.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
+
+    public static synchronized void restartLogRotate() {
+        stopLogRotate();
+        startLogRotate();
     }
 
 }

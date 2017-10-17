@@ -179,6 +179,7 @@ public class Settings {
         DUMP_LOG = settings.getBoolean("DUMP_LOG", true);
         VERBOSE = settings.getBoolean("VERBOSE", true);
         SHARED_STORAGE = settings.getBoolean("SHARED_STORAGE", SHARED_STORAGE);
+
         JSONObject serviceSettings = Util.readJSONFile(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "service_settings.json");
         TASK_LIMIT = serviceSettings.getInt("MAX_TASK_ALLOWED_IN_PARALLEL", 2);
         FILES_RESOLVER_LIMIT = serviceSettings.getInt("MAX_FILE_RESOLVE_IN_PARALLEL", 3);
@@ -197,10 +198,17 @@ public class Settings {
         NODE_SCANNER_INTIAL_DELAY = serviceSettings.getLong("NODE_SCANNER_INTIAL_DELAY", NODE_SCANNER_INTIAL_DELAY);
         LIVE_NODE_SCANNER_PERIODIC_DELAY = serviceSettings.getLong("LIVE_NODE_SCANNER_PERIODIC_DELAY", LIVE_NODE_SCANNER_PERIODIC_DELAY);
         NODE_SCANNER_PERIODIC_DELAY = serviceSettings.getLong("NODE_SCANNER_PERIODIC_DELAY", NODE_SCANNER_PERIODIC_DELAY);
-        TASK_FINISH_LISTENER_SERVER_ENABLED_AT_START=serviceSettings.getBoolean("TASK_FINISH_LISTENER_ENABLED_AT_START", TASK_FINISH_LISTENER_SERVER_ENABLED_AT_START);
+        TASK_FINISH_LISTENER_SERVER_ENABLED_AT_START = serviceSettings.getBoolean("TASK_FINISH_LISTENER_ENABLED_AT_START", TASK_FINISH_LISTENER_SERVER_ENABLED_AT_START);
+        LOG_ROTATE_ENABLED_AT_START = serviceSettings.getBoolean("LOG_ROTATE_ENABLED_AT_START", LOG_ROTATE_ENABLED_AT_START);
+
+        JSONObject logrotateSettings = Util.readJSONFile(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "log_rotate.json");
+        FILE_SIZE_LIMIT = logrotateSettings.getLong("FILE_SIZE_LIMIT", FILE_SIZE_LIMIT);
+        LOGROTATION_INTERVAL_IN_HOURS = logrotateSettings.getLong("LOGROTATION_INTERVAL_IN_HOURS", LOGROTATION_INTERVAL_IN_HOURS);
+        LAST_ROTATED_ON = logrotateSettings.getLong("LAST_ROTATED_ON", LAST_ROTATED_ON);
+        LOG_ROTATE_CHECK_FILES_EVERY = logrotateSettings.getLong("LOG_ROTATE_CHECK_FILES_EVERY", LOG_ROTATE_CHECK_FILES_EVERY);
     }
 
-    public void saveSettings() {
+    public static synchronized void saveSettings() {
         JSONObject settings = new JSONObject();
 
         if (NODE_UUID.length() < 1) {
@@ -232,8 +240,15 @@ public class Settings {
         serviceSettings.put("NODE_SCANNER_INTIAL_DELAY", NODE_SCANNER_INTIAL_DELAY);
         serviceSettings.put("LIVE_NODE_SCANNER_PERIODIC_DELAY", LIVE_NODE_SCANNER_PERIODIC_DELAY);
         serviceSettings.put("NODE_SCANNER_PERIODIC_DELAY", NODE_SCANNER_PERIODIC_DELAY);
-
+        serviceSettings.put("LOG_ROTATE_ENABLED_AT_START", LOG_ROTATE_ENABLED_AT_START);
         write(new File(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "service_settings.json"), serviceSettings.toString(4));
+
+        JSONObject logrotateSettings = new JSONObject();
+        logrotateSettings.put("FILE_SIZE_LIMIT", FILE_SIZE_LIMIT);
+        logrotateSettings.put("LOGROTATION_INTERVAL_IN_HOURS", LOGROTATION_INTERVAL_IN_HOURS);
+        logrotateSettings.put("LAST_ROTATED_ON", LAST_ROTATED_ON);
+        logrotateSettings.put("LOG_ROTATE_CHECK_FILES_EVERY", LOG_ROTATE_CHECK_FILES_EVERY);
+        write(new File(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "log_rotate.json"), logrotateSettings.toString(4));
 
     }
 

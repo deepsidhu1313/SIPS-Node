@@ -33,8 +33,6 @@ public class sendSleeptime implements Runnable {
 
     String ipadd = "", ID = "", outPut = "", filename = "", value = "", cmd, chunkno;
 
-    
-
     public sendSleeptime(String overheadName, String ip, String PID, String chunknumber, String Filename, String value) {
         ipadd = ip;
         ID = PID;
@@ -59,8 +57,8 @@ public class sendSleeptime implements Runnable {
                     byte[] bytes = sendmsg.getBytes("UTF-8");
                     outToServer.writeInt(bytes.length);
                     outToServer.write(bytes);
-                    
-                   /* int length = dIn.readInt();                    // read length of incoming message
+
+                    /* int length = dIn.readInt();                    // read length of incoming message
                     byte[] message = new byte[length];
                     
                     if (length > 0) {
@@ -76,7 +74,7 @@ public class sendSleeptime implements Runnable {
             }
         } catch (IOException ex) {
             Logger.getLogger(sendOutput.class.getName()).log(Level.SEVERE, null, ex);
-        
+
         }
 
     }

@@ -50,13 +50,13 @@ public class IPHostnameCombo {
         this.ip = ip;
     }
 
-    public boolean bothSame(){
-    return hostname.trim().equalsIgnoreCase(ip.trim());
+    public boolean bothSame() {
+        return hostname.trim().equalsIgnoreCase(ip.trim());
     }
-    
+
     @Override
     public String toString() {
-        JSONObject result= new JSONObject();
+        JSONObject result = new JSONObject();
         result.put("hostname", hostname);
         result.put("ip", ip);
         return result.toString(4);

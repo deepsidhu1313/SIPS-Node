@@ -23,7 +23,6 @@ import java.io.PrintStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 public class PrintToFile implements Runnable {
 
     String content;
@@ -37,7 +36,7 @@ public class PrintToFile implements Runnable {
     @Override
     public void run() {
         try (PrintStream out = new PrintStream(f)) {
-            out.append(Util.readFile(f.getAbsolutePath())+"\n"+content);
+            out.append(Util.readFile(f.getAbsolutePath()) + "\n" + content);
             out.close();
         } catch (FileNotFoundException ex) {
             Logger.getLogger(PrintToFile.class.getName()).log(Level.SEVERE, null, ex);

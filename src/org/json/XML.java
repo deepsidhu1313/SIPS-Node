@@ -38,54 +38,70 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-*/
-
+ */
 import java.util.Iterator;
 
 /**
  * This provides static methods to convert an XML text into a JSONObject, and to
  * covert a JSONObject into an XML text.
- * 
+ *
  * @author JSON.org
  * @version 2016-08-10
  */
 @SuppressWarnings("boxing")
 public class XML {
-    /** The Character '&amp;'. */
+
+    /**
+     * The Character '&amp;'.
+     */
     public static final Character AMP = '&';
 
-    /** The Character '''. */
+    /**
+     * The Character '''.
+     */
     public static final Character APOS = '\'';
 
-    /** The Character '!'. */
+    /**
+     * The Character '!'.
+     */
     public static final Character BANG = '!';
 
-    /** The Character '='. */
+    /**
+     * The Character '='.
+     */
     public static final Character EQ = '=';
 
-    /** The Character '>'. */
+    /**
+     * The Character '>'.
+     */
     public static final Character GT = '>';
 
-    /** The Character '&lt;'. */
+    /**
+     * The Character '&lt;'.
+     */
     public static final Character LT = '<';
 
-    /** The Character '?'. */
+    /**
+     * The Character '?'.
+     */
     public static final Character QUEST = '?';
 
-    /** The Character '"'. */
+    /**
+     * The Character '"'.
+     */
     public static final Character QUOT = '"';
 
-    /** The Character '/'. */
+    /**
+     * The Character '/'.
+     */
     public static final Character SLASH = '/';
-    
+
     /**
      * Creates an iterator for navigating Code Points in a string instead of
-     * characters. Once Java7 support is dropped, this can be replaced with
-     * <code>
+     * characters. Once Java7 support is dropped, this can be replaced with      <code>
      * string.codePoints()
-     * </code>
-     * which is available in Java8 and above.
-     * 
+     * </code> which is available in Java8 and above.
+     *
      * @see <a href=
      *      "http://stackoverflow.com/a/21791059/6030888">http://stackoverflow.com/a/21791059/6030888</a>
      */
@@ -120,7 +136,7 @@ public class XML {
 
     /**
      * Replace special characters with XML escapes:
-     * 
+     *
      * <pre>
      * &amp; <small>(ampersand)</small> is replaced by &amp;amp;
      * &lt; <small>(less than)</small> is replaced by &amp;lt;
@@ -128,43 +144,42 @@ public class XML {
      * &quot; <small>(double quote)</small> is replaced by &amp;quot;
      * &apos; <small>(single quote / apostrophe)</small> is replaced by &amp;apos;
      * </pre>
-     * 
-     * @param string
-     *            The string to be escaped.
+     *
+     * @param string The string to be escaped.
      * @return The escaped string.
      */
     public static String escape(String string) {
         StringBuilder sb = new StringBuilder(string.length());
         for (final int cp : codePointIterator(string)) {
             switch (cp) {
-            case '&':
-                sb.append("&amp;");
-                break;
-            case '<':
-                sb.append("&lt;");
-                break;
-            case '>':
-                sb.append("&gt;");
-                break;
-            case '"':
-                sb.append("&quot;");
-                break;
-            case '\'':
-                sb.append("&apos;");
-                break;
-            default:
-                if (mustEscape(cp)) {
-                    sb.append("&#x");
-                    sb.append(Integer.toHexString(cp));
-                    sb.append(";");
-                } else {
-                    sb.appendCodePoint(cp);
-                }
+                case '&':
+                    sb.append("&amp;");
+                    break;
+                case '<':
+                    sb.append("&lt;");
+                    break;
+                case '>':
+                    sb.append("&gt;");
+                    break;
+                case '"':
+                    sb.append("&quot;");
+                    break;
+                case '\'':
+                    sb.append("&apos;");
+                    break;
+                default:
+                    if (mustEscape(cp)) {
+                        sb.append("&#x");
+                        sb.append(Integer.toHexString(cp));
+                        sb.append(";");
+                    } else {
+                        sb.appendCodePoint(cp);
+                    }
             }
         }
         return sb.toString();
     }
-    
+
     /**
      * @param cp code point to test
      * @return true if the code point is not valid for an XML
@@ -181,21 +196,16 @@ public class XML {
         return (Character.isISOControl(cp)
                 && cp != 0x9
                 && cp != 0xA
-                && cp != 0xD
-            ) || !(
-                // valid the range of acceptable characters that aren't control
+                && cp != 0xD) || !( // valid the range of acceptable characters that aren't control
                 (cp >= 0x20 && cp <= 0xD7FF)
                 || (cp >= 0xE000 && cp <= 0xFFFD)
-                || (cp >= 0x10000 && cp <= 0x10FFFF)
-            )
-        ;
+                || (cp >= 0x10000 && cp <= 0x10FFFF));
     }
 
     /**
      * Removes XML escapes from the string.
-     * 
-     * @param string
-     *            string to remove escapes from
+     *
+     * @param string string to remove escapes from
      * @return string with converted entities
      */
     public static String unescape(String string) {
@@ -249,10 +259,10 @@ public class XML {
     /**
      * Throw an exception if the string contains whitespace. Whitespace is not
      * allowed in tagNames and attributes.
-     * 
-     * @param string
-     *            A string.
-     * @throws JSONException Thrown if the string contains whitespace or is empty.
+     *
+     * @param string A string.
+     * @throws JSONException Thrown if the string contains whitespace or is
+     * empty.
      */
     public static void noSpace(String string) throws JSONException {
         int i, length = string.length();
@@ -269,13 +279,10 @@ public class XML {
 
     /**
      * Scan the content following the named tag, attaching it to the context.
-     * 
-     * @param x
-     *            The XMLTokener containing the source string.
-     * @param context
-     *            The JSONObject that will include the new material.
-     * @param name
-     *            The tag name.
+     *
+     * @param x The XMLTokener containing the source string.
+     * @param context The JSONObject that will include the new material.
+     * @param name The tag name.
      * @return true if the close tag is processed.
      * @throws JSONException
      */
@@ -297,11 +304,9 @@ public class XML {
         // <>
         // <=
         // <<
-
         token = x.nextToken();
 
         // <!
-
         if (token == BANG) {
             c = x.next();
             if (c == '-') {
@@ -343,7 +348,6 @@ public class XML {
         } else if (token == SLASH) {
 
             // Close tag </
-
             token = x.nextToken();
             if (name == null) {
                 throw x.syntaxError("Mismatched close tag " + token);
@@ -360,7 +364,6 @@ public class XML {
             throw x.syntaxError("Misshaped tag");
 
             // Open tag <
-
         } else {
             tagName = (String) token;
             token = null;
@@ -379,12 +382,11 @@ public class XML {
                             throw x.syntaxError("Missing value");
                         }
                         jsonobject.accumulate(string,
-                                keepStrings ? unescape((String)token) : stringToValue((String) token));
+                                keepStrings ? unescape((String) token) : stringToValue((String) token));
                         token = null;
                     } else {
                         jsonobject.accumulate(string, "");
                     }
-
 
                 } else if (token == SLASH) {
                     // Empty tag <.../>
@@ -416,7 +418,7 @@ public class XML {
 
                         } else if (token == LT) {
                             // Nested element
-                            if (parse(x, jsonobject, tagName,keepStrings)) {
+                            if (parse(x, jsonobject, tagName, keepStrings)) {
                                 if (jsonobject.length() == 0) {
                                     context.accumulate(tagName, "");
                                 } else if (jsonobject.length() == 1
@@ -436,18 +438,18 @@ public class XML {
             }
         }
     }
-    
+
     /**
      * This method is the same as {@link JSONObject.stringToValue(String)}
      * except that this also tries to unescape String values.
-     * 
+     *
      * @param string String to convert
      * @return JSON value of this string or the string
      */
     public static Object stringToValue(String string) {
         Object ret = JSONObject.stringToValue(string);
-        if(ret instanceof String){
-            return unescape((String)ret);
+        if (ret instanceof String) {
+            return unescape((String) ret);
         }
         return ret;
     }
@@ -462,16 +464,15 @@ public class XML {
      * elements are represented as JSONArrays. Content text may be placed in a
      * "content" member. Comments, prologs, DTDs, and <code>&lt;[ [ ]]></code>
      * are ignored.
-     * 
-     * @param string
-     *            The source string.
+     *
+     * @param string The source string.
      * @return A JSONObject containing the structured data from the XML string.
-     * @throws JSONException Thrown if there is an errors while parsing the string
+     * @throws JSONException Thrown if there is an errors while parsing the
+     * string
      */
     public static JSONObject toJSONObject(String string) throws JSONException {
         return toJSONObject(string, false);
     }
-
 
     /**
      * Convert a well-formed (but not necessarily valid) XML string into a
@@ -483,16 +484,17 @@ public class XML {
      * elements are represented as JSONArrays. Content text may be placed in a
      * "content" member. Comments, prologs, DTDs, and <code>&lt;[ [ ]]></code>
      * are ignored.
-     * 
-     * All values are converted as strings, for 1, 01, 29.0 will not be coerced to
-     * numbers but will instead be the exact value as seen in the XML document.
-     * 
-     * @param string
-     *            The source string.
+     *
+     * All values are converted as strings, for 1, 01, 29.0 will not be coerced
+     * to numbers but will instead be the exact value as seen in the XML
+     * document.
+     *
+     * @param string The source string.
      * @param keepStrings If true, then values will not be coerced into boolean
-     *  or numeric values and will instead be left as strings
+     * or numeric values and will instead be left as strings
      * @return A JSONObject containing the structured data from the XML string.
-     * @throws JSONException Thrown if there is an errors while parsing the string
+     * @throws JSONException Thrown if there is an errors while parsing the
+     * string
      */
     public static JSONObject toJSONObject(String string, boolean keepStrings) throws JSONException {
         JSONObject jo = new JSONObject();
@@ -502,11 +504,11 @@ public class XML {
         }
         return jo;
     }
+
     /**
      * Convert a JSONObject into a well-formed, element-normal XML string.
-     * 
-     * @param object
-     *            A JSONObject.
+     *
+     * @param object A JSONObject.
      * @return A string.
      * @throws JSONException Thrown if there is an error parsing the string
      */
@@ -516,11 +518,9 @@ public class XML {
 
     /**
      * Convert a JSONObject into a well-formed, element-normal XML string.
-     * 
-     * @param object
-     *            A JSONObject.
-     * @param tagName
-     *            The optional name of the enclosing tag.
+     *
+     * @param object A JSONObject.
+     * @param tagName The optional name of the enclosing tag.
      * @return A string.
      * @throws JSONException Thrown if there is an error parsing the string
      */
@@ -573,7 +573,6 @@ public class XML {
                     }
 
                     // Emit an array of similar keys
-
                 } else if (value instanceof JSONArray) {
                     ja = (JSONArray) value;
                     for (Object val : ja) {
@@ -595,7 +594,6 @@ public class XML {
                     sb.append("/>");
 
                     // Emit a new tag <k>
-
                 } else {
                     sb.append(toString(value, key));
                 }
@@ -631,7 +629,7 @@ public class XML {
         string = (object == null) ? "null" : escape(object.toString());
         return (tagName == null) ? "\"" + string + "\""
                 : (string.length() == 0) ? "<" + tagName + "/>" : "<" + tagName
-                        + ">" + string + "</" + tagName + ">";
+                + ">" + string + "</" + tagName + ">";
 
     }
 }

@@ -28,8 +28,6 @@ public class AddLivenodes implements Runnable {
 
     }
 
- 
-
     @Override
     public void run() {
         Thread.currentThread().setName("AddLiveNodeThread");

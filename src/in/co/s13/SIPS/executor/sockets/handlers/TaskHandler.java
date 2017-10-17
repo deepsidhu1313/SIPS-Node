@@ -105,7 +105,7 @@ public class TaskHandler implements Runnable {
 
                         }
                         submitter.close();
-                         ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
+                        ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
                         DistributionDBRow get = DistTable.get(ipAddress + "-" + cno.trim());
                         get.setNoh(get.getNoh() + Long.parseLong(content));
 //                        
@@ -148,7 +148,7 @@ public class TaskHandler implements Runnable {
 
                         }
                         submitter.close();
-                         ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
+                        ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
                         DistributionDBRow get = DistTable.get(ipAddress + "-" + cno.trim());
                         get.setStartinq(Long.parseLong(content));
                         get.setWaitinq(get.getStartinq() - get.getEntrinq());
@@ -193,7 +193,7 @@ public class TaskHandler implements Runnable {
 
                         }
                         submitter.close();
-                         ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
+                        ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
                         DistributionDBRow get = DistTable.get(ipAddress + "-" + cno.trim());
                         get.setEntrinq(Long.parseLong(content));
                         get.setWaitinq(get.getStartinq() - get.getEntrinq());
@@ -242,7 +242,7 @@ public class TaskHandler implements Runnable {
                          }
                          */
                         submitter.close();
-                         ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
+                        ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
                         DistributionDBRow get = DistTable.get(ipAddress + "-" + cno.trim());
                         get.setSleeptime(get.getSleeptime() + Long.parseLong(content));
 //                                    
@@ -295,22 +295,19 @@ public class TaskHandler implements Runnable {
                         submitter.close();
 
                     } else if (command.contains("printoutput")) {
-                              String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
+                        String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
                         String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
                         String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
                         String content = body.getString("OUTPUT");//.substring(body.indexOf("<OUTPUT>") + 8, body.indexOf("</OUTPUT>"));
                         int p = Integer.parseInt(pid);
                         String output = content;
-                         try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) 
-                         {
+                        try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
                             String sendmsg = "OK";
 
                             byte[] bytes = sendmsg.getBytes("UTF-8");
                             outToClient.writeInt(bytes.length);
                             outToClient.write(bytes);
                         }
-
-                        
 
                         Thread outToFile = new Thread(new PrintToFile(fname, pid, cno, content));
                         outToFile.start();

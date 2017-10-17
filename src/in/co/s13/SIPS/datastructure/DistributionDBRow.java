@@ -28,12 +28,12 @@ public class DistributionDBRow {
     private String ip;
     private Double prfm;
     private Integer pid, cno, vartype, scheduler, exitcode;
-    private Long lstarttime, lendtime, lexctime, nexecutiontime, noh, poh,entrinq,startinq,waitinq,sleeptime;
+    private Long lstarttime, lendtime, lexctime, nexecutiontime, noh, poh, entrinq, startinq, waitinq, sleeptime;
     private String chunksize, lowlimit, uplimit, counter;
 
     public DistributionDBRow(int id, String ip, int pid, int cno, int vartype, int scheduler,
             long lstarttime, long lendtime, long lexctime, long nexecutiontime, long noh, long poh,
-            long entrinq,long startinq,long waitinq,long sleeptime,
+            long entrinq, long startinq, long waitinq, long sleeptime,
             String chunksize, String lowlimit, String uplimit, String counter, double prfm, int exitcode) {
         this.id = (id);
         this.ip = (ip);
@@ -43,8 +43,8 @@ public class DistributionDBRow {
         this.scheduler = (scheduler);
         this.lstarttime = (lstarttime);
         this.lendtime = (lendtime);
-        this.lexctime =( lexctime);
-        this.nexecutiontime =( nexecutiontime);
+        this.lexctime = (lexctime);
+        this.nexecutiontime = (nexecutiontime);
         this.noh = (noh);
         this.poh = (poh);
         this.chunksize = (chunksize);
@@ -53,10 +53,10 @@ public class DistributionDBRow {
         this.counter = (counter);
         this.prfm = (prfm);
         this.exitcode = (exitcode);
-         this.entrinq=(entrinq);
-         this.startinq=(startinq);
-         this.waitinq=(waitinq);
-         this.sleeptime=(sleeptime);
+        this.entrinq = (entrinq);
+        this.startinq = (startinq);
+        this.waitinq = (waitinq);
+        this.sleeptime = (sleeptime);
     }
 
     public int getId() {
@@ -64,7 +64,7 @@ public class DistributionDBRow {
     }
 
     public void setId(int id) {
-        this.id=(id);
+        this.id = (id);
     }
 
     public String getIp() {
@@ -72,7 +72,7 @@ public class DistributionDBRow {
     }
 
     public void setIp(String ip) {
-        this.ip=(ip);
+        this.ip = (ip);
     }
 
     public int getPid() {
@@ -80,7 +80,7 @@ public class DistributionDBRow {
     }
 
     public void setPid(int pid) {
-        this.pid=(pid);
+        this.pid = (pid);
     }
 
     public int getCno() {
@@ -88,7 +88,7 @@ public class DistributionDBRow {
     }
 
     public void setCno(int cno) {
-        this.cno=(cno);
+        this.cno = (cno);
     }
 
     public int getVartype() {
@@ -96,7 +96,7 @@ public class DistributionDBRow {
     }
 
     public void setVartype(int vartype) {
-        this.vartype=(vartype);
+        this.vartype = (vartype);
     }
 
     public int getScheduler() {
@@ -104,7 +104,7 @@ public class DistributionDBRow {
     }
 
     public void setScheduler(int scheduler) {
-        this.scheduler=(scheduler);
+        this.scheduler = (scheduler);
     }
 
     public long getLstarttime() {
@@ -113,7 +113,7 @@ public class DistributionDBRow {
 
     public void setLstarttime(long lstarttime) {
 
-        this.lstarttime=(lstarttime);
+        this.lstarttime = (lstarttime);
     }
 
     public long getLendtime() {
@@ -121,7 +121,7 @@ public class DistributionDBRow {
     }
 
     public void setLendtime(long lendtime) {
-        this.lendtime=(lendtime);
+        this.lendtime = (lendtime);
     }
 
     public long getLexctime() {
@@ -129,7 +129,7 @@ public class DistributionDBRow {
     }
 
     public void setLexctime(long lexctime) {
-        this.lexctime=(lexctime);
+        this.lexctime = (lexctime);
     }
 
     public long getNexecutiontime() {
@@ -137,7 +137,7 @@ public class DistributionDBRow {
     }
 
     public void setNexecutiontime(long nexecutiontime) {
-        this.nexecutiontime=(nexecutiontime);
+        this.nexecutiontime = (nexecutiontime);
     }
 
     public long getNoh() {
@@ -145,7 +145,7 @@ public class DistributionDBRow {
     }
 
     public void setNoh(long noh) {
-        this.noh=(noh);
+        this.noh = (noh);
     }
 
     public long getPoh() {
@@ -153,58 +153,47 @@ public class DistributionDBRow {
     }
 
     public void setPoh(long poh) {
-        this.poh=(poh);
+        this.poh = (poh);
     }
 
-    
-    
-    
     public void setStartinq(long poh) {
-        this.startinq=(poh);
+        this.startinq = (poh);
     }
 
     public long getStartinq() {
         return startinq;
     }
-    
-    
+
     public void setEntrinq(long poh) {
-        this.entrinq=(poh);
+        this.entrinq = (poh);
     }
 
     public long getEntrinq() {
         return entrinq;
     }
-    
-    
+
     public void setWaitinq(long poh) {
-        this.waitinq=(poh);
+        this.waitinq = (poh);
     }
 
     public long getWaitinq() {
         return waitinq;
     }
-    
+
     public void setSleeptime(long poh) {
-        this.sleeptime=(poh);
+        this.sleeptime = (poh);
     }
 
     public long getSleeptime() {
         return sleeptime;
     }
-    
-    
-    
-    
+
     public String getChunksize() {
         return chunksize;
     }
 
-    
-    
-    
     public void setChunksize(String chunksize) {
-        this.chunksize=(chunksize);
+        this.chunksize = (chunksize);
     }
 
     public String getLowlimit() {
@@ -212,7 +201,7 @@ public class DistributionDBRow {
     }
 
     public void setLowlimit(String lowlimit) {
-        this.lowlimit=(lowlimit);
+        this.lowlimit = (lowlimit);
     }
 
     public String getUplimit() {
@@ -220,7 +209,7 @@ public class DistributionDBRow {
     }
 
     public void setUplimit(String uplimit) {
-        this.uplimit=(uplimit);
+        this.uplimit = (uplimit);
     }
 
     public String getCounter() {
@@ -228,7 +217,7 @@ public class DistributionDBRow {
     }
 
     public void setCounter(String counter) {
-        this.counter=(counter);
+        this.counter = (counter);
     }
 
     public double getPrfm() {
@@ -236,7 +225,7 @@ public class DistributionDBRow {
     }
 
     public void setPrfm(double prfm) {
-        this.prfm=(prfm);
+        this.prfm = (prfm);
     }
 
     public int getExitcode() {
@@ -244,7 +233,7 @@ public class DistributionDBRow {
     }
 
     public void setExitcode(int exitcode) {
-        this.exitcode=(exitcode);
+        this.exitcode = (exitcode);
     }
 
     @Override
@@ -259,95 +248,95 @@ public class DistributionDBRow {
     public enum DistributionDBRowComparator implements Comparator<DistributionDBRow> {
 
         ID_SORT {
-                    public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                        return Integer.valueOf(o1.getId()).compareTo(o2.getId());
-                    }
-                },
+            public int compare(DistributionDBRow o1, DistributionDBRow o2) {
+                return Integer.valueOf(o1.getId()).compareTo(o2.getId());
+            }
+        },
         IP_SORT {
-                    public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                        return o1.getIp().compareTo(o2.getIp());
-                    }
-                },
+            public int compare(DistributionDBRow o1, DistributionDBRow o2) {
+                return o1.getIp().compareTo(o2.getIp());
+            }
+        },
         PID_SORT {
-                    public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                        return Integer.valueOf(o1.getPid()).compareTo(o2.getPid());
-                    }
-                },
+            public int compare(DistributionDBRow o1, DistributionDBRow o2) {
+                return Integer.valueOf(o1.getPid()).compareTo(o2.getPid());
+            }
+        },
         CNO_SORT {
-                    public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                        return Integer.valueOf(o1.getCno()).compareTo(o2.getCno());
-                    }
-                },
+            public int compare(DistributionDBRow o1, DistributionDBRow o2) {
+                return Integer.valueOf(o1.getCno()).compareTo(o2.getCno());
+            }
+        },
         VARTYPE_SORT {
-                    public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                        return Integer.valueOf(o1.getVartype()).compareTo(o2.getVartype());
-                    }
-                },
+            public int compare(DistributionDBRow o1, DistributionDBRow o2) {
+                return Integer.valueOf(o1.getVartype()).compareTo(o2.getVartype());
+            }
+        },
         SCHEDULER_SORT {
-                    public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                        return Integer.valueOf(o1.getVartype()).compareTo(o2.getVartype());
-                    }
-                },
+            public int compare(DistributionDBRow o1, DistributionDBRow o2) {
+                return Integer.valueOf(o1.getVartype()).compareTo(o2.getVartype());
+            }
+        },
         LSTARTTIME_SORT {
-                    public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                        return Long.valueOf(o1.getLstarttime()).compareTo(o2.getLstarttime());
-                    }
-                },
+            public int compare(DistributionDBRow o1, DistributionDBRow o2) {
+                return Long.valueOf(o1.getLstarttime()).compareTo(o2.getLstarttime());
+            }
+        },
         LENDTIME_SORT {
-                    public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                        return Long.valueOf(o1.getLendtime()).compareTo(o2.getLendtime());
-                    }
-                },
+            public int compare(DistributionDBRow o1, DistributionDBRow o2) {
+                return Long.valueOf(o1.getLendtime()).compareTo(o2.getLendtime());
+            }
+        },
         LEXCTIME_SORT {
-                    public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                        return Long.valueOf(o1.getLexctime()).compareTo(o2.getLexctime());
-                    }
-                },
+            public int compare(DistributionDBRow o1, DistributionDBRow o2) {
+                return Long.valueOf(o1.getLexctime()).compareTo(o2.getLexctime());
+            }
+        },
         NEXECUTIONTIME_SORT {
-                    public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                        return Long.valueOf(o1.getNexecutiontime()).compareTo(o2.getNexecutiontime());
-                    }
-                },
+            public int compare(DistributionDBRow o1, DistributionDBRow o2) {
+                return Long.valueOf(o1.getNexecutiontime()).compareTo(o2.getNexecutiontime());
+            }
+        },
         NOH_SORT {
-                    public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                        return Long.valueOf(o1.getNoh()).compareTo(o2.getNoh());
-                    }
-                },
+            public int compare(DistributionDBRow o1, DistributionDBRow o2) {
+                return Long.valueOf(o1.getNoh()).compareTo(o2.getNoh());
+            }
+        },
         POH_SORT {
-                    public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                        return Long.valueOf(o1.getPoh()).compareTo(o2.getPoh());
-                    }
-                },
+            public int compare(DistributionDBRow o1, DistributionDBRow o2) {
+                return Long.valueOf(o1.getPoh()).compareTo(o2.getPoh());
+            }
+        },
         CHUNKSIZE_SORT {
-                    public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                        return o1.getChunksize().compareTo(o2.getChunksize());
-                    }
-                },
+            public int compare(DistributionDBRow o1, DistributionDBRow o2) {
+                return o1.getChunksize().compareTo(o2.getChunksize());
+            }
+        },
         LOWLIMIT_SORT {
-                    public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                        return o1.getLowlimit().compareTo(o2.getLowlimit());
-                    }
-                },
+            public int compare(DistributionDBRow o1, DistributionDBRow o2) {
+                return o1.getLowlimit().compareTo(o2.getLowlimit());
+            }
+        },
         UPLIMIT_SORT {
-                    public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                        return o1.getUplimit().compareTo(o2.getUplimit());
-                    }
-                },
+            public int compare(DistributionDBRow o1, DistributionDBRow o2) {
+                return o1.getUplimit().compareTo(o2.getUplimit());
+            }
+        },
         COUNTER_SORT {
-                    public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                        return o1.getCounter().compareTo(o2.getCounter());
-                    }
-                },
+            public int compare(DistributionDBRow o1, DistributionDBRow o2) {
+                return o1.getCounter().compareTo(o2.getCounter());
+            }
+        },
         PRFM_SORT {
-                    public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                        return Double.valueOf(o1.getPrfm()).compareTo(o2.getPrfm());
-                    }
-                },
+            public int compare(DistributionDBRow o1, DistributionDBRow o2) {
+                return Double.valueOf(o1.getPrfm()).compareTo(o2.getPrfm());
+            }
+        },
         EXITCODE_SORT {
-                    public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                        return Integer.valueOf(o1.getExitcode()).compareTo(o2.getExitcode());
-                    }
-                };
+            public int compare(DistributionDBRow o1, DistributionDBRow o2) {
+                return Integer.valueOf(o1.getExitcode()).compareTo(o2.getExitcode());
+            }
+        };
 
         public static Comparator<DistributionDBRow> decending(final Comparator<DistributionDBRow> other) {
             return new Comparator<DistributionDBRow>() {

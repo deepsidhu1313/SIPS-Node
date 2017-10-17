@@ -16,7 +16,6 @@
  */
 package in.co.s13.SIPS.executor;
 
-
 import in.co.s13.SIPS.settings.GlobalValues;
 import in.co.s13.SIPS.tools.Util;
 import java.io.DataInputStream;
@@ -64,15 +63,15 @@ public class DownloadFile {
                         try (Socket sock = new Socket(SERVER, SOCKET_PORT)) {
                             System.out.println("Connecting...");
                             try (OutputStream os = sock.getOutputStream(); DataOutputStream outToServer = new DataOutputStream(os)) {
-                                 JSONObject sendMsgJSON= new JSONObject();
-                                 sendMsgJSON.put("Command", "sendfileChecksum");
-                                 JSONObject sendMsgJSONBody= new JSONObject();
-                                 
-                                 sendMsgJSONBody.put("PID", id);
-                                 sendMsgJSONBody.put("CNO", cno);
-                                 sendMsgJSONBody.put("FILENAME", projectname);
-                                 sendMsgJSONBody.put("FILE", _item);
-                                 sendMsgJSON.put("Body", sendMsgJSONBody);
+                                JSONObject sendMsgJSON = new JSONObject();
+                                sendMsgJSON.put("Command", "sendfileChecksum");
+                                JSONObject sendMsgJSONBody = new JSONObject();
+
+                                sendMsgJSONBody.put("PID", id);
+                                sendMsgJSONBody.put("CNO", cno);
+                                sendMsgJSONBody.put("FILENAME", projectname);
+                                sendMsgJSONBody.put("FILE", _item);
+                                sendMsgJSON.put("Body", sendMsgJSONBody);
                                 String sendmsg = sendMsgJSON.toString();
                                 byte[] bytes = sendmsg.getBytes("UTF-8");
                                 outToServer.writeInt(bytes.length);
@@ -132,18 +131,18 @@ public class DownloadFile {
                                 try (Socket sock = new Socket("127.0.0.1", GlobalValues.FILE_DOWNLOAD_SERVER_PORT)) {
                                     //System.out.println("Connecting...");
                                     try (OutputStream os = sock.getOutputStream(); DataOutputStream outToServer = new DataOutputStream(os)) {
-                                         JSONObject sendMsgJSON= new JSONObject();
-                                 sendMsgJSON.put("Command", "downloadfile");
-                                 JSONObject sendMsgJSONBody= new JSONObject();
-                                 
-                                 sendMsgJSONBody.put("PID", id);
-                                 sendMsgJSONBody.put("CNO", cno);
-                                 sendMsgJSONBody.put("FILENAME", projectname);
-                                 sendMsgJSONBody.put("FILE", _item);
-                                 sendMsgJSONBody.put("IP", SERVER);
-                                 sendMsgJSONBody.put("CHECKSUM", checksum);
-                                 sendMsgJSON.put("Body", sendMsgJSONBody);
-                                
+                                        JSONObject sendMsgJSON = new JSONObject();
+                                        sendMsgJSON.put("Command", "downloadfile");
+                                        JSONObject sendMsgJSONBody = new JSONObject();
+
+                                        sendMsgJSONBody.put("PID", id);
+                                        sendMsgJSONBody.put("CNO", cno);
+                                        sendMsgJSONBody.put("FILENAME", projectname);
+                                        sendMsgJSONBody.put("FILE", _item);
+                                        sendMsgJSONBody.put("IP", SERVER);
+                                        sendMsgJSONBody.put("CHECKSUM", checksum);
+                                        sendMsgJSON.put("Body", sendMsgJSONBody);
+
                                         String sendmsg = sendMsgJSON.toString();//"<Command>downloadfile</Command><Body><PID>" + id + "</PID><CNO>" + cno + "</CNO><FILENAME>" + projectname + "</FILENAME><FILE>" + _item + "</FILE><IP>" + SERVER + "</IP><CHECKSUM>" + checksum + "</CHECKSUM></Body>";
                                         byte[] bytes = sendmsg.getBytes("UTF-8");
                                         outToServer.writeInt(bytes.length);

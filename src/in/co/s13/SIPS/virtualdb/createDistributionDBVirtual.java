@@ -42,7 +42,7 @@ public class createDistributionDBVirtual implements Runnable {
     int counter = 0;
     int vartype = 0;
     int Scheduler = 0;
-     ConcurrentHashMap<String,DistributionDBRow> DistDBTable = new  ConcurrentHashMap<>();
+    ConcurrentHashMap<String, DistributionDBRow> DistDBTable = new ConcurrentHashMap<>();
 
     public createDistributionDBVirtual(String fileName, String pid, ArrayList IP, ArrayList starttime, ArrayList parsingoverhead, ArrayList chunksze, int vart, ArrayList lower, ArrayList upper, int schudle) {
         dbloc = "data/" + pid + "/dist-db/dist-" + pid + ".db";
@@ -92,7 +92,7 @@ public class createDistributionDBVirtual implements Runnable {
          // db.createtable(dbloc, sql);
          // db.closeConnection();
          */
-        for (int i = 0; i < ip.size() ; i++) {
+        for (int i = 0; i < ip.size(); i++) {
             /*    sql = "INSERT INTO DIST (ID , IP , PID ,"
              + "CNO,"
              + "VARTYPE ,"
@@ -126,17 +126,17 @@ public class createDistributionDBVirtual implements Runnable {
              + poh.get(i) + "','"
              + "0','9999');";
              //     db.insert(dbloc, sql);
-             */ DistDBTable.put(ip.get(i)+"-"+i,new DistributionDBRow(i, ip.get(i), Integer.parseInt(PID.trim()),
+             */ DistDBTable.put(ip.get(i) + "-" + i, new DistributionDBRow(i, ip.get(i), Integer.parseInt(PID.trim()),
                     i, vartype, Scheduler, Long.parseLong(startTime.get(i)),
                     0, 0, 0, 0,
                     Long.parseLong(poh.get(i)), 0, 0, 0, 0,
                     (chunksize.get(i)),
                     (low.get(i)), (up.get(i)), "0", 0, 9999));
-           
+
         }
-        System.out.println("Creating DIST DB :"+PID);
-        MASTER_DIST_DB.put(""+Integer.parseInt(PID), DistDBTable);
-        System.out.println("Added DIST DB :"+PID);
+        System.out.println("Creating DIST DB :" + PID);
+        MASTER_DIST_DB.put("" + Integer.parseInt(PID), DistDBTable);
+        System.out.println("Added DIST DB :" + PID);
 //        if (Integer.parseInt(PID.trim()) < 1) {
 //            Thread t = new Thread(new distDBBrowser());
 //            t.start();

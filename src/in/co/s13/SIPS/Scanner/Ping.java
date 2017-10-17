@@ -183,11 +183,11 @@ class Ping implements Runnable {
                         String key = keys2.next();
                         long dis = nonAdjacentNodes.getLong(key, Long.MIN_VALUE);
                         if (!ADJACENT_NODES_TABLE.containsKey(key)) {
-                        if (NON_ADJACENT_NODES_TABLE.containsKey(key)) {
-                            NON_ADJACENT_NODES_TABLE.get(key).addHop(new Hop(uuid, dis + distance));
-                        } else {
-                            NON_ADJACENT_NODES_TABLE.put(key, new UniqueElementList(new Hop(uuid, dis + distance)));
-                        }
+                            if (NON_ADJACENT_NODES_TABLE.containsKey(key)) {
+                                NON_ADJACENT_NODES_TABLE.get(key).addHop(new Hop(uuid, dis + distance));
+                            } else {
+                                NON_ADJACENT_NODES_TABLE.put(key, new UniqueElementList(new Hop(uuid, dis + distance)));
+                            }
                         }
                     }
 

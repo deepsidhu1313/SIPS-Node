@@ -23,14 +23,16 @@ import in.co.s13.SIPS.datastructure.IPHostnameCombo;
  * @author nika
  */
 public class Format {
-/**
- * Experimental
- * @param toParse
- * @return 
- */
+
+    /**
+     * Experimental
+     *
+     * @param toParse
+     * @return
+     */
     public static IPHostnameCombo getIPHostname(String toParse) {
         String parsed[] = toParse.trim().split("/");
-        IPHostnameCombo ipHostnameCombo =new IPHostnameCombo();
+        IPHostnameCombo ipHostnameCombo = new IPHostnameCombo();
         if (parsed.length == 2) {
             ipHostnameCombo.setHostname(parsed[0]);
             ipHostnameCombo.setIp(parsed[1]);

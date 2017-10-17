@@ -16,7 +16,6 @@
  */
 package in.co.s13.SIPS.executor.sockets;
 
-
 import in.co.s13.SIPS.datastructure.threadpools.FixedThreadPool;
 import in.co.s13.SIPS.executor.sockets.handlers.FileHandler;
 import in.co.s13.SIPS.settings.GlobalValues;
@@ -32,10 +31,9 @@ import java.util.logging.Logger;
  */
 public class FileServer implements Runnable {
 
+    public FileServer() {
+        GlobalValues.FILE_HANDLER_EXECUTOR_SERVICE = new FixedThreadPool(GlobalValues.FILES_RESOLVER_LIMIT);
 
-    public FileServer()  {
-          GlobalValues.FILE_HANDLER_EXECUTOR_SERVICE = new FixedThreadPool(GlobalValues.FILES_RESOLVER_LIMIT);
-    
     }
 
     public static void main(String[] args) {
@@ -43,7 +41,7 @@ public class FileServer implements Runnable {
 
     @Override
     public void run() {
- try {
+        try {
             if (GlobalValues.FILE_SERVER_SOCKET == null || GlobalValues.FILE_SERVER_SOCKET.isClosed()) {
                 GlobalValues.FILE_SERVER_SOCKET = new ServerSocket(GlobalValues.FILE_SERVER_PORT);
 

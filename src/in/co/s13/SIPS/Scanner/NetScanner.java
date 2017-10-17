@@ -68,7 +68,6 @@ public class NetScanner implements Runnable {
 
     }
 
-
     public static void addip(String ip) {
         if (!HOSTS.contains(ip)) {
             HOSTS.add(ip);

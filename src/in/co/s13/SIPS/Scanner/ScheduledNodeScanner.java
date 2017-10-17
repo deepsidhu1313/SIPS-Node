@@ -35,7 +35,7 @@ public class ScheduledNodeScanner implements Runnable {
     public void run() {
         try {
 //         Util.outPrintln(""+Thread.currentThread().getName()+" is going to sleep for 2 sec");
-               Thread.sleep(TimeUnit.MILLISECONDS.convert(2, TimeUnit.SECONDS));
+            Thread.sleep(TimeUnit.MILLISECONDS.convert(2, TimeUnit.SECONDS));
         } catch (InterruptedException ex) {
             Logger.getLogger(ScheduledNodeScanner.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -47,7 +47,7 @@ public class ScheduledNodeScanner implements Runnable {
             long intervalMillis = TimeUnit.MILLISECONDS.convert(interval, TimeUnit.SECONDS);
             while (GlobalValues.KEEP_NODE_SCANNER_ALIVE && (intervalMillis > 0)) {
 //            Util.outPrintln(""+Thread.currentThread().getName()+" is going to sleep for 5 sec of remaining time "+intervalMillis+" ms");
-                       try {
+                try {
                     Thread.sleep(5000L);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(ScheduledLiveNodeScanner.class.getName()).log(Level.SEVERE, null, ex);

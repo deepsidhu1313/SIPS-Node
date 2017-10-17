@@ -49,12 +49,12 @@ public class HDDInfo implements Runnable {
                 String cmd[] = {"df", "", "."};
                 pb = new ProcessBuilder(cmd);
             } else if (Util.isWindows()) {
-                try (PrintStream procn = new PrintStream(GlobalValues.dir_bin+"/hdd.bat")) {
+                try (PrintStream procn = new PrintStream(GlobalValues.dir_bin + "/hdd.bat")) {
                     procn.print("wmic logicaldisk get size,freespace,caption");
                 } catch (FileNotFoundException ex) {
                     Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                String cmd[] = {GlobalValues.dir_bin+"/hdd.bat"};
+                String cmd[] = {GlobalValues.dir_bin + "/hdd.bat"};
                 pb = new ProcessBuilder(cmd);
                 File file = new File(".").getAbsoluteFile();
                 File root = file.getParentFile();
@@ -106,6 +106,5 @@ public class HDDInfo implements Runnable {
             Logger.getLogger(HDDInfo.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
 
 }

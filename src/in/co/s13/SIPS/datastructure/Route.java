@@ -23,6 +23,7 @@ import java.util.Objects;
  * @author nika
  */
 public class Route {
+
     private String end;
     private Hop via;
     private long distance;
@@ -56,6 +57,5 @@ public class Route {
     public void setDistance(long distance) {
         this.distance = distance;
     }
-    
-    
+
 }

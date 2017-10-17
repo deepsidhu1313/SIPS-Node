@@ -18,233 +18,231 @@ package in.co.s13.SIPS.datastructure;
 
 import java.util.Comparator;
 
+public class Result {
 
- public  class Result {
+    private String fileName;
+    private String PID;
+    private String starttime;
+    private String endTime;
+    private String totalTime;
+    private String parsingOH;
+    private String networkOH;
+    private String chunkSize;
+    private String totalChunks;
+    private String totalNodes;
+    private String avgLoad;
+    private String avgWaitinq;
+    private String avgSleeptime;
+    private String finished;
+    private Integer scheduler;
 
-        private String fileName;
-        private String PID;
-        private String starttime;
-        private String endTime;
-        private String totalTime;
-        private String parsingOH;
-        private String networkOH;
-        private String chunkSize;
-        private String totalChunks;
-        private String totalNodes;
-        private String avgLoad;
-        private String avgWaitinq;
-        private String avgSleeptime;
-        private String finished;
-        private Integer scheduler;
+    public Result(String fName, String id, int scheduler, String startTime, String EndTime,
+            String TotalTime, String NOH, String ParsingOH,
+            String CHUNKSIZE, String TCHUNK, String TNODES,
+            String cpuload, String avgSleeptime, String avgWaitinq, String FINISHED) {
+        this.fileName = new String(fName);
+        this.PID = new String(id);
+        this.scheduler = new Integer(scheduler);
+        this.starttime = new String(startTime);
+        this.endTime = new String(EndTime);
+        this.totalTime = new String(TotalTime);
+        this.networkOH = new String(NOH);
+        this.parsingOH = new String(ParsingOH);
+        this.chunkSize = new String(CHUNKSIZE);
+        this.totalChunks = new String(TCHUNK);
+        this.totalNodes = new String(TNODES);
+        this.avgLoad = new String(cpuload);
+        this.finished = new String(FINISHED);
+        this.avgWaitinq = new String(avgWaitinq);
+        this.avgSleeptime = new String(avgSleeptime);
+    }
 
-        public Result(String fName, String id,int scheduler, String startTime, String EndTime,
-                String TotalTime, String NOH, String ParsingOH,
-                String CHUNKSIZE, String TCHUNK, String TNODES, 
-                String cpuload,String avgSleeptime,String avgWaitinq, String FINISHED) {
-            this.fileName = new String(fName);
-            this.PID = new String(id);
-            this.scheduler=new Integer(scheduler);
-            this.starttime = new String(startTime);
-            this.endTime = new String(EndTime);
-            this.totalTime = new String(TotalTime);
-            this.networkOH = new String(NOH);
-            this.parsingOH = new String(ParsingOH);
-            this.chunkSize = new String(CHUNKSIZE);
-            this.totalChunks = new String(TCHUNK);
-            this.totalNodes = new String(TNODES);
-            this.avgLoad = new String(cpuload);
-            this.finished = new String(FINISHED);
-            this.avgWaitinq= new String(avgWaitinq);
-            this.avgSleeptime= new String(avgSleeptime);
-        }
+    public String getFileName() {
+        return fileName;
+    }
 
-        public String getFileName() {
-            return fileName;
-        }
+    public void setFileName(String fName) {
+        fileName = (fName);
+    }
 
-        public void setFileName(String fName) {
-            fileName=(fName);
-        }
+    public String getPID() {
+        return PID;
+    }
 
-        public String getPID() {
-            return PID;
-        }
+    public void setPID(String fName) {
+        PID = (fName);
+    }
 
-        public void setPID(String fName) {
-            PID=(fName);
-        }
+    public int getScheduler() {
+        return scheduler;
+    }
 
-        
-        public int getScheduler() {
-            return scheduler;
-        }
+    public void setScheduler(int fName) {
+        scheduler = (fName);
+    }
 
-        public void setScheduler(int fName) {
-            scheduler=(fName);
-        }
-        
-        public String getStartTime() {
-            return starttime;
-        }
+    public String getStartTime() {
+        return starttime;
+    }
 
-        public void setStartTime(String fName) {
-            starttime=(fName);
-        }
+    public void setStartTime(String fName) {
+        starttime = (fName);
+    }
 
-        public String getEndTime() {
-            return endTime;
-        }
+    public String getEndTime() {
+        return endTime;
+    }
 
-        public void setEndTime(String fName) {
-            endTime=(fName);
-        }
+    public void setEndTime(String fName) {
+        endTime = (fName);
+    }
 
-        public String getTotalTime() {
-            return totalTime;
-        }
+    public String getTotalTime() {
+        return totalTime;
+    }
 
-        public void setTotalTime(String fName) {
-            totalTime=(fName);
-        }
+    public void setTotalTime(String fName) {
+        totalTime = (fName);
+    }
 
-        public String getNetworkOH() {
-            return networkOH;
-        }
+    public String getNetworkOH() {
+        return networkOH;
+    }
 
-        public void setNetworkOH(String fName) {
-            networkOH=(fName);
-        }
+    public void setNetworkOH(String fName) {
+        networkOH = (fName);
+    }
 
-        public String getParsingOH() {
-            return this.parsingOH;
-        }
+    public String getParsingOH() {
+        return this.parsingOH;
+    }
 
-        public void setParsingOH(String p) {
-            this.parsingOH=(p);
-        }
+    public void setParsingOH(String p) {
+        this.parsingOH = (p);
+    }
 
-        public String getChunkSize() {
-            return chunkSize;
-        }
+    public String getChunkSize() {
+        return chunkSize;
+    }
 
-        public void setChunkSize(String fName) {
-            chunkSize=(fName);
-        }
+    public void setChunkSize(String fName) {
+        chunkSize = (fName);
+    }
 
-        public String getTotalChunks() {
-            return totalChunks;
-        }
+    public String getTotalChunks() {
+        return totalChunks;
+    }
 
-        public void setTotalChunks(String fName) {
-            totalChunks=(fName);
-        }
+    public void setTotalChunks(String fName) {
+        totalChunks = (fName);
+    }
 
-        public String getTotalNodes() {
-            return totalNodes;
-        }
+    public String getTotalNodes() {
+        return totalNodes;
+    }
 
-        public void setTotalNodes(String fName) {
-            totalNodes=(fName);
-        }
+    public void setTotalNodes(String fName) {
+        totalNodes = (fName);
+    }
 
-         public String getAvgWaitinq() {
-            return avgWaitinq;
-        }
+    public String getAvgWaitinq() {
+        return avgWaitinq;
+    }
 
-        public void setAvgWaitinq(String fName) {
-            avgWaitinq=(fName);
-        }
-        
-         public String getAvgSleeptime() {
-            return avgSleeptime;
-        }
+    public void setAvgWaitinq(String fName) {
+        avgWaitinq = (fName);
+    }
 
-        public void setAvgSleeptime(String fName) {
-            avgSleeptime=(fName);
-        }
-        
-        public String getAvgLoad() {
-            return avgLoad;
-        }
+    public String getAvgSleeptime() {
+        return avgSleeptime;
+    }
 
-        public void setAvgLoad(String l) {
-            avgLoad=(l);
-        }
+    public void setAvgSleeptime(String fName) {
+        avgSleeptime = (fName);
+    }
 
-        public String getFinished() {
-            return finished;
-        }
+    public String getAvgLoad() {
+        return avgLoad;
+    }
 
-        public void setFinished(String fName) {
-            finished=(fName);
-        }
+    public void setAvgLoad(String l) {
+        avgLoad = (l);
+    }
 
-         enum ResultComparator implements Comparator<Result> {
+    public String getFinished() {
+        return finished;
+    }
+
+    public void setFinished(String fName) {
+        finished = (fName);
+    }
+
+    enum ResultComparator implements Comparator<Result> {
         PID_SORT {
-                    public int compare(Result o1, Result o2) {
-                        return (o1.getPID()).compareTo(o2.getPID());
-                    }
-                },
+            public int compare(Result o1, Result o2) {
+                return (o1.getPID()).compareTo(o2.getPID());
+            }
+        },
         FILENAME_SORT {
-                    public int compare(Result o1, Result o2) {
-                        return (o1.getFileName()).compareTo(o2.getFileName());
-                    }
-                },
+            public int compare(Result o1, Result o2) {
+                return (o1.getFileName()).compareTo(o2.getFileName());
+            }
+        },
         SCHEDULER_SORT {
-                    public int compare(Result o1, Result o2) {
-                        return Integer.valueOf(o1.getScheduler()).compareTo(o2.getScheduler());
-                    }
-                },
+            public int compare(Result o1, Result o2) {
+                return Integer.valueOf(o1.getScheduler()).compareTo(o2.getScheduler());
+            }
+        },
         STARTTIME_SORT {
-                    public int compare(Result o1, Result o2) {
-                        return (o1.getStartTime()).compareTo(o2.getStartTime());
-                    }
-                },
+            public int compare(Result o1, Result o2) {
+                return (o1.getStartTime()).compareTo(o2.getStartTime());
+            }
+        },
         ENDTIME_SORT {
-                    public int compare(Result o1, Result o2) {
-                        return (o1.getEndTime()).compareTo(o2.getEndTime());
-                    }
-                },
+            public int compare(Result o1, Result o2) {
+                return (o1.getEndTime()).compareTo(o2.getEndTime());
+            }
+        },
         TOTALTIME_SORT {
-                    public int compare(Result o1, Result o2) {
-                        return (o1.getTotalTime()).compareTo(o2.getTotalTime());
-                    }
-                },
+            public int compare(Result o1, Result o2) {
+                return (o1.getTotalTime()).compareTo(o2.getTotalTime());
+            }
+        },
         NOH_SORT {
-                    public int compare(Result o1, Result o2) {
-                        return (o1.getNetworkOH()).compareTo(o2.getNetworkOH());
-                    }
-                },
+            public int compare(Result o1, Result o2) {
+                return (o1.getNetworkOH()).compareTo(o2.getNetworkOH());
+            }
+        },
         POH_SORT {
-                    public int compare(Result o1, Result o2) {
-                        return (o1.getParsingOH()).compareTo(o2.getParsingOH());
-                    }
-                },
+            public int compare(Result o1, Result o2) {
+                return (o1.getParsingOH()).compareTo(o2.getParsingOH());
+            }
+        },
         CHUNKSIZE_SORT {
-                    public int compare(Result o1, Result o2) {
-                        return (o1.getChunkSize()).compareTo(o2.getChunkSize());
-                    }
-                },
+            public int compare(Result o1, Result o2) {
+                return (o1.getChunkSize()).compareTo(o2.getChunkSize());
+            }
+        },
         TCHUNKS_SORT {
-                    public int compare(Result o1, Result o2) {
-                        return (o1.getTotalChunks()).compareTo(o2.getTotalChunks());
-                    }
-                },
+            public int compare(Result o1, Result o2) {
+                return (o1.getTotalChunks()).compareTo(o2.getTotalChunks());
+            }
+        },
         TNODES_SORT {
-                    public int compare(Result o1, Result o2) {
-                        return (o1.getTotalNodes()).compareTo(o2.getTotalNodes());
-                    }
-                },
+            public int compare(Result o1, Result o2) {
+                return (o1.getTotalNodes()).compareTo(o2.getTotalNodes());
+            }
+        },
         PRFM_SORT {
-                    public int compare(Result o1, Result o2) {
-                        return (o1.getAvgLoad()).compareTo(o2.getAvgLoad());
-                    }
-                },
+            public int compare(Result o1, Result o2) {
+                return (o1.getAvgLoad()).compareTo(o2.getAvgLoad());
+            }
+        },
         FINISHED_SORT {
-                    public int compare(Result o1, Result o2) {
-                        return (o1.getFinished()).compareTo(o2.getFinished());
-                    }
-                };
+            public int compare(Result o1, Result o2) {
+                return (o1.getFinished()).compareTo(o2.getFinished());
+            }
+        };
 
         public static Comparator<Result> decending(final Comparator<Result> other) {
             return new Comparator<Result>() {
@@ -268,5 +266,5 @@ import java.util.Comparator;
             };
         }
     }
-        
-    }
+
+}

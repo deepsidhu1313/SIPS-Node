@@ -336,6 +336,7 @@ public class DummySlave {
                         ServiceOperations.initFileServerAtStartUp();
                         ServiceOperations.initTaskServerAtStartUp();
                         ServiceOperations.initFileDownloadServerAtStartUp();
+                        ServiceOperations.initLogRotateAtStartUp();
                         break;
                     /**
                      * *
@@ -349,6 +350,7 @@ public class DummySlave {
                         ServiceOperations.initFileServerAtStartUp();
                         ServiceOperations.initTaskServerAtStartUp();
                         ServiceOperations.initFileDownloadServerAtStartUp();
+                        ServiceOperations.initLogRotateAtStartUp();
                         break;
                 }
             } else {
@@ -360,6 +362,7 @@ public class DummySlave {
                 ServiceOperations.initFileServerAtStartUp();
                 ServiceOperations.initTaskServerAtStartUp();
                 ServiceOperations.initFileDownloadServerAtStartUp();
+                ServiceOperations.initLogRotateAtStartUp();
 
             }
 
@@ -377,6 +380,7 @@ public class DummySlave {
             ServiceOperations.initFileServerAtStartUp();
             ServiceOperations.initTaskServerAtStartUp();
             ServiceOperations.initFileDownloadServerAtStartUp();
+            ServiceOperations.initLogRotateAtStartUp();
 
         }
 

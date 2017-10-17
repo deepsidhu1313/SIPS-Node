@@ -119,28 +119,28 @@ public class GlobalValues {
     /**
      * Server ThreadPools
      */
-    public static FixedThreadPool API_HANDLER_EXECUTOR_SERVICE, PING_HANDLER_EXECUTOR_SERVICE, FILE_DOWNLOAD_HANDLER_EXECUTOR_SERVICE,FILE_HANDLER_EXECUTOR_SERVICE, TASK_HANDLER_EXECUTOR_SERVICE, TASK_FINISH_LISTENER_HANDLER_EXECUTOR_SERVICE;
+    public static FixedThreadPool API_HANDLER_EXECUTOR_SERVICE, PING_HANDLER_EXECUTOR_SERVICE, FILE_DOWNLOAD_HANDLER_EXECUTOR_SERVICE, FILE_HANDLER_EXECUTOR_SERVICE, TASK_HANDLER_EXECUTOR_SERVICE, TASK_FINISH_LISTENER_HANDLER_EXECUTOR_SERVICE;
 
     /**
      * *
      * Server Threads
      */
-    public static Thread TASK_SERVER_THREAD, API_SERVER_THREAD, PING_SERVER_THREAD, FILE_DOWNLOAD_SERVER_THREAD, TASK_FINISH_LISTENER_SERVER_THREAD,FILE_SERVER_THREAD;
+    public static Thread TASK_SERVER_THREAD, API_SERVER_THREAD, PING_SERVER_THREAD, FILE_DOWNLOAD_SERVER_THREAD, TASK_FINISH_LISTENER_SERVER_THREAD, FILE_SERVER_THREAD;
 
     /**
      * Server sockets
      */
-    public static ServerSocket API_SERVER_SOCKET, FILE_DOWNLOAD_SERVER_SOCKET,FILE_SERVER_SOCKET, PING_SERVER_SOCKET, TASK_SERVER_SOCKET, TASK_FINISH_LISTENER_SERVER_SOCKET;
+    public static ServerSocket API_SERVER_SOCKET, FILE_DOWNLOAD_SERVER_SOCKET, FILE_SERVER_SOCKET, PING_SERVER_SOCKET, TASK_SERVER_SOCKET, TASK_FINISH_LISTENER_SERVER_SOCKET;
 
     /**
      * Socket Ports
      */
-    public static int PING_SERVER_PORT = 13131, FILE_DOWNLOAD_SERVER_PORT = 13132, TASK_SERVER_PORT = 13133, TASK_FINISH_LISTENER_SERVER_PORT = 13134,FILE_SERVER_PORT = 13135, API_SERVER_PORT = 13139;
-    
+    public static int PING_SERVER_PORT = 13131, FILE_DOWNLOAD_SERVER_PORT = 13132, TASK_SERVER_PORT = 13133, TASK_FINISH_LISTENER_SERVER_PORT = 13134, FILE_SERVER_PORT = 13135, API_SERVER_PORT = 13139;
+
     /**
      * Server Flags
      */
-    public static boolean API_SERVER_IS_RUNNING=true,FILE_DOWNLOAD_SERVER_IS_RUNNING=true,FILE_SERVER_IS_RUNNING=true,PING_SERVER_IS_RUNNING=true,TASK_SERVER_IS_RUNNING=true,TASK_FINISH_SERVER_IS_RUNNING=true;
+    public static boolean API_SERVER_IS_RUNNING = true, FILE_DOWNLOAD_SERVER_IS_RUNNING = true, FILE_SERVER_IS_RUNNING = true, PING_SERVER_IS_RUNNING = true, TASK_SERVER_IS_RUNNING = true, TASK_FINISH_SERVER_IS_RUNNING = true;
     /**
      * Network Scheduled Thread Conditions
      */
@@ -155,7 +155,7 @@ public class GlobalValues {
     /**
      * Services Vars
      */
-    public static boolean PING_SERVER_ENABLED_AT_START = true, API_SERVER_ENABLED_AT_START = true, FILE_DOWNLOAD_SERVER_ENABLED_AT_START = true,FILE_SERVER_ENABLED_AT_START = true, TASK_SERVER_ENABLED_AT_START = true, NODE_SCANNER_ENABLED_AT_START = true, LIVE_NODE_SCANNER_ENABLED_AT_START = true, TASK_FINISH_LISTENER_SERVER_ENABLED_AT_START = true;
+    public static boolean PING_SERVER_ENABLED_AT_START = true, LOG_ROTATE_ENABLED_AT_START = true, API_SERVER_ENABLED_AT_START = true, FILE_DOWNLOAD_SERVER_ENABLED_AT_START = true, FILE_SERVER_ENABLED_AT_START = true, TASK_SERVER_ENABLED_AT_START = true, NODE_SCANNER_ENABLED_AT_START = true, LIVE_NODE_SCANNER_ENABLED_AT_START = true, TASK_FINISH_LISTENER_SERVER_ENABLED_AT_START = true;
 
     public static long NODE_SCANNER_INTIAL_DELAY = 2L, LIVE_NODE_SCANNER_INTIAL_DELAY = 2L, NODE_SCANNER_PERIODIC_DELAY = 5L, LIVE_NODE_SCANNER_PERIODIC_DELAY = 5L;
     /**
@@ -187,19 +187,25 @@ public class GlobalValues {
      */
     public static ConcurrentHashMap<String, ConcurrentHashMap<String, DistributionDBRow>> MASTER_DIST_DB = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<String, Result> RESULT_DB = new ConcurrentHashMap<>();
-    
+
     /**
      * Task Server Vars
      */
 //    public static ConcurrentHashMap<String,String> ALIEN_PROCESS_ID= new ConcurrentHashMap<>();
-    public static ArrayList<Integer> localprocessID= new ArrayList<>();
-    public static ConcurrentHashMap<String,TaskDBRow> TASK_DB= new ConcurrentHashMap<>();
-    
+    public static ArrayList<Integer> localprocessID = new ArrayList<>();
+    public static ConcurrentHashMap<String, TaskDBRow> TASK_DB = new ConcurrentHashMap<>();
+
     /**
      * Download Server Que
      */
-    
-    public static ConcurrentHashMap<String,FileDownQueReq> DOWNLOAD_QUEUE= new ConcurrentHashMap<>();
-    
-    
+    public static ConcurrentHashMap<String, FileDownQueReq> DOWNLOAD_QUEUE = new ConcurrentHashMap<>();
+
+    /**
+     * Logrotate FILE_SIZE_LIMIT in kb LOGROTATION_INTERVAL_IN_HOURS (hrs)
+     * LAST_ROTATED_ON timestamp in millis LOG_ROTATE_CHECK_FILES_EVERY in secs
+     */
+    public static long FILE_SIZE_LIMIT = 512 * 1024, LOGROTATION_INTERVAL_IN_HOURS = 24, LAST_ROTATED_ON = System.currentTimeMillis(), LOG_ROTATE_CHECK_FILES_EVERY = 300;
+    public static boolean KEEP_LOG_ROTATE_ALIVE = true;
+    public static Thread LOG_ROTATE_THREAD;
+
 }

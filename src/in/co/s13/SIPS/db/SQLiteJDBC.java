@@ -42,7 +42,7 @@ public class SQLiteJDBC {
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(SQLiteJDBC.class.getName()).log(Level.SEVERE, null, ex);
         }
-      }
+    }
 
     public void closeConnection() {
         try {
@@ -72,8 +72,8 @@ public class SQLiteJDBC {
             System.out.println("Table created successfully on DB " + db);
 
         } catch (SQLException e) {
-            System.out.println(sql+" didnot executed on "+db);
-            System.out.println(sql+" didnot executed on "+db);
+            System.out.println(sql + " didnot executed on " + db);
+            System.out.println(sql + " didnot executed on " + db);
             System.out.println(e.getClass().getName() + ": " + e.getMessage());
 
         }
@@ -96,14 +96,14 @@ public class SQLiteJDBC {
             System.out.println("Records created successfully on DB " + db);
 
         } catch (SQLException e) {
-            System.out.println(sql+" didnot executed on "+db);
-            System.out.println(sql+" didnot executed on "+db);
+            System.out.println(sql + " didnot executed on " + db);
+            System.out.println(sql + " didnot executed on " + db);
             System.out.println(e.getClass().getName() + ": " + e.getMessage());
 
         }
     }
 
-    public ResultSet select(String db, String sql)  {
+    public ResultSet select(String db, String sql) {
 
         ResultSet rs2 = null;
         try {
@@ -116,8 +116,8 @@ public class SQLiteJDBC {
             System.out.println(sql);
             System.out.println("Select Operation done successfully on DB " + db);
         } catch (SQLException e) {
-            System.out.println(sql+" didnot executed on "+db);
-            System.out.println(sql+" didnot executed on "+db);
+            System.out.println(sql + " didnot executed on " + db);
+            System.out.println(sql + " didnot executed on " + db);
             System.out.println(e.getClass().getName() + ": " + e.getMessage());
 
         }
@@ -132,16 +132,16 @@ public class SQLiteJDBC {
             c.setAutoCommit(false);
 
             stmt = c.createStatement();
-            int r=stmt.executeUpdate(sql);
+            int r = stmt.executeUpdate(sql);
             c.commit();
 
             //      stmt.close();
             //    c.close();
             System.out.println(sql);
-            System.out.println(r+" Rows effected Update Operation done successfully on DB " + db);
+            System.out.println(r + " Rows effected Update Operation done successfully on DB " + db);
         } catch (SQLException e) {
-            System.out.println(sql+" didnot executed on "+db);
-            System.out.println(sql+" didnot executed on "+db);
+            System.out.println(sql + " didnot executed on " + db);
+            System.out.println(sql + " didnot executed on " + db);
             System.out.println(e.getClass().getName() + ": " + e.getMessage());
 
         }
@@ -174,17 +174,18 @@ public class SQLiteJDBC {
             System.out.println(sql);
             System.out.println("Update Operation done successfully on DB " + db);
         } catch (SQLException e) {
-            System.out.println(sql+" didnot executed on "+db);
-            System.out.println(sql+" didnot executed on "+db);
+            System.out.println(sql + " didnot executed on " + db);
+            System.out.println(sql + " didnot executed on " + db);
             System.out.println(e.getClass().getName() + ": " + e.getMessage());
 
         } catch (IOException ex) {
-            System.out.println(sql+" didnot executed on "+db);
-            System.out.println(sql+" didnot executed on "+db);
+            System.out.println(sql + " didnot executed on " + db);
+            System.out.println(sql + " didnot executed on " + db);
             Logger.getLogger(SQLiteJDBC.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
+
     public void delete(String db, String sql) {
         try {
             c = DriverManager.getConnection("jdbc:sqlite:" + db);
@@ -200,8 +201,8 @@ public class SQLiteJDBC {
             System.out.println(sql);
             System.out.println("Delete Operation done successfully on DB " + db);
         } catch (SQLException e) {
-            System.out.println(sql+" didnot executed on "+db);
-            System.out.println(sql+" didnot executed on "+db);
+            System.out.println(sql + " didnot executed on " + db);
+            System.out.println(sql + " didnot executed on " + db);
             System.out.println(e.getClass().getName() + ": " + e.getMessage());
 
         }
@@ -209,7 +210,7 @@ public class SQLiteJDBC {
 
     public void execute(String db, String sql) {
         try {
-          c = DriverManager.getConnection("jdbc:sqlite:" + db);
+            c = DriverManager.getConnection("jdbc:sqlite:" + db);
             c.setAutoCommit(false);
             // System.out.println("Opened database successfully");
 
@@ -222,8 +223,8 @@ public class SQLiteJDBC {
             System.out.println(sql);
             System.out.println("Query Executed Operation done successfully on DB " + db);
         } catch (SQLException e) {
-            System.out.println(sql+" didnot executed on "+db);
-            System.out.println(sql+" didnot executed on "+db);
+            System.out.println(sql + " didnot executed on " + db);
+            System.out.println(sql + " didnot executed on " + db);
             System.out.println(e.getClass().getName() + ": " + e.getMessage());
 
         }
@@ -249,12 +250,12 @@ public class SQLiteJDBC {
             }
             out.close();
         } catch (SQLException ex) {
-            System.out.println(sql+" didnot executed on "+db);
-            System.out.println(sql+" didnot executed on "+db);
+            System.out.println(sql + " didnot executed on " + db);
+            System.out.println(sql + " didnot executed on " + db);
             Logger.getLogger(SQLiteJDBC.class.getName()).log(Level.SEVERE, null, ex);
         } catch (FileNotFoundException ex) {
-            System.out.println(sql+" didnot executed on "+db);
-            System.out.println(sql+" didnot executed on "+db);
+            System.out.println(sql + " didnot executed on " + db);
+            System.out.println(sql + " didnot executed on " + db);
             Logger.getLogger(SQLiteJDBC.class.getName()).log(Level.SEVERE, null, ex);
         }
 

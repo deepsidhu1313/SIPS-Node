@@ -34,9 +34,9 @@ import org.json.JSONObject;
  */
 public class PingHandler implements Runnable {
 
-   private Socket submitter;
+    private Socket submitter;
 
-   private long startTime;
+    private long startTime;
 
     public PingHandler(Socket connection) {
         submitter = connection;
@@ -45,7 +45,7 @@ public class PingHandler implements Runnable {
 
     @Override
     public void run() {
-        
+
         try {
             try (DataInputStream dataInputStream = new DataInputStream(submitter.getInputStream())) {
                 JSONObject msg;
@@ -59,7 +59,7 @@ public class PingHandler implements Runnable {
 
                 InetAddress inetAddress = submitter.getInetAddress();
                 String ipAddress = inetAddress.getHostAddress();
-                Thread.currentThread().setName("Ping handler for "+ipAddress);
+                Thread.currentThread().setName("Ping handler for " + ipAddress);
                 if (msg.length() > 1) {
 //                    System.out.println("IP adress of sender is " + ipAddress);
 

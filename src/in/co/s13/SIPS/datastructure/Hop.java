@@ -90,6 +90,7 @@ public class Hop {
                 return Long.valueOf(o1.getDistance()).compareTo(o2.getDistance());
             }
         };
+
         public static Comparator<Hop> decending(final Comparator<Hop> other) {
             return (Hop o1, Hop o2) -> -1 * other.compare(o1, o2);
         }

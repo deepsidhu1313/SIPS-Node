@@ -34,8 +34,7 @@ import java.util.logging.Logger;
 public class FileDownloadServer implements Runnable {
 
 //     public static ArrayList<FileDownQueReq> downQue = new ArrayList();
-
-    public FileDownloadServer()  {
+    public FileDownloadServer() {
         GlobalValues.FILE_DOWNLOAD_HANDLER_EXECUTOR_SERVICE = new FixedThreadPool(GlobalValues.FILES_RESOLVER_LIMIT);
     }
 

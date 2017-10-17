@@ -90,7 +90,7 @@ public class Resource {
     public void removeProperty(Property toRemove) {
         properties.remove(toRemove.getName()).setValue(toRemove.getValue());
     }
-       
+
     @Override
     public String toString() {
         return "{Resource:[" + "properties:" + properties + ", type:" + type + ", name:" + name + "]}";

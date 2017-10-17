@@ -36,8 +36,6 @@ public class TaskDBRow {
         this.process = process;
     }
 
-
-
     public String getTaskID() {
         return taskID;
     }
@@ -78,8 +76,6 @@ public class TaskDBRow {
         this.process = process;
     }
 
-    
-    
     @Override
     public String toString() {
         return this.toJSON().toString(4);

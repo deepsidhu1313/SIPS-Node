@@ -36,19 +36,19 @@ public class RangePinger implements Runnable {
         temp = new ArrayList<>(al);
         if (up == temp.size()) {
             up--;
-            System.out.println("UP equals to array , decremented");
+//            System.out.println("UP equals to array , decremented");
         }
         if (up > temp.size()) {
             up = temp.size() - 1;
 
-            System.out.println("Size equals to array , decremented");
+//            System.out.println("Size equals to array , decremented");
         }
 //        System.out.println("Executing Ping on AL" + al + " from " + low + " to " + up);
     }
 
     @Override
     public void run() {
-        Thread.currentThread().setName("Range Pinger Thread From "+low+" to "+up+" on List With Size "+temp.size());
+        Thread.currentThread().setName("Range Pinger Thread From " + low + " to " + up + " on List With Size " + temp.size());
         for (int i = low; i <= up; i++) {
             String node = temp.get(i);
             try {
