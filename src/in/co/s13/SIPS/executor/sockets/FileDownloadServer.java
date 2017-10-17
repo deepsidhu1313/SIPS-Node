@@ -51,7 +51,7 @@ public class FileDownloadServer implements Runnable {
                     .getName()).log(Level.SEVERE, null, ex);
         }
 
-        Thread.currentThread().setName("File Server Thread");
+        Thread.currentThread().setName("File Download Server Thread");
 
         System.out.println("File Download Que Server is running");
         while (GlobalValues.FILE_DOWNLOAD_SERVER_IS_RUNNING) {
@@ -59,7 +59,7 @@ public class FileDownloadServer implements Runnable {
                 Socket s = GlobalValues.FILE_DOWNLOAD_SERVER_SOCKET.accept();
                 Thread t = new Thread(new FileDownloadHandler(s));
                 t.setPriority(Thread.NORM_PRIORITY + 1);
-                t.setName("FileHandlIngThread");
+                t.setName("File Download Handling Thread");
                 GlobalValues.FILE_DOWNLOAD_HANDLER_EXECUTOR_SERVICE.submit(t);
 
             } catch (IOException ex) {
