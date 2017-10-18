@@ -142,6 +142,10 @@ public class Settings {
         CPU_NAME = getCPUName();
 
         try {
+            OUT_FILE = dir_log + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "-out.log";
+            ERR_FILE = dir_log + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "-err.log";
+            LOG_FILE = dir_log + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "-app.log";
+
             String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
             String prevContent = Util.readFile(ERR_FILE);
             GlobalValues.err = new PrintStream(GlobalValues.ERR_FILE);
@@ -187,6 +191,7 @@ public class Settings {
         API_HANDLER_LIMIT = serviceSettings.getInt("MAX_API_RESPONSES_IN_PARALLEL", 3);
         TASK_HANDLER_LIMIT = serviceSettings.getInt("MAX_TASK_REQ_IN_PARALLEL", 3);
         PING_REQUEST_LIMIT = serviceSettings.getInt("MAX_PING_REQUESTS_IN_PARALLEL", 3);
+        FILE_HANDLER_LIMIT = serviceSettings.getInt("FILE_HANDLER_LIMIT", FILE_HANDLER_LIMIT);
         PING_SERVER_ENABLED_AT_START = serviceSettings.getBoolean("PING_SERVER_ENABLED_AT_START", PING_SERVER_ENABLED_AT_START);
         API_SERVER_ENABLED_AT_START = serviceSettings.getBoolean("API_SERVER_ENABLED_AT_START", API_SERVER_ENABLED_AT_START);
         FILE_DOWNLOAD_SERVER_ENABLED_AT_START = serviceSettings.getBoolean("FILE_DOWNLOAD_SERVER_ENABLED_AT_START", FILE_DOWNLOAD_SERVER_ENABLED_AT_START);
@@ -202,7 +207,7 @@ public class Settings {
         LOG_ROTATE_ENABLED_AT_START = serviceSettings.getBoolean("LOG_ROTATE_ENABLED_AT_START", LOG_ROTATE_ENABLED_AT_START);
 
         JSONObject logrotateSettings = Util.readJSONFile(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "log_rotate.json");
-        FILE_SIZE_LIMIT = logrotateSettings.getLong("FILE_SIZE_LIMIT", FILE_SIZE_LIMIT);
+        LOG_FILE_SIZE_LIMIT = logrotateSettings.getLong("LOG_FILE_SIZE_LIMIT", LOG_FILE_SIZE_LIMIT);
         LOGROTATION_INTERVAL_IN_HOURS = logrotateSettings.getLong("LOGROTATION_INTERVAL_IN_HOURS", LOGROTATION_INTERVAL_IN_HOURS);
         LAST_ROTATED_ON = logrotateSettings.getLong("LAST_ROTATED_ON", LAST_ROTATED_ON);
         LOG_ROTATE_CHECK_FILES_EVERY = logrotateSettings.getLong("LOG_ROTATE_CHECK_FILES_EVERY", LOG_ROTATE_CHECK_FILES_EVERY);
@@ -228,6 +233,7 @@ public class Settings {
         serviceSettings.put("MAX_PING_REQUESTS_IN_PARALLEL", PING_REQUEST_LIMIT);
         serviceSettings.put("MAX_API_RESPONSES_IN_PARALLEL", API_HANDLER_LIMIT);
         serviceSettings.put("MAX_TASK_REQ_IN_PARALLEL", TASK_HANDLER_LIMIT);
+        serviceSettings.put("FILE_HANDLER_LIMIT", FILE_HANDLER_LIMIT);
         serviceSettings.put("PING_SERVER_ENABLED_AT_START", PING_SERVER_ENABLED_AT_START);
         serviceSettings.put("API_SERVER_ENABLED_AT_START", API_SERVER_ENABLED_AT_START);
         serviceSettings.put("FILE_DOWNLOAD_SERVER_ENABLED_AT_START", FILE_DOWNLOAD_SERVER_ENABLED_AT_START);
@@ -244,7 +250,7 @@ public class Settings {
         write(new File(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "service_settings.json"), serviceSettings.toString(4));
 
         JSONObject logrotateSettings = new JSONObject();
-        logrotateSettings.put("FILE_SIZE_LIMIT", FILE_SIZE_LIMIT);
+        logrotateSettings.put("LOG_FILE_SIZE_LIMIT", LOG_FILE_SIZE_LIMIT);
         logrotateSettings.put("LOGROTATION_INTERVAL_IN_HOURS", LOGROTATION_INTERVAL_IN_HOURS);
         logrotateSettings.put("LAST_ROTATED_ON", LAST_ROTATED_ON);
         logrotateSettings.put("LOG_ROTATE_CHECK_FILES_EVERY", LOG_ROTATE_CHECK_FILES_EVERY);

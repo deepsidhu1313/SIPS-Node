@@ -43,7 +43,7 @@ public class LogRotate implements Runnable {
             File logDir = new File("log/");
             File[] files = logDir.listFiles((File dir, String name) -> name.toLowerCase().endsWith(".log"));
             for (File file : files) {
-                if ((file.length() / 1024 > GlobalValues.FILE_SIZE_LIMIT)) {
+                if ((file.length() / 1024 > GlobalValues.LOG_FILE_SIZE_LIMIT)) {
                     file.renameTo(new File(System.currentTimeMillis() + "-" + file.getName()));
                 } else if ((TimeUnit.MILLISECONDS.toHours(System.currentTimeMillis() - GlobalValues.LAST_ROTATED_ON) > GlobalValues.LOGROTATION_INTERVAL_IN_HOURS)) {
                     file.renameTo(new File(System.currentTimeMillis() + "-" + file.getName()));

@@ -38,12 +38,12 @@ public class NetScanner implements Runnable {
 //        CURRENTLY_SCANNING = new ArrayList();
         addip("127.0.0.1");
 
-        JSONArray blacklistIPArray = blacklistJSON.getJSONArray("blacklist", new JSONArray());
+        JSONArray blacklistIPArray = BLACKLIST_JSON.getJSONArray("blacklist", new JSONArray());
         for (int i = 0; i < blacklistIPArray.length(); i++) {
             String val = blacklistIPArray.getString(i);
             GlobalValues.BLACKLIST.put(val, val);
         }
-        JSONArray networksArray = networksToScanJSON.getJSONArray("networks", new JSONArray());
+        JSONArray networksArray = NETWORKS_TO_SCAN_JSON.getJSONArray("networks", new JSONArray());
         for (int i = 0; i < networksArray.length(); i++) {
             String val = networksArray.getString(i);
             addnetwork(val);
@@ -56,7 +56,7 @@ public class NetScanner implements Runnable {
             }
 
         }
-        JSONArray ipsArray = ipToScanJSON.getJSONArray("ips", new JSONArray());
+        JSONArray ipsArray = IPs_TO_SCAN_JSON.getJSONArray("ips", new JSONArray());
         for (int i = 0; i < ipsArray.length(); i++) {
             String val = ipsArray.getString(i);
             addip(val);

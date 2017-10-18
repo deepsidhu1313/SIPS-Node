@@ -230,7 +230,7 @@ public class DummySlave {
              * *
              * add new IP addresses or Hosts
              */
-            GlobalValues.ipToScanJSON = Util.readJSONFile(dir_etc + "/ips.json");
+            GlobalValues.IPs_TO_SCAN_JSON = Util.readJSONFile(dir_etc + "/ips.json");
             if (arguments.contains("--add-ip")) {
                 int listSize = 0, index = 0;
                 try {
@@ -244,20 +244,20 @@ public class DummySlave {
                     System.exit(1);
 
                 }
-                JSONArray jsonArray = GlobalValues.ipToScanJSON.getJSONArray("ips", new JSONArray());
+                JSONArray jsonArray = GlobalValues.IPs_TO_SCAN_JSON.getJSONArray("ips", new JSONArray());
                 for (int i = 0; i < listSize; i++) {
                     jsonArray.put(arguments.get(index + i + 2));
                 }
-                GlobalValues.ipToScanJSON = new JSONObject();
-                GlobalValues.ipToScanJSON.put("ips", jsonArray);
-                Util.write(dir_etc + "/ips.json", GlobalValues.ipToScanJSON.toString(4));
+                GlobalValues.IPs_TO_SCAN_JSON = new JSONObject();
+                GlobalValues.IPs_TO_SCAN_JSON.put("ips", jsonArray);
+                Util.write(dir_etc + "/ips.json", GlobalValues.IPs_TO_SCAN_JSON.toString(4));
             }
 
             /**
              * *
              * add new networks to scan
              */
-            GlobalValues.networksToScanJSON = Util.readJSONFile(dir_etc + "/networks.json");
+            GlobalValues.NETWORKS_TO_SCAN_JSON = Util.readJSONFile(dir_etc + "/networks.json");
             if (arguments.contains("--add-network")) {
                 int listSize = 0, index = 0;
                 try {
@@ -271,20 +271,20 @@ public class DummySlave {
                     System.exit(1);
 
                 }
-                JSONArray jsonArray = GlobalValues.networksToScanJSON.getJSONArray("networks", new JSONArray());
+                JSONArray jsonArray = GlobalValues.NETWORKS_TO_SCAN_JSON.getJSONArray("networks", new JSONArray());
                 for (int i = 0; i < listSize; i++) {
                     jsonArray.put(arguments.get(index + i + 2));
                 }
-                GlobalValues.networksToScanJSON = new JSONObject();
-                GlobalValues.networksToScanJSON.put("networks", jsonArray);
-                Util.write(dir_etc + "/networks.json", GlobalValues.networksToScanJSON.toString(4));
+                GlobalValues.NETWORKS_TO_SCAN_JSON = new JSONObject();
+                GlobalValues.NETWORKS_TO_SCAN_JSON.put("networks", jsonArray);
+                Util.write(dir_etc + "/networks.json", GlobalValues.NETWORKS_TO_SCAN_JSON.toString(4));
             }
 
             /**
              * *
              * blacklist nodes Put these on Raymond Reddington's List
              */
-            GlobalValues.blacklistJSON = Util.readJSONFile(dir_etc + "/blacklist.json");
+            GlobalValues.BLACKLIST_JSON = Util.readJSONFile(dir_etc + "/blacklist.json");
             if (arguments.contains("--blacklist")) {
                 int listSize = 0, index = 0;
                 try {
@@ -298,13 +298,13 @@ public class DummySlave {
                     System.exit(1);
 
                 }
-                JSONArray jsonArray = GlobalValues.blacklistJSON.getJSONArray("blacklist", new JSONArray());
+                JSONArray jsonArray = GlobalValues.BLACKLIST_JSON.getJSONArray("blacklist", new JSONArray());
                 for (int i = 0; i < listSize; i++) {
                     jsonArray.put(arguments.get(index + i + 2));
                 }
-                GlobalValues.blacklistJSON = new JSONObject();
-                GlobalValues.blacklistJSON.put("blacklist", jsonArray);
-                Util.write(dir_etc + "/blacklist.json", GlobalValues.blacklistJSON.toString(4));
+                GlobalValues.BLACKLIST_JSON = new JSONObject();
+                GlobalValues.BLACKLIST_JSON.put("blacklist", jsonArray);
+                Util.write(dir_etc + "/blacklist.json", GlobalValues.BLACKLIST_JSON.toString(4));
             }
 
             /**
@@ -369,9 +369,9 @@ public class DummySlave {
         } else {
             loadSettings.init();
             preBenchmarkingChecks();
-            GlobalValues.blacklistJSON = Util.readJSONFile(dir_etc + "/blacklist.json");
-            GlobalValues.networksToScanJSON = Util.readJSONFile(dir_etc + "/networks.json");
-            GlobalValues.ipToScanJSON = Util.readJSONFile(dir_etc + "/ips.json");
+            GlobalValues.BLACKLIST_JSON = Util.readJSONFile(dir_etc + "/blacklist.json");
+            GlobalValues.NETWORKS_TO_SCAN_JSON = Util.readJSONFile(dir_etc + "/networks.json");
+            GlobalValues.IPs_TO_SCAN_JSON = Util.readJSONFile(dir_etc + "/ips.json");
             GlobalValues.API_JSON = Util.readJSONFile(dir_etc + "/api.json");
             new HardwareStatThreads();
             new NetworkThreads();

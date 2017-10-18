@@ -1010,7 +1010,7 @@ public class Util {
     }
 
     public static synchronized JSONObject getBlackListInJSON() {
-        return GlobalValues.blacklistJSON;
+        return GlobalValues.BLACKLIST_JSON;
     }
 
     public static JSONObject getAdjLiveNodesInJSON() {

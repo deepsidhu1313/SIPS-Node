@@ -79,7 +79,7 @@ public class GlobalValues {
      * Log Files and variables
      */
     public static boolean VERBOSE, DUMP_LOG;
-    public static String OUT_FILE = dir_log + "/out.log", ERR_FILE = dir_log + "/err.log", LOG_FILE = dir_log + "/app.log";
+    public static String OUT_FILE, ERR_FILE, LOG_FILE;
     public static PrintStream out, err, log;
 
     /**
@@ -92,6 +92,7 @@ public class GlobalValues {
      */
     public static int TOTAL_THREADS = 3;
     public static int FILES_RESOLVER_LIMIT = 10;
+    public static int FILE_HANDLER_LIMIT = 10;
     public static int PING_HANDLER_LIMIT = 10;
     public static int PING_REQUEST_LIMIT = 3;
     public static int API_HANDLER_LIMIT = 10;
@@ -159,11 +160,11 @@ public class GlobalValues {
 
     public static long NODE_SCANNER_INTIAL_DELAY = 2L, LIVE_NODE_SCANNER_INTIAL_DELAY = 2L, NODE_SCANNER_PERIODIC_DELAY = 5L, LIVE_NODE_SCANNER_PERIODIC_DELAY = 5L;
     /**
-     * *
+     *
      * Storage Data Structure
      */
     /**
-     * **
+     *
      * Networking Vars
      */
     //  public static ArrayList<String> livehosts = new ArrayList();
@@ -176,8 +177,7 @@ public class GlobalValues {
     public static ConcurrentHashMap<String, String> BLACKLIST = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<String, JSONObject> API_LIST = new ConcurrentHashMap<>();
     public static boolean IS_WRITING = false;
-    public static JSONObject blacklistJSON, networksToScanJSON, ipToScanJSON, API_JSON;
-    public static int THREAD_NUMBER = TOTAL_THREADS;
+    public static JSONObject BLACKLIST_JSON, NETWORKS_TO_SCAN_JSON, IPs_TO_SCAN_JSON, API_JSON;
     public static ConcurrentHashMap<String, String> ROUTING_TABLE = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<String, Long> ADJACENT_NODES_TABLE = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<String, UniqueElementList> NON_ADJACENT_NODES_TABLE = new ConcurrentHashMap<>();
@@ -204,7 +204,7 @@ public class GlobalValues {
      * Logrotate FILE_SIZE_LIMIT in kb LOGROTATION_INTERVAL_IN_HOURS (hrs)
      * LAST_ROTATED_ON timestamp in millis LOG_ROTATE_CHECK_FILES_EVERY in secs
      */
-    public static long FILE_SIZE_LIMIT = 512 * 1024, LOGROTATION_INTERVAL_IN_HOURS = 24, LAST_ROTATED_ON = System.currentTimeMillis(), LOG_ROTATE_CHECK_FILES_EVERY = 300;
+    public static long LOG_FILE_SIZE_LIMIT = 512 * 1024, LOGROTATION_INTERVAL_IN_HOURS = 24, LAST_ROTATED_ON = System.currentTimeMillis(), LOG_ROTATE_CHECK_FILES_EVERY = 300;
     public static boolean KEEP_LOG_ROTATE_ALIVE = true;
     public static Thread LOG_ROTATE_THREAD;
 

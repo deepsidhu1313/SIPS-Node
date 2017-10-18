@@ -97,7 +97,9 @@ public class APIHandler implements Runnable {
                     JSONObject sendmsg2Json = new JSONObject();
                     sendmsg2Json.put("UUID", GlobalValues.NODE_UUID);
                     JSONObject body = new JSONObject();
-                    body.put("Response", "Error!!\n \tYou are not allowed.");
+                    JSONObject response = new JSONObject();
+                    response.put("Message", "Error!!\n \tYou are not allowed.");
+                    body.put("Response", response);
                     sendmsg2Json.put("Body", body);
                     String sendmsg2 = sendmsg2Json.toString();
                     byte[] bytes2 = sendmsg2.getBytes("UTF-8");
@@ -120,7 +122,9 @@ public class APIHandler implements Runnable {
                         JSONObject sendmsg2Json = new JSONObject();
                         sendmsg2Json.put("UUID", GlobalValues.NODE_UUID);
                         JSONObject body = new JSONObject();
-                        body.put("Response", "Error!!\n \tIncorrect API key.");
+                        JSONObject response = new JSONObject();
+                        response.put("Message", "Error!!\n \tIncorrect API key.");
+                        body.put("Response", response);
                         sendmsg2Json.put("Body", body);
                         String sendmsg2 = sendmsg2Json.toString();
                         byte[] bytes2 = sendmsg2.getBytes("UTF-8");
@@ -134,7 +138,7 @@ public class APIHandler implements Runnable {
                 JSONObject sendmsg2Json = new JSONObject();
                 sendmsg2Json.put("UUID", GlobalValues.NODE_UUID);
                 JSONObject body = new JSONObject();
-
+                JSONObject response = new JSONObject();
                 if (command.equalsIgnoreCase("TestConnection")) {
                     body.put("Response", "Connection Successful");
                 } else if (command.equalsIgnoreCase("blacklist")) {
@@ -142,21 +146,27 @@ public class APIHandler implements Runnable {
                         body.put("Response", Util.getBlackListInJSON());
                     } else if (args.length() == 0 && hasReadPermissions(key_permissions)) {
                         body.put("Response", Util.getBlackListInJSON());
+                    } else if (!hasReadPermissions(key_permissions)) {
+                        response.put("Message", "Error!!\n \tIncorrect permissions.");
+                        body.put("Response", response);
                     } else {
-                        body.put("Response", "Incorrect permissions or arguments!!");
-
+                        response.put("Message", "Error!!\n \tIncorrect arguments.");
+                        body.put("Response", response);
                     }
                 } else if (command.equalsIgnoreCase("adjacent")) {
                     if (args.length() == 1 && args.getString(0).equalsIgnoreCase("show") && hasReadPermissions(key_permissions)) {
                         body.put("Response", Util.getAdjacentTableInJSON());
                     } else if (args.length() == 0 && hasReadPermissions(key_permissions)) {
                         body.put("Response", Util.getAdjacentTableInJSON());
+                    } else if (!hasReadPermissions(key_permissions)) {
+                        response.put("Message", "Error!!\n \tIncorrect permissions.");
+                        body.put("Response", response);
                     } else {
-                        body.put("Response", "Incorrect permissions or arguments!!");
-
+                        response.put("Message", "Error!!\n \tIncorrect arguments.");
+                        body.put("Response", response);
                     }
                 } else if (command.equalsIgnoreCase("service")) {
-                    JSONObject response = new JSONObject();
+
                     if (args.length() == 2 && hasExecutePermissions(key_permissions)) {
                         if (args.getString(0).equalsIgnoreCase("PING-SERVER")) {
                             if (args.getString(1).equalsIgnoreCase("start")) {
@@ -266,9 +276,12 @@ public class APIHandler implements Runnable {
                         body.put("Response", Util.getNonAdjacentTableInJSON());
                     } else if (args.length() == 0 && hasReadPermissions(key_permissions)) {
                         body.put("Response", Util.getNonAdjacentTableInJSON());
+                    } else if (!hasReadPermissions(key_permissions)) {
+                        response.put("Message", "Error!!\n \tIncorrect permissions.");
+                        body.put("Response", response);
                     } else {
-                        body.put("Response", "Incorrect permissions or arguments!!");
-
+                        response.put("Message", "Error!!\n \tIncorrect arguments.");
+                        body.put("Response", response);
                     }
                 } else if (command.equalsIgnoreCase("nodes")) {
                     if (args.length() == 0
@@ -331,9 +344,12 @@ public class APIHandler implements Runnable {
                             && hasReadPermissions(key_permissions)) {
                         //nodes show
                         body.put("Response", Util.getAllLiveNodesInJSON());
+                    } else if (!hasReadPermissions(key_permissions)) {
+                        response.put("Message", "Error!!\n \tIncorrect permissions.");
+                        body.put("Response", response);
                     } else {
-                        body.put("Response", "Incorrect permissions or arguments!!");
-
+                        response.put("Message", "Error!!\n \tIncorrect arguments.");
+                        body.put("Response", response);
                     }
                 } else if (command.equalsIgnoreCase("help")) {
                     StringBuilder helpMessage = new StringBuilder();
@@ -362,10 +378,101 @@ public class APIHandler implements Runnable {
                         body.put("Response", helpMessage.toString());
                     } else if (args.length() == 0 && hasReadPermissions(key_permissions)) {
                         body.put("Response", helpMessage.toString());
+                    } else if (!hasReadPermissions(key_permissions)) {
+                        response.put("Message", "Error!!\n \tIncorrect permissions.");
+                        body.put("Response", response);
                     } else {
-                        body.put("Response", "Incorrect permissions or arguments!!");
-
+                        response.put("Message", "Error!!\n \tIncorrect arguments.");
+                        body.put("Response", response);
                     }
+                } else if (command.equalsIgnoreCase("set")) {
+
+                    if (args.length() == 2 && args.getString(0).equalsIgnoreCase("VERBOSE") && hasWritePermissions(key_permissions)) {
+                        GlobalValues.VERBOSE = args.getBoolean(1);
+                        response.put("VERBOSE", GlobalValues.VERBOSE);
+
+                    } else if (args.length() == 2 && args.getString(0).equalsIgnoreCase("DUMP_LOG") && hasWritePermissions(key_permissions)) {
+                        GlobalValues.DUMP_LOG = args.getBoolean(1);
+                        response.put("DUMP_LOG", GlobalValues.DUMP_LOG);
+
+                    } else if (args.length() == 2 && args.getString(0).equalsIgnoreCase("TOTAL_THREADS") && hasWritePermissions(key_permissions)) {
+                        GlobalValues.TOTAL_THREADS = args.getInt(1);
+                        response.put("TOTAL_THREADS", GlobalValues.TOTAL_THREADS);
+
+                    } else if (args.length() == 2 && args.getString(0).equalsIgnoreCase("FILES_RESOLVER_LIMIT") && hasWritePermissions(key_permissions)) {
+                        GlobalValues.FILES_RESOLVER_LIMIT = args.getInt(1);
+                        response.put("FILES_RESOLVER_LIMIT", GlobalValues.FILES_RESOLVER_LIMIT);
+
+                    } else if (args.length() == 2 && args.getString(0).equalsIgnoreCase("FILE_HANDLER_LIMIT") && hasWritePermissions(key_permissions)) {
+                        GlobalValues.FILE_HANDLER_LIMIT = args.getInt(1);
+                        response.put("FILE_HANDLER_LIMIT", GlobalValues.FILE_HANDLER_LIMIT);
+
+                    } else if (args.length() == 2 && args.getString(0).equalsIgnoreCase("PING_HANDLER_LIMIT") && hasWritePermissions(key_permissions)) {
+                        GlobalValues.PING_HANDLER_LIMIT = args.getInt(1);
+                        response.put("PING_HANDLER_LIMIT", GlobalValues.PING_HANDLER_LIMIT);
+
+                    } else if (args.length() == 2 && args.getString(0).equalsIgnoreCase("PING_REQUEST_LIMIT") && hasWritePermissions(key_permissions)) {
+                        GlobalValues.PING_REQUEST_LIMIT = args.getInt(1);
+                        response.put("PING_REQUEST_LIMIT", GlobalValues.PING_REQUEST_LIMIT);
+
+                    } else if (args.length() == 2 && args.getString(0).equalsIgnoreCase("API_HANDLER_LIMIT") && hasWritePermissions(key_permissions)) {
+                        GlobalValues.API_HANDLER_LIMIT = args.getInt(1);
+                        response.put("API_HANDLER_LIMIT", GlobalValues.API_HANDLER_LIMIT);
+
+                    } else if (args.length() == 2 && args.getString(0).equalsIgnoreCase("TASK_HANDLER_LIMIT") && hasWritePermissions(key_permissions)) {
+                        GlobalValues.TASK_HANDLER_LIMIT = args.getInt(1);
+                        response.put("TASK_HANDLER_LIMIT", GlobalValues.TASK_HANDLER_LIMIT);
+
+                    } else if (args.length() == 2 && args.getString(0).equalsIgnoreCase("TASK_FINISH_LISTENER_HANDLER_LIMIT") && hasWritePermissions(key_permissions)) {
+                        GlobalValues.TASK_FINISH_LISTENER_HANDLER_LIMIT = args.getInt(1);
+                        response.put("TASK_FINISH_LISTENER_HANDLER_LIMIT", GlobalValues.TASK_FINISH_LISTENER_HANDLER_LIMIT);
+
+                    } else if (args.length() == 2 && args.getString(0).equalsIgnoreCase("TASK_LIMIT") && hasWritePermissions(key_permissions)) {
+                        GlobalValues.TASK_LIMIT = args.getInt(1);
+                        response.put("TASK_LIMIT", GlobalValues.TASK_LIMIT);
+
+                    } else if (args.length() == 2 && args.getString(0).equalsIgnoreCase("PING_SERVER_ENABLED_AT_START") && hasWritePermissions(key_permissions)) {
+                        GlobalValues.PING_SERVER_ENABLED_AT_START = args.getBoolean(1);
+                        response.put("PING_SERVER_ENABLED_AT_START", GlobalValues.PING_SERVER_ENABLED_AT_START);
+
+                    } else if (args.length() == 2 && args.getString(0).equalsIgnoreCase("LOG_ROTATE_ENABLED_AT_START") && hasWritePermissions(key_permissions)) {
+                        GlobalValues.LOG_ROTATE_ENABLED_AT_START = args.getBoolean(1);
+                        response.put("LOG_ROTATE_ENABLED_AT_START", GlobalValues.LOG_ROTATE_ENABLED_AT_START);
+
+                    } else if (args.length() == 2 && args.getString(0).equalsIgnoreCase("API_SERVER_ENABLED_AT_START") && hasWritePermissions(key_permissions)) {
+                        GlobalValues.API_SERVER_ENABLED_AT_START = args.getBoolean(1);
+                        response.put("API_SERVER_ENABLED_AT_START", GlobalValues.API_SERVER_ENABLED_AT_START);
+
+                    } else if (args.length() == 2 && args.getString(0).equalsIgnoreCase("FILE_DOWNLOAD_SERVER_ENABLED_AT_START") && hasWritePermissions(key_permissions)) {
+                        GlobalValues.FILE_DOWNLOAD_SERVER_ENABLED_AT_START = args.getBoolean(1);
+                        response.put("FILE_DOWNLOAD_SERVER_ENABLED_AT_START", GlobalValues.FILE_DOWNLOAD_SERVER_ENABLED_AT_START);
+
+                    } else if (args.length() == 2 && args.getString(0).equalsIgnoreCase("FILE_SERVER_ENABLED_AT_START") && hasWritePermissions(key_permissions)) {
+                        GlobalValues.FILE_SERVER_ENABLED_AT_START = args.getBoolean(1);
+                        response.put("FILE_SERVER_ENABLED_AT_START", GlobalValues.FILE_SERVER_ENABLED_AT_START);
+
+                    } else if (args.length() == 2 && args.getString(0).equalsIgnoreCase("TASK_SERVER_ENABLED_AT_START") && hasWritePermissions(key_permissions)) {
+                        GlobalValues.TASK_SERVER_ENABLED_AT_START = args.getBoolean(1);
+                        response.put("TASK_SERVER_ENABLED_AT_START", GlobalValues.TASK_SERVER_ENABLED_AT_START);
+
+                    } else if (args.length() == 2 && args.getString(0).equalsIgnoreCase("NODE_SCANNER_ENABLED_AT_START") && hasWritePermissions(key_permissions)) {
+                        GlobalValues.NODE_SCANNER_ENABLED_AT_START = args.getBoolean(1);
+                        response.put("NODE_SCANNER_ENABLED_AT_START", GlobalValues.NODE_SCANNER_ENABLED_AT_START);
+
+                    } else if (args.length() == 2 && args.getString(0).equalsIgnoreCase("LIVE_NODE_SCANNER_ENABLED_AT_START") && hasWritePermissions(key_permissions)) {
+                        GlobalValues.LIVE_NODE_SCANNER_ENABLED_AT_START = args.getBoolean(1);
+                        response.put("LIVE_NODE_SCANNER_ENABLED_AT_START", GlobalValues.LIVE_NODE_SCANNER_ENABLED_AT_START);
+
+                    } else if (args.length() == 2 && args.getString(0).equalsIgnoreCase("TASK_FINISH_LISTENER_SERVER_ENABLED_AT_START") && hasWritePermissions(key_permissions)) {
+                        GlobalValues.TASK_FINISH_LISTENER_SERVER_ENABLED_AT_START = args.getBoolean(1);
+                        response.put("TASK_FINISH_LISTENER_SERVER_ENABLED_AT_START", GlobalValues.TASK_FINISH_LISTENER_SERVER_ENABLED_AT_START);
+
+                    } else if (!hasWritePermissions(key_permissions)) {
+                        response.put("Message", "Error!!\n \tIncorrect permissions.");
+                    } else {
+                        response.put("Message", "Error!!\n \tIncorrect arguments.");
+                    }
+                    body.put("Response", response);
                 } else {
                     body.put("Response", "Command not available!!");
                 }

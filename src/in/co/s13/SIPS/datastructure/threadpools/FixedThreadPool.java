@@ -47,9 +47,11 @@ public class FixedThreadPool {
     }
 
     public void changeSize(int size) {
-        this.shutdown();
-        this.size = size;
-        restart();
+        if (this.size != size) {
+            this.shutdown();
+            this.size = size;
+            restart();
+        }
     }
 
     public void restart() {
