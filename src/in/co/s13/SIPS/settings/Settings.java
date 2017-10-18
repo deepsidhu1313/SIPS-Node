@@ -30,7 +30,6 @@ import static in.co.s13.SIPS.tools.Util.isMac;
 import static in.co.s13.SIPS.tools.Util.isSolaris;
 import static in.co.s13.SIPS.tools.Util.isUnix;
 import static in.co.s13.SIPS.tools.Util.isWindows;
-import static in.co.s13.SIPS.tools.Util.readFile;
 import static in.co.s13.SIPS.tools.Util.write;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;

@@ -17,6 +17,7 @@
 package in.co.s13.SIPS.executor.sockets.handlers;
 
 import in.co.s13.SIPS.settings.GlobalValues;
+import in.co.s13.SIPS.settings.Settings;
 import in.co.s13.SIPS.tools.ServiceOperations;
 import static in.co.s13.SIPS.tools.ServiceOperations.restartApiServer;
 import static in.co.s13.SIPS.tools.ServiceOperations.restartFileServer;
@@ -373,11 +374,17 @@ public class APIHandler implements Runnable {
                                     + "CPU_MONTE_CARLO,CPU_FFT,CPU_LU,CPU_SOR,CPU_SPARSE_MAT_MUL,PROCESSOR\n"
                                     + "\t\t\t\t\torder:\n"
                                     + "\t\t\t\t\t\tasc: (default) ordered in ascending order\n"
-                                    + "\t\t\t\t\t\tdesc: ordered in decending order\n");
+                                    + "\t\t\t\t\t\tdesc: ordered in decending order\n"
+                                    + "\tset:\n"
+                                    + "\tformat:set <key> <value>\n"
+                                    + "\tExamples:\n"
+                                    + "");
                     if (args.length() > 0 && args.getString(0).equalsIgnoreCase("show") && hasReadPermissions(key_permissions)) {
-                        body.put("Response", helpMessage.toString());
+                        response.put("Message", helpMessage.toString());
+                        body.put("Response", response);
                     } else if (args.length() == 0 && hasReadPermissions(key_permissions)) {
-                        body.put("Response", helpMessage.toString());
+                        response.put("Message", helpMessage.toString());
+                        body.put("Response", response);
                     } else if (!hasReadPermissions(key_permissions)) {
                         response.put("Message", "Error!!\n \tIncorrect permissions.");
                         body.put("Response", response);
@@ -471,6 +478,95 @@ public class APIHandler implements Runnable {
                         response.put("Message", "Error!!\n \tIncorrect permissions.");
                     } else {
                         response.put("Message", "Error!!\n \tIncorrect arguments.");
+                    }
+                    body.put("Response", response);
+                    Settings.saveSettings();
+                } else if (command.equalsIgnoreCase("get")) {
+
+                    if (args.length() == 1 && args.getString(0).equalsIgnoreCase("VERBOSE") && hasReadPermissions(key_permissions)) {
+                        response.put("VERBOSE", GlobalValues.VERBOSE);
+
+                    } else if (args.length() == 1 && args.getString(0).equalsIgnoreCase("DUMP_LOG") && hasReadPermissions(key_permissions)) {
+                        response.put("DUMP_LOG", GlobalValues.DUMP_LOG);
+
+                    } else if (args.length() == 1 && args.getString(0).equalsIgnoreCase("TOTAL_IP_SCANNING_THREADS") && hasReadPermissions(key_permissions)) {
+                        response.put("TOTAL_IP_SCANNING_THREADS", GlobalValues.TOTAL_IP_SCANNING_THREADS);
+
+                    } else if (args.length() == 1 && args.getString(0).equalsIgnoreCase("FILES_RESOLVER_LIMIT") && hasReadPermissions(key_permissions)) {
+                        response.put("FILES_RESOLVER_LIMIT", GlobalValues.FILES_RESOLVER_LIMIT);
+
+                    } else if (args.length() == 1 && args.getString(0).equalsIgnoreCase("FILE_HANDLER_LIMIT") && hasReadPermissions(key_permissions)) {
+                        response.put("FILE_HANDLER_LIMIT", GlobalValues.FILE_HANDLER_LIMIT);
+
+                    } else if (args.length() == 1 && args.getString(0).equalsIgnoreCase("PING_HANDLER_LIMIT") && hasReadPermissions(key_permissions)) {
+                        response.put("PING_HANDLER_LIMIT", GlobalValues.PING_HANDLER_LIMIT);
+
+                    } else if (args.length() == 1 && args.getString(0).equalsIgnoreCase("PING_REQUEST_LIMIT") && hasReadPermissions(key_permissions)) {
+                        response.put("PING_REQUEST_LIMIT", GlobalValues.PING_REQUEST_LIMIT);
+
+                    } else if (args.length() == 1 && args.getString(0).equalsIgnoreCase("API_HANDLER_LIMIT") && hasReadPermissions(key_permissions)) {
+                        response.put("API_HANDLER_LIMIT", GlobalValues.API_HANDLER_LIMIT);
+
+                    } else if (args.length() == 1 && args.getString(0).equalsIgnoreCase("TASK_HANDLER_LIMIT") && hasReadPermissions(key_permissions)) {
+                        response.put("TASK_HANDLER_LIMIT", GlobalValues.TASK_HANDLER_LIMIT);
+
+                    } else if (args.length() == 1 && args.getString(0).equalsIgnoreCase("TASK_FINISH_LISTENER_HANDLER_LIMIT") && hasReadPermissions(key_permissions)) {
+                        response.put("TASK_FINISH_LISTENER_HANDLER_LIMIT", GlobalValues.TASK_FINISH_LISTENER_HANDLER_LIMIT);
+
+                    } else if (args.length() == 1 && args.getString(0).equalsIgnoreCase("TASK_LIMIT") && hasReadPermissions(key_permissions)) {
+                        response.put("TASK_LIMIT", GlobalValues.TASK_LIMIT);
+
+                    } else if (args.length() == 1 && args.getString(0).equalsIgnoreCase("PING_SERVER_ENABLED_AT_START") && hasReadPermissions(key_permissions)) {
+                        response.put("PING_SERVER_ENABLED_AT_START", GlobalValues.PING_SERVER_ENABLED_AT_START);
+
+                    } else if (args.length() == 1 && args.getString(0).equalsIgnoreCase("LOG_ROTATE_ENABLED_AT_START") && hasReadPermissions(key_permissions)) {
+                        response.put("LOG_ROTATE_ENABLED_AT_START", GlobalValues.LOG_ROTATE_ENABLED_AT_START);
+
+                    } else if (args.length() == 1 && args.getString(0).equalsIgnoreCase("API_SERVER_ENABLED_AT_START") && hasReadPermissions(key_permissions)) {
+                        response.put("API_SERVER_ENABLED_AT_START", GlobalValues.API_SERVER_ENABLED_AT_START);
+
+                    } else if (args.length() == 1 && args.getString(0).equalsIgnoreCase("FILE_DOWNLOAD_SERVER_ENABLED_AT_START") && hasReadPermissions(key_permissions)) {
+                        response.put("FILE_DOWNLOAD_SERVER_ENABLED_AT_START", GlobalValues.FILE_DOWNLOAD_SERVER_ENABLED_AT_START);
+
+                    } else if (args.length() == 1 && args.getString(0).equalsIgnoreCase("FILE_SERVER_ENABLED_AT_START") && hasReadPermissions(key_permissions)) {
+                        response.put("FILE_SERVER_ENABLED_AT_START", GlobalValues.FILE_SERVER_ENABLED_AT_START);
+
+                    } else if (args.length() == 1 && args.getString(0).equalsIgnoreCase("TASK_SERVER_ENABLED_AT_START") && hasReadPermissions(key_permissions)) {
+                        response.put("TASK_SERVER_ENABLED_AT_START", GlobalValues.TASK_SERVER_ENABLED_AT_START);
+
+                    } else if (args.length() == 1 && args.getString(0).equalsIgnoreCase("NODE_SCANNER_ENABLED_AT_START") && hasReadPermissions(key_permissions)) {
+                        response.put("NODE_SCANNER_ENABLED_AT_START", GlobalValues.NODE_SCANNER_ENABLED_AT_START);
+
+                    } else if (args.length() == 1 && args.getString(0).equalsIgnoreCase("LIVE_NODE_SCANNER_ENABLED_AT_START") && hasReadPermissions(key_permissions)) {
+                        response.put("LIVE_NODE_SCANNER_ENABLED_AT_START", GlobalValues.LIVE_NODE_SCANNER_ENABLED_AT_START);
+
+                    } else if (args.length() == 1 && args.getString(0).equalsIgnoreCase("TASK_FINISH_LISTENER_SERVER_ENABLED_AT_START") && hasReadPermissions(key_permissions)) {
+                        response.put("TASK_FINISH_LISTENER_SERVER_ENABLED_AT_START", GlobalValues.TASK_FINISH_LISTENER_SERVER_ENABLED_AT_START);
+
+                    } else if (!hasReadPermissions(key_permissions)) {
+                        response.put("Message", "Error!!\n \tIncorrect permissions.");
+                    } else {
+                        response.put("VERBOSE", GlobalValues.VERBOSE);
+                        response.put("DUMP_LOG", GlobalValues.DUMP_LOG);
+                        response.put("TOTAL_IP_SCANNING_THREADS", GlobalValues.TOTAL_IP_SCANNING_THREADS);
+                        response.put("FILES_RESOLVER_LIMIT", GlobalValues.FILES_RESOLVER_LIMIT);
+                        response.put("FILE_HANDLER_LIMIT", GlobalValues.FILE_HANDLER_LIMIT);
+                        response.put("PING_HANDLER_LIMIT", GlobalValues.PING_HANDLER_LIMIT);
+                        response.put("PING_REQUEST_LIMIT", GlobalValues.PING_REQUEST_LIMIT);
+                        response.put("API_HANDLER_LIMIT", GlobalValues.API_HANDLER_LIMIT);
+                        response.put("TASK_HANDLER_LIMIT", GlobalValues.TASK_HANDLER_LIMIT);
+                        response.put("TASK_FINISH_LISTENER_HANDLER_LIMIT", GlobalValues.TASK_FINISH_LISTENER_HANDLER_LIMIT);
+                        response.put("TASK_LIMIT", GlobalValues.TASK_LIMIT);
+                        response.put("PING_SERVER_ENABLED_AT_START", GlobalValues.PING_SERVER_ENABLED_AT_START);
+                        response.put("LOG_ROTATE_ENABLED_AT_START", GlobalValues.LOG_ROTATE_ENABLED_AT_START);
+                        response.put("API_SERVER_ENABLED_AT_START", GlobalValues.API_SERVER_ENABLED_AT_START);
+                        response.put("FILE_DOWNLOAD_SERVER_ENABLED_AT_START", GlobalValues.FILE_DOWNLOAD_SERVER_ENABLED_AT_START);
+                        response.put("FILE_SERVER_ENABLED_AT_START", GlobalValues.FILE_SERVER_ENABLED_AT_START);
+                        response.put("TASK_SERVER_ENABLED_AT_START", GlobalValues.TASK_SERVER_ENABLED_AT_START);
+                        response.put("NODE_SCANNER_ENABLED_AT_START", GlobalValues.NODE_SCANNER_ENABLED_AT_START);
+                        response.put("LIVE_NODE_SCANNER_ENABLED_AT_START", GlobalValues.LIVE_NODE_SCANNER_ENABLED_AT_START);
+                        response.put("TASK_FINISH_LISTENER_SERVER_ENABLED_AT_START", GlobalValues.TASK_FINISH_LISTENER_SERVER_ENABLED_AT_START);
+
                     }
                     body.put("Response", response);
                 } else {
