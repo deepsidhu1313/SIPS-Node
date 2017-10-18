@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -138,8 +137,11 @@ public class TaskServer implements Runnable {
         if (!d4.exists()) {
             d4.mkdir();
         }
-
-        GlobalValues.TASK_HANDLER_EXECUTOR_SERVICE = new FixedThreadPool(GlobalValues.TASK_HANDLER_LIMIT);
+        if (GlobalValues.TASK_HANDLER_EXECUTOR_SERVICE == null || GlobalValues.TASK_HANDLER_EXECUTOR_SERVICE.isShutdown()) {
+            GlobalValues.TASK_HANDLER_EXECUTOR_SERVICE = new FixedThreadPool(GlobalValues.TASK_HANDLER_LIMIT);
+        } else {
+            GlobalValues.TASK_HANDLER_EXECUTOR_SERVICE.changeSize(GlobalValues.TASK_HANDLER_LIMIT);
+        }
     }
 
     @Override

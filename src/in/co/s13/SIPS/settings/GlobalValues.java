@@ -90,7 +90,7 @@ public class GlobalValues {
     /**
      * Executor Limits
      */
-    public static int TOTAL_THREADS = 3;
+    public static int TOTAL_IP_SCANNING_THREADS = 3;
     public static int FILES_RESOLVER_LIMIT = 10;
     public static int FILE_HANDLER_LIMIT = 10;
     public static int PING_HANDLER_LIMIT = 10;

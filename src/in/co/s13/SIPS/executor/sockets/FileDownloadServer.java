@@ -16,14 +16,12 @@
  */
 package in.co.s13.SIPS.executor.sockets;
 
-import in.co.s13.SIPS.datastructure.FileDownQueReq;
 import in.co.s13.SIPS.datastructure.threadpools.FixedThreadPool;
 import in.co.s13.SIPS.executor.sockets.handlers.FileDownloadHandler;
 import in.co.s13.SIPS.settings.GlobalValues;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,7 +33,11 @@ public class FileDownloadServer implements Runnable {
 
 //     public static ArrayList<FileDownQueReq> downQue = new ArrayList();
     public FileDownloadServer() {
-        GlobalValues.FILE_DOWNLOAD_HANDLER_EXECUTOR_SERVICE = new FixedThreadPool(GlobalValues.FILES_RESOLVER_LIMIT);
+        if (GlobalValues.FILE_DOWNLOAD_HANDLER_EXECUTOR_SERVICE == null || GlobalValues.FILE_DOWNLOAD_HANDLER_EXECUTOR_SERVICE.isShutdown()) {
+            GlobalValues.FILE_DOWNLOAD_HANDLER_EXECUTOR_SERVICE = new FixedThreadPool(GlobalValues.FILES_RESOLVER_LIMIT);
+        } else {
+            GlobalValues.FILE_DOWNLOAD_HANDLER_EXECUTOR_SERVICE.changeSize(GlobalValues.FILES_RESOLVER_LIMIT);
+        }
     }
 
     @Override

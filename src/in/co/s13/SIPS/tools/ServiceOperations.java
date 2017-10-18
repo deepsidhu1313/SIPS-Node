@@ -18,6 +18,7 @@ package in.co.s13.SIPS.tools;
 
 import in.co.s13.SIPS.Scanner.ScheduledLiveNodeScanner;
 import in.co.s13.SIPS.Scanner.ScheduledNodeScanner;
+import in.co.s13.SIPS.datastructure.threadpools.FixedThreadPool;
 import in.co.s13.SIPS.executor.sockets.APIServer;
 import in.co.s13.SIPS.executor.sockets.FileDownloadServer;
 import in.co.s13.SIPS.executor.sockets.FileServer;
@@ -25,6 +26,8 @@ import in.co.s13.SIPS.executor.sockets.PingServer;
 import in.co.s13.SIPS.executor.sockets.TaskFinishListenerServer;
 import in.co.s13.SIPS.executor.sockets.TaskServer;
 import in.co.s13.SIPS.settings.GlobalValues;
+import static in.co.s13.SIPS.settings.GlobalValues.PING_REQUEST_LIMIT;
+import static in.co.s13.SIPS.settings.GlobalValues.TASK_LIMIT;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -102,6 +105,11 @@ public class ServiceOperations {
     }
 
     public static synchronized void startTaskServer() {
+        if (GlobalValues.TASK_EXECUTOR == null || GlobalValues.TASK_EXECUTOR.isShutdown()) {
+            GlobalValues.TASK_EXECUTOR = new FixedThreadPool(TASK_LIMIT);
+        } else {
+            GlobalValues.TASK_EXECUTOR.changeSize(TASK_LIMIT);
+        }
         GlobalValues.TASK_SERVER_IS_RUNNING = true;
         if ((GlobalValues.TASK_SERVER_SOCKET == null || GlobalValues.TASK_SERVER_SOCKET.isClosed()) && (GlobalValues.TASK_SERVER_THREAD == null || !GlobalValues.TASK_SERVER_THREAD.isAlive())) {
             GlobalValues.TASK_SERVER_THREAD = new Thread(new TaskServer());
@@ -193,6 +201,16 @@ public class ServiceOperations {
 
     public static synchronized void startLiveNodeScanner() {
         //(GlobalValues.KEEP_LIVE_NODE_SCANNER_ALIVE == false) &&
+        if (GlobalValues.NETWORK_EXECUTOR == null || GlobalValues.NETWORK_EXECUTOR.isShutdown()) {
+            GlobalValues.NETWORK_EXECUTOR = new FixedThreadPool(GlobalValues.TOTAL_IP_SCANNING_THREADS);
+        } else {
+            GlobalValues.NETWORK_EXECUTOR.changeSize(GlobalValues.TOTAL_IP_SCANNING_THREADS);
+        }
+        if (GlobalValues.PING_REQUEST_EXECUTOR == null || GlobalValues.PING_REQUEST_EXECUTOR.isShutdown()) {
+            GlobalValues.PING_REQUEST_EXECUTOR = new FixedThreadPool(PING_REQUEST_LIMIT);
+        } else {
+            GlobalValues.PING_REQUEST_EXECUTOR.changeSize(PING_REQUEST_LIMIT);
+        }
         if ((GlobalValues.CHECK_LIVE_NODE_THREAD == null || !GlobalValues.CHECK_LIVE_NODE_THREAD.isAlive())) {
             GlobalValues.KEEP_LIVE_NODE_SCANNER_ALIVE = true;
             GlobalValues.CHECK_LIVE_NODE_THREAD = new Thread(new ScheduledLiveNodeScanner());
@@ -227,6 +245,16 @@ public class ServiceOperations {
 
     public static synchronized void startNodeScanner() {
         //(GlobalValues.KEEP_NODE_SCANNER_ALIVE == false) &&
+        if (GlobalValues.NETWORK_EXECUTOR == null || GlobalValues.NETWORK_EXECUTOR.isShutdown()) {
+            GlobalValues.NETWORK_EXECUTOR = new FixedThreadPool(GlobalValues.TOTAL_IP_SCANNING_THREADS);
+        } else {
+            GlobalValues.NETWORK_EXECUTOR.changeSize(GlobalValues.TOTAL_IP_SCANNING_THREADS);
+        }
+        if (GlobalValues.PING_REQUEST_EXECUTOR == null || GlobalValues.PING_REQUEST_EXECUTOR.isShutdown()) {
+            GlobalValues.PING_REQUEST_EXECUTOR = new FixedThreadPool(PING_REQUEST_LIMIT);
+        } else {
+            GlobalValues.PING_REQUEST_EXECUTOR.changeSize(PING_REQUEST_LIMIT);
+        }
         if ((GlobalValues.NODE_SCANNING_THREAD == null || !GlobalValues.NODE_SCANNING_THREAD.isAlive())) {
             GlobalValues.KEEP_NODE_SCANNER_ALIVE = true;
             GlobalValues.NODE_SCANNING_THREAD = new Thread(new ScheduledNodeScanner());

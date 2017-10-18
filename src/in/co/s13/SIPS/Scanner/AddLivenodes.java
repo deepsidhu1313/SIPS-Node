@@ -19,8 +19,8 @@ package in.co.s13.SIPS.Scanner;
 import in.co.s13.SIPS.settings.GlobalValues;
 import static in.co.s13.SIPS.tools.Util.outPrintln;
 import static in.co.s13.SIPS.settings.GlobalValues.HOSTS;
-import static in.co.s13.SIPS.settings.GlobalValues.TOTAL_THREADS;
 import static in.co.s13.SIPS.settings.GlobalValues.NETWORK_EXECUTOR;
+import static in.co.s13.SIPS.settings.GlobalValues.TOTAL_IP_SCANNING_THREADS;
 
 public class AddLivenodes implements Runnable {
 
@@ -31,7 +31,7 @@ public class AddLivenodes implements Runnable {
     @Override
     public void run() {
         Thread.currentThread().setName("AddLiveNodeThread");
-        int threads = TOTAL_THREADS;
+        int threads = TOTAL_IP_SCANNING_THREADS;
 //        ArrayList hst = new ArrayList(NetScanner.HOSTS);
         int nodes = GlobalValues.HOSTS.size();
         //static boolean addnodes = true;

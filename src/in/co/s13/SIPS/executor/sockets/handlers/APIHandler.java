@@ -395,9 +395,9 @@ public class APIHandler implements Runnable {
                         GlobalValues.DUMP_LOG = args.getBoolean(1);
                         response.put("DUMP_LOG", GlobalValues.DUMP_LOG);
 
-                    } else if (args.length() == 2 && args.getString(0).equalsIgnoreCase("TOTAL_THREADS") && hasWritePermissions(key_permissions)) {
-                        GlobalValues.TOTAL_THREADS = args.getInt(1);
-                        response.put("TOTAL_THREADS", GlobalValues.TOTAL_THREADS);
+                    } else if (args.length() == 2 && args.getString(0).equalsIgnoreCase("TOTAL_IP_SCANNING_THREADS") && hasWritePermissions(key_permissions)) {
+                        GlobalValues.TOTAL_IP_SCANNING_THREADS = args.getInt(1);
+                        response.put("TOTAL_IP_SCANNING_THREADS", GlobalValues.TOTAL_IP_SCANNING_THREADS);
 
                     } else if (args.length() == 2 && args.getString(0).equalsIgnoreCase("FILES_RESOLVER_LIMIT") && hasWritePermissions(key_permissions)) {
                         GlobalValues.FILES_RESOLVER_LIMIT = args.getInt(1);

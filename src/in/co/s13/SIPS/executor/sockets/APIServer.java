@@ -18,14 +18,11 @@ package in.co.s13.SIPS.executor.sockets;
 
 import in.co.s13.SIPS.datastructure.threadpools.FixedThreadPool;
 import in.co.s13.SIPS.executor.sockets.handlers.APIHandler;
-import in.co.s13.SIPS.executor.sockets.handlers.PingHandler;
 import in.co.s13.SIPS.settings.GlobalValues;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Iterator;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -43,6 +40,9 @@ public class APIServer implements Runnable {
         }
         if (GlobalValues.API_HANDLER_EXECUTOR_SERVICE == null || GlobalValues.API_HANDLER_EXECUTOR_SERVICE.isShutdown()) {
             GlobalValues.API_HANDLER_EXECUTOR_SERVICE = new FixedThreadPool(GlobalValues.API_HANDLER_LIMIT);
+        }else{
+            GlobalValues.API_HANDLER_EXECUTOR_SERVICE.changeSize(GlobalValues.API_HANDLER_LIMIT);
+        
         }
     }
 

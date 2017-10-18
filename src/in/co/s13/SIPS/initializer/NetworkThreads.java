@@ -42,7 +42,7 @@ import java.security.Provider;
 public class NetworkThreads {
 
     public NetworkThreads() {
-        GlobalValues.NETWORK_EXECUTOR = new FixedThreadPool(TASK_LIMIT);
+        GlobalValues.NETWORK_EXECUTOR = new FixedThreadPool(GlobalValues.TOTAL_IP_SCANNING_THREADS);
         GlobalValues.TASK_EXECUTOR = new FixedThreadPool(TASK_LIMIT);
         GlobalValues.PING_REQUEST_EXECUTOR = new FixedThreadPool(PING_REQUEST_LIMIT);
         NetScanner ns = new NetScanner();

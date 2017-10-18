@@ -32,7 +32,12 @@ import java.util.logging.Logger;
 public class FileServer implements Runnable {
 
     public FileServer() {
-        GlobalValues.FILE_HANDLER_EXECUTOR_SERVICE = new FixedThreadPool(GlobalValues.FILE_HANDLER_LIMIT);
+        if (GlobalValues.FILE_HANDLER_EXECUTOR_SERVICE == null || GlobalValues.FILE_HANDLER_EXECUTOR_SERVICE.isShutdown()) {
+            GlobalValues.FILE_HANDLER_EXECUTOR_SERVICE = new FixedThreadPool(GlobalValues.FILE_HANDLER_LIMIT);
+        } else {
+            GlobalValues.FILE_HANDLER_EXECUTOR_SERVICE.changeSize(GlobalValues.FILE_HANDLER_LIMIT);
+
+        }
 
     }
 
