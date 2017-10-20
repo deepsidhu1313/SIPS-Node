@@ -169,7 +169,8 @@ class Ping implements Runnable {
                     while (keys.hasNext()) {
                         String key = keys.next();
                         long dis = adjacentNodes.getLong(key, Long.MIN_VALUE);
-                        if (!ADJACENT_NODES_TABLE.containsKey(key)) {
+//                        if (!ADJACENT_NODES_TABLE.containsKey(key)) 
+                        {
                             if (NON_ADJACENT_NODES_TABLE.containsKey(key)) {
                                 NON_ADJACENT_NODES_TABLE.get(key).addHop(new Hop(uuid, dis + distance));
                             } else {
@@ -182,7 +183,8 @@ class Ping implements Runnable {
                     while (keys2.hasNext()) {
                         String key = keys2.next();
                         long dis = nonAdjacentNodes.getLong(key, Long.MIN_VALUE);
-                        if (!ADJACENT_NODES_TABLE.containsKey(key)) {
+//                        if (!ADJACENT_NODES_TABLE.containsKey(key)) 
+                        {
                             if (NON_ADJACENT_NODES_TABLE.containsKey(key)) {
                                 NON_ADJACENT_NODES_TABLE.get(key).addHop(new Hop(uuid, dis + distance));
                             } else {
@@ -202,9 +204,9 @@ class Ping implements Runnable {
                                 LIVE_NODE_ADJ_DB.put(key, new LiveDBRow(othLiveNo));
 
                             }
-                            if (GlobalValues.LIVE_NODE_NON_ADJ_DB.containsKey(key)) {
-                                GlobalValues.LIVE_NODE_NON_ADJ_DB.remove(key);
-                            }
+//                            if (GlobalValues.LIVE_NODE_NON_ADJ_DB.containsKey(key)) {
+//                                GlobalValues.LIVE_NODE_NON_ADJ_DB.remove(key);
+//                            }
 
                         } else {
                             if (GlobalValues.LIVE_NODE_NON_ADJ_DB.containsKey(key)) {
@@ -228,9 +230,9 @@ class Ping implements Runnable {
 
                             }
 
-                            if (GlobalValues.LIVE_NODE_NON_ADJ_DB.containsKey(key)) {
-                                GlobalValues.LIVE_NODE_NON_ADJ_DB.remove(key);
-                            }
+//                            if (GlobalValues.LIVE_NODE_NON_ADJ_DB.containsKey(key)) {
+//                                GlobalValues.LIVE_NODE_NON_ADJ_DB.remove(key);
+//                            }
                         } else {
                             if (GlobalValues.LIVE_NODE_NON_ADJ_DB.containsKey(key)) {
                                 GlobalValues.LIVE_NODE_NON_ADJ_DB.replace(key, new LiveDBRow(othLiveNo));

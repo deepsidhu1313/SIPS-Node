@@ -111,7 +111,7 @@ public class Benchmarks {
                 unitsComplete;
 
         int numOfBlocks = 32;     // desired number of blocks
-        int numOfIterations = 25;      // desired number of marks
+        int numOfIterations = 10;      // desired number of marks
         int wUnitsTotal = true ? numOfBlocks * numOfIterations : 0;
         int rUnitsTotal = true ? numOfBlocks * numOfIterations : 0;
         int unitsTotal = wUnitsTotal + rUnitsTotal;

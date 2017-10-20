@@ -111,15 +111,37 @@ public class APIHandler implements Runnable {
                     return;
                 } else if ((!GlobalValues.BLACKLIST.containsKey(ipAddress) || !GlobalValues.BLACKLIST.containsKey(clientUUID))) {
                     JSONObject keyInfo = null;
-                    if (GlobalValues.API_LIST.containsKey(clientUUID)) {
-                        keyInfo = GlobalValues.API_LIST.get(clientUUID);
+                    if (GlobalValues.API_LIST.containsKey(clientUUID.trim())) {
+                        keyInfo = GlobalValues.API_LIST.get(clientUUID.trim());
+                        if (keyInfo == null) {
+                            keyInfo = GlobalValues.API_JSON.getJSONObject(clientUUID.trim());
+                        }
                     } else if (GlobalValues.API_LIST.containsKey(ipAddress)) {
                         keyInfo = GlobalValues.API_LIST.get(ipAddress);
+                        if (keyInfo == null) {
+                            keyInfo = GlobalValues.API_JSON.getJSONObject(ipAddress);
+                        }
 
+                    } else {
+                        JSONObject sendmsg2Json = new JSONObject();
+                        sendmsg2Json.put("UUID", GlobalValues.NODE_UUID);
+                        JSONObject body = new JSONObject();
+                        JSONObject response = new JSONObject();
+                        response.put("Message", "Error!!\n \tYou are not allowed.");
+                        body.put("Response", response);
+                        sendmsg2Json.put("Body", body);
+                        String sendmsg2 = sendmsg2Json.toString();
+                        byte[] bytes2 = sendmsg2.getBytes("UTF-8");
+                        outToClient2.writeInt(bytes2.length);
+                        outToClient2.write(bytes2);
+
+                        submitter.close();
+                        return;
                     }
+                    System.out.println("" + GlobalValues.API_LIST.toString());
                     String key = keyInfo.getString("key");
                     key_permissions = keyInfo.getInt("permissions");;
-                    if (!key.equals(apiKey)) {
+                    if (!key.trim().equalsIgnoreCase(apiKey.trim())) {
                         JSONObject sendmsg2Json = new JSONObject();
                         sendmsg2Json.put("UUID", GlobalValues.NODE_UUID);
                         JSONObject body = new JSONObject();
@@ -328,13 +350,13 @@ public class APIHandler implements Runnable {
                             && hasReadPermissions(key_permissions)) {
                         //nodes show sort IP desc
                         body.put("Response", Util.getLiveNodesInJSON(2, false, args.getString(2)));
-                    } else if (args.length() == 1
+                    } else if (args.length() == 2
                             && args.getString(0).equalsIgnoreCase("show")
                             && args.getString(1).equalsIgnoreCase("adj")
                             && hasReadPermissions(key_permissions)) {
                         //nodes show adj
                         body.put("Response", Util.getAdjLiveNodesInJSON());
-                    } else if (args.length() == 1
+                    } else if (args.length() == 2
                             && args.getString(0).equalsIgnoreCase("show")
                             && args.getString(1).equalsIgnoreCase("non-adj")
                             && hasReadPermissions(key_permissions)) {

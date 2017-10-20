@@ -141,9 +141,9 @@ public class Settings {
         CPU_NAME = getCPUName();
 
         try {
-            OUT_FILE = dir_log + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "-out.log";
-            ERR_FILE = dir_log + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "-err.log";
-            LOG_FILE = dir_log + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "-app.log";
+            OUT_FILE = dir_log + "/" + (SHARED_STORAGE ? HOST_NAME + "-" : "") + "out.log";
+            ERR_FILE = dir_log + "/" + (SHARED_STORAGE ? HOST_NAME + "-" : "") + "err.log";
+            LOG_FILE = dir_log + "/" + (SHARED_STORAGE ? HOST_NAME + "-" : "") + "app.log";
 
             String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
             String prevContent = Util.readFile(ERR_FILE);
@@ -173,17 +173,18 @@ public class Settings {
     }
 
     void loadSettings() {
-        JSONObject settings = Util.readJSONFile(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "settings.json");
-        NODE_UUID = settings.getString("UUID", "");
+        JSONObject settings = Util.readJSONFile(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME + "-" : "") + "settings.json");
 
-        if (NODE_UUID.length() < 1) {
-            NODE_UUID = Util.generateNodeUUID();
-        }
         DUMP_LOG = settings.getBoolean("DUMP_LOG", true);
         VERBOSE = settings.getBoolean("VERBOSE", true);
         SHARED_STORAGE = settings.getBoolean("SHARED_STORAGE", SHARED_STORAGE);
 
-        JSONObject serviceSettings = Util.readJSONFile(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "service_settings.json");
+        JSONObject serviceSettings = Util.readJSONFile(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME + "-" : "") + "service_settings.json");
+        NODE_UUID = serviceSettings.getString("UUID", "");
+
+        if (NODE_UUID.length() < 1) {
+            NODE_UUID = Util.generateNodeUUID();
+        }
         TASK_LIMIT = serviceSettings.getInt("MAX_TASK_ALLOWED_IN_PARALLEL", 2);
         FILES_RESOLVER_LIMIT = serviceSettings.getInt("MAX_FILE_RESOLVE_IN_PARALLEL", 3);
         PING_HANDLER_LIMIT = serviceSettings.getInt("MAX_PING_RESPONSES_IN_PARALLEL", 3);
@@ -206,7 +207,7 @@ public class Settings {
         TASK_FINISH_LISTENER_SERVER_ENABLED_AT_START = serviceSettings.getBoolean("TASK_FINISH_LISTENER_ENABLED_AT_START", TASK_FINISH_LISTENER_SERVER_ENABLED_AT_START);
         LOG_ROTATE_ENABLED_AT_START = serviceSettings.getBoolean("LOG_ROTATE_ENABLED_AT_START", LOG_ROTATE_ENABLED_AT_START);
 
-        JSONObject logrotateSettings = Util.readJSONFile(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "log_rotate.json");
+        JSONObject logrotateSettings = Util.readJSONFile(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME + "-" : "") + "log_rotate.json");
         LOG_FILE_SIZE_LIMIT = logrotateSettings.getLong("LOG_FILE_SIZE_LIMIT", LOG_FILE_SIZE_LIMIT);
         LOGROTATION_INTERVAL_IN_HOURS = logrotateSettings.getLong("LOGROTATION_INTERVAL_IN_HOURS", LOGROTATION_INTERVAL_IN_HOURS);
         LAST_ROTATED_ON = logrotateSettings.getLong("LAST_ROTATED_ON", LAST_ROTATED_ON);
@@ -216,17 +217,17 @@ public class Settings {
     public static synchronized void saveSettings() {
         JSONObject settings = new JSONObject();
 
-        if (NODE_UUID.length() < 1) {
-            NODE_UUID = Util.generateNodeUUID();
-        }
-        settings.put("UUID", NODE_UUID);
-
         settings.put("DUMP_LOG", DUMP_LOG);
         settings.put("VERBOSE", VERBOSE);
         settings.put("SHARED_STORAGE", SHARED_STORAGE);
-        write(new File(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "settings.json"), settings.toString(4));
+        write(new File(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME + "-" : "") + "settings.json"), settings.toString(4));
 
         JSONObject serviceSettings = new JSONObject();
+
+        if (NODE_UUID.length() < 1) {
+            NODE_UUID = Util.generateNodeUUID();
+        }
+        serviceSettings.put("UUID", NODE_UUID);
         serviceSettings.put("MAX_TASK_ALLOWED_IN_PARALLEL", TASK_LIMIT);
         serviceSettings.put("MAX_FILE_RESOLVE_IN_PARALLEL", FILES_RESOLVER_LIMIT);
         serviceSettings.put("MAX_PING_RESPONSES_IN_PARALLEL", PING_HANDLER_LIMIT);
@@ -248,14 +249,14 @@ public class Settings {
         serviceSettings.put("LIVE_NODE_SCANNER_PERIODIC_DELAY", LIVE_NODE_SCANNER_PERIODIC_DELAY);
         serviceSettings.put("NODE_SCANNER_PERIODIC_DELAY", NODE_SCANNER_PERIODIC_DELAY);
         serviceSettings.put("LOG_ROTATE_ENABLED_AT_START", LOG_ROTATE_ENABLED_AT_START);
-        write(new File(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "service_settings.json"), serviceSettings.toString(4));
+        write(new File(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME + "-" : "") + "service_settings.json"), serviceSettings.toString(4));
 
         JSONObject logrotateSettings = new JSONObject();
         logrotateSettings.put("LOG_FILE_SIZE_LIMIT", LOG_FILE_SIZE_LIMIT);
         logrotateSettings.put("LOGROTATION_INTERVAL_IN_HOURS", LOGROTATION_INTERVAL_IN_HOURS);
         logrotateSettings.put("LAST_ROTATED_ON", LAST_ROTATED_ON);
         logrotateSettings.put("LOG_ROTATE_CHECK_FILES_EVERY", LOG_ROTATE_CHECK_FILES_EVERY);
-        write(new File(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "log_rotate.json"), logrotateSettings.toString(4));
+        write(new File(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME + "-" : "") + "log_rotate.json"), logrotateSettings.toString(4));
 
     }
 

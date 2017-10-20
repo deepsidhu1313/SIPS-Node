@@ -292,27 +292,29 @@ public class Util {
      * @return the device path
      */
     static public String getDeviceFromPath(Path path) {
+        String curDevice = "";
         try {
             Process p = Runtime.getRuntime().exec("df " + path.toString());
             p.waitFor();
             BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
             String line = reader.readLine();
-            String curDevice;
+
             while (line != null) {
                 //System.out.println(line);
-                if (line.contains("/dev/")) {
-                    curDevice = line.split(" ")[0];
+//                if (line.contains("/dev/")) 
+                {
+                    curDevice = line.split("\\s+")[0];
                     // strip the partition digit if it is numeric
                     if (curDevice.substring(curDevice.length() - 1).matches("[0-9]{1}")) {
                         curDevice = curDevice.substring(0, curDevice.length() - 1);
                     }
-                    return curDevice;
+//                    return curDevice;
                 }
                 line = reader.readLine();
             }
         } catch (IOException | InterruptedException e) {
         }
-        return null;
+        return curDevice;
     }
 
     /**
@@ -323,6 +325,7 @@ public class Util {
      * @return the disk model number
      */
     static public String getDeviceModel(String devicePath) {
+        String name="UNKNOWN";
         try {
             Process p = Runtime.getRuntime().exec("lsblk " + devicePath + " --output MODEL");
             p.waitFor();
@@ -331,13 +334,13 @@ public class Util {
             while (line != null) {
                 //System.out.println(line);
                 if (!line.equals("MODEL") && !line.trim().isEmpty()) {
-                    return line;
+                    name= line;
                 }
                 line = reader.readLine();
             }
         } catch (IOException | InterruptedException e) {
         }
-        return null;
+        return name;
     }
 
     /**

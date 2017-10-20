@@ -38,6 +38,8 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author Nika
  */
+
+
 public class DummySlave {
 
     /**
@@ -46,6 +48,7 @@ public class DummySlave {
      */
     public static void main(String[] args) throws IOException {
         Settings loadSettings = new Settings();
+        System.out.println(""+Util.getDeviceFromPath(new File(".").toPath()));
         Thread.currentThread().setName("Main");
         if (args.length > 0) {
             ArrayList<String> arguments = new ArrayList<>();
@@ -101,7 +104,7 @@ public class DummySlave {
             GlobalValues.API_LIST = new ConcurrentHashMap<>();
             while (it.hasNext()) {
                 String key = it.next();
-                GlobalValues.API_LIST.put(key, GlobalValues.API_JSON.getJSONObject(key));
+                GlobalValues.API_LIST.put(key.trim(), GlobalValues.API_JSON.getJSONObject(key));
             }
             if (arguments.contains("--gen-api")) {
                 int index = 0;
@@ -127,8 +130,10 @@ public class DummySlave {
                 info.put("permissions", permissions);
                 GlobalValues.API_JSON.put(client, info);
                 Util.write(dir_etc + "/api.json", GlobalValues.API_JSON.toString(4));
+                System.out.println(info.toString(4));
+                System.exit(0);
             }
-
+            
             if (arguments.contains("--benchmark")) {
                 benchmark();
             } else {
@@ -144,14 +149,14 @@ public class DummySlave {
                 loadSettings.saveSettings();
             } else {
                 loadSettings.init();
-
+                
             }
-
+            
             if (arguments.contains("--generate-app-uuid")) {
                 GlobalValues.NODE_UUID = Util.generateNodeUUID();
                 loadSettings.saveSettings();
             }
-
+            
             if (arguments.contains("--set-process-limit")) {
                 int limit = GlobalValues.TASK_LIMIT;
                 try {
@@ -161,12 +166,12 @@ public class DummySlave {
                             + "\n Example: --set-process-limit 10 to set limit to 10 "
                             + "Exception: " + e);
                     System.exit(1);
-
+                    
                 }
                 GlobalValues.TASK_LIMIT = limit;
                 loadSettings.saveSettings();
             }
-
+            
             if (arguments.contains("--set-file-resolvers")) {
                 int limit = GlobalValues.FILES_RESOLVER_LIMIT;
                 try {
@@ -176,12 +181,12 @@ public class DummySlave {
                             + "\n Example: --set-file-resolvers 10 to set limit to 10 "
                             + "Exception: " + e);
                     System.exit(1);
-
+                    
                 }
                 GlobalValues.FILES_RESOLVER_LIMIT = limit;
                 loadSettings.saveSettings();
             }
-
+            
             if (arguments.contains("--set-ping-handlers")) {
                 int limit = GlobalValues.PING_HANDLER_LIMIT;
                 try {
@@ -191,7 +196,7 @@ public class DummySlave {
                             + "\n Example: --set-ping-handlers 10 to set limit to 10 "
                             + "Exception: " + e);
                     System.exit(1);
-
+                    
                 }
                 GlobalValues.PING_HANDLER_LIMIT = limit;
                 loadSettings.saveSettings();
@@ -205,12 +210,12 @@ public class DummySlave {
                             + "\n Example: --set-api-handlers 10 to set limit to 10 "
                             + "Exception: " + e);
                     System.exit(1);
-
+                    
                 }
                 GlobalValues.API_HANDLER_LIMIT = limit;
                 loadSettings.saveSettings();
             }
-
+            
             if (arguments.contains("--set-process-handlers")) {
                 int limit = GlobalValues.TASK_HANDLER_LIMIT;
                 try {
@@ -220,7 +225,7 @@ public class DummySlave {
                             + "\n Example: --set-process-handlers 10 to set limit to 10 "
                             + "Exception: " + e);
                     System.exit(1);
-
+                    
                 }
                 GlobalValues.TASK_HANDLER_LIMIT = limit;
                 loadSettings.saveSettings();
@@ -242,7 +247,7 @@ public class DummySlave {
                             + "\nto set size of list to 3 and IPs/hostname followed "
                             + "\nException: " + e);
                     System.exit(1);
-
+                    
                 }
                 JSONArray jsonArray = GlobalValues.IPs_TO_SCAN_JSON.getJSONArray("ips", new JSONArray());
                 for (int i = 0; i < listSize; i++) {
@@ -269,7 +274,7 @@ public class DummySlave {
                             + "\nto set size of list to 3 and networks followed  "
                             + "\nException: " + e);
                     System.exit(1);
-
+                    
                 }
                 JSONArray jsonArray = GlobalValues.NETWORKS_TO_SCAN_JSON.getJSONArray("networks", new JSONArray());
                 for (int i = 0; i < listSize; i++) {
@@ -296,7 +301,7 @@ public class DummySlave {
                             + "\nto set size of list to 4 and hosts followed identfied by IP, FQDN or UUID  "
                             + "\nException: " + e);
                     System.exit(1);
-
+                    
                 }
                 JSONArray jsonArray = GlobalValues.BLACKLIST_JSON.getJSONArray("blacklist", new JSONArray());
                 for (int i = 0; i < listSize; i++) {
@@ -320,7 +325,7 @@ public class DummySlave {
                             + "\n Example: --mode 0 "
                             + "Exception: " + e);
                     System.exit(1);
-
+                    
                 }
                 switch (mode) {
                     /**
@@ -343,7 +348,7 @@ public class DummySlave {
                      * Private Mode
                      */
                     case 1:
-
+                        
                         new HardwareStatThreads();
                         new NetworkThreads();
                         ServiceOperations.initApiServerAtStartUp();
@@ -363,9 +368,9 @@ public class DummySlave {
                 ServiceOperations.initTaskServerAtStartUp();
                 ServiceOperations.initFileDownloadServerAtStartUp();
                 ServiceOperations.initLogRotateAtStartUp();
-
+                
             }
-
+            
         } else {
             loadSettings.init();
             preBenchmarkingChecks();
@@ -381,11 +386,11 @@ public class DummySlave {
             ServiceOperations.initTaskServerAtStartUp();
             ServiceOperations.initFileDownloadServerAtStartUp();
             ServiceOperations.initLogRotateAtStartUp();
-
+            
         }
-
+        
     }
-
+    
     public static void benchmark() {
         JSONObject benchmarkResults = new JSONObject();
         JSONObject cpu = new JSONObject();
@@ -400,9 +405,9 @@ public class DummySlave {
         benchmarkResults.put("TIMESTAMP", System.currentTimeMillis());
         GlobalValues.BENCHMARKING = benchmarkResults;
         Util.write(new File(dir_etc + "/benchmarks.json"), benchmarkResults.toString(4));
-
+        
     }
-
+    
     public static void preBenchmarkingChecks() {
         if (new File(dir_etc + "/benchmarks.json").exists()) {
             JSONObject benchmarkResults = Util.readJSONFile(dir_etc + "/benchmarks.json");
@@ -415,7 +420,7 @@ public class DummySlave {
         } else {
             benchmark();
         }
-
+        
     }
-
+    
 }
