@@ -38,7 +38,7 @@ public class UniqueElementList {
         }
     }
 
-    public boolean addHop(Hop e) {
+    public synchronized  boolean addHop(Hop e) {
         for (int i = 0; i < arrayList.size(); i++) {
             Hop get = arrayList.get(i);
             if (get.getId().equals(e.getId())) {
@@ -50,7 +50,7 @@ public class UniqueElementList {
         return arrayList.add(e); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public void remove(String id) {
+    public synchronized  void remove(String id) {
         for (int i = 0; i < arrayList.size(); i++) {
             Hop get = arrayList.get(i);
             if (get.getId().equals(id)) {
@@ -64,11 +64,11 @@ public class UniqueElementList {
         return arrayList;
     }
 
-    public void sortElementsInAscendingOrderDistance() {
+    public synchronized void sortElementsInAscendingOrderDistance() {
         Collections.sort(arrayList, Hop.HopComparator.DISTANCE_SORT);
     }
 
-    public Hop getNearestHop() {
+    public synchronized  Hop getNearestHop() {
         this.sortElementsInAscendingOrderDistance();
         if (arrayList.size() > 0) {
             return arrayList.get(0);

@@ -43,10 +43,28 @@ public class LogRotate implements Runnable {
             File logDir = new File("log/");
             File[] files = logDir.listFiles((File dir, String name) -> name.toLowerCase().endsWith(".log"));
             for (File file : files) {
+                Util.outPrintln("Log Rotate Checking File name: " + file.getAbsolutePath());
+                String nameSplit = "";
+                if (file.getName().contains("-")) {
+                    nameSplit = file.getName().split("-")[0];
+                    try {
+                        long timestamp = (Long.parseLong(nameSplit));
+                        continue;
+                    } catch (NumberFormatException e) {
+                        Logger.getLogger(LogRotate.class.getName()).log(Level.WARNING, null, e);
+
+                    }
+
+                }
+
                 if ((file.length() / 1024 > GlobalValues.LOG_FILE_SIZE_LIMIT)) {
-                    file.renameTo(new File(System.currentTimeMillis() + "-" + file.getName()));
+                    Util.outPrintln("Log Rotate File name: " + file.getAbsolutePath());
+                    Util.outPrintln(" Logrotate File met the criteria renaming "
+                            + file.renameTo(new File(file.getParentFile().getAbsolutePath() + "/" + System.currentTimeMillis() + "-" + file.getName())));
                 } else if ((TimeUnit.MILLISECONDS.toHours(System.currentTimeMillis() - GlobalValues.LAST_ROTATED_ON) > GlobalValues.LOGROTATION_INTERVAL_IN_HOURS)) {
-                    file.renameTo(new File(System.currentTimeMillis() + "-" + file.getName()));
+                    Util.outPrintln("Log Rotate File name: " + file.getAbsolutePath());
+                    Util.outPrintln(" Logrotate File met the criteria renaming "
+                            + file.renameTo(new File(file.getParentFile().getAbsolutePath() + "/" + System.currentTimeMillis() + "-" + file.getName())));
                     GlobalValues.LAST_ROTATED_ON = System.currentTimeMillis();
                     Settings.saveSettings();
                 }
