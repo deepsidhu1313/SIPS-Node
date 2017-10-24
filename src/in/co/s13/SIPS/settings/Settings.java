@@ -63,7 +63,13 @@ public class Settings {
             OS_Name = 4;
 
         }
-
+        try {
+            HOST_NAME = InetAddress.getLocalHost().getHostName().trim();
+        } catch (UnknownHostException e) {
+            System.err.println("Couldn't get Hostname" + e);
+            JSONObject ipHostnameCombo = ipAddresses.getJSONObject(0);
+            HOST_NAME = ipHostnameCombo.getString("hostname", HOST_NAME);
+        }
         String workingDir = System.getProperty("user.dir");
         System.out.println("Current working directory : " + workingDir);
         PWD = workingDir;
@@ -97,7 +103,7 @@ public class Settings {
         File dbin = new File(dir_bin);
         if (!dbin.exists()) {
             if (!dbin.mkdir()) {
-                Util.errPrintln("Directory for log couldnot be created !\n"
+                Util.errPrintln("Directory for bin couldnot be created !\n"
                         + "Please create a dir with this name");
             }
         }
@@ -125,13 +131,7 @@ public class Settings {
         } catch (UnknownHostException ex) {
             Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
         }
-        try {
-            HOST_NAME = InetAddress.getLocalHost().getHostName().trim();
-        } catch (UnknownHostException e) {
-            System.err.println("Couldn't get Hostname" + e);
-            JSONObject ipHostnameCombo = ipAddresses.getJSONObject(0);
-            HOST_NAME = ipHostnameCombo.getString("hostname", HOST_NAME);
-        }
+
         try (PrintStream procn = new PrintStream(dir_bin + "/procn.bat")) {
             procn.print("wmic cpu get name");
         } catch (FileNotFoundException ex) {
@@ -185,12 +185,13 @@ public class Settings {
         if (NODE_UUID.length() < 1) {
             NODE_UUID = Util.generateNodeUUID();
         }
-        TASK_LIMIT = serviceSettings.getInt("MAX_TASK_ALLOWED_IN_PARALLEL", 2);
-        FILES_RESOLVER_LIMIT = serviceSettings.getInt("MAX_FILE_RESOLVE_IN_PARALLEL", 3);
-        PING_HANDLER_LIMIT = serviceSettings.getInt("MAX_PING_RESPONSES_IN_PARALLEL", 3);
-        API_HANDLER_LIMIT = serviceSettings.getInt("MAX_API_RESPONSES_IN_PARALLEL", 3);
-        TASK_HANDLER_LIMIT = serviceSettings.getInt("MAX_TASK_REQ_IN_PARALLEL", 3);
-        PING_REQUEST_LIMIT = serviceSettings.getInt("MAX_PING_REQUESTS_IN_PARALLEL", 3);
+        TASK_LIMIT = serviceSettings.getInt("MAX_TASK_ALLOWED_IN_PARALLEL", TASK_LIMIT);
+        FILES_RESOLVER_LIMIT = serviceSettings.getInt("MAX_FILE_RESOLVE_IN_PARALLEL", FILES_RESOLVER_LIMIT);
+        PING_HANDLER_LIMIT = serviceSettings.getInt("MAX_PING_RESPONSES_IN_PARALLEL", PING_HANDLER_LIMIT);
+        API_HANDLER_LIMIT = serviceSettings.getInt("MAX_API_RESPONSES_IN_PARALLEL", API_HANDLER_LIMIT);
+        TASK_HANDLER_LIMIT = serviceSettings.getInt("MAX_TASK_REQ_IN_PARALLEL", TASK_HANDLER_LIMIT);
+        PING_REQUEST_LIMIT = serviceSettings.getInt("MAX_PING_REQUESTS_IN_PARALLEL", PING_REQUEST_LIMIT);
+        PING_REQUEST_LIMIT_FOR_LIVE_NODES = serviceSettings.getInt("MAX_PING_REQUESTS_IN_PARALLEL_FOR_LIVE_NODES", 3);
         FILE_HANDLER_LIMIT = serviceSettings.getInt("FILE_HANDLER_LIMIT", FILE_HANDLER_LIMIT);
         TOTAL_IP_SCANNING_THREADS = serviceSettings.getInt("TOTAL_IP_SCANNING_THREADS", TOTAL_IP_SCANNING_THREADS);
         PING_SERVER_ENABLED_AT_START = serviceSettings.getBoolean("PING_SERVER_ENABLED_AT_START", PING_SERVER_ENABLED_AT_START);
@@ -232,6 +233,7 @@ public class Settings {
         serviceSettings.put("MAX_FILE_RESOLVE_IN_PARALLEL", FILES_RESOLVER_LIMIT);
         serviceSettings.put("MAX_PING_RESPONSES_IN_PARALLEL", PING_HANDLER_LIMIT);
         serviceSettings.put("MAX_PING_REQUESTS_IN_PARALLEL", PING_REQUEST_LIMIT);
+        serviceSettings.put("MAX_PING_REQUESTS_IN_PARALLEL_FOR_LIVE_NODES", PING_REQUEST_LIMIT_FOR_LIVE_NODES);
         serviceSettings.put("MAX_API_RESPONSES_IN_PARALLEL", API_HANDLER_LIMIT);
         serviceSettings.put("MAX_TASK_REQ_IN_PARALLEL", TASK_HANDLER_LIMIT);
         serviceSettings.put("FILE_HANDLER_LIMIT", FILE_HANDLER_LIMIT);

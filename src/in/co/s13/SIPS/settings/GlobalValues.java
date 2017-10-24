@@ -93,12 +93,13 @@ public class GlobalValues {
     public static int TOTAL_IP_SCANNING_THREADS = 3;
     public static int FILES_RESOLVER_LIMIT = 10;
     public static int FILE_HANDLER_LIMIT = 10;
-    public static int PING_HANDLER_LIMIT = 10;
+    public static int PING_HANDLER_LIMIT = 2;
     public static int PING_REQUEST_LIMIT = 3;
+    public static int PING_REQUEST_LIMIT_FOR_LIVE_NODES = 2;
     public static int API_HANDLER_LIMIT = 10;
     public static int TASK_HANDLER_LIMIT = 10;
     public static int TASK_FINISH_LISTENER_HANDLER_LIMIT = 10;
-    public static int TASK_LIMIT = Runtime.getRuntime().availableProcessors() - 2;
+    public static int TASK_LIMIT = (Runtime.getRuntime().availableProcessors() - 2) < 1 ? 1 : (Runtime.getRuntime().availableProcessors() - 2);
     public static AtomicLong TASK_WAITING = new AtomicLong(0);
     /**
      * *
@@ -110,6 +111,7 @@ public class GlobalValues {
     public static FixedThreadPool NETWORK_EXECUTOR;
     public static FixedThreadPool TASK_EXECUTOR;
     public static FixedThreadPool PING_REQUEST_EXECUTOR;
+    public static FixedThreadPool PING_REQUEST_EXECUTOR_FOR_LIVE_NODES;
     public static ExecutorService NODE_DB_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService TASK_DB_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService LIVE_DB_EXECUTOR = Executors.newFixedThreadPool(1);
@@ -204,7 +206,7 @@ public class GlobalValues {
      * Logrotate FILE_SIZE_LIMIT in kb LOGROTATION_INTERVAL_IN_HOURS (hrs)
      * LAST_ROTATED_ON timestamp in millis LOG_ROTATE_CHECK_FILES_EVERY in secs
      */
-    public static long LOG_FILE_SIZE_LIMIT = 512 , LOGROTATION_INTERVAL_IN_HOURS = 24, LAST_ROTATED_ON = System.currentTimeMillis(), LOG_ROTATE_CHECK_FILES_EVERY = 300;
+    public static long LOG_FILE_SIZE_LIMIT = 512, LOGROTATION_INTERVAL_IN_HOURS = 24, LAST_ROTATED_ON = System.currentTimeMillis(), LOG_ROTATE_CHECK_FILES_EVERY = 300;
     public static boolean KEEP_LOG_ROTATE_ALIVE = true;
     public static Thread LOG_ROTATE_THREAD;
 

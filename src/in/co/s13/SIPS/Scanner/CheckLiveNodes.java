@@ -54,7 +54,7 @@ public class CheckLiveNodes implements Runnable {
                                 String get = ips.get(i);
                                 Thread p1 = new Thread(new Ping(get, liveNode.getUuid()));
                                 p1.setPriority(Thread.NORM_PRIORITY + 2);
-                                PING_REQUEST_EXECUTOR.submit(p1);
+                                PING_REQUEST_EXECUTOR_FOR_LIVE_NODES.submit(p1);
                             }
                         }
 
@@ -70,7 +70,7 @@ public class CheckLiveNodes implements Runnable {
                                 String get = ips.get(i);
                                 Thread p1 = new Thread(new Ping(get, liveNode.getUuid()));
                                 p1.setPriority(Thread.NORM_PRIORITY + 2);
-                                PING_REQUEST_EXECUTOR.submit(p1);
+                                PING_REQUEST_EXECUTOR_FOR_LIVE_NODES.submit(p1);
                             }
                         }
 

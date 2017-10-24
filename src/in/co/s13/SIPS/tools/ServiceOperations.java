@@ -27,6 +27,7 @@ import in.co.s13.SIPS.executor.sockets.TaskFinishListenerServer;
 import in.co.s13.SIPS.executor.sockets.TaskServer;
 import in.co.s13.SIPS.settings.GlobalValues;
 import static in.co.s13.SIPS.settings.GlobalValues.PING_REQUEST_LIMIT;
+import static in.co.s13.SIPS.settings.GlobalValues.PING_REQUEST_LIMIT_FOR_LIVE_NODES;
 import static in.co.s13.SIPS.settings.GlobalValues.TASK_LIMIT;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -206,10 +207,10 @@ public class ServiceOperations {
         } else {
             GlobalValues.NETWORK_EXECUTOR.changeSize(GlobalValues.TOTAL_IP_SCANNING_THREADS);
         }
-        if (GlobalValues.PING_REQUEST_EXECUTOR == null || GlobalValues.PING_REQUEST_EXECUTOR.isShutdown()) {
-            GlobalValues.PING_REQUEST_EXECUTOR = new FixedThreadPool(PING_REQUEST_LIMIT);
+        if (GlobalValues.PING_REQUEST_EXECUTOR_FOR_LIVE_NODES == null || GlobalValues.PING_REQUEST_EXECUTOR_FOR_LIVE_NODES.isShutdown()) {
+            GlobalValues.PING_REQUEST_EXECUTOR_FOR_LIVE_NODES = new FixedThreadPool(PING_REQUEST_LIMIT_FOR_LIVE_NODES);
         } else {
-            GlobalValues.PING_REQUEST_EXECUTOR.changeSize(PING_REQUEST_LIMIT);
+            GlobalValues.PING_REQUEST_EXECUTOR_FOR_LIVE_NODES.changeSize(PING_REQUEST_LIMIT_FOR_LIVE_NODES);
         }
         if ((GlobalValues.CHECK_LIVE_NODE_THREAD == null || !GlobalValues.CHECK_LIVE_NODE_THREAD.isAlive())) {
             GlobalValues.KEEP_LIVE_NODE_SCANNER_ALIVE = true;
