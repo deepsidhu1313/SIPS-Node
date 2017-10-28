@@ -34,7 +34,7 @@ public class LiveDBRow {
     private ArrayList<String> ipAddresses = new ArrayList<>();
     private JSONObject benchmarking_results;
     private long distanceFromCurrent;
-
+    
     public LiveDBRow(String uuid, String host, String os, String processor, int task_limit,
             int qwait, long ram, long free_memory, long hdd_size, long hdd_free, JSONObject benchmarking_results, long lastCheckedOn) {
         this.uuid = uuid;
@@ -190,7 +190,7 @@ public class LiveDBRow {
 
     public long getDistanceFromCurrent() {
         if (ADJACENT_NODES_TABLE.containsKey(uuid)) {
-            this.distanceFromCurrent = ADJACENT_NODES_TABLE.get(uuid);
+            this.distanceFromCurrent = ADJACENT_NODES_TABLE.get(uuid).getDistance();
         } else if (NON_ADJACENT_NODES_TABLE.containsKey(uuid)) {
             UniqueElementList uniqueElementList = NON_ADJACENT_NODES_TABLE.get(uuid);
             uniqueElementList.sortElementsInAscendingOrderDistance();

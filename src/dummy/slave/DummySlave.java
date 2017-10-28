@@ -21,6 +21,8 @@ import in.co.s13.SIPS.settings.Settings;
 import in.co.s13.SIPS.initializer.HardwareStatThreads;
 import in.co.s13.SIPS.initializer.NetworkThreads;
 import in.co.s13.SIPS.settings.GlobalValues;
+import static in.co.s13.SIPS.settings.GlobalValues.HOST_NAME;
+import static in.co.s13.SIPS.settings.GlobalValues.SHARED_STORAGE;
 import in.co.s13.SIPS.tools.Util;
 import java.io.File;
 import java.io.IOException;
@@ -404,13 +406,13 @@ public class DummySlave {
         benchmarkResults.put("MEMORY", GlobalValues.MEM_SIZE);
         benchmarkResults.put("TIMESTAMP", System.currentTimeMillis());
         GlobalValues.BENCHMARKING = benchmarkResults;
-        Util.write(new File(dir_etc + "/benchmarks.json"), benchmarkResults.toString(4));
+        Util.write(new File(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME + "-" : "") + "benchmarks.json"), benchmarkResults.toString(4));
         
     }
     
     public static void preBenchmarkingChecks() {
-        if (new File(dir_etc + "/benchmarks.json").exists()) {
-            JSONObject benchmarkResults = Util.readJSONFile(dir_etc + "/benchmarks.json");
+        if (new File(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME + "-" : "") + "benchmarks.json").exists()) {
+            JSONObject benchmarkResults = Util.readJSONFile(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME + "-" : "") + "benchmarks.json");
             long timestamp = benchmarkResults.getLong("TIMESTAMP", 0l);
             if ((TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - timestamp)) > 1) {
                 benchmark();

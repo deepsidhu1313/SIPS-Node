@@ -161,9 +161,9 @@ class Ping implements Runnable {
                     }
 //                    System.out.println("Live Node DB " + LIVE_NODE_ADJ_DB.toString());
                     if (ADJACENT_NODES_TABLE.containsKey(uuid)) {
-                        ADJACENT_NODES_TABLE.replace(uuid, distance);
+                        ADJACENT_NODES_TABLE.replace(uuid, new Hop(uuid, distance));
                     } else {
-                        ADJACENT_NODES_TABLE.put(uuid, distance);
+                        ADJACENT_NODES_TABLE.put(uuid, new Hop(uuid, distance));
                     }
                     Iterator<String> keys = adjacentNodes.keys();
                     while (keys.hasNext()) {
@@ -182,7 +182,8 @@ class Ping implements Runnable {
                     Iterator<String> keys2 = nonAdjacentNodes.keys();
                     while (keys2.hasNext()) {
                         String key = keys2.next();
-                        long dis = nonAdjacentNodes.getLong(key, Long.MIN_VALUE);
+                        JSONObject nonAdjacentNode = nonAdjacentNodes.getJSONObject(key);
+                        long dis = nonAdjacentNode.getLong("distance", Long.MIN_VALUE);
 //                        if (!ADJACENT_NODES_TABLE.containsKey(key)) 
                         {
                             if (NON_ADJACENT_NODES_TABLE.containsKey(key)) {
@@ -199,7 +200,10 @@ class Ping implements Runnable {
                         JSONObject othLiveNo = liveNodes.getJSONObject(key);
                         if (ADJACENT_NODES_TABLE.containsKey(key)) {
                             if (LIVE_NODE_ADJ_DB.containsKey(key)) {
-                                LIVE_NODE_ADJ_DB.replace(key, new LiveDBRow(othLiveNo));
+                                LiveDBRow livenode = LIVE_NODE_ADJ_DB.get(key);
+                                if (livenode.getLastCheckAgo() > othLiveNo.getLong("lastCheckAgo", Long.MIN_VALUE)) {
+                                    LIVE_NODE_ADJ_DB.replace(key, new LiveDBRow(othLiveNo));
+                                }
                             } else {
                                 LIVE_NODE_ADJ_DB.put(key, new LiveDBRow(othLiveNo));
 
@@ -210,7 +214,10 @@ class Ping implements Runnable {
 
                         } else {
                             if (GlobalValues.LIVE_NODE_NON_ADJ_DB.containsKey(key)) {
-                                GlobalValues.LIVE_NODE_NON_ADJ_DB.replace(key, new LiveDBRow(othLiveNo));
+                                LiveDBRow livenode = GlobalValues.LIVE_NODE_NON_ADJ_DB.get(key);
+                                if (livenode.getLastCheckAgo() > othLiveNo.getLong("lastCheckAgo", Long.MIN_VALUE)) {
+                                    GlobalValues.LIVE_NODE_NON_ADJ_DB.replace(key, new LiveDBRow(othLiveNo));
+                                }
                             } else {
                                 GlobalValues.LIVE_NODE_NON_ADJ_DB.put(key, new LiveDBRow(othLiveNo));
 
@@ -224,7 +231,10 @@ class Ping implements Runnable {
                         JSONObject othLiveNo = nonAdjLiveNodes.getJSONObject(key);
                         if (ADJACENT_NODES_TABLE.containsKey(key)) {
                             if (LIVE_NODE_ADJ_DB.containsKey(key)) {
-                                LIVE_NODE_ADJ_DB.replace(key, new LiveDBRow(othLiveNo));
+                                LiveDBRow livenode = LIVE_NODE_ADJ_DB.get(key);
+                                if (livenode.getLastCheckAgo() > othLiveNo.getLong("lastCheckAgo", Long.MIN_VALUE)) {
+                                    LIVE_NODE_ADJ_DB.replace(key, new LiveDBRow(othLiveNo));
+                                }
                             } else {
                                 LIVE_NODE_ADJ_DB.put(key, new LiveDBRow(othLiveNo));
 
@@ -235,7 +245,10 @@ class Ping implements Runnable {
 //                            }
                         } else {
                             if (GlobalValues.LIVE_NODE_NON_ADJ_DB.containsKey(key)) {
-                                GlobalValues.LIVE_NODE_NON_ADJ_DB.replace(key, new LiveDBRow(othLiveNo));
+                                LiveDBRow livenode = GlobalValues.LIVE_NODE_NON_ADJ_DB.get(key);
+                                if (livenode.getLastCheckAgo() > othLiveNo.getLong("lastCheckAgo", Long.MIN_VALUE)) {
+                                    GlobalValues.LIVE_NODE_NON_ADJ_DB.replace(key, new LiveDBRow(othLiveNo));
+                                }
                             } else {
                                 GlobalValues.LIVE_NODE_NON_ADJ_DB.put(key, new LiveDBRow(othLiveNo));
 

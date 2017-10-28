@@ -18,6 +18,7 @@ package in.co.s13.SIPS.settings;
 
 import in.co.s13.SIPS.datastructure.DistributionDBRow;
 import in.co.s13.SIPS.datastructure.FileDownQueReq;
+import in.co.s13.SIPS.datastructure.Hop;
 import in.co.s13.SIPS.datastructure.Resource;
 import in.co.s13.SIPS.datastructure.UniqueElementList;
 import in.co.s13.SIPS.datastructure.threadpools.FixedThreadPool;
@@ -26,7 +27,6 @@ import in.co.s13.SIPS.datastructure.LiveDBRow;
 import in.co.s13.SIPS.datastructure.NodeDBRow;
 import in.co.s13.SIPS.datastructure.Result;
 import in.co.s13.SIPS.datastructure.TaskDBRow;
-import in.co.s13.SIPS.executor.DownloadFile;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.util.ArrayList;
@@ -73,7 +73,7 @@ public class GlobalValues {
     public static double CPU_LOAD_AVG = 0.0;
     public static JSONObject BENCHMARKING;
     public static ConcurrentHashMap<String, Resource> resources = new ConcurrentHashMap<>(5);
-    public static JSONArray ipAddresses = new JSONArray();
+    public static JSONArray IP_ADDRESSES = new JSONArray();
     public static boolean SHARED_STORAGE = false;
     /**
      * Log Files and variables
@@ -181,7 +181,7 @@ public class GlobalValues {
     public static boolean IS_WRITING = false;
     public static JSONObject BLACKLIST_JSON, NETWORKS_TO_SCAN_JSON, IPs_TO_SCAN_JSON, API_JSON;
     public static ConcurrentHashMap<String, String> ROUTING_TABLE = new ConcurrentHashMap<>();
-    public static ConcurrentHashMap<String, Long> ADJACENT_NODES_TABLE = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<String, Hop> ADJACENT_NODES_TABLE = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<String, UniqueElementList> NON_ADJACENT_NODES_TABLE = new ConcurrentHashMap<>();
 
     /**
@@ -194,7 +194,7 @@ public class GlobalValues {
      * Task Server Vars
      */
 //    public static ConcurrentHashMap<String,String> ALIEN_PROCESS_ID= new ConcurrentHashMap<>();
-    public static ArrayList<Integer> localprocessID = new ArrayList<>();
+    public static ArrayList<Integer> LOCAL_PROCESS_ID = new ArrayList<>();
     public static ConcurrentHashMap<String, TaskDBRow> TASK_DB = new ConcurrentHashMap<>();
 
     /**
@@ -206,8 +206,13 @@ public class GlobalValues {
      * Logrotate FILE_SIZE_LIMIT in kb LOGROTATION_INTERVAL_IN_HOURS (hrs)
      * LAST_ROTATED_ON timestamp in millis LOG_ROTATE_CHECK_FILES_EVERY in secs
      */
-    public static long LOG_FILE_SIZE_LIMIT = 512, LOGROTATION_INTERVAL_IN_HOURS = 24, LAST_ROTATED_ON = System.currentTimeMillis(), LOG_ROTATE_CHECK_FILES_EVERY = 300;
+    public static long LOG_FILE_SIZE_LIMIT = 512,
+            LOGROTATION_INTERVAL_IN_HOURS = 24,
+            LAST_ROTATED_ON = System.currentTimeMillis(),
+            LOG_ROTATE_CHECK_FILES_EVERY = 300;
     public static boolean KEEP_LOG_ROTATE_ALIVE = true;
     public static Thread LOG_ROTATE_THREAD;
+
+    public static long NODE_EXPIRY_TIME = 60;
 
 }

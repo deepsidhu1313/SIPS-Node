@@ -16,24 +16,17 @@
  */
 package in.co.s13.SIPS.initializer;
 
-import in.co.s13.SIPS.Scanner.AddLivenodes;
-import in.co.s13.SIPS.Scanner.CheckLiveNodes;
 import in.co.s13.SIPS.Scanner.NetScanner;
-import in.co.s13.SIPS.Scanner.ScheduledLiveNodeScanner;
-import in.co.s13.SIPS.Scanner.ScheduledNodeScanner;
 import in.co.s13.SIPS.datastructure.threadpools.FixedThreadPool;
-import in.co.s13.SIPS.datastructure.threadpools.ScheduledThreadPool;
 import in.co.s13.SIPS.settings.GlobalValues;
 import static in.co.s13.SIPS.settings.GlobalValues.PING_REQUEST_LIMIT;
 import in.co.s13.SIPS.tools.IPInfo;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import static in.co.s13.SIPS.settings.GlobalValues.TASK_LIMIT;
+import in.co.s13.SIPS.tools.RemoveExpiredNodes;
 import in.co.s13.SIPS.tools.ServiceOperations;
-import java.security.Provider;
 
 /**
  *
@@ -58,6 +51,7 @@ public class NetworkThreads {
 
         ServiceOperations.initNodeScannerAtStartUp();
         ServiceOperations.initLiveNodeScannerAtStartUp();
+        RemoveExpiredNodes removeExpiredNodes = new RemoveExpiredNodes();
 
     }
 

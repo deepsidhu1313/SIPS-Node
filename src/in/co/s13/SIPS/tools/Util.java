@@ -325,7 +325,7 @@ public class Util {
      * @return the disk model number
      */
     static public String getDeviceModel(String devicePath) {
-        String name="UNKNOWN";
+        String name = "UNKNOWN";
         try {
             Process p = Runtime.getRuntime().exec("lsblk " + devicePath + " --output MODEL");
             p.waitFor();
@@ -334,7 +334,7 @@ public class Util {
             while (line != null) {
                 //System.out.println(line);
                 if (!line.equals("MODEL") && !line.trim().isEmpty()) {
-                    name= line;
+                    name = line;
                 }
                 line = reader.readLine();
             }
@@ -995,7 +995,7 @@ public class Util {
         Enumeration<String> en = GlobalValues.ADJACENT_NODES_TABLE.keys();
         while (en.hasMoreElements()) {
             String key = en.nextElement();
-            Long value = GlobalValues.ADJACENT_NODES_TABLE.get(key);
+            Long value = GlobalValues.ADJACENT_NODES_TABLE.get(key).getDistance();
             json.put(key, value);
         }
         return json;
@@ -1007,7 +1007,7 @@ public class Util {
         while (en.hasMoreElements()) {
             String key = en.nextElement();
             UniqueElementList value = GlobalValues.NON_ADJACENT_NODES_TABLE.get(key);
-            json.put(key, value.getNearestHop().getDistance());
+            json.put(key, value.getNearestHop().toJSON());
         }
         return json;
     }

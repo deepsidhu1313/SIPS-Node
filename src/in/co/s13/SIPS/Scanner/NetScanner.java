@@ -48,8 +48,8 @@ public class NetScanner implements Runnable {
             String val = networksArray.getString(i);
             addnetwork(val);
         }
-        for (int i = 0; i < GlobalValues.ipAddresses.length(); i++) {
-            JSONObject iface = GlobalValues.ipAddresses.getJSONObject(i);
+        for (int i = 0; i < GlobalValues.IP_ADDRESSES.length(); i++) {
+            JSONObject iface = GlobalValues.IP_ADDRESSES.getJSONObject(i);
             String ip = iface.getString("ip");
             if (!ip.startsWith("127")) {
                 addnetwork(ip);

@@ -35,7 +35,7 @@ public class IPInfo implements Runnable {
     public void run() {
         Thread.currentThread().setName("IP Information Thread");
         try {
-            GlobalValues.ipAddresses = new JSONArray(Util.getLocalHostLANAddress());
+            GlobalValues.IP_ADDRESSES = new JSONArray(Util.getLocalHostLANAddress());
         } catch (UnknownHostException ex) {
             Logger.getLogger(IPInfo.class.getName()).log(Level.SEVERE, null, ex);
         }

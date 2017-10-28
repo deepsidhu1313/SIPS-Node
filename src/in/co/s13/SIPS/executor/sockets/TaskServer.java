@@ -35,7 +35,7 @@ import java.util.logging.Logger;
 public class TaskServer implements Runnable {
 
 //    public static int processcounter = 0;
-//    public static ArrayList<Integer> localprocessID = new ArrayList();
+//    public static ArrayList<Integer> LOCAL_PROCESS_ID = new ArrayList();
 //    public static ArrayList<String> alienprocessID = new ArrayList();
 //    public static Process[] p = new Process[1000];
     public TaskServer() {

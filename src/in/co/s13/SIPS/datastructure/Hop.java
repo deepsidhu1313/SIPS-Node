@@ -18,6 +18,7 @@ package in.co.s13.SIPS.datastructure;
 
 import java.util.Comparator;
 import java.util.Objects;
+import org.json.JSONObject;
 
 /**
  *
@@ -26,11 +27,12 @@ import java.util.Objects;
 public class Hop {
 
     private String id;
-    private long distance;
+    private long distance, timestamp;
 
     public Hop(String id, long distance) {
         this.id = id;
         this.distance = distance;
+        timestamp = System.currentTimeMillis();
     }
 
     public String getId() {
@@ -47,11 +49,23 @@ public class Hop {
 
     public void setDistance(long distance) {
         this.distance = distance;
+        timestamp = System.currentTimeMillis();
+    }
+
+    public long getTimestamp() {
+        return timestamp;
     }
 
     @Override
     public String toString() {
-        return "Hop{" + "id=" + id + ", distance=" + distance + " ms }";
+        return this.toJSON().toString(4);
+    }
+
+    public JSONObject toJSON() {
+        JSONObject json = new JSONObject();
+        json.put("id", id);
+        json.put("distance", distance);
+        return json;
     }
 
     @Override
@@ -88,6 +102,12 @@ public class Hop {
             @Override
             public int compare(Hop o1, Hop o2) {
                 return Long.valueOf(o1.getDistance()).compareTo(o2.getDistance());
+            }
+        },
+        TIMESTAMP_SORT {
+            @Override
+            public int compare(Hop o1, Hop o2) {
+                return Long.valueOf(o1.getTimestamp()).compareTo(o2.getTimestamp());
             }
         };
 

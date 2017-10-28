@@ -16,8 +16,11 @@
  */
 package in.co.s13.SIPS.datastructure;
 
+import static in.co.s13.SIPS.datastructure.Hop.HopComparator.TIMESTAMP_SORT;
+import in.co.s13.SIPS.settings.GlobalValues;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 import org.json.JSONObject;
 
 /**
@@ -38,7 +41,7 @@ public class UniqueElementList {
         }
     }
 
-    public synchronized  boolean addHop(Hop e) {
+    public synchronized boolean addHop(Hop e) {
         for (int i = 0; i < arrayList.size(); i++) {
             Hop get = arrayList.get(i);
             if (get.getId().equals(e.getId())) {
@@ -50,7 +53,7 @@ public class UniqueElementList {
         return arrayList.add(e); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public synchronized  void remove(String id) {
+    public synchronized void remove(String id) {
         for (int i = 0; i < arrayList.size(); i++) {
             Hop get = arrayList.get(i);
             if (get.getId().equals(id)) {
@@ -68,7 +71,27 @@ public class UniqueElementList {
         Collections.sort(arrayList, Hop.HopComparator.DISTANCE_SORT);
     }
 
-    public synchronized  Hop getNearestHop() {
+    public synchronized void sortElementsInAscendingOrderTimestamp() {
+        Collections.sort(arrayList, Hop.HopComparator.TIMESTAMP_SORT);
+    }
+
+    public synchronized void sortElementsInDecendingOrderTimestamp() {
+        Collections.sort(arrayList, Hop.HopComparator.decending(TIMESTAMP_SORT));
+    }
+
+    public synchronized void removeExpiredElements() {
+        this.sortElementsInDecendingOrderTimestamp();
+        for (int i = arrayList.size() - 1; i >= 0; i--) {
+            Hop get = arrayList.get(i);
+            if (TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - get.getTimestamp()) >= GlobalValues.NODE_EXPIRY_TIME) {
+                arrayList.remove(i);
+            } else {
+                break;
+            }
+        }
+    }
+
+    public synchronized Hop getNearestHop() {
         this.sortElementsInAscendingOrderDistance();
         if (arrayList.size() > 0) {
             return arrayList.get(0);

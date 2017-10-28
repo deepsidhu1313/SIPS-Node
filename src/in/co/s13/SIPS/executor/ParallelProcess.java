@@ -158,7 +158,7 @@ public class ParallelProcess implements Runnable {
         }
         GlobalValues.TASK_ID.incrementAndGet();
         GlobalValues.TASK_DB.put("" + ip + "-ID-" + pid + "c" + cno, new TaskDBRow(pid, projectName, ipadd, (int) counter, process));
-        //GlobalValues.localprocessID.add(counter);
+        //GlobalValues.LOCAL_PROCESS_ID.add(counter);
 //        processDBExecutor.execute(() -> {
 //            String sql = "INSERT INTO PROC (ID,"
 //                    + " ALIENID ,"

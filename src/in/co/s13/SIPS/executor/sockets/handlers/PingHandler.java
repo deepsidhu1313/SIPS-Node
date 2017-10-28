@@ -87,7 +87,7 @@ public class PingHandler implements Runnable {
                             sendmsg2Json.put("HDD_FREE", GlobalValues.HDD_FREE);
                             sendmsg2Json.put("CPULOAD", Util.getCPULoad());
                             sendmsg2Json.put("CPUNAME", GlobalValues.CPU_NAME);
-                            sendmsg2Json.put("IP_ADDRESSES", GlobalValues.ipAddresses);
+                            sendmsg2Json.put("IP_ADDRESSES", GlobalValues.IP_ADDRESSES);
                             sendmsg2Json.put("BENCHMARKS", GlobalValues.BENCHMARKING);
                             sendmsg2Json.put("PROCESS_TIME", (System.currentTimeMillis() - startTime));
                             sendmsg2Json.put("ADJ_NODES", Util.getAdjacentTableInJSON());

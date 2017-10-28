@@ -67,7 +67,7 @@ public class Settings {
             HOST_NAME = InetAddress.getLocalHost().getHostName().trim();
         } catch (UnknownHostException e) {
             System.err.println("Couldn't get Hostname" + e);
-            JSONObject ipHostnameCombo = ipAddresses.getJSONObject(0);
+            JSONObject ipHostnameCombo = IP_ADDRESSES.getJSONObject(0);
             HOST_NAME = ipHostnameCombo.getString("hostname", HOST_NAME);
         }
         String workingDir = System.getProperty("user.dir");
@@ -127,7 +127,7 @@ public class Settings {
 //            TASK_DB.closeConnection();
 //        });
         try {
-            ipAddresses = new JSONArray(Util.getLocalHostLANAddress());
+            IP_ADDRESSES = new JSONArray(Util.getLocalHostLANAddress());
         } catch (UnknownHostException ex) {
             Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -173,11 +173,13 @@ public class Settings {
     }
 
     void loadSettings() {
+        JSONObject commonSettings = Util.readJSONFile(dir_etc + "/common_settings.json");
+        SHARED_STORAGE = commonSettings.getBoolean("SHARED_STORAGE", SHARED_STORAGE);
+
         JSONObject settings = Util.readJSONFile(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME + "-" : "") + "settings.json");
 
         DUMP_LOG = settings.getBoolean("DUMP_LOG", true);
         VERBOSE = settings.getBoolean("VERBOSE", true);
-        SHARED_STORAGE = settings.getBoolean("SHARED_STORAGE", SHARED_STORAGE);
 
         JSONObject serviceSettings = Util.readJSONFile(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME + "-" : "") + "service_settings.json");
         NODE_UUID = serviceSettings.getString("UUID", "");
