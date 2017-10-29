@@ -71,7 +71,7 @@ public class HDDInfo implements Runnable {
             String s = null;
             //       String output = "";
             while ((s = stdInput.readLine()) != null) {
-//                System.out.println(s);
+//                System.OUT.println(s);
                 //  output += "\n" + s;
                 if (Util.isUnix()) {
                     if (s.contains("/dev/")) {
@@ -93,9 +93,9 @@ public class HDDInfo implements Runnable {
                 //Util.errPrintln(s);
                 //   output += "\n" + s;
             }
-            ////System.out.println("Process executed");
+            ////System.OUT.println("Process executed");
             int exitValue = p.waitFor();
-//            System.out.println("\n\nExit Value is " + exitValue);
+//            System.OUT.println("\n\nExit Value is " + exitValue);
             stdError.close();
             stdInput.close();
             p.destroy();

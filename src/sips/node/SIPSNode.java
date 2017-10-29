@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dummy.slave;
+package sips.node;
 
 import in.co.s13.SIPS.benchmarks.Benchmarks;
 import in.co.s13.SIPS.settings.Settings;
@@ -22,7 +22,6 @@ import in.co.s13.SIPS.initializer.HardwareStatThreads;
 import in.co.s13.SIPS.initializer.NetworkThreads;
 import in.co.s13.SIPS.settings.GlobalValues;
 import static in.co.s13.SIPS.settings.GlobalValues.HOST_NAME;
-import static in.co.s13.SIPS.settings.GlobalValues.SHARED_STORAGE;
 import in.co.s13.SIPS.tools.Util;
 import java.io.File;
 import java.io.IOException;
@@ -35,14 +34,13 @@ import org.json.JSONObject;
 import static in.co.s13.SIPS.settings.GlobalValues.dir_etc;
 import in.co.s13.SIPS.tools.ServiceOperations;
 import java.util.concurrent.ConcurrentHashMap;
+import static in.co.s13.SIPS.settings.GlobalValues.HAS_SHARED_STORAGE;
 
 /**
  *
  * @author Nika
  */
-
-
-public class DummySlave {
+public class SIPSNode {
 
     /**
      * @param args the command line arguments
@@ -50,7 +48,7 @@ public class DummySlave {
      */
     public static void main(String[] args) throws IOException {
         Settings loadSettings = new Settings();
-        System.out.println(""+Util.getDeviceFromPath(new File(".").toPath()));
+        System.out.println("" + Util.getDeviceFromPath(new File(".").toPath()));
         Thread.currentThread().setName("Main");
         if (args.length > 0) {
             ArrayList<String> arguments = new ArrayList<>();
@@ -99,9 +97,22 @@ public class DummySlave {
 
             /**
              * *
-             * add new IP addresses or Hosts
+             * Important flag
              */
-            GlobalValues.API_JSON = Util.readJSONFile(dir_etc + "/api.json");
+            if (arguments.contains("--shared-storage")) {
+                GlobalValues.HAS_SHARED_STORAGE = true;
+                loadSettings.init();
+                loadSettings.saveSettings();
+            } else {
+                loadSettings.init();
+
+            }
+
+            /**
+             * *
+             * add new IP addresses or Hosts to the API LIST
+             */
+            GlobalValues.API_JSON = Util.readJSONFile(dir_etc + "/" + (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_API_KEYS) ? "common" : HOST_NAME) + "-" : "") + "api.json");
             Iterator<String> it = GlobalValues.API_JSON.keys();
             GlobalValues.API_LIST = new ConcurrentHashMap<>();
             while (it.hasNext()) {
@@ -131,34 +142,22 @@ public class DummySlave {
                 info.put("key", key);
                 info.put("permissions", permissions);
                 GlobalValues.API_JSON.put(client, info);
-                Util.write(dir_etc + "/api.json", GlobalValues.API_JSON.toString(4));
+                Util.write(dir_etc + "/" + (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_API_KEYS) ? "common" : HOST_NAME) + "-" : "") + "api.json", GlobalValues.API_JSON.toString(4));
                 System.out.println(info.toString(4));
                 System.exit(0);
             }
-            
+
             if (arguments.contains("--benchmark")) {
                 benchmark();
             } else {
                 preBenchmarkingChecks();
             }
-            /**
-             * *
-             * Important flag
-             */
-            if (arguments.contains("--shared-storage")) {
-                GlobalValues.SHARED_STORAGE = true;
-                loadSettings.init();
-                loadSettings.saveSettings();
-            } else {
-                loadSettings.init();
-                
-            }
-            
+
             if (arguments.contains("--generate-app-uuid")) {
                 GlobalValues.NODE_UUID = Util.generateNodeUUID();
                 loadSettings.saveSettings();
             }
-            
+
             if (arguments.contains("--set-process-limit")) {
                 int limit = GlobalValues.TASK_LIMIT;
                 try {
@@ -168,12 +167,12 @@ public class DummySlave {
                             + "\n Example: --set-process-limit 10 to set limit to 10 "
                             + "Exception: " + e);
                     System.exit(1);
-                    
+
                 }
                 GlobalValues.TASK_LIMIT = limit;
                 loadSettings.saveSettings();
             }
-            
+
             if (arguments.contains("--set-file-resolvers")) {
                 int limit = GlobalValues.FILES_RESOLVER_LIMIT;
                 try {
@@ -183,12 +182,12 @@ public class DummySlave {
                             + "\n Example: --set-file-resolvers 10 to set limit to 10 "
                             + "Exception: " + e);
                     System.exit(1);
-                    
+
                 }
                 GlobalValues.FILES_RESOLVER_LIMIT = limit;
                 loadSettings.saveSettings();
             }
-            
+
             if (arguments.contains("--set-ping-handlers")) {
                 int limit = GlobalValues.PING_HANDLER_LIMIT;
                 try {
@@ -198,7 +197,7 @@ public class DummySlave {
                             + "\n Example: --set-ping-handlers 10 to set limit to 10 "
                             + "Exception: " + e);
                     System.exit(1);
-                    
+
                 }
                 GlobalValues.PING_HANDLER_LIMIT = limit;
                 loadSettings.saveSettings();
@@ -212,12 +211,12 @@ public class DummySlave {
                             + "\n Example: --set-api-handlers 10 to set limit to 10 "
                             + "Exception: " + e);
                     System.exit(1);
-                    
+
                 }
                 GlobalValues.API_HANDLER_LIMIT = limit;
                 loadSettings.saveSettings();
             }
-            
+
             if (arguments.contains("--set-process-handlers")) {
                 int limit = GlobalValues.TASK_HANDLER_LIMIT;
                 try {
@@ -227,7 +226,7 @@ public class DummySlave {
                             + "\n Example: --set-process-handlers 10 to set limit to 10 "
                             + "Exception: " + e);
                     System.exit(1);
-                    
+
                 }
                 GlobalValues.TASK_HANDLER_LIMIT = limit;
                 loadSettings.saveSettings();
@@ -237,7 +236,7 @@ public class DummySlave {
              * *
              * add new IP addresses or Hosts
              */
-            GlobalValues.IPs_TO_SCAN_JSON = Util.readJSONFile(dir_etc + "/ips.json");
+            GlobalValues.IPs_TO_SCAN_JSON = Util.readJSONFile(dir_etc + "/" + (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_IP_LIST) ? "common" : HOST_NAME) + "-" : "") + "ips.json");
             if (arguments.contains("--add-ip")) {
                 int listSize = 0, index = 0;
                 try {
@@ -249,7 +248,7 @@ public class DummySlave {
                             + "\nto set size of list to 3 and IPs/hostname followed "
                             + "\nException: " + e);
                     System.exit(1);
-                    
+
                 }
                 JSONArray jsonArray = GlobalValues.IPs_TO_SCAN_JSON.getJSONArray("ips", new JSONArray());
                 for (int i = 0; i < listSize; i++) {
@@ -257,14 +256,14 @@ public class DummySlave {
                 }
                 GlobalValues.IPs_TO_SCAN_JSON = new JSONObject();
                 GlobalValues.IPs_TO_SCAN_JSON.put("ips", jsonArray);
-                Util.write(dir_etc + "/ips.json", GlobalValues.IPs_TO_SCAN_JSON.toString(4));
+                Util.write(dir_etc + "/" + (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_IP_LIST) ? "common" : HOST_NAME) + "-" : "") + "ips.json", GlobalValues.IPs_TO_SCAN_JSON.toString(4));
             }
 
             /**
              * *
              * add new networks to scan
              */
-            GlobalValues.NETWORKS_TO_SCAN_JSON = Util.readJSONFile(dir_etc + "/networks.json");
+            GlobalValues.NETWORKS_TO_SCAN_JSON = Util.readJSONFile(dir_etc + "/" + (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_NETWORK_LIST) ? "common" : HOST_NAME) + "-" : "") + "networks.json");
             if (arguments.contains("--add-network")) {
                 int listSize = 0, index = 0;
                 try {
@@ -276,7 +275,7 @@ public class DummySlave {
                             + "\nto set size of list to 3 and networks followed  "
                             + "\nException: " + e);
                     System.exit(1);
-                    
+
                 }
                 JSONArray jsonArray = GlobalValues.NETWORKS_TO_SCAN_JSON.getJSONArray("networks", new JSONArray());
                 for (int i = 0; i < listSize; i++) {
@@ -284,14 +283,14 @@ public class DummySlave {
                 }
                 GlobalValues.NETWORKS_TO_SCAN_JSON = new JSONObject();
                 GlobalValues.NETWORKS_TO_SCAN_JSON.put("networks", jsonArray);
-                Util.write(dir_etc + "/networks.json", GlobalValues.NETWORKS_TO_SCAN_JSON.toString(4));
+                Util.write(dir_etc + "/" + (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_NETWORK_LIST) ? "common" : HOST_NAME) + "-" : "") + "networks.json", GlobalValues.NETWORKS_TO_SCAN_JSON.toString(4));
             }
 
             /**
              * *
              * blacklist nodes Put these on Raymond Reddington's List
              */
-            GlobalValues.BLACKLIST_JSON = Util.readJSONFile(dir_etc + "/blacklist.json");
+            GlobalValues.BLACKLIST_JSON = Util.readJSONFile(dir_etc + "/" + (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_BLACKLIST) ? "common" : HOST_NAME) + "-" : "") + "blacklist.json");
             if (arguments.contains("--blacklist")) {
                 int listSize = 0, index = 0;
                 try {
@@ -303,7 +302,7 @@ public class DummySlave {
                             + "\nto set size of list to 4 and hosts followed identfied by IP, FQDN or UUID  "
                             + "\nException: " + e);
                     System.exit(1);
-                    
+
                 }
                 JSONArray jsonArray = GlobalValues.BLACKLIST_JSON.getJSONArray("blacklist", new JSONArray());
                 for (int i = 0; i < listSize; i++) {
@@ -311,7 +310,7 @@ public class DummySlave {
                 }
                 GlobalValues.BLACKLIST_JSON = new JSONObject();
                 GlobalValues.BLACKLIST_JSON.put("blacklist", jsonArray);
-                Util.write(dir_etc + "/blacklist.json", GlobalValues.BLACKLIST_JSON.toString(4));
+                Util.write(dir_etc + "/" + (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_BLACKLIST) ? "common" : HOST_NAME) + "-" : "") + "blacklist.json", GlobalValues.BLACKLIST_JSON.toString(4));
             }
 
             /**
@@ -327,7 +326,7 @@ public class DummySlave {
                             + "\n Example: --mode 0 "
                             + "Exception: " + e);
                     System.exit(1);
-                    
+
                 }
                 switch (mode) {
                     /**
@@ -350,7 +349,7 @@ public class DummySlave {
                      * Private Mode
                      */
                     case 1:
-                        
+
                         new HardwareStatThreads();
                         new NetworkThreads();
                         ServiceOperations.initApiServerAtStartUp();
@@ -370,16 +369,16 @@ public class DummySlave {
                 ServiceOperations.initTaskServerAtStartUp();
                 ServiceOperations.initFileDownloadServerAtStartUp();
                 ServiceOperations.initLogRotateAtStartUp();
-                
+
             }
-            
+
         } else {
             loadSettings.init();
             preBenchmarkingChecks();
-            GlobalValues.BLACKLIST_JSON = Util.readJSONFile(dir_etc + "/blacklist.json");
-            GlobalValues.NETWORKS_TO_SCAN_JSON = Util.readJSONFile(dir_etc + "/networks.json");
-            GlobalValues.IPs_TO_SCAN_JSON = Util.readJSONFile(dir_etc + "/ips.json");
-            GlobalValues.API_JSON = Util.readJSONFile(dir_etc + "/api.json");
+            GlobalValues.BLACKLIST_JSON = Util.readJSONFile(dir_etc + "/" + (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_BLACKLIST) ? "common" : HOST_NAME) + "-" : "") + "blacklist.json");
+            GlobalValues.NETWORKS_TO_SCAN_JSON = Util.readJSONFile(dir_etc + "/" + (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_NETWORK_LIST) ? "common" : HOST_NAME) + "-" : "") + "networks.json");
+            GlobalValues.IPs_TO_SCAN_JSON = Util.readJSONFile(dir_etc + "/" + (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_IP_LIST) ? "common" : HOST_NAME) + "-" : "") + "ips.json");
+            GlobalValues.API_JSON = Util.readJSONFile(dir_etc + "/" + (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_API_KEYS) ? "common" : HOST_NAME) + "-" : "") + "api.json");
             new HardwareStatThreads();
             new NetworkThreads();
             ServiceOperations.initApiServerAtStartUp();
@@ -388,11 +387,11 @@ public class DummySlave {
             ServiceOperations.initTaskServerAtStartUp();
             ServiceOperations.initFileDownloadServerAtStartUp();
             ServiceOperations.initLogRotateAtStartUp();
-            
+
         }
-        
+
     }
-    
+
     public static void benchmark() {
         JSONObject benchmarkResults = new JSONObject();
         JSONObject cpu = new JSONObject();
@@ -406,13 +405,13 @@ public class DummySlave {
         benchmarkResults.put("MEMORY", GlobalValues.MEM_SIZE);
         benchmarkResults.put("TIMESTAMP", System.currentTimeMillis());
         GlobalValues.BENCHMARKING = benchmarkResults;
-        Util.write(new File(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME + "-" : "") + "benchmarks.json"), benchmarkResults.toString(4));
-        
+        Util.write(new File(dir_etc + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "benchmarks.json"), benchmarkResults.toString(4));
+
     }
-    
+
     public static void preBenchmarkingChecks() {
-        if (new File(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME + "-" : "") + "benchmarks.json").exists()) {
-            JSONObject benchmarkResults = Util.readJSONFile(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME + "-" : "") + "benchmarks.json");
+        if (new File(dir_etc + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "benchmarks.json").exists()) {
+            JSONObject benchmarkResults = Util.readJSONFile(dir_etc + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "benchmarks.json");
             long timestamp = benchmarkResults.getLong("TIMESTAMP", 0l);
             if ((TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - timestamp)) > 1) {
                 benchmark();
@@ -422,7 +421,7 @@ public class DummySlave {
         } else {
             benchmark();
         }
-        
+
     }
-    
+
 }

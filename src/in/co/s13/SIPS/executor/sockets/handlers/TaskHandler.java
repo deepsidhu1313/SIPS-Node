@@ -69,7 +69,7 @@ public class TaskHandler implements Runnable {
                 if (messageString.length() > 1) {
                     System.out.println("IP adress of sender is " + ipAddress);
 
-//                    System.out.println("" + messageString);
+//                    System.OUT.println("" + messageString);
                     String command = messageJson.getString("Command");//messageString.substring(messageString.indexOf("<Command>") + 9, messageString.indexOf("</Command>"));
                     JSONObject body = messageJson.getJSONObject("Body");//messageString.substring(messageString.indexOf("<Body>") + 6, messageString.indexOf("</Body>"));
                     System.out.println(messageString);
@@ -111,15 +111,15 @@ public class TaskHandler implements Runnable {
 //                        
 //                        FXSplitTabs.distDBExecutor.execute(() -> {
 //                            {
-//                                System.out.println("size of master dist db " + FXSplitTabs.MasterDistDB.size());
+//                                System.OUT.println("size of master dist db " + FXSplitTabs.MasterDistDB.size());
 //                                int csize = FXSplitTabs.MasterDistDB.size();
 //                                while (csize <= p) {
 //                                    try {
-//                                        System.out.println("Waiting for Master DB to Create table " + p);
+//                                        System.OUT.println("Waiting for Master DB to Create table " + p);
 //                                        Thread.currentThread().sleep(10000);
 //                                        csize = FXSplitTabs.MasterDistDB.size();
 //                                    } catch (InterruptedException ex) {
-//                                        Logger.getLogger(Handler.class.getName()).log(Level.SEVERE, null, ex);
+//                                        Logger.getLogger(Handler.class.getName()).LOG(Level.SEVERE, null, ex);
 //                                    }
 //                                }
 //                                for (int i = 0; i < FXSplitTabs.MasterDistDB.get(p).size(); i++) {
@@ -137,7 +137,7 @@ public class TaskHandler implements Runnable {
                         String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
                         String content = body.getString("OUTPUT");//.substring(body.indexOf("<OUTPUT>") + 8, body.indexOf("</OUTPUT>"));
                         //   String ExitCode = body.substring(body.indexOf("<EXTCODE>") + 9, body.indexOf("</EXTCODE>"));
-//                        System.out.println(msg);
+//                        System.OUT.println(msg);
                         int p = Integer.parseInt(pid);
                         try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
                             String sendmsg = "OK";
@@ -155,15 +155,15 @@ public class TaskHandler implements Runnable {
 //                        
 //                        FXSplitTabs.distDBExecutor.execute(() -> {
 //                            {
-//                                System.out.println("size of master dist db " + FXSplitTabs.MasterDistDB.size());
+//                                System.OUT.println("size of master dist db " + FXSplitTabs.MasterDistDB.size());
 //                                int csize = FXSplitTabs.MasterDistDB.size();
 //                                while (csize <= p) {
 //                                    try {
-//                                        System.out.println("Waiting for Master DB to Create table " + p);
+//                                        System.OUT.println("Waiting for Master DB to Create table " + p);
 //                                        Thread.currentThread().sleep(10000);
 //                                        csize = FXSplitTabs.MasterDistDB.size();
 //                                    } catch (InterruptedException ex) {
-//                                        Logger.getLogger(Handler.class.getName()).log(Level.SEVERE, null, ex);
+//                                        Logger.getLogger(Handler.class.getName()).LOG(Level.SEVERE, null, ex);
 //                                    }
 //                                }
 //                                for (int i = 0; i < FXSplitTabs.MasterDistDB.get(p).size(); i++) {
@@ -182,7 +182,7 @@ public class TaskHandler implements Runnable {
                         String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
                         String content = body.getString("OUTPUT");//.substring(body.indexOf("<OUTPUT>") + 8, body.indexOf("</OUTPUT>"));
                         //   String ExitCode = body.substring(body.indexOf("<EXTCODE>") + 9, body.indexOf("</EXTCODE>"));
-//                        System.out.println(msg);
+//                        System.OUT.println(msg);
                         int p = Integer.parseInt(pid);
                         try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
                             String sendmsg = "OK";
@@ -201,15 +201,15 @@ public class TaskHandler implements Runnable {
 //                        
 //                        FXSplitTabs.distDBExecutor.execute(() -> {
 //                            {
-//                                System.out.println("size of master dist db " + FXSplitTabs.MasterDistDB.size());
+//                                System.OUT.println("size of master dist db " + FXSplitTabs.MasterDistDB.size());
 //                                int csize = FXSplitTabs.MasterDistDB.size();
 //                                while (csize <= p) {
 //                                    try {
-//                                        System.out.println("Waiting for Master DB to Create table " + p);
+//                                        System.OUT.println("Waiting for Master DB to Create table " + p);
 //                                        Thread.currentThread().sleep(10000);
 //                                        csize = FXSplitTabs.MasterDistDB.size();
 //                                    } catch (InterruptedException ex) {
-//                                        Logger.getLogger(Handler.class.getName()).log(Level.SEVERE, null, ex);
+//                                        Logger.getLogger(Handler.class.getName()).LOG(Level.SEVERE, null, ex);
 //                                    }
 //                                }
 //                                for (int i = 0; i < FXSplitTabs.MasterDistDB.get(p).size(); i++) {
@@ -229,7 +229,7 @@ public class TaskHandler implements Runnable {
                         String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
                         String content = body.getString("OUTPUT");//.substring(body.indexOf("<OUTPUT>") + 8, body.indexOf("</OUTPUT>"));
                         //   String ExitCode = body.substring(body.indexOf("<EXTCODE>") + 9, body.indexOf("</EXTCODE>"));
-//                        System.out.println(msg);
+//                        System.OUT.println(msg);
                         int p = Integer.parseInt(pid);
 
                         /*    try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
@@ -249,15 +249,15 @@ public class TaskHandler implements Runnable {
 //                        
 //                        FXSplitTabs.distDBExecutor.execute(() -> {
 //                            {
-//                                System.out.println("size of master dist db " + FXSplitTabs.MasterDistDB.size());
+//                                System.OUT.println("size of master dist db " + FXSplitTabs.MasterDistDB.size());
 //                                int csize = FXSplitTabs.MasterDistDB.size();
 //                                while (csize <= p) {
 //                                    try {
-//                                        System.out.println("Waiting for Master DB to Create table " + p);
+//                                        System.OUT.println("Waiting for Master DB to Create table " + p);
 //                                        Thread.currentThread().sleep(10000);
 //                                        csize = FXSplitTabs.MasterDistDB.size();
 //                                    } catch (InterruptedException ex) {
-//                                        Logger.getLogger(Handler.class.getName()).log(Level.SEVERE, null, ex);
+//                                        Logger.getLogger(Handler.class.getName()).LOG(Level.SEVERE, null, ex);
 //                                    }
 //                                }
 //                                for (int i = 0; i < FXSplitTabs.MasterDistDB.get(p).size(); i++) {

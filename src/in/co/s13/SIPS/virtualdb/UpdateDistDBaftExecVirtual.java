@@ -264,7 +264,7 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                                 double tempprfm2 = (tempprfm + ((double) 1 * ((double) counter / (double) (IPs.size())))) / 2;
                                 final String ip = IPs.get(i);
                                 final String cn = CNOs.get(i);
-                                System.out.println("IP adress: " + ip + " CNO: " + cn + " PrevPRF "
+                                System.OUT.println("IP adress: " + ip + " CNO: " + cn + " PrevPRF "
                                         + tempprfm + " NewPrfm:" + ((double) 1 * (double) ((double) counter / (double) (IPs.size()))) + " Avg is:" + tempprfm2 + " counter:" + counter + " IPsSize:" + IPs.size());
                                 if (tempprfm2 < 0.1) {
                                     tempprfm2 = 0.1;

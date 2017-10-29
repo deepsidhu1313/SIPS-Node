@@ -72,7 +72,7 @@ public class FileDownloadHandler implements Runnable {
 
                 String command = messageJson.getString("Command");//msg.substring(msg.indexOf("<Command>") + 9, msg.indexOf("</Command>"));
                 //String body = messageJson.getString("Body");//msg.substring(msg.indexOf("<Body>") + 6, msg.indexOf("</Body>"));
-                //     System.out.println(msg);
+                //     System.OUT.println(msg);
                 JSONObject body = messageJson.getJSONObject("Body");
                 if (command.trim().equalsIgnoreCase("downloadfile")) {
                     System.out.println("finding file");
@@ -92,7 +92,7 @@ public class FileDownloadHandler implements Runnable {
 //                        boolean b2 = downQue.getId() == Integer.parseInt(pid.trim());
 //                        boolean b3 = downQue.getChecksum().trim().equalsIgnoreCase(checksum.trim());
 //                        boolean b4 = downQue.getIp().trim().equalsIgnoreCase(ip.trim());
-//                        System.out.println("Compairing  :\nFilename:" + downQue.getFilename().trim()
+//                        System.OUT.println("Compairing  :\nFilename:" + downQue.getFilename().trim()
 //                                + " with " + fileToSend.trim() + "\t" + b1
 //                                + "\nPID:" + downQue.getId() + " with " + pid + "\t" + b2
 //                                + "\nChecksum:" + downQue.getChecksum().trim() + " with " + checksum
@@ -162,7 +162,7 @@ public class FileDownloadHandler implements Runnable {
 //                            boolean b2 = downQue.getId() == Integer.parseInt(pid.trim());
 //                            boolean b3 = downQue.getChecksum().trim().equalsIgnoreCase(checksum.trim());
 //                            boolean b4 = downQue.getIp().trim().equalsIgnoreCase(ip.trim());
-//                            System.out.println("Compairing For Download :\nFilename:" + downQue.getFilename().trim()
+//                            System.OUT.println("Compairing For Download :\nFilename:" + downQue.getFilename().trim()
 //                                    + " with " + fileToSend.trim() + "\t" + b1
 //                                    + "\nPID:" + downQue.getId() + " with " + pid + "\t" + b2
 //                                    + "\nChecksum:" + downQue.getChecksum().trim() + " with " + checksum
@@ -257,7 +257,7 @@ public class FileDownloadHandler implements Runnable {
                                                                 Long allTimeForDownloading = (elapsedTime * (downData / (downData - fileLen)));
                                                                 Long remainingTime = allTimeForDownloading - elapsedTime;
                                                                 downQue.setRemainingTime(remainingTime);
-                                                                //            System.out.println("Remaining "+fileLen);
+                                                                //            System.OUT.println("Remaining "+fileLen);
                                                             }
                                                             bos.flush();
                                                         }
@@ -364,7 +364,7 @@ public class FileDownloadHandler implements Runnable {
 //                            boolean b2 = downQue2.getId() == Integer.parseInt(pid2.trim());
 //                            boolean b3 = downQue2.getChecksum().trim().equalsIgnoreCase(checksum.trim());
 //                            boolean b4 = downQue2.getIp().trim().equalsIgnoreCase(ip.trim());
-//                            System.out.println("Compairing For Download :\nFilename:" + downQue2.getFilename().trim()
+//                            System.OUT.println("Compairing For Download :\nFilename:" + downQue2.getFilename().trim()
 //                                    + " with " + pathtoFile.trim() + "\t" + b1
 //                                    + "\nPID:" + downQue2.getId() + " with " + pid2 + "\t" + b2
 //                                    + "\nChecksum:" + downQue2.getChecksum().trim() + " with " + checksum
@@ -464,7 +464,7 @@ public class FileDownloadHandler implements Runnable {
                                                                 Long allTimeForDownloading = (elapsedTime * (downData / (downData - fileLen)));
                                                                 Long remainingTime = allTimeForDownloading - elapsedTime;
                                                                 downQue2.setRemainingTime(remainingTime);
-                                                                //            System.out.println("Remaining "+fileLen);
+                                                                //            System.OUT.println("Remaining "+fileLen);
                                                             }
                                                             bos.flush();
                                                         }

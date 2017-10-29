@@ -30,7 +30,7 @@ public class AddLivenodes implements Runnable {
 
     @Override
     public void run() {
-        Thread.currentThread().setName("AddLiveNodeThread");
+        Thread.currentThread().setName("Add Live Nodes Thread");
         int threads = TOTAL_IP_SCANNING_THREADS;
 //        ArrayList hst = new ArrayList(NetScanner.HOSTS);
         int nodes = GlobalValues.HOSTS.size();
@@ -39,7 +39,7 @@ public class AddLivenodes implements Runnable {
         int lastUpper = 0;
         int size = nodes / threads;
         for (int i = 1; i <= threads; i++) {
-            //System.out.println("Total nodes:" + nodes + " Total Threads:" + threads + " i:" + i);
+            //System.OUT.println("Total nodes:" + nodes + " Total Threads:" + threads + " i:" + i);
             int lower;
             if (i == 1) {
                 lower = lastUpper;

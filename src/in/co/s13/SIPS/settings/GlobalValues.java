@@ -46,46 +46,176 @@ public class GlobalValues {
     /**
      * Meta Info Operating System
      */
+    /**
+     * *
+     * Operating System Name in lowercase string from JVM property
+     */
     public static String OS = System.getProperty("os.name").toLowerCase();
+
+    /**
+     * Integer representation of Operating System Name<br> 0 = Windows<br>
+     * 1 = Mac<br>
+     * 2 = *nix<br>
+     * 3 = Solaris<br>
+     */
     public static int OS_Name = 0;
 
     /**
      * **
      * Directories
      */
+    /**
+     * Present Working Directory
+     */
     public static String PWD = "";
+
+    /**
+     * *
+     * Workspace Directory where all the code can be saved
+     */
     public static String dir_workspace = "workspace";
+    /**
+     * Linux like etc directory to store config files
+     */
     public static String dir_etc = "etc";
+    /**
+     * Linux like bin directory to store scripts and binaries
+     */
     public static String dir_bin = "bin";
+    /**
+     * LOG directory to store all the LOG files
+     */
     public static String dir_log = "log";
-    public static String dir_temp = "var";
+    /**
+     * Linux like proc directory to store information of running tasks
+     */
+    public static String dir_temp = "proc";
 
     /**
      * *
      * Resource Stats
      */
+    /**
+     * Variable to hold Local task counter
+     */
     public static AtomicLong TASK_ID = new AtomicLong(0);
 //    public static SQLiteJDBC TASK_DB = new SQLiteJDBC();
-    public static String HOST_NAME = "DummySlave";
+    /**
+     * Variable to hold Hostname of the node
+     */
+    public static String HOST_NAME = "SIPS-Node";
+    /**
+     * UUID of current Node which is required to identify machine on the SIPS
+     * system.
+     */
     public static String NODE_UUID = "";
-    public static long MEM_SIZE = 0L, MEM_FREE = 0L, HDD_SIZE = 0L, HDD_FREE = 0L;
+    /**
+     * Total Memory Size
+     */
+    public static long MEM_SIZE = 0L;
+    /**
+     * Free Memory
+     */
+    public static long MEM_FREE = 0L;
+    /**
+     * Storage Disk size
+     */
+    public static long HDD_SIZE = 0L;
+    /**
+     * Free storage
+     */
+    public static long HDD_FREE = 0L;
+
+    /**
+     * Name of CPU
+     */
     public static String CPU_NAME = "";
+
+    /**
+     * Linux CPU load avg of last 1 min
+     */
     public static double CPU_LOAD_AVG = 0.0;
+
+    /**
+     * Benchmarking results of CPU and HDD
+     */
     public static JSONObject BENCHMARKING;
+
+    /**
+     * *
+     * Resource like CPU , HDD and GPU and their details
+     */
     public static ConcurrentHashMap<String, Resource> resources = new ConcurrentHashMap<>(5);
+    /**
+     * IP Addresses associated with current Node
+     */
+
     public static JSONArray IP_ADDRESSES = new JSONArray();
-    public static boolean SHARED_STORAGE = false;
+    /**
+     * Boolean to store if storage between multiple Nodes is shared or not
+     */
+    public static boolean HAS_SHARED_STORAGE = false;
+
+    /**
+     * Boolean to store if API keys between multiple Nodes are shared or not
+     */
+    public static boolean HAS_COMMON_API_KEYS = true;
+
+    /**
+     * Boolean to store if IP to scan between multiple Nodes are shared or not
+     */
+    public static boolean HAS_COMMON_IP_LIST = true;
+
+    /**
+     * Boolean to store if Networks to scan between multiple Nodes are shared or
+     * not
+     */
+    public static boolean HAS_COMMON_NETWORK_LIST = true;
+
+    /**
+     * Boolean to store if Blacklist between multiple Nodes are shared or not
+     */
+    public static boolean HAS_COMMON_BLACKLIST = true;
+
     /**
      * Log Files and variables
      */
-    public static boolean VERBOSE, DUMP_LOG;
-    public static String OUT_FILE, ERR_FILE, LOG_FILE;
-    public static PrintStream out, err, log;
+    /**
+     * Flag to give verbose output
+     */
+    public static boolean VERBOSE = false;
+    /**
+     * Flag to Dump Log
+     */
+    public static boolean DUMP_LOG = false;
+
+    public static String OUT_FILE,
+            ERR_FILE,
+            LOG_FILE,
+            API_LOG_FILE,
+            FILE_DOWNLOAD_LOG_FILE,
+            FILE_SERVER_LOG_FILE,
+            PING_SERVER_LOG_FILE,
+            TASK_LOG_FILE,
+            PING_REQ_LOG_FILE;
+    public static PrintStream OUT,
+            ERR,
+            LOG,
+            API_LOG_PRINTER,
+            FILE_DOWNLOAD_QUE_LOG_PRINTER,
+            FILE_SERVER_LOG_PRINTER,
+            PING_SERVER_LOG_PRINTER,
+            TASK_LOG_PRINTER,
+            PING_LOG_PRINTER;
 
     /**
      * all Node DB
      */
     public static OLDSQLiteJDBC alldb;
+
+    public static enum LOG_LEVEL {
+        ERROR, OUTPUT,
+    };
 
     /**
      * Executor Limits

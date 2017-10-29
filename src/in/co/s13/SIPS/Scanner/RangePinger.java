@@ -36,14 +36,14 @@ public class RangePinger implements Runnable {
         temp = new ArrayList<>(al);
         if (up == temp.size()) {
             up--;
-//            System.out.println("UP equals to array , decremented");
+//            System.OUT.println("UP equals to array , decremented");
         }
         if (up > temp.size()) {
             up = temp.size() - 1;
 
-//            System.out.println("Size equals to array , decremented");
+//            System.OUT.println("Size equals to array , decremented");
         }
-//        System.out.println("Executing Ping on AL" + al + " from " + low + " to " + up);
+//        System.OUT.println("Executing Ping on AL" + al + " from " + low + " to " + up);
     }
 
     @Override

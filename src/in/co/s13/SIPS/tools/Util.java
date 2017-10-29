@@ -26,9 +26,6 @@ import static in.co.s13.SIPS.settings.GlobalValues.OS;
 import static in.co.s13.SIPS.settings.GlobalValues.OS_Name;
 import static in.co.s13.SIPS.settings.GlobalValues.PWD;
 import static in.co.s13.SIPS.settings.GlobalValues.VERBOSE;
-import static in.co.s13.SIPS.settings.GlobalValues.err;
-import static in.co.s13.SIPS.settings.GlobalValues.log;
-import static in.co.s13.SIPS.settings.GlobalValues.out;
 import in.co.s13.SIPS.settings.Settings;
 import in.co.s13.SIPS.datastructure.LiveDBRow;
 import java.io.BufferedReader;
@@ -66,6 +63,9 @@ import java.util.logging.Logger;
 import javax.swing.filechooser.FileSystemView;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import static in.co.s13.SIPS.settings.GlobalValues.OUT;
+import static in.co.s13.SIPS.settings.GlobalValues.ERR;
+import static in.co.s13.SIPS.settings.GlobalValues.LOG;
 
 /**
  * Utility methods for jDiskMark
@@ -165,7 +165,7 @@ public class Util {
      * @return Disk info if available.
      */
     public static String getDiskInfo(File dataDir) {
-        // System.out.println("os: "+System.getProperty("os.name"));
+        // System.OUT.println("os: "+System.getProperty("os.name"));
         Path dataDirPath = Paths.get(dataDir.getAbsolutePath());
         String osName = System.getProperty("os.name");
         if (osName.contains("Linux")) {
@@ -300,7 +300,7 @@ public class Util {
             String line = reader.readLine();
 
             while (line != null) {
-                //System.out.println(line);
+                //System.OUT.println(line);
 //                if (line.contains("/dev/")) 
                 {
                     curDevice = line.split("\\s+")[0];
@@ -332,7 +332,7 @@ public class Util {
             BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
             String line = reader.readLine();
             while (line != null) {
-                //System.out.println(line);
+                //System.OUT.println(line);
                 if (!line.equals("MODEL") && !line.trim().isEmpty()) {
                     name = line;
                 }
@@ -357,7 +357,7 @@ public class Util {
             BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
             String line = reader.readLine();
             while (line != null) {
-                //System.out.println(line);
+                //System.OUT.println(line);
                 if (!line.contains("SIZE") && !line.trim().isEmpty()) {
                     return line;
                 }
@@ -376,7 +376,7 @@ public class Util {
             String line = reader.readLine();
             String curDevice;
             while (line != null) {
-                //System.out.println(line);
+                //System.OUT.println(line);
                 if (line.contains("/dev/")) {
                     curDevice = line.split(" ")[0];
                     return curDevice;
@@ -791,30 +791,91 @@ public class Util {
         }
     }
 
-    public static void outPrintln(String sout) {
+    public static synchronized void outPrintln(String sout) {
         String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
         if (VERBOSE) {
             System.out.println(sout);
         }
         if (DUMP_LOG) {
-            log.append("\n" + "[" + timestamp + "] " + sout);
+            LOG.append("\n" + "[" + timestamp + "] [" + sout + "]");
 
         }
-        out.append("\n" + "[" + timestamp + "] " + sout);
+        OUT.append("\n" + "[" + timestamp + "] [" + sout + "]");
     }
 
-    public static void errPrintln(String sout) {
+    public static synchronized void errPrintln(String sout) {
         String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
         if (VERBOSE) {
             System.err.println(sout);
         }
         if (DUMP_LOG) {
-            log.append("\n" + "[" + timestamp + "] " + sout);
+            LOG.append("\n" + "[" + timestamp + "] [" + sout + "]");
         }
-        err.append("\n" + "[" + timestamp + "] " + sout);
+        ERR.append("\n" + "[" + timestamp + "] [" + sout + "]");
 
     }
 
+    public static synchronized void appendToApiLog(GlobalValues.LOG_LEVEL logLevel, String sout) {
+        String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
+        if (logLevel == GlobalValues.LOG_LEVEL.ERROR) {
+            errPrintln(sout);
+        } else if (logLevel == GlobalValues.LOG_LEVEL.OUTPUT) {
+            outPrintln(sout);
+        }
+        GlobalValues.API_LOG_PRINTER.append("\n" + "[" + timestamp + "] [" + logLevel + "] [" + sout + "]");
+    }
+
+    public static synchronized void appendToFileDownloadLog(GlobalValues.LOG_LEVEL logLevel, String sout) {
+        String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
+        if (logLevel == GlobalValues.LOG_LEVEL.ERROR) {
+            errPrintln(sout);
+        } else if (logLevel == GlobalValues.LOG_LEVEL.OUTPUT) {
+            outPrintln(sout);
+        }
+        GlobalValues.FILE_DOWNLOAD_QUE_LOG_PRINTER.append("\n" + "[" + timestamp + "] [" + logLevel + "] [" + sout + "]");
+    }
+
+    public static synchronized void appendToFileServerLog(GlobalValues.LOG_LEVEL logLevel, String sout) {
+        String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
+        if (logLevel == GlobalValues.LOG_LEVEL.ERROR) {
+            errPrintln(sout);
+        } else if (logLevel == GlobalValues.LOG_LEVEL.OUTPUT) {
+            outPrintln(sout);
+        }
+        GlobalValues.FILE_SERVER_LOG_PRINTER.append("\n" + "[" + timestamp + "] [" + logLevel + "] [" + sout + "]");
+    }
+
+    public static synchronized void appendToPingServerLog(GlobalValues.LOG_LEVEL logLevel, String sout) {
+        String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
+        if (logLevel == GlobalValues.LOG_LEVEL.ERROR) {
+            errPrintln(sout);
+        } else if (logLevel == GlobalValues.LOG_LEVEL.OUTPUT) {
+            outPrintln(sout);
+        }
+        GlobalValues.PING_SERVER_LOG_PRINTER.append("\n" + "[" + timestamp + "] [" + logLevel + "] [" + sout + "]");
+    }
+
+    public static synchronized void appendToTasksLog(GlobalValues.LOG_LEVEL logLevel, String sout) {
+        String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
+        if (logLevel == GlobalValues.LOG_LEVEL.ERROR) {
+            errPrintln(sout);
+        } else if (logLevel == GlobalValues.LOG_LEVEL.OUTPUT) {
+            outPrintln(sout);
+        }
+        GlobalValues.TASK_LOG_PRINTER.append("\n" + "[" + timestamp + "] [" + logLevel + "] [" + sout + "]");
+    }
+
+     public static synchronized void appendToPingLog(GlobalValues.LOG_LEVEL logLevel, String sout) {
+        String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
+        if (logLevel == GlobalValues.LOG_LEVEL.ERROR) {
+            errPrintln(sout);
+        } else if (logLevel == GlobalValues.LOG_LEVEL.OUTPUT) {
+            outPrintln(sout);
+        }
+        GlobalValues.PING_LOG_PRINTER.append("\n" + "[" + timestamp + "] [" + logLevel + "] [" + sout + "]");
+    }
+
+    
     public static String generateNodeUUID() {
         return java.util.UUID.randomUUID() + ":" + java.util.UUID.randomUUID();
     }
@@ -1099,7 +1160,7 @@ public class Util {
         try {
             ProcessBuilder pb = new ProcessBuilder(commands);
             Process p = pb.start();
-            try (BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream())); BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));) { //PrintWriter outputWriter = new PrintWriter("command-out.log", "UTF-8"); PrintWriter errorWriter = new PrintWriter("command-error" + ".log", "UTF-8")
+            try (BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream())); BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));) { //PrintWriter outputWriter = new PrintWriter("command-OUT.LOG", "UTF-8"); PrintWriter errorWriter = new PrintWriter("command-error" + ".LOG", "UTF-8")
 
                 String s = null;
                 while ((s = stdInput.readLine()) != null) {
@@ -1116,7 +1177,7 @@ public class Util {
                                 System.out.println("" + Arrays.asList(outs));
                                 String hostname = outs[1].trim();
 
-//                                System.out.println(hostname+ " "+outs[2]);
+//                                System.OUT.println(hostname+ " "+outs[2]);
                                 String ip = outs[2].trim().substring(outs[2].indexOf("(") + 1, outs[2].indexOf(")"));
                                 hostDetail.put("hostname", hostname);
                                 hostDetail.put("ip", ip);
@@ -1136,7 +1197,7 @@ public class Util {
 
                                 }
 
-//                                System.out.println(hostname+ " "+outs[2]);
+//                                System.OUT.println(hostname+ " "+outs[2]);
                                 hostDetail.put("hostname", hostname);
                                 hostDetail.put("ip", ip);
 
@@ -1157,9 +1218,9 @@ public class Util {
 
             p.destroy();
 
-            //  System.out.println("Command in " + foldername);
+            //  System.OUT.println("Command in " + foldername);
         } catch (IOException ex) {
-            // Logger.getLogger(Tools.class.getName()).log(Level.SEVERE, null, ex);
+            // Logger.getLogger(Tools.class.getName()).LOG(Level.SEVERE, null, ex);
             System.err.println(ex);
         }
         result.put(host, array);
@@ -1167,17 +1228,17 @@ public class Util {
     }
 
     public static void main(String[] args) throws UnknownHostException {
-//        System.out.println("" + Util.getLocalHostLANAddress());;
-//        System.out.println("" + Util.traceroute("google.com").toString(4));
+//        System.OUT.println("" + Util.getLocalHostLANAddress());;
+//        System.OUT.println("" + Util.traceroute("google.com").toString(4));
 //        String ip = "192.168.0.1";
 //        if (!ip.matches("(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
 //                + "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
 //                + "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
 //                + "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])")) {
-//            System.err.println("IP Format not supported: \"" + ip + "\'");
+//            System.ERR.println("IP Format not supported: \"" + ip + "\'");
 //            
 //        }else{
-//            System.out.println("IP Format supported: \"" + ip + "\'");
+//            System.OUT.println("IP Format supported: \"" + ip + "\'");
 //        
 //        }
     }

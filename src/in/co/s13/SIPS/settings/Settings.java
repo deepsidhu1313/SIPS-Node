@@ -107,7 +107,7 @@ public class Settings {
                         + "Please create a dir with this name");
             }
         }
-        if (new File(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME : "") + "settings.json").exists()) {
+        if (new File(dir_etc + "/" + (HAS_SHARED_STORAGE ? HOST_NAME : "") + "settings.json").exists()) {
             loadSettings();
         } else {
             saveSettings();
@@ -141,27 +141,69 @@ public class Settings {
         CPU_NAME = getCPUName();
 
         try {
-            OUT_FILE = dir_log + "/" + (SHARED_STORAGE ? HOST_NAME + "-" : "") + "out.log";
-            ERR_FILE = dir_log + "/" + (SHARED_STORAGE ? HOST_NAME + "-" : "") + "err.log";
-            LOG_FILE = dir_log + "/" + (SHARED_STORAGE ? HOST_NAME + "-" : "") + "app.log";
+            OUT_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "out.log";
+            ERR_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "err.log";
+            LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "app.log";
+            API_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "api.log";
+            FILE_DOWNLOAD_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "file-download.log";
+            FILE_SERVER_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "file-server.log";
+            PING_SERVER_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "ping-server.log";
+            TASK_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "tasks.log";
+            PING_REQ_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "ping.log";
 
             String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
             String prevContent = Util.readFile(ERR_FILE);
-            GlobalValues.err = new PrintStream(GlobalValues.ERR_FILE);
-            GlobalValues.err.println(prevContent);
-            GlobalValues.err.println("\n\n****************************************************************"
+            GlobalValues.ERR = new PrintStream(GlobalValues.ERR_FILE);
+            GlobalValues.ERR.println(prevContent);
+            GlobalValues.ERR.println("\n\n****************************************************************"
                     + "\n**************** " + timestamp + " ************************"
                     + "\n****************************************************************\n");
             prevContent = Util.readFile(OUT_FILE);
-            GlobalValues.out = new PrintStream(GlobalValues.OUT_FILE);
-            GlobalValues.out.println(prevContent);
-            GlobalValues.out.println("\n\n****************************************************************"
+            GlobalValues.OUT = new PrintStream(GlobalValues.OUT_FILE);
+            GlobalValues.OUT.println(prevContent);
+            GlobalValues.OUT.println("\n\n****************************************************************"
                     + "\n**************** " + timestamp + " ************************"
                     + "\n****************************************************************\n");
             prevContent = Util.readFile(LOG_FILE);
-            GlobalValues.log = new PrintStream(GlobalValues.LOG_FILE);
-            GlobalValues.log.println(prevContent);
-            GlobalValues.log.println("\n\n****************************************************************"
+            GlobalValues.LOG = new PrintStream(GlobalValues.LOG_FILE);
+            GlobalValues.LOG.println(prevContent);
+            GlobalValues.LOG.println("\n\n****************************************************************"
+                    + "\n**************** " + timestamp + " ************************"
+                    + "\n****************************************************************\n");
+            prevContent = Util.readFile(API_LOG_FILE);
+            GlobalValues.API_LOG_PRINTER = new PrintStream(API_LOG_FILE);
+            GlobalValues.API_LOG_PRINTER.println(prevContent);
+            GlobalValues.API_LOG_PRINTER.println("\n\n****************************************************************"
+                    + "\n**************** " + timestamp + " ************************"
+                    + "\n****************************************************************\n");
+            prevContent = Util.readFile(FILE_DOWNLOAD_LOG_FILE);
+            GlobalValues.FILE_DOWNLOAD_QUE_LOG_PRINTER = new PrintStream(FILE_DOWNLOAD_LOG_FILE);
+            GlobalValues.FILE_DOWNLOAD_QUE_LOG_PRINTER.println(prevContent);
+            GlobalValues.FILE_DOWNLOAD_QUE_LOG_PRINTER.println("\n\n****************************************************************"
+                    + "\n**************** " + timestamp + " ************************"
+                    + "\n****************************************************************\n");
+            prevContent = Util.readFile(FILE_SERVER_LOG_FILE);
+            GlobalValues.FILE_SERVER_LOG_PRINTER = new PrintStream(FILE_SERVER_LOG_FILE);
+            GlobalValues.FILE_SERVER_LOG_PRINTER.println(prevContent);
+            GlobalValues.FILE_SERVER_LOG_PRINTER.println("\n\n****************************************************************"
+                    + "\n**************** " + timestamp + " ************************"
+                    + "\n****************************************************************\n");
+            prevContent = Util.readFile(PING_SERVER_LOG_FILE);
+            GlobalValues.PING_SERVER_LOG_PRINTER = new PrintStream(PING_SERVER_LOG_FILE);
+            GlobalValues.PING_SERVER_LOG_PRINTER.println(prevContent);
+            GlobalValues.PING_SERVER_LOG_PRINTER.println("\n\n****************************************************************"
+                    + "\n**************** " + timestamp + " ************************"
+                    + "\n****************************************************************\n");
+            prevContent = Util.readFile(TASK_LOG_FILE);
+            GlobalValues.TASK_LOG_PRINTER = new PrintStream(TASK_LOG_FILE);
+            GlobalValues.TASK_LOG_PRINTER.println(prevContent);
+            GlobalValues.TASK_LOG_PRINTER.println("\n\n****************************************************************"
+                    + "\n**************** " + timestamp + " ************************"
+                    + "\n****************************************************************\n");
+            prevContent = Util.readFile(PING_REQ_LOG_FILE);
+            GlobalValues.PING_LOG_PRINTER = new PrintStream(PING_REQ_LOG_FILE);
+            GlobalValues.PING_LOG_PRINTER.println(prevContent);
+            GlobalValues.PING_LOG_PRINTER.println("\n\n****************************************************************"
                     + "\n**************** " + timestamp + " ************************"
                     + "\n****************************************************************\n");
 
@@ -174,14 +216,14 @@ public class Settings {
 
     void loadSettings() {
         JSONObject commonSettings = Util.readJSONFile(dir_etc + "/common_settings.json");
-        SHARED_STORAGE = commonSettings.getBoolean("SHARED_STORAGE", SHARED_STORAGE);
+        HAS_SHARED_STORAGE = commonSettings.getBoolean("HAS_SHARED_STORAGE", HAS_SHARED_STORAGE);
 
-        JSONObject settings = Util.readJSONFile(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME + "-" : "") + "settings.json");
+        JSONObject settings = Util.readJSONFile(dir_etc + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "settings.json");
 
         DUMP_LOG = settings.getBoolean("DUMP_LOG", true);
         VERBOSE = settings.getBoolean("VERBOSE", true);
 
-        JSONObject serviceSettings = Util.readJSONFile(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME + "-" : "") + "service_settings.json");
+        JSONObject serviceSettings = Util.readJSONFile(dir_etc + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "service_settings.json");
         NODE_UUID = serviceSettings.getString("UUID", "");
 
         if (NODE_UUID.length() < 1) {
@@ -210,7 +252,7 @@ public class Settings {
         TASK_FINISH_LISTENER_SERVER_ENABLED_AT_START = serviceSettings.getBoolean("TASK_FINISH_LISTENER_ENABLED_AT_START", TASK_FINISH_LISTENER_SERVER_ENABLED_AT_START);
         LOG_ROTATE_ENABLED_AT_START = serviceSettings.getBoolean("LOG_ROTATE_ENABLED_AT_START", LOG_ROTATE_ENABLED_AT_START);
 
-        JSONObject logrotateSettings = Util.readJSONFile(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME + "-" : "") + "log_rotate.json");
+        JSONObject logrotateSettings = Util.readJSONFile(dir_etc + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "log_rotate.json");
         LOG_FILE_SIZE_LIMIT = logrotateSettings.getLong("LOG_FILE_SIZE_LIMIT", LOG_FILE_SIZE_LIMIT);
         LOGROTATION_INTERVAL_IN_HOURS = logrotateSettings.getLong("LOGROTATION_INTERVAL_IN_HOURS", LOGROTATION_INTERVAL_IN_HOURS);
         LAST_ROTATED_ON = logrotateSettings.getLong("LAST_ROTATED_ON", LAST_ROTATED_ON);
@@ -218,12 +260,14 @@ public class Settings {
     }
 
     public static synchronized void saveSettings() {
+        JSONObject commonSettings = Util.readJSONFile(dir_etc + "/common_settings.json");
+        commonSettings.put("HAS_SHARED_STORAGE", HAS_SHARED_STORAGE);
+        write(dir_etc + "/common_settings.json", commonSettings.toString(4));
         JSONObject settings = new JSONObject();
 
         settings.put("DUMP_LOG", DUMP_LOG);
         settings.put("VERBOSE", VERBOSE);
-        settings.put("SHARED_STORAGE", SHARED_STORAGE);
-        write(new File(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME + "-" : "") + "settings.json"), settings.toString(4));
+        write(new File(dir_etc + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "settings.json"), settings.toString(4));
 
         JSONObject serviceSettings = new JSONObject();
 
@@ -253,14 +297,14 @@ public class Settings {
         serviceSettings.put("LIVE_NODE_SCANNER_PERIODIC_DELAY", LIVE_NODE_SCANNER_PERIODIC_DELAY);
         serviceSettings.put("NODE_SCANNER_PERIODIC_DELAY", NODE_SCANNER_PERIODIC_DELAY);
         serviceSettings.put("LOG_ROTATE_ENABLED_AT_START", LOG_ROTATE_ENABLED_AT_START);
-        write(new File(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME + "-" : "") + "service_settings.json"), serviceSettings.toString(4));
+        write(new File(dir_etc + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "service_settings.json"), serviceSettings.toString(4));
 
         JSONObject logrotateSettings = new JSONObject();
         logrotateSettings.put("LOG_FILE_SIZE_LIMIT", LOG_FILE_SIZE_LIMIT);
         logrotateSettings.put("LOGROTATION_INTERVAL_IN_HOURS", LOGROTATION_INTERVAL_IN_HOURS);
         logrotateSettings.put("LAST_ROTATED_ON", LAST_ROTATED_ON);
         logrotateSettings.put("LOG_ROTATE_CHECK_FILES_EVERY", LOG_ROTATE_CHECK_FILES_EVERY);
-        write(new File(dir_etc + "/" + (SHARED_STORAGE ? HOST_NAME + "-" : "") + "log_rotate.json"), logrotateSettings.toString(4));
+        write(new File(dir_etc + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "log_rotate.json"), logrotateSettings.toString(4));
 
     }
 

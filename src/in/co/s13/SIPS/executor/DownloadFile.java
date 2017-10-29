@@ -129,7 +129,7 @@ public class DownloadFile {
                             } else {
 
                                 try (Socket sock = new Socket("127.0.0.1", GlobalValues.FILE_DOWNLOAD_SERVER_PORT)) {
-                                    //System.out.println("Connecting...");
+                                    //System.OUT.println("Connecting...");
                                     try (OutputStream os = sock.getOutputStream(); DataOutputStream outToServer = new DataOutputStream(os)) {
                                         JSONObject sendMsgJSON = new JSONObject();
                                         sendMsgJSON.put("Command", "downloadfile");

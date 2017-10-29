@@ -61,9 +61,9 @@ public class PingHandler implements Runnable {
                 String ipAddress = inetAddress.getHostAddress();
                 Thread.currentThread().setName("Ping handler for " + ipAddress);
                 if (msg.length() > 1) {
-//                    System.out.println("IP adress of sender is " + ipAddress);
+//                    System.OUT.println("IP adress of sender is " + ipAddress);
 
-                    // System.out.println("" + msg);
+                    // System.OUT.println("" + msg);
                     String command = msg.getString("Command");
                     JSONObject pingRequestBody = msg.getJSONObject("Body");
                     String clientUUID = pingRequestBody.getString("UUID");
@@ -99,7 +99,7 @@ public class PingHandler implements Runnable {
                             outToClient2.writeInt(bytes2.length);
                             outToClient2.write(bytes2);
                         }
-//                        System.out.println("Ping Recieved");
+//                        System.OUT.println("Ping Recieved");
                         //                pingThread = true;
                         submitter.close();
                     } else {

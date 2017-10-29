@@ -54,7 +54,7 @@ public class TaskServer implements Runnable {
                     out.println("WORK=${PWD}/");
                     out.println("cd  \"${WORK}${1}/\"");
                     out.println("bash ${WORK}ant/bin/ant");
-                    //       out.println("bash process-executor.sh \"$3\"");
+                    //       OUT.println("bash process-executor.sh \"$3\"");
                 } catch (FileNotFoundException ex) {
                     Logger.getLogger(TaskServer.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -91,8 +91,8 @@ public class TaskServer implements Runnable {
                     out.println("@echo off ");
                     out.println("set PFRAMEWORK_HOME=%~dp0");
                     out.println("set arg1=%~1 ");
-                    // out.println("set arg2=%2 ");
-                    // out.println("set arg3=%3 ");
+                    // OUT.println("set arg2=%2 ");
+                    // OUT.println("set arg3=%3 ");
                     out.println("cd /d %PFRAMEWORK_HOME%%arg1%");
                     out.println("CALL %PFRAMEWORK_HOME%\\ant\\bin\\ant.bat");
                 } catch (FileNotFoundException ex) {
@@ -113,12 +113,12 @@ public class TaskServer implements Runnable {
                     out.println("set arg2=%2 ");
                     out.println("set arg3=%3 ");
                     out.println("set arg4=%4 ");
-                    //  out.println("java -jar lib1.jar 0 %arg4%");
+                    //  OUT.println("java -jar lib1.jar 0 %arg4%");
                     out.println("cd /d %PFRAMEWORK_HOME%%arg1%");
                     out.println("CALL  %PFRAMEWORK_HOME%\\ant\\bin\\ant.bat  -Darg1= %arg2%");
-                    // out.println("java -cp .;%PFRAMEWORK_HOME%lib1.jar %arg3%");
-                    //  out.println(" cd %PFRAMEWORK_HOME%");
-                    //  out.println("java -jar lib1.jar 1 %arg4%");
+                    // OUT.println("java -cp .;%PFRAMEWORK_HOME%lib1.jar %arg3%");
+                    //  OUT.println(" cd %PFRAMEWORK_HOME%");
+                    //  OUT.println("java -jar lib1.jar 1 %arg4%");
                 } catch (FileNotFoundException ex) {
                     Logger.getLogger(TaskServer.class.getName()).log(Level.SEVERE, null, ex);
                 }

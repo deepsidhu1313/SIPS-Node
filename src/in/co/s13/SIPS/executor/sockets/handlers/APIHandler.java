@@ -81,7 +81,7 @@ public class APIHandler implements Runnable {
             System.out.println("IP adress of sender is " + ipAddress);
             Thread.currentThread().setName("API handler for " + ipAddress);
             if (msg.length() > 1) {
-                //System.out.println("hurray cond 1");
+                //System.OUT.println("hurray cond 1");
                 int key_permissions = 0;//default value to 0, no harm done by malformed key
                 System.out.println("" + msg.toString(4));
                 String command = msg.getString("Command");

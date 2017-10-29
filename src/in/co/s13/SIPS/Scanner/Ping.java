@@ -137,7 +137,7 @@ class Ping implements Runnable {
                     ips.add(ifaces.getString("ip"));
                 }
                 outPrintln("" + reply.toString(4));
-                //System.out.println(reply);
+                //System.OUT.println(reply);
                 outPrintln("Port Opened On " + IPadress);
                 LIVE_DB_EXECUTOR.execute(() -> {
 
@@ -159,7 +159,7 @@ class Ping implements Runnable {
                         String get = ips.get(i);
                         live.addIp(get);
                     }
-//                    System.out.println("Live Node DB " + LIVE_NODE_ADJ_DB.toString());
+//                    System.OUT.println("Live Node DB " + LIVE_NODE_ADJ_DB.toString());
                     if (ADJACENT_NODES_TABLE.containsKey(uuid)) {
                         ADJACENT_NODES_TABLE.replace(uuid, new Hop(uuid, distance));
                     } else {
@@ -260,7 +260,7 @@ class Ping implements Runnable {
                 Util.outPrintln("\n\n**************************Live Nodes******************* \n" + Util.getAllLiveNodesInJSON().toString(4));
             }
 //            catch (Exception e) {
-//                System.err.println("Exception " + e);
+//                System.ERR.println("Exception " + e);
 //                CURRENTLY_SCANNING.remove(IPadress.trim());
 //            }
 

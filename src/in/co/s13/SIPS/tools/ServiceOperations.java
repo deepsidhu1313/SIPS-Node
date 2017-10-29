@@ -59,7 +59,7 @@ public class ServiceOperations {
 //            try {
 //                GlobalValues.PING_SERVER_SOCKET.close();
 //            } catch (IOException ex) {
-//                Logger.getLogger(ServiceOperations.class.getName()).log(Level.SEVERE, null, ex);
+//                Logger.getLogger(ServiceOperations.class.getName()).LOG(Level.SEVERE, null, ex);
 //            }
 //        }
     }
@@ -89,7 +89,7 @@ public class ServiceOperations {
 //            try {
 //                GlobalValues.API_SERVER_SOCKET.close();
 //            } catch (IOException ex) {
-//                Logger.getLogger(ServiceOperations.class.getName()).log(Level.SEVERE, null, ex);
+//                Logger.getLogger(ServiceOperations.class.getName()).LOG(Level.SEVERE, null, ex);
 //            }
 //        }
     }
@@ -124,7 +124,7 @@ public class ServiceOperations {
 //            try {
 //                GlobalValues.TASK_SERVER_SOCKET.close();
 //            } catch (IOException ex) {
-//                Logger.getLogger(ServiceOperations.class.getName()).log(Level.SEVERE, null, ex);
+//                Logger.getLogger(ServiceOperations.class.getName()).LOG(Level.SEVERE, null, ex);
 //            }
 //        }
     }
@@ -154,7 +154,7 @@ public class ServiceOperations {
 //            try {
 //                GlobalValues.FILE_DOWNLOAD_SERVER_SOCKET.close();
 //            } catch (IOException ex) {
-//                Logger.getLogger(ServiceOperations.class.getName()).log(Level.SEVERE, null, ex);
+//                Logger.getLogger(ServiceOperations.class.getName()).LOG(Level.SEVERE, null, ex);
 //            }
 //        }
     }
@@ -184,7 +184,7 @@ public class ServiceOperations {
 //            try {
 //                GlobalValues.FILE_DOWNLOAD_SERVER_SOCKET.close();
 //            } catch (IOException ex) {
-//                Logger.getLogger(ServiceOperations.class.getName()).log(Level.SEVERE, null, ex);
+//                Logger.getLogger(ServiceOperations.class.getName()).LOG(Level.SEVERE, null, ex);
 //            }
 //        }
     }
@@ -302,7 +302,7 @@ public class ServiceOperations {
 //            try {
 //                GlobalValues.TASK_FINISH_LISTENER_SERVER_SOCKET.close();
 //            } catch (IOException ex) {
-//                Logger.getLogger(ServiceOperations.class.getName()).log(Level.SEVERE, null, ex);
+//                Logger.getLogger(ServiceOperations.class.getName()).LOG(Level.SEVERE, null, ex);
 //            }
 //        }
     }
