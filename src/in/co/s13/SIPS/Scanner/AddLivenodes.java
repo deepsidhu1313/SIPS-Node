@@ -21,6 +21,7 @@ import static in.co.s13.SIPS.tools.Util.outPrintln;
 import static in.co.s13.SIPS.settings.GlobalValues.HOSTS;
 import static in.co.s13.SIPS.settings.GlobalValues.NETWORK_EXECUTOR;
 import static in.co.s13.SIPS.settings.GlobalValues.TOTAL_IP_SCANNING_THREADS;
+import in.co.s13.SIPS.tools.Util;
 
 public class AddLivenodes implements Runnable {
 
@@ -53,6 +54,6 @@ public class AddLivenodes implements Runnable {
 
         }
 
-        outPrintln("\nFinished all threads");
+        Util.appendToPingLog(GlobalValues.LOG_LEVEL.OUTPUT,"Submitted all range pinger threads to the executor");
     }
 }

@@ -78,17 +78,18 @@ public class APIHandler implements Runnable {
 
             InetAddress inetAddress = submitter.getInetAddress();
             String ipAddress = inetAddress.getHostAddress();
-            System.out.println("IP adress of sender is " + ipAddress);
+//            System.out.println("IP adress of sender is " + ipAddress);
             Thread.currentThread().setName("API handler for " + ipAddress);
+            Util.appendToApiLog(GlobalValues.LOG_LEVEL.OUTPUT, "API Request From " + ipAddress);
             if (msg.length() > 1) {
                 //System.OUT.println("hurray cond 1");
                 int key_permissions = 0;//default value to 0, no harm done by malformed key
-                System.out.println("" + msg.toString(4));
+                Util.appendToApiLog(GlobalValues.LOG_LEVEL.OUTPUT, "Recieved API Request " + msg.toString(4));
                 String command = msg.getString("Command");
                 JSONObject requestBody = msg.getJSONObject("Body");;
                 String clientUUID = requestBody.getString("UUID");
                 JSONArray args = requestBody.getJSONArray("ARGS");
-                System.out.println("ARGS : " + args.toString());
+//                System.out.println("ARGS : " + args.toString());
                 String apiKey = requestBody.getString("API_KEY");
                 if ((GlobalValues.BLACKLIST.containsKey(ipAddress) || GlobalValues.BLACKLIST.containsKey(clientUUID))
                         && (!GlobalValues.API_LIST.containsKey(clientUUID) || !GlobalValues.API_LIST.containsKey(ipAddress))) {
@@ -103,6 +104,7 @@ public class APIHandler implements Runnable {
                     body.put("Response", response);
                     sendmsg2Json.put("Body", body);
                     String sendmsg2 = sendmsg2Json.toString();
+                    Util.appendToApiLog(GlobalValues.LOG_LEVEL.OUTPUT, sendmsg2);
                     byte[] bytes2 = sendmsg2.getBytes("UTF-8");
                     outToClient2.writeInt(bytes2.length);
                     outToClient2.write(bytes2);
@@ -134,8 +136,8 @@ public class APIHandler implements Runnable {
                         byte[] bytes2 = sendmsg2.getBytes("UTF-8");
                         outToClient2.writeInt(bytes2.length);
                         outToClient2.write(bytes2);
-
                         submitter.close();
+                        Util.appendToApiLog(GlobalValues.LOG_LEVEL.OUTPUT, sendmsg2);
                         return;
                     }
                     System.out.println("" + GlobalValues.API_LIST.toString());
@@ -153,8 +155,8 @@ public class APIHandler implements Runnable {
                         byte[] bytes2 = sendmsg2.getBytes("UTF-8");
                         outToClient2.writeInt(bytes2.length);
                         outToClient2.write(bytes2);
-
                         submitter.close();
+                        Util.appendToApiLog(GlobalValues.LOG_LEVEL.OUTPUT, sendmsg2);
                         return;
                     }
                 }
@@ -599,11 +601,13 @@ public class APIHandler implements Runnable {
                 byte[] bytes2 = sendmsg2.getBytes("UTF-8");
                 outToClient2.writeInt(bytes2.length);
                 outToClient2.write(bytes2);
+                Util.appendToApiLog(GlobalValues.LOG_LEVEL.OUTPUT, sendmsg2);
             }
             submitter.close();
 
         } catch (IOException ex) {
             Logger.getLogger(APIHandler.class.getName()).log(Level.SEVERE, null, ex);
+            Util.appendToApiLog(GlobalValues.LOG_LEVEL.ERROR, ex.toString());
             try {
                 if (!submitter.isClosed()) {
                     submitter.close();

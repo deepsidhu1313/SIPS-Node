@@ -18,8 +18,8 @@ package in.co.s13.SIPS.Scanner;
 
 import in.co.s13.SIPS.settings.GlobalValues;
 import static in.co.s13.SIPS.settings.GlobalValues.*;
-import static in.co.s13.SIPS.tools.Util.outPrintln;
 import in.co.s13.SIPS.datastructure.LiveDBRow;
+import in.co.s13.SIPS.tools.Util;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.concurrent.TimeUnit;
@@ -34,7 +34,6 @@ public class CheckLiveNodes implements Runnable {
 
     public CheckLiveNodes() {
 
-        outPrintln("thread started");
     }
 
     @Override
@@ -55,6 +54,7 @@ public class CheckLiveNodes implements Runnable {
                                 Thread p1 = new Thread(new Ping(get, liveNode.getUuid()));
                                 p1.setPriority(Thread.NORM_PRIORITY + 2);
                                 PING_REQUEST_EXECUTOR_FOR_LIVE_NODES.submit(p1);
+                                Util.appendToPingLog(LOG_LEVEL.OUTPUT, "Submitted Ping request for Adjacent " + liveNode.getUuid() + " on IP :" + get);
                             }
                         }
 
@@ -71,6 +71,7 @@ public class CheckLiveNodes implements Runnable {
                                 Thread p1 = new Thread(new Ping(get, liveNode.getUuid()));
                                 p1.setPriority(Thread.NORM_PRIORITY + 2);
                                 PING_REQUEST_EXECUTOR_FOR_LIVE_NODES.submit(p1);
+                                Util.appendToPingLog(LOG_LEVEL.OUTPUT, "Submitted Ping request for Non-Adjacent " + liveNode.getUuid() + " on IP :" + get);
                             }
                         }
 

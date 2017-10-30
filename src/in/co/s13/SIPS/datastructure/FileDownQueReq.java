@@ -16,6 +16,8 @@
  */
 package in.co.s13.SIPS.datastructure;
 
+import org.json.JSONObject;
+
 /**
  *
  * @author NAVDEEP SINGH SIDHU <navdeepsingh.sidhu95@gmail.com>
@@ -124,6 +126,26 @@ public class FileDownQueReq {
     public void setRemainingsize(long fileLen) {
         this.remainingsize = fileLen;
 
+    }
+
+    @Override
+    public String toString() {
+        return this.toJSON().toString();
+    }
+
+    public JSONObject toJSON() {
+        JSONObject request = new JSONObject();
+        request.put("ip", ip);
+        request.put("checksum", checksum);
+        request.put("filename", filename);
+        request.put("id", id);
+        request.put("finished", finished);
+        request.put("starttime", starttime);
+        request.put("remainingTime", remainingTime);
+        request.put("size", size);
+        request.put("remainingsize", remainingsize);
+        request.put("reqmsg", reqmsg);
+        return request;
     }
 
 }

@@ -18,6 +18,7 @@ package in.co.s13.SIPS.Scanner;
 
 import java.util.ArrayList;
 import static in.co.s13.SIPS.settings.GlobalValues.*;
+import in.co.s13.SIPS.tools.Util;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -66,6 +67,7 @@ public class RangePinger implements Runnable {
 //
 //            }
         }
+        Util.appendToPingLog(LOG_LEVEL.OUTPUT, ("Executed Range Pinger Thread From " + low + " to " + up + " on List With Size " + temp.size()));
     }
 
 }

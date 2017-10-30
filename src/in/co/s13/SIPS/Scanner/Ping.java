@@ -60,23 +60,25 @@ class Ping implements Runnable {
 
     public void scan() {
         if (CURRENTLY_SCANNING.contains(IPadress.trim())) {
-            outPrintln(IPadress + " is Already In Scan List");
+            Util.appendToPingLog(GlobalValues.LOG_LEVEL.OUTPUT, IPadress + " is Already In Scan List");
             return;
         } else {
             CURRENTLY_SCANNING.put(IPadress.trim(), IPadress);
         }
-        Util.outPrintln("Scanning List:" + CURRENTLY_SCANNING.toString());
+        Util.appendToPingLog(GlobalValues.LOG_LEVEL.OUTPUT, "Currently Scanning : " + CURRENTLY_SCANNING.toString());
         try {
             adrss = InetAddress.getByName(IPadress);
             if (adrss.isReachable(5000)) {
-                outPrintln(IPadress + " is Reachable");
+                Util.appendToPingLog(GlobalValues.LOG_LEVEL.OUTPUT, IPadress + " is Reachable");
             } else {
-                outPrintln(IPadress + " is not Reachable");
+                Util.appendToPingLog(GlobalValues.LOG_LEVEL.ERROR, IPadress + " is not Reachable");
             }
         } catch (UnknownHostException ex) {
             Logger.getLogger(Ping.class.getName()).log(Level.SEVERE, null, ex);
+            Util.appendToPingLog(GlobalValues.LOG_LEVEL.ERROR, ex.toString());
         } catch (IOException ex) {
             Logger.getLogger(Ping.class.getName()).log(Level.SEVERE, null, ex);
+            Util.appendToPingLog(GlobalValues.LOG_LEVEL.ERROR, ex.toString());
         }
         Socket s = new Socket();
         try {
@@ -136,9 +138,8 @@ class Ping implements Runnable {
                     ips.add(ifaces.getString("hostname"));
                     ips.add(ifaces.getString("ip"));
                 }
-                outPrintln("" + reply.toString(4));
-                //System.OUT.println(reply);
-                outPrintln("Port Opened On " + IPadress);
+                Util.appendToPingLog(GlobalValues.LOG_LEVEL.OUTPUT, "Reply from " + IPadress + " :" + reply.toString(4));
+                Util.appendToPingLog(GlobalValues.LOG_LEVEL.OUTPUT, "Port Opened On " + IPadress);
                 LIVE_DB_EXECUTOR.execute(() -> {
 
                     boolean updatedRecord = false;
@@ -257,7 +258,7 @@ class Ping implements Runnable {
                     }
 
                 });
-                Util.outPrintln("\n\n**************************Live Nodes******************* \n" + Util.getAllLiveNodesInJSON().toString(4));
+                Util.appendToPingLog(GlobalValues.LOG_LEVEL.OUTPUT, "\n\n**************************Live Nodes******************* \n" + Util.getAllLiveNodesInJSON().toString(4));
             }
 //            catch (Exception e) {
 //                System.ERR.println("Exception " + e);
@@ -267,7 +268,7 @@ class Ping implements Runnable {
             s.close();
 
         } catch (IOException ex) {
-            errPrintln(IPadress + " is dead:" + ex);
+            Util.appendToPingLog(GlobalValues.LOG_LEVEL.ERROR,IPadress + " is dead:" + ex);
             LIVE_NODE_ADJ_DB.remove(IPadress.trim());
             LIVE_NODE_ADJ_DB.remove(UUID.trim());
             ADJACENT_NODES_TABLE.remove(UUID.trim());

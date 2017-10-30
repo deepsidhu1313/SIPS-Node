@@ -65,10 +65,8 @@ public class FileDownloadHandler implements Runnable {
             Thread.currentThread().setName("File Request handler for " + ipAddress);
             if (msg.length() > 1) {
                 JSONObject messageJson = new JSONObject(message);
-                //settings.outPrintln("hurray cond 1");
-                System.out.println("IP adress of sender is " + ipAddress);
 
-                System.out.println("" + msg);
+                Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "Accepted Request From " + ipAddress + " : " + msg);
 
                 String command = messageJson.getString("Command");//msg.substring(msg.indexOf("<Command>") + 9, msg.indexOf("</Command>"));
                 //String body = messageJson.getString("Body");//msg.substring(msg.indexOf("<Body>") + 6, msg.indexOf("</Body>"));
@@ -82,7 +80,7 @@ public class FileDownloadHandler implements Runnable {
                     String fname = body.getString("FILENAME");//body.substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
                     String checksum = body.getString("CHECKSUM");//body.substring(body.indexOf("<CHECKSUM>") + 10, body.indexOf("</CHECKSUM>"));
                     String ip = body.getString("IP");//body.substring(body.indexOf("<IP>") + 4, body.indexOf("</IP>"));
-                    System.out.println("Accepted connection : " + submitter);
+//                    System.out.println("Accepted connection : " + submitter);
                     // send file
                     boolean notinQ = true; //for
                     {
@@ -102,7 +100,7 @@ public class FileDownloadHandler implements Runnable {
 //                        if (((b1) && (b2) && (b3) && (b4))) 
                             {
                                 notinQ = false;
-                                System.out.println("REQUEST Already IN QUE");
+                                Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "REQUEST Already IN QUE : " + downQue.toString());
                                 if (downQue.getFinished()) {
                                     String sendmsg = new JSONObject().put("MSG", "finished").toString(4);//"<MSG>finished</MSG>";
 
@@ -114,7 +112,7 @@ public class FileDownloadHandler implements Runnable {
                                     outputStream.close();
                                     outToClient.close();
                                     submitter.close();
-                                    System.out.println("REQUEST Already Finished");
+                                    Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "REQUEST Already Finished : " + downQue.toString() + " sending Message " + sendmsg);
                                     //    break;
                                 } else {
                                     long rt = downQue.getRemainingTime();
@@ -131,7 +129,8 @@ public class FileDownloadHandler implements Runnable {
                                     outputStream.close();
                                     outToClient.close();
                                     submitter.close();
-                                    System.out.println("REQUEST Already IN QUE wait for " + rt);
+//                                    System.out.println("REQUEST Already IN QUE wait for " + rt);
+                                    Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "REQUEST Already IN QUE wait for " + rt + " : " + downQue.toString() + " sending Message " + sendmsg);
                                     //  break;
 
                                 }
@@ -157,6 +156,7 @@ public class FileDownloadHandler implements Runnable {
                         submitter.close();
 
                         FileDownQueReq downQue = GlobalValues.DOWNLOAD_QUEUE.get(fileToSend.trim() + "-" + pid.trim() + "-" + checksum.trim() + "-" + ip.trim());
+                        Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "REQUEST Added IN QUE : " + downQue.toString() + " sending Message " + sendmsg);
                         {
 //                            boolean b1 = downQue.getFilename().trim().equalsIgnoreCase(fileToSend.trim());
 //                            boolean b2 = downQue.getId() == Integer.parseInt(pid.trim());
@@ -171,9 +171,11 @@ public class FileDownloadHandler implements Runnable {
 //
 //                            if (((b1) && (b2) && (b3) && (b4))) 
                             {
-                                System.out.println("Downloading File Now");
+//                                System.out.println("Downloading File Now");
+                                Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "Downloading File Now : " + downQue.toString());
                                 try (Socket sock = new Socket(ip, GlobalValues.FILE_SERVER_PORT)) {
-                                    System.out.println("Connecting To Download...");
+//                                    System.out.println("Connecting To Download...");
+                                    Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "Connecting To Download... : " + downQue.toString());
                                     try (OutputStream sockos = sock.getOutputStream(); DataOutputStream outToServer = new DataOutputStream(sockos)) {
                                         JSONObject downreqJsonObj = new JSONObject();
                                         downreqJsonObj.put("Command", "sendfile");
@@ -187,7 +189,9 @@ public class FileDownloadHandler implements Runnable {
                                         bytes = downreqsendmsg.getBytes("UTF-8");
                                         outToServer.writeInt(bytes.length);
                                         outToServer.write(bytes);
-                                        System.out.println("Sent Req To Download...");
+//                                        System.out.println("Sent Req To Download...");
+                                        Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "Sent Req To Download... : " + downQue.toString() + " sending Message " + downreqsendmsg);
+
                                         try (DataInputStream sockdin = new DataInputStream(sock.getInputStream())) {
                                             length = sockdin.readInt();                    // read length of incoming message
                                             message = new byte[length];
@@ -216,7 +220,9 @@ public class FileDownloadHandler implements Runnable {
                                                     sockdin.readFully(message, 0, message.length); // read the message
                                                 }
                                                 String checksum2 = new String(message);
-                                                System.out.println("CheckSum Recieved " + checksum2);
+//                                                System.out.println("CheckSum Recieved " + checksum2);
+                                                Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "CheckSum Recieved  : " + checksum2 + " for Request " + downQue.toString());
+
                                                 //InputStream is = sock.getInputStream();
                                                 //if (lchecksum.trim().length() > 0)
                                                 {
@@ -264,14 +270,18 @@ public class FileDownloadHandler implements Runnable {
                                                         downQue.setFinished(true);
                                                         downQue.setChecksum(checksum2);
                                                         long endtime = System.currentTimeMillis();
-                                                        System.out.println("File " + fileToSend
-                                                                + " downloaded (" + downData + " bytes read) in " + (endtime - starttime) + " ms");
+//                                                        System.out.println("File " + fileToSend + " downloaded (" + downData + " bytes read) in " + (endtime - starttime) + " ms");
+                                                        Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "File " + fileToSend
+                                                                + " downloaded (" + downData + " bytes read) in " + (endtime - starttime) + " ms " + downQue.toString() + " sending Message " + sendmsg);
+
                                                         Util.saveCheckSum(ip2Dir.getAbsolutePath() + ".sha", checksum2);
                                                     }
                                                 }
                                             } else {
-                                                System.out.println("Couldn't find file");
-                                                //    logmsg.add("Couldn't Find File on Master, Plz check file exists in Frameworks data directory " + _item);
+//                                                System.out.println("Couldn't find file");
+                                                Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.ERROR, "Couldn't find file : " + downQue.toString());
+
+//    logmsg.add("Couldn't Find File on Master, Plz check file exists in Frameworks data directory " + _item);
                                             }
                                         } // read length of incoming message // read length of incoming message
                                     }
@@ -286,7 +296,7 @@ public class FileDownloadHandler implements Runnable {
                     //File myFile = new File("data/" + pid + "/" + fileToSend);
 
                 } else if (command.trim().equalsIgnoreCase("downloadObject")) {
-                    System.out.println("finding Object");
+//                    System.out.println("finding Object");
                     String objToSend = body.getString("OBJECT");// body.substring(body.indexOf("<OBJECT>") + 8, body.indexOf("</OBJECT>"));
                     String pid2 = body.getString("PID");//body.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
                     String cno2 = body.getString("CNO");//body.substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
@@ -295,7 +305,7 @@ public class FileDownloadHandler implements Runnable {
                     String checksum = body.getString("CHECKSUM");//body.substring(body.indexOf("<CHECKSUM>") + 10, body.indexOf("</CHECKSUM>"));
                     String ip = body.getString("IP");//body.substring(body.indexOf("<IP>") + 4, body.indexOf("</IP>"));
 
-                    System.out.println("Accepted connection : " + submitter);
+//                    System.out.println("Accepted connection : " + submitter);
                     // send file
                     String pathtoFile = "data/" + pid2 + "/sim/" + classname + "/" + objToSend + "-instance-" + instance + ".obj";
                     String lpathtoFile = "sim/" + classname + "/" + objToSend + "-instance-" + instance + ".obj";
@@ -304,18 +314,19 @@ public class FileDownloadHandler implements Runnable {
                     boolean notinQ = true;
                     FileDownQueReq downQue = GlobalValues.DOWNLOAD_QUEUE.get(pathtoFile.trim() + "-" + pid2.trim() + "-" + checksum.trim() + "-" + ip.trim());
                     {
-                        boolean b1 = downQue.getFilename().trim().equalsIgnoreCase(pathtoFile.trim());
-                        boolean b2 = downQue.getId() == Integer.parseInt(pid2.trim());
-                        boolean b3 = downQue.getChecksum().trim().equalsIgnoreCase(checksum.trim());
-                        boolean b4 = downQue.getIp().trim().equalsIgnoreCase(ip.trim());
-                        System.out.println("Compairing For Download :\nFilename:" + downQue.getFilename().trim()
-                                + " with " + pathtoFile.trim() + "\t" + b1
-                                + "\nPID:" + downQue.getId() + " with " + pid2 + "\t" + b2
-                                + "\nChecksum:" + downQue.getChecksum().trim() + " with " + checksum
-                                + "\t" + b3
-                                + "\nIP: " + downQue.getIp().trim() + " with " + ip + "\t" + b4);
-
-                        if (((b1) && (b2) && (b3) && (b4))) {
+//                        boolean b1 = downQue.getFilename().trim().equalsIgnoreCase(pathtoFile.trim());
+//                        boolean b2 = downQue.getId() == Integer.parseInt(pid2.trim());
+//                        boolean b3 = downQue.getChecksum().trim().equalsIgnoreCase(checksum.trim());
+//                        boolean b4 = downQue.getIp().trim().equalsIgnoreCase(ip.trim());
+//                        System.out.println("Compairing For Download :\nFilename:" + downQue.getFilename().trim()
+//                                + " with " + pathtoFile.trim() + "\t" + b1
+//                                + "\nPID:" + downQue.getId() + " with " + pid2 + "\t" + b2
+//                                + "\nChecksum:" + downQue.getChecksum().trim() + " with " + checksum
+//                                + "\t" + b3
+//                                + "\nIP: " + downQue.getIp().trim() + " with " + ip + "\t" + b4);
+//
+//                        if (((b1) && (b2) && (b3) && (b4))) 
+                        {
                             notinQ = false;
                             if (downQue.getFinished()) {
                                 String sendmsg = new JSONObject().put("MSG", "finished").toString();//"<MSG>finished</MSG>";
@@ -324,6 +335,7 @@ public class FileDownloadHandler implements Runnable {
                                 outToClient.writeInt(bytes.length);
 
                                 outToClient.write(bytes);
+                                Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "" + downQue.toString() + " sending Message " + sendmsg);
 
                             } else {
                                 long rt = downQue.getRemainingTime();
@@ -337,6 +349,7 @@ public class FileDownloadHandler implements Runnable {
                                 outToClient.writeInt(bytes.length);
 
                                 outToClient.write(bytes);
+                                Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "" + downQue.toString() + " sending Message " + sendmsg);
 
                             }
                         }
@@ -357,6 +370,7 @@ public class FileDownloadHandler implements Runnable {
                         submitter.close();
 
                         FileDownQueReq downQue2 = GlobalValues.DOWNLOAD_QUEUE.get(pathtoFile.trim() + "-" + pid2.trim() + "-" + checksum.trim() + "-" + ip.trim());
+                        Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "Added in Queue : " + downQue.toString() + " sending Message " + sendmsg);
 
                         {
 
@@ -396,6 +410,7 @@ public class FileDownloadHandler implements Runnable {
                                         bytes = downreqsendmsg.getBytes("UTF-8");
                                         outToServer.writeInt(bytes.length);
                                         outToServer.write(bytes);
+                                        Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "" + downQue.toString() + " sending Message " + sendmsg);
                                         try (DataInputStream sockdin = new DataInputStream(sock.getInputStream())) {
                                             length = sockdin.readInt();                    // read length of incoming message
                                             message = new byte[length];
@@ -424,7 +439,9 @@ public class FileDownloadHandler implements Runnable {
                                                     sockdin.readFully(message, 0, message.length); // read the message
                                                 }
                                                 String checksum2 = new String(message);
-                                                System.out.println("CheckSum Recieved " + checksum2);
+//                                                System.out.println("CheckSum Recieved " + checksum2);
+                                                Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "CheckSum Recieved " + checksum2 + " for REQUEST : " + downQue.toString());
+
                                                 //InputStream is = sock.getInputStream();
                                                 //if (lchecksum.trim().length() > 0)
                                                 {
@@ -471,13 +488,15 @@ public class FileDownloadHandler implements Runnable {
                                                         downQue2.setFinished(true);
                                                         downQue2.setChecksum(checksum2);
                                                         long endtime = System.currentTimeMillis();
-                                                        System.out.println("File " + pathtoFile
-                                                                + " downloaded (" + downData + " bytes read) in " + (endtime - starttime) + " ms");
+//                                                        System.out.println("File " + pathtoFile + " downloaded (" + downData + " bytes read) in " + (endtime - starttime) + " ms");
+                                                        Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "File " + pathtoFile + " downloaded (" + downData + " bytes read) in " + (endtime - starttime) + " ms" + downQue.toString() + " sending Message " + sendmsg);
                                                         Util.saveCheckSum(ip2Dir.getAbsolutePath() + ".sha", checksum2);
                                                     }
                                                 }
                                             } else {
                                                 System.out.println("Couldn't find file");
+                                                    Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.ERROR, "Couldn't find file" + downQue.toString());
+                                
                                                 //    logmsg.add("Couldn't Find File on Master, Plz check file exists in Frameworks data directory " + _item);
                                             }
                                         } // read length of incoming message // read length of incoming message
@@ -490,7 +509,7 @@ public class FileDownloadHandler implements Runnable {
 
                     }
                     submitter.close();
-                    System.out.println("Done.");
+//                    System.out.println("Done.");
                 }
 
             }
