@@ -16,6 +16,7 @@
  */
 package in.co.s13.SIPS.executor.sockets.handlers;
 
+import in.co.s13.SIPS.settings.GlobalValues;
 import in.co.s13.SIPS.tools.Util;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -68,10 +69,9 @@ public class FileHandler implements Runnable {
                 InetAddress inetAddress = submitter.getInetAddress();
                 String ipAddress = inetAddress.getHostAddress();
                 if (msg.length() > 1) {
-                    //settings.outPrintln("hurray cond 1");
-                    Util.outPrintln("IP adress of sender is " + ipAddress);
+//                      Util.outPrintln("IP adress of sender is " + ipAddress);
 
-                    Util.outPrintln("" + msg);
+                    Util.appendToFileServerLog(GlobalValues.LOG_LEVEL.OUTPUT, "Accepted Request " + msg + " from " + ipAddress);
 
                     String command = msg.getString("Command");//substring(msg.indexOf("<Command>") + 9, msg.indexOf("</Command>"));
                     JSONObject body = msg.getJSONObject("Body");//.substring(msg.indexOf("<Body>") + 6, msg.indexOf("</Body>"));
@@ -83,7 +83,7 @@ public class FileHandler implements Runnable {
                         String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
                         String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
 
-                        System.out.println("Accepted connection : " + submitter);
+//                        System.out.println("Accepted connection : " + submitter);
                         // send file
                         File myFile = new File("data/" + pid + "/" + fileToSend);
 
@@ -104,10 +104,11 @@ public class FileHandler implements Runnable {
                             if (sendmsg.trim().length() < 1) {
                                 sendmsg = "" + Util.getCheckSum(myFile.getAbsolutePath().trim());
                             }
-                            System.out.println("Sending CheckSUm" + sendmsg);
+//                            System.out.println("Sending CheckSUm" + sendmsg);
                             bytes = sendmsg.getBytes("UTF-8");
                             outToClient.writeInt(bytes.length);
                             outToClient.write(bytes);
+                            Util.appendToFileServerLog(GlobalValues.LOG_LEVEL.OUTPUT, "Sending " + sendmsg + " to " + ipAddress);
 
                             length = dIn.readInt();                    // read length of incoming message
                             message = new byte[length];
@@ -127,7 +128,7 @@ public class FileHandler implements Runnable {
                                 fis = new FileInputStream(myFile);
                                 bis = new BufferedInputStream(fis);
                                 int theByte = 0;
-                                System.out.println("Sending " + fileToSend + "(" + myFile.length() + " bytes)");
+                                Util.appendToFileServerLog(GlobalValues.LOG_LEVEL.OUTPUT, "Sending " + fileToSend + "(" + myFile.length() + " bytes)");
                                 /* while ((theByte = bis.read()) != -1) {
                                 outToClient.write(theByte);
                                 // bos.flush();
@@ -147,14 +148,14 @@ public class FileHandler implements Runnable {
 
                         }
                     } else if (command.trim().equalsIgnoreCase("resolveObject")) {
-                        System.out.println("finding Object");
+//                        System.out.println("finding Object");
                         String objToSend = body.getString("OBJECT");//substring(body.indexOf("<OBJECT>") + 8, body.indexOf("</OBJECT>"));
                         String pid2 = body.getString("PID");//substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
                         String cno2 = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
                         String classname = body.getString("CLASSNAME");//substring(body.indexOf("<CLASSNAME>") + 11, body.indexOf("</CLASSNAME>"));
                         String instance = body.getString("INSTANCE");//substring(body.indexOf("<INSTANCE>") + 10, body.indexOf("</INSTANCE>"));
 
-                        System.out.println("Accepted connection : " + submitter);
+//                        System.out.println("Accepted connection : " + submitter);
                         // send file
                         File myFile2 = new File("data/" + pid2 + "/sim/" + classname + "/" + objToSend + "-instance-" + instance + ".obj");
 
@@ -178,6 +179,7 @@ public class FileHandler implements Runnable {
                             bytes = sendmsg.getBytes("UTF-8");
                             outToClient.writeInt(bytes.length);
                             outToClient.write(bytes);
+                            Util.appendToFileServerLog(GlobalValues.LOG_LEVEL.OUTPUT, "Sending " + sendmsg + " to " + ipAddress);
 
                             //msg = "";
                             length = dIn.readInt();                    // read length of incoming message
@@ -199,7 +201,7 @@ public class FileHandler implements Runnable {
                                 fis = new FileInputStream(myFile2);
                                 bis = new BufferedInputStream(fis);
                                 int theByte = 0;
-                                System.out.println("Sending " + objToSend + "(" + myFile2.length() + " bytes)");
+                                Util.appendToFileServerLog(GlobalValues.LOG_LEVEL.OUTPUT, "Sending " + objToSend + "(" + myFile2.length() + " bytes)");
                                 /* while ((theByte = bis.read()) != -1) {
                                 outToClient.write(theByte);
                                 // bos.flush();
@@ -222,9 +224,10 @@ public class FileHandler implements Runnable {
                             byte[] bytes = sendmsg.getBytes("UTF-8");
                             outToClient.writeInt(bytes.length);
                             outToClient.write(bytes);
+                            Util.appendToFileServerLog(GlobalValues.LOG_LEVEL.ERROR, "Sending " + sendmsg + " to " + ipAddress);
+
                         }
 
-                        System.out.println("Done.");
                     } else if (command.trim().equalsIgnoreCase("resolveObjectChecksum")) {
                         System.out.println("finding Object");
                         String objToSend = body.getString("OBJECT");//substring(body.indexOf("<OBJECT>") + 8, body.indexOf("</OBJECT>"));
@@ -260,6 +263,7 @@ public class FileHandler implements Runnable {
                             os.close();
                             outToClient.close();
                             submitter.close();
+                            Util.appendToFileServerLog(GlobalValues.LOG_LEVEL.OUTPUT, "Sending " + sendmsg + " to " + ipAddress);
 
                         } else {
                             String sendmsg = "error";
@@ -270,6 +274,7 @@ public class FileHandler implements Runnable {
                             os.close();
                             outToClient.close();
                             submitter.close();
+                            Util.appendToFileServerLog(GlobalValues.LOG_LEVEL.ERROR, "Sending " + sendmsg + " to " + ipAddress);
 
                         }
 
@@ -302,6 +307,7 @@ public class FileHandler implements Runnable {
                             if (sendmsg.trim().length() < 1) {
                                 sendmsg = "" + Util.getCheckSum(myFile.getAbsolutePath().trim());
                             }
+                            Util.appendToFileServerLog(GlobalValues.LOG_LEVEL.OUTPUT, "Sending " + sendmsg + " to " + ipAddress);
 
                             bytes = sendmsg.getBytes("UTF-8");
                             outToClient.writeInt(bytes.length);
@@ -315,8 +321,11 @@ public class FileHandler implements Runnable {
 
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(FileHandler.class.getName()).log(Level.SEVERE, null, ex);
+            Util.appendToFileServerLog(GlobalValues.LOG_LEVEL.ERROR, ex.toString());
+
         } catch (IOException ex) {
             Logger.getLogger(FileHandler.class.getName()).log(Level.SEVERE, null, ex);
+            Util.appendToFileServerLog(GlobalValues.LOG_LEVEL.ERROR, ex.toString());
         }
         {
             try {
