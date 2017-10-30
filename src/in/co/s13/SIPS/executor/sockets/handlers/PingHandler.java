@@ -70,6 +70,22 @@ public class PingHandler implements Runnable {
                     if (GlobalValues.BLACKLIST.containsKey(clientUUID) || GlobalValues.BLACKLIST.containsKey(ipAddress)) {
                         //send error message
                         // bad node no cookie for u
+                        try (OutputStream os2 = submitter.getOutputStream(); DataOutputStream outToClient2 = new DataOutputStream(os2)) {
+                            JSONObject sendmsg2Json = new JSONObject();
+                            sendmsg2Json.put("UUID", GlobalValues.NODE_UUID);
+                            JSONObject body = new JSONObject();
+                            JSONObject response = new JSONObject();
+                            response.put("Message", "Error!!\n \tYou are not allowed.");
+                            body.put("Response", response);
+                            sendmsg2Json.put("Body", body);
+                            String sendmsg2 = sendmsg2Json.toString();
+                            Util.appendToApiLog(GlobalValues.LOG_LEVEL.OUTPUT, sendmsg2);
+                            byte[] bytes2 = sendmsg2.getBytes("UTF-8");
+                            outToClient2.writeInt(bytes2.length);
+                            outToClient2.write(bytes2);
+                            Util.appendToPingServerLog(GlobalValues.LOG_LEVEL.ERROR, "Sending Message : " + sendmsg2 + " to " + ipAddress);
+
+                        }
                     }
 
                     if (command.equalsIgnoreCase("ping")) {
@@ -98,6 +114,8 @@ public class PingHandler implements Runnable {
                             byte[] bytes2 = sendmsg2.getBytes("UTF-8");
                             outToClient2.writeInt(bytes2.length);
                             outToClient2.write(bytes2);
+
+                            Util.appendToPingServerLog(GlobalValues.LOG_LEVEL.OUTPUT, "Sending Message : " + sendmsg2 + " to " + ipAddress);
                         }
 //                        System.OUT.println("Ping Recieved");
                         //                pingThread = true;
@@ -111,6 +129,7 @@ public class PingHandler implements Runnable {
 
         } catch (IOException ex) {
             Logger.getLogger(PingHandler.class.getName()).log(Level.SEVERE, null, ex);
+            Util.appendToPingServerLog(GlobalValues.LOG_LEVEL.ERROR, ex.toString());
             try {
                 if (!submitter.isClosed()) {
                     submitter.close();
