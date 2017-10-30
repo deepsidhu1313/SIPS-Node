@@ -815,67 +815,80 @@ public class Util {
 
     }
 
-    public static synchronized void appendToApiLog(GlobalValues.LOG_LEVEL logLevel, String sout) {
-        String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
-        if (logLevel == GlobalValues.LOG_LEVEL.ERROR) {
-            errPrintln(sout);
-        } else if (logLevel == GlobalValues.LOG_LEVEL.OUTPUT) {
-            outPrintln(sout);
-        }
-        GlobalValues.API_LOG_PRINTER.append("\n" + "[" + timestamp + "] [" + logLevel + "] [" + sout + "]");
+    public static void appendToApiLog(GlobalValues.LOG_LEVEL logLevel, String sout) {
+        GlobalValues.LOG_IO_EXECUTOR.submit(() -> {
+
+            String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
+            if (logLevel == GlobalValues.LOG_LEVEL.ERROR) {
+                errPrintln(sout);
+            } else if (logLevel == GlobalValues.LOG_LEVEL.OUTPUT) {
+                outPrintln(sout);
+            }
+            GlobalValues.API_LOG_PRINTER.append("\n" + "[" + timestamp + "] [" + logLevel + "] [" + sout + "]");
+        });
+
     }
 
-    public static synchronized void appendToFileDownloadLog(GlobalValues.LOG_LEVEL logLevel, String sout) {
-        String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
-        if (logLevel == GlobalValues.LOG_LEVEL.ERROR) {
-            errPrintln(sout);
-        } else if (logLevel == GlobalValues.LOG_LEVEL.OUTPUT) {
-            outPrintln(sout);
-        }
-        GlobalValues.FILE_DOWNLOAD_QUE_LOG_PRINTER.append("\n" + "[" + timestamp + "] [" + logLevel + "] [" + sout + "]");
+    public static void appendToFileDownloadLog(GlobalValues.LOG_LEVEL logLevel, String sout) {
+        GlobalValues.LOG_IO_EXECUTOR.submit(() -> {
+            String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
+            if (logLevel == GlobalValues.LOG_LEVEL.ERROR) {
+                errPrintln(sout);
+            } else if (logLevel == GlobalValues.LOG_LEVEL.OUTPUT) {
+                outPrintln(sout);
+            }
+            GlobalValues.FILE_DOWNLOAD_QUE_LOG_PRINTER.append("\n" + "[" + timestamp + "] [" + logLevel + "] [" + sout + "]");
+        });
     }
 
-    public static synchronized void appendToFileServerLog(GlobalValues.LOG_LEVEL logLevel, String sout) {
-        String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
-        if (logLevel == GlobalValues.LOG_LEVEL.ERROR) {
-            errPrintln(sout);
-        } else if (logLevel == GlobalValues.LOG_LEVEL.OUTPUT) {
-            outPrintln(sout);
-        }
-        GlobalValues.FILE_SERVER_LOG_PRINTER.append("\n" + "[" + timestamp + "] [" + logLevel + "] [" + sout + "]");
+    public static void appendToFileServerLog(GlobalValues.LOG_LEVEL logLevel, String sout) {
+        GlobalValues.LOG_IO_EXECUTOR.submit(() -> {
+            String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
+            if (logLevel == GlobalValues.LOG_LEVEL.ERROR) {
+                errPrintln(sout);
+            } else if (logLevel == GlobalValues.LOG_LEVEL.OUTPUT) {
+                outPrintln(sout);
+            }
+            GlobalValues.FILE_SERVER_LOG_PRINTER.append("\n" + "[" + timestamp + "] [" + logLevel + "] [" + sout + "]");
+        });
     }
 
-    public static synchronized void appendToPingServerLog(GlobalValues.LOG_LEVEL logLevel, String sout) {
-        String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
-        if (logLevel == GlobalValues.LOG_LEVEL.ERROR) {
-            errPrintln(sout);
-        } else if (logLevel == GlobalValues.LOG_LEVEL.OUTPUT) {
-            outPrintln(sout);
-        }
-        GlobalValues.PING_SERVER_LOG_PRINTER.append("\n" + "[" + timestamp + "] [" + logLevel + "] [" + sout + "]");
+    public static void appendToPingServerLog(GlobalValues.LOG_LEVEL logLevel, String sout) {
+        GlobalValues.LOG_IO_EXECUTOR.submit(() -> {
+            String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
+            if (logLevel == GlobalValues.LOG_LEVEL.ERROR) {
+                errPrintln(sout);
+            } else if (logLevel == GlobalValues.LOG_LEVEL.OUTPUT) {
+                outPrintln(sout);
+            }
+            GlobalValues.PING_SERVER_LOG_PRINTER.append("\n" + "[" + timestamp + "] [" + logLevel + "] [" + sout + "]");
+        });
     }
 
-    public static synchronized void appendToTasksLog(GlobalValues.LOG_LEVEL logLevel, String sout) {
-        String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
-        if (logLevel == GlobalValues.LOG_LEVEL.ERROR) {
-            errPrintln(sout);
-        } else if (logLevel == GlobalValues.LOG_LEVEL.OUTPUT) {
-            outPrintln(sout);
-        }
-        GlobalValues.TASK_LOG_PRINTER.append("\n" + "[" + timestamp + "] [" + logLevel + "] [" + sout + "]");
+    public static void appendToTasksLog(GlobalValues.LOG_LEVEL logLevel, String sout) {
+        GlobalValues.LOG_IO_EXECUTOR.submit(() -> {
+            String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
+            if (logLevel == GlobalValues.LOG_LEVEL.ERROR) {
+                errPrintln(sout);
+            } else if (logLevel == GlobalValues.LOG_LEVEL.OUTPUT) {
+                outPrintln(sout);
+            }
+            GlobalValues.TASK_LOG_PRINTER.append("\n" + "[" + timestamp + "] [" + logLevel + "] [" + sout + "]");
+        });
     }
 
-     public static synchronized void appendToPingLog(GlobalValues.LOG_LEVEL logLevel, String sout) {
-        String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
-        if (logLevel == GlobalValues.LOG_LEVEL.ERROR) {
-            errPrintln(sout);
-        } else if (logLevel == GlobalValues.LOG_LEVEL.OUTPUT) {
-            outPrintln(sout);
-        }
-        GlobalValues.PING_LOG_PRINTER.append("\n" + "[" + timestamp + "] [" + logLevel + "] [" + sout + "]");
+    public static void appendToPingLog(GlobalValues.LOG_LEVEL logLevel, String sout) {
+        GlobalValues.LOG_IO_EXECUTOR.submit(() -> {
+            String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
+            if (logLevel == GlobalValues.LOG_LEVEL.ERROR) {
+                errPrintln(sout);
+            } else if (logLevel == GlobalValues.LOG_LEVEL.OUTPUT) {
+                outPrintln(sout);
+            }
+            GlobalValues.PING_LOG_PRINTER.append("\n" + "[" + timestamp + "] [" + logLevel + "] [" + sout + "]");
+        });
     }
 
-    
     public static String generateNodeUUID() {
         return java.util.UUID.randomUUID() + ":" + java.util.UUID.randomUUID();
     }
@@ -977,51 +990,20 @@ public class Util {
                 Logger.getLogger(TaskServer.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        InputStream is = null;
-        OutputStream os = null;
-        try {
-            is = new FileInputStream(source);
-            os = new FileOutputStream(dest);
+
+        try (InputStream is = new FileInputStream(source); OutputStream os = new FileOutputStream(dest)) {
             byte[] buffer = new byte[1024];
             int length;
             while ((length = is.read(buffer)) > 0) {
                 os.write(buffer, 0, length);
             }
             System.out.println("" + source.getAbsolutePath() + " copied to " + dest.getAbsolutePath() + " ");
-
-            try {
-                is.close();
-                os.close();
-            } catch (IOException ex) {
-                Logger.getLogger(TaskServer.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(TaskServer.class.getName()).log(Level.SEVERE, null, ex);
-            try {
-                is.close();
-                os.close();
-            } catch (IOException e) {
-                Logger.getLogger(TaskServer.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
+            Logger.getLogger(Util.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(TaskServer.class.getName()).log(Level.SEVERE, null, ex);
-            try {
-                is.close();
-                os.close();
-            } catch (IOException e) {
-                Logger.getLogger(TaskServer.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
-        } finally {
-            try {
-                is.close();
-                os.close();
-            } catch (IOException ex) {
-                Logger.getLogger(TaskServer.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            Logger.getLogger(Util.class.getName()).log(Level.SEVERE, null, ex);
         }
+
     }
 
     public static void copyFileUsingStream(String pathtosrc, String pathtodest) {

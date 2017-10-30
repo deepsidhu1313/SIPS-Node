@@ -247,6 +247,7 @@ public class GlobalValues {
     public static ExecutorService LIVE_DB_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService DIST_DB_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService RESULT_DB_EXECUTOR = Executors.newFixedThreadPool(1);
+    public static ExecutorService LOG_IO_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService SEND_SLEEPTIME_EXECUTOR_SERVICE = Executors.newFixedThreadPool(1);
 
     /**
