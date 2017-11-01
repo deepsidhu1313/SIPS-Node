@@ -83,7 +83,7 @@ public class PingHandler implements Runnable {
                             byte[] bytes2 = sendmsg2.getBytes("UTF-8");
                             outToClient2.writeInt(bytes2.length);
                             outToClient2.write(bytes2);
-                            Util.appendToPingServerLog(GlobalValues.LOG_LEVEL.ERROR, "Sending Message : " + sendmsg2 + " to " + ipAddress);
+                            Util.appendToPingServerLog(GlobalValues.LOG_LEVEL.ERROR, "Sending Message : " + sendmsg2 + " to " + clientUUID);
 
                         }
                     }
@@ -115,7 +115,7 @@ public class PingHandler implements Runnable {
                             outToClient2.writeInt(bytes2.length);
                             outToClient2.write(bytes2);
 
-                            Util.appendToPingServerLog(GlobalValues.LOG_LEVEL.OUTPUT, "Sending Message : " + sendmsg2 + " to " + ipAddress);
+                            Util.appendToPingServerLog(GlobalValues.LOG_LEVEL.OUTPUT, "Sending Message : " + sendmsg2 + " to " + clientUUID);
                         }
 //                        System.OUT.println("Ping Recieved");
                         //                pingThread = true;

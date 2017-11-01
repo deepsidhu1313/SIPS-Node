@@ -217,6 +217,10 @@ public class Settings {
     void loadSettings() {
         JSONObject commonSettings = Util.readJSONFile(dir_etc + "/common_settings.json");
         HAS_SHARED_STORAGE = commonSettings.getBoolean("HAS_SHARED_STORAGE", HAS_SHARED_STORAGE);
+        HAS_COMMON_API_KEYS = commonSettings.getBoolean("HAS_COMMON_API_KEYS", HAS_COMMON_API_KEYS);
+        HAS_COMMON_BLACKLIST = commonSettings.getBoolean("HAS_COMMON_BLACKLIST", HAS_COMMON_BLACKLIST);
+        HAS_COMMON_IP_LIST = commonSettings.getBoolean("HAS_COMMON_IP_LIST", HAS_COMMON_IP_LIST);
+        HAS_COMMON_NETWORK_LIST = commonSettings.getBoolean("HAS_COMMON_NETWORK_LIST", HAS_COMMON_NETWORK_LIST);
 
         JSONObject settings = Util.readJSONFile(dir_etc + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "settings.json");
 
@@ -262,6 +266,11 @@ public class Settings {
     public static synchronized void saveSettings() {
         JSONObject commonSettings = Util.readJSONFile(dir_etc + "/common_settings.json");
         commonSettings.put("HAS_SHARED_STORAGE", HAS_SHARED_STORAGE);
+        commonSettings.put("HAS_COMMON_API_KEYS", HAS_COMMON_API_KEYS);
+        commonSettings.put("HAS_COMMON_BLACKLIST", HAS_COMMON_BLACKLIST);
+        commonSettings.put("HAS_COMMON_IP_LIST", HAS_COMMON_IP_LIST);
+        commonSettings.put("HAS_COMMON_NETWORK_LIST", HAS_COMMON_NETWORK_LIST);
+
         write(dir_etc + "/common_settings.json", commonSettings.toString(4));
         JSONObject settings = new JSONObject();
 
