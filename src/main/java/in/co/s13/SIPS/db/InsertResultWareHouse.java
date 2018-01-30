@@ -28,11 +28,11 @@ public class InsertResultWareHouse implements Runnable {
     public static int counter = 1;
     String projectName;
     SQLiteJDBC resWH = new SQLiteJDBC();
-    int SCHEDULER, PID;
+    String SCHEDULER, PID;
     String STARTTIME, ENDTIME, TOTALTIME, NOH, POH, CHUNKSIZE, TCHUNKS, TNODES, FINISHED, AVGWAITINQ, AVGSLEEP;
     double PRFM;
 
-    public InsertResultWareHouse(int PID, String Project, int SCHEDULER, String STARTTIME, String ENDTIME, String TOTALTIME, String NOH, String POH, String CHUNKSIZE, String TCHUNKS, String TNODES, double PRFM, String FINISHED, String AVGWAITINQ, String AVGSLEEP) {
+    public InsertResultWareHouse(String PID, String Project, String SCHEDULER, String STARTTIME, String ENDTIME, String TOTALTIME, String NOH, String POH, String CHUNKSIZE, String TCHUNKS, String TNODES, double PRFM, String FINISHED, String AVGWAITINQ, String AVGSLEEP) {
 
         this.projectName = Project;
         this.STARTTIME = STARTTIME;
@@ -59,9 +59,9 @@ public class InsertResultWareHouse implements Runnable {
         if (counter == 1) {
             sql = "CREATE TABLE RESULTWH"
                     + "(ID INTEGER PRIMARY KEY   AUTOINCREMENT  NOT NULL ,"
-                    + "PID INT,"
+                    + "PID TEXT,"
                     + "PROJECT TEXT ,"
-                    + "SCHEDULER INT,"
+                    + "SCHEDULER TEXT,"
                     + "STARTTIME TEXT,"
                     + "ENDTIME TEXT,"
                     + "TOTALTIME TEXT,"

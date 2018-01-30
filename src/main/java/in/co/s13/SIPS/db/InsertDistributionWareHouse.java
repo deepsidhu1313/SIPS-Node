@@ -42,7 +42,7 @@ public class InsertDistributionWareHouse implements Runnable {
     Long CommOH;
     Long ParOH;
     Double PRFM;
-    Integer XTC;
+    Integer EXITCODE;
     Long ENTERINQ;
     Long STARTINQ;
     Long WAITINQ;
@@ -88,7 +88,7 @@ public class InsertDistributionWareHouse implements Runnable {
         this.CommOH = CommOH;
         this.ParOH = ParOH;
         this.PRFM = PRFM;
-        this.XTC = XTC;
+        this.EXITCODE = XTC;
         this.projectName = Project;
         this.ENTERINQ = ENTERINQ;
         this.STARTINQ = STARTINQ;
@@ -180,7 +180,7 @@ public class InsertDistributionWareHouse implements Runnable {
                     + "','" + WAITINQ
                     + "','" + SLEEP
                     + "','" + PRFM
-                    + "','" + XTC
+                    + "','" + EXITCODE
                     + "','" + dateFormat.format(date) + "');";
             distWH.insert("appdb/dw-dist.db", sql);
         }

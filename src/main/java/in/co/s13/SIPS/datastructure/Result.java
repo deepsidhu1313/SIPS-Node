@@ -20,8 +20,8 @@ import java.util.Comparator;
 
 public class Result {
 
-    private String fileName;
-    private String PID;
+    private String jobName;
+    private String jobToken;
     private String starttime;
     private String endTime;
     private String totalTime;
@@ -34,50 +34,50 @@ public class Result {
     private String avgWaitinq;
     private String avgSleeptime;
     private String finished;
-    private Integer scheduler;
+    private String scheduler;
 
-    public Result(String fName, String id, int scheduler, String startTime, String EndTime,
+    public Result(String fName, String jobToken, String scheduler, String startTime, String EndTime,
             String TotalTime, String NOH, String ParsingOH,
             String CHUNKSIZE, String TCHUNK, String TNODES,
             String cpuload, String avgSleeptime, String avgWaitinq, String FINISHED) {
-        this.fileName = new String(fName);
-        this.PID = new String(id);
-        this.scheduler = new Integer(scheduler);
-        this.starttime = new String(startTime);
-        this.endTime = new String(EndTime);
-        this.totalTime = new String(TotalTime);
-        this.networkOH = new String(NOH);
-        this.parsingOH = new String(ParsingOH);
-        this.chunkSize = new String(CHUNKSIZE);
-        this.totalChunks = new String(TCHUNK);
-        this.totalNodes = new String(TNODES);
-        this.avgLoad = new String(cpuload);
-        this.finished = new String(FINISHED);
-        this.avgWaitinq = new String(avgWaitinq);
-        this.avgSleeptime = new String(avgSleeptime);
+        this.jobName = fName;
+        this.jobToken = jobToken;
+        this.scheduler = scheduler;
+        this.starttime = startTime;
+        this.endTime = EndTime;
+        this.totalTime = TotalTime;
+        this.networkOH = NOH;
+        this.parsingOH = ParsingOH;
+        this.chunkSize = CHUNKSIZE;
+        this.totalChunks = TCHUNK;
+        this.totalNodes = TNODES;
+        this.avgLoad = cpuload;
+        this.finished = FINISHED;
+        this.avgWaitinq = avgWaitinq;
+        this.avgSleeptime = avgSleeptime;
     }
 
     public String getFileName() {
-        return fileName;
+        return jobName;
     }
 
     public void setFileName(String fName) {
-        fileName = (fName);
+        jobName = (fName);
     }
 
-    public String getPID() {
-        return PID;
+    public String getJobToken() {
+        return jobToken;
     }
 
-    public void setPID(String fName) {
-        PID = (fName);
+    public void setJobToken(String fName) {
+        jobToken = (fName);
     }
 
-    public int getScheduler() {
+    public String getScheduler() {
         return scheduler;
     }
 
-    public void setScheduler(int fName) {
+    public void setScheduler(String fName) {
         scheduler = (fName);
     }
 
@@ -180,7 +180,7 @@ public class Result {
     enum ResultComparator implements Comparator<Result> {
         PID_SORT {
             public int compare(Result o1, Result o2) {
-                return (o1.getPID()).compareTo(o2.getPID());
+                return (o1.getJobToken()).compareTo(o2.getJobToken());
             }
         },
         FILENAME_SORT {
@@ -190,7 +190,7 @@ public class Result {
         },
         SCHEDULER_SORT {
             public int compare(Result o1, Result o2) {
-                return Integer.valueOf(o1.getScheduler()).compareTo(o2.getScheduler());
+                return (o1.getScheduler()).compareTo(o2.getScheduler());
             }
         },
         STARTTIME_SORT {

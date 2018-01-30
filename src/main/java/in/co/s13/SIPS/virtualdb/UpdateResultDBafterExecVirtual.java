@@ -66,7 +66,7 @@ public class UpdateResultDBafterExecVirtual implements Runnable {
                 resultDBEntry.setFinished("true");
 //                if (!insertedResultIntoWH[Integer.parseInt(PID)]) 
                 {
-                    GlobalValues.RESULT_DB_EXECUTOR.execute(new InsertResultWareHouse(Integer.parseInt(resultDBEntry.getPID()), resultDBEntry.getFileName(),
+                    GlobalValues.RESULT_DB_EXECUTOR.execute(new InsertResultWareHouse((resultDBEntry.getJobToken()), resultDBEntry.getFileName(),
                             resultDBEntry.getScheduler(),
                             "" + resultDBEntry.getStartTime(),
                             "" + resultDBEntry.getEndTime(),

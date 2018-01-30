@@ -19,7 +19,6 @@ package in.co.s13.SIPS.executor.sockets.handlers;
 import in.co.s13.SIPS.datastructure.DistributionDBRow;
 import in.co.s13.SIPS.executor.ParallelProcess;
 import in.co.s13.SIPS.executor.PrintToFile;
-import in.co.s13.SIPS.executor.sockets.TaskServer;
 import in.co.s13.SIPS.settings.GlobalValues;
 import static in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB;
 import java.io.DataInputStream;
@@ -28,13 +27,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONObject;
-import static in.co.s13.SIPS.settings.GlobalValues.TASK_DB;
-import static in.co.s13.SIPS.settings.GlobalValues.TASK_DB_EXECUTOR;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**

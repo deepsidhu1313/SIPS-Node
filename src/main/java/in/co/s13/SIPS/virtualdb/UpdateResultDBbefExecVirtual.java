@@ -27,9 +27,9 @@ public class UpdateResultDBbefExecVirtual implements Runnable {
 
     String dbloc, sql, fname, chunksize, pid, tchunks, tnodes, poh;
     Long startTime;
-    int Scheduler = 0;
+    String Scheduler = "";
 
-    public UpdateResultDBbefExecVirtual(String filename, String PID, Long Starttime, String ChunkSize, String TotalChunks, String TotalNodes, String ParsingOH, int schedule) {
+    public UpdateResultDBbefExecVirtual(String filename, String PID, Long Starttime, String ChunkSize, String TotalChunks, String TotalNodes, String ParsingOH, String scheduler) {
         dbloc = "appdb/results.db";
         startTime = Starttime;
         fname = filename;
@@ -38,7 +38,7 @@ public class UpdateResultDBbefExecVirtual implements Runnable {
         tnodes = TotalNodes;
         poh = ParsingOH;
         pid = PID;
-        Scheduler = schedule;
+        Scheduler = scheduler;
     }
 
     @Override
