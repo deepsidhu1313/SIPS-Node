@@ -25,20 +25,23 @@ import in.co.s13.SIPS.settings.GlobalValues;
  */
 public class UpdateResultDBbefExecVirtual implements Runnable {
 
-    String dbloc, sql, fname, chunksize, pid, tchunks, tnodes, poh;
+    String dbloc, sql, projectName, chunksize, jobToken,  submitterUUID;
     Long startTime;
     String Scheduler = "";
+    long poh;
+    int  tchunks,tnodes;
 
-    public UpdateResultDBbefExecVirtual(String filename, String PID, Long Starttime, String ChunkSize, String TotalChunks, String TotalNodes, String ParsingOH, String scheduler) {
+    public UpdateResultDBbefExecVirtual(String projectName, String jobToken, Long Starttime, String ChunkSize, int TotalChunks, int  TotalNodes, long ParsingOH, String scheduler,String submitterUUID) {
         dbloc = "appdb/results.db";
         startTime = Starttime;
-        fname = filename;
+        this.projectName = projectName;
         chunksize = ChunkSize;
         tchunks = TotalChunks;
         tnodes = TotalNodes;
         poh = ParsingOH;
-        pid = PID;
+        this.jobToken = jobToken;
         Scheduler = scheduler;
+        this.submitterUUID=submitterUUID;
     }
 
     @Override
@@ -46,7 +49,7 @@ public class UpdateResultDBbefExecVirtual implements Runnable {
         // SQLiteJDBC db = new SQLiteJDBC();
         sql = "INSERT INTO RESULT "
                 + "("
-                + "PID ,Filename,"
+                + "JOBTOKEN ,Projectname,"
                 + "SCHEDULER ,"
                 + "StartTime ,"
                 + "POH ,"
@@ -54,16 +57,24 @@ public class UpdateResultDBbefExecVirtual implements Runnable {
                 + "TCHUNK ,"
                 + "TNODES ,"
                 + "FINISHED)"
-                + " VALUES ('" + pid + "','" + fname + "','" + Scheduler + "','" + startTime + "','" + poh + "','" + chunksize + "','" + tchunks + "','" + tnodes + "','false');";
+                + " VALUES ('" + jobToken + "','" + projectName + "','" + Scheduler + "','" + startTime + "','" + poh + "','" + chunksize + "','" + tchunks + "','" + tnodes + "','false');";
         //db.insert(dbloc, sql);
-        GlobalValues.RESULT_DB.put(pid, new Result(fname, pid, Scheduler, "" + startTime, "", "", "", poh, chunksize, tchunks, tnodes, "", "", "", "false"));
+        Result res=new Result(projectName, jobToken,submitterUUID);
+        res.setScheduler(Scheduler);
+        res.setStarttime(startTime);
+        res.setParsingOH(poh);
+        res.setChunkSize(chunksize);
+        res.setTotalChunks(tchunks);
+        res.setTotalNodes(tnodes);
+        res.setFinished(false);
+        GlobalValues.RESULT_DB.put(jobToken, res);
         /*  sql = "UPDATE  RESULT set "
-         + "PID ='"+pid+"',"
+         + "PID ='"+jobToken+"',"
          + " StartTime ='"+startTime+"',"
          + " POH ='"+poh+"',"
          + " CHUNKSIZE ='"+chunksize+"' ,"
          + " TCHUNK ='"+tchunks+"',"
-         + " TNODES ='"+tnodes+"' WHERE Filename='"+fname+"' ;";
+         + " TNODES ='"+tnodes+"' WHERE Filename='"+projectName+"' ;";
          db.Update(dbloc, sql);
       
          */

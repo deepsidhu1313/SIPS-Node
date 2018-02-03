@@ -27,13 +27,14 @@ import static in.co.s13.SIPS.settings.GlobalValues.RESULT_DB;
  */
 public class UpdateResultDBafterExecVirtual implements Runnable {
 
-    String dbloc, sql, PID, stoptime, totaltime, NOH, performance;
-    String avgWaitInQ;
-    String avgSleepTime;
+    String dbloc, sql, jobToken, performance; 
+    long stoptime, totaltime, NOH;
+    long avgWaitInQ;
+    long avgSleepTime;
 
-    public UpdateResultDBafterExecVirtual(String pid, String STOPTIME, String TOTALTIME, String NetOH, String PERFORM, String avgWaitInQ, String avgSleepTime) {
+    public UpdateResultDBafterExecVirtual(String jobToken, long STOPTIME, long TOTALTIME, long NetOH, String PERFORM, long avgWaitInQ, long avgSleepTime) {
         dbloc = "appdb/results.db";
-        PID = pid;
+        this.jobToken = jobToken;
         stoptime = STOPTIME;
         totaltime = TOTALTIME;
         NOH = NetOH;
@@ -50,11 +51,11 @@ public class UpdateResultDBafterExecVirtual implements Runnable {
                 + " TotalTime ='" + totaltime + "' ,"
                 + " NOH ='" + NOH + "',"
                 + " PRFM ='" + performance + "',"
-                + " FINISHED ='true' WHERE PID='" + PID + "' ;";
+                + " FINISHED ='true' WHERE PID='" + jobToken + "' ;";
         // db.Update(dbloc, sql);
 //        for () 
         {
-            Result resultDBEntry = RESULT_DB.get(PID.trim());
+            Result resultDBEntry = RESULT_DB.get(jobToken.trim());
 //        if (resultDBEntry.getPID().trim().equalsIgnoreCase())
             {
                 resultDBEntry.setEndTime(stoptime);
@@ -63,12 +64,12 @@ public class UpdateResultDBafterExecVirtual implements Runnable {
                 resultDBEntry.setAvgLoad(performance);
                 resultDBEntry.setAvgSleeptime(avgSleepTime);
                 resultDBEntry.setAvgWaitinq(avgWaitInQ);
-                resultDBEntry.setFinished("true");
-//                if (!insertedResultIntoWH[Integer.parseInt(PID)]) 
+                resultDBEntry.setFinished(true);
+//                if (!insertedResultIntoWH[Integer.parseInt(jobToken)]) 
                 {
-                    GlobalValues.RESULT_DB_EXECUTOR.execute(new InsertResultWareHouse((resultDBEntry.getJobToken()), resultDBEntry.getFileName(),
+                    GlobalValues.RESULT_DB_EXECUTOR.execute(new InsertResultWareHouse((resultDBEntry.getJobToken()), resultDBEntry.getJobName(),
                             resultDBEntry.getScheduler(),
-                            "" + resultDBEntry.getStartTime(),
+                            "" + resultDBEntry.getStarttime(),
                             "" + resultDBEntry.getEndTime(),
                             "" + resultDBEntry.getTotalTime(),
                             "" + resultDBEntry.getNetworkOH(),
@@ -77,15 +78,15 @@ public class UpdateResultDBafterExecVirtual implements Runnable {
                             "" + resultDBEntry.getTotalChunks(),
                             "" + resultDBEntry.getTotalNodes(),
                             Double.parseDouble(resultDBEntry.getAvgLoad()),
-                            "" + resultDBEntry.getFinished(), "" + resultDBEntry.getAvgWaitinq(), "" + resultDBEntry.getAvgSleeptime()));
-//                    insertedResultIntoWH[Integer.parseInt(PID)] = true;
+                            "" + resultDBEntry.isFinished(), "" + resultDBEntry.getAvgWaitinq(), "" + resultDBEntry.getAvgSleeptime()));
+//                    insertedResultIntoWH[Integer.parseInt(jobToken)] = true;
                 }
 //                break;
             }
 
         }
         // db.closeConnection();
-        //    if(Integer.parseInt(PID.trim())<1)
+        //    if(Integer.parseInt(jobToken.trim())<1)
 //        {
 //        Thread t = new Thread(new createResultTable());
 //        t.start();

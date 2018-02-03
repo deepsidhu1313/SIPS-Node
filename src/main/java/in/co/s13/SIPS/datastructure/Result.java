@@ -17,175 +17,219 @@
 package in.co.s13.SIPS.datastructure;
 
 import java.util.Comparator;
+import org.json.JSONObject;
 
 public class Result {
-
+    
     private String jobName;
     private String jobToken;
-    private String starttime;
-    private String endTime;
-    private String totalTime;
-    private String parsingOH;
-    private String networkOH;
+    private String submitterUUID;
+    private long createdOn;
+    private long starttime;
+    private long endTime;
+    private long totalTime;
+    private long parsingOH;
+    private long networkOH;
     private String chunkSize;
-    private String totalChunks;
-    private String totalNodes;
+    private int totalChunks;
+    private int totalNodes;
     private String avgLoad;
-    private String avgWaitinq;
-    private String avgSleeptime;
-    private String finished;
+    private long avgWaitinq;
+    private long avgSleeptime;
+    private boolean finished;
     private String scheduler;
-
-    public Result(String fName, String jobToken, String scheduler, String startTime, String EndTime,
-            String TotalTime, String NOH, String ParsingOH,
-            String CHUNKSIZE, String TCHUNK, String TNODES,
-            String cpuload, String avgSleeptime, String avgWaitinq, String FINISHED) {
-        this.jobName = fName;
+    
+    
+    public Result(String jobName, String jobToken, String submitterUUID) {
+        this.jobName = jobName;
         this.jobToken = jobToken;
-        this.scheduler = scheduler;
-        this.starttime = startTime;
-        this.endTime = EndTime;
-        this.totalTime = TotalTime;
-        this.networkOH = NOH;
-        this.parsingOH = ParsingOH;
-        this.chunkSize = CHUNKSIZE;
-        this.totalChunks = TCHUNK;
-        this.totalNodes = TNODES;
-        this.avgLoad = cpuload;
-        this.finished = FINISHED;
-        this.avgWaitinq = avgWaitinq;
-        this.avgSleeptime = avgSleeptime;
+        this.submitterUUID = submitterUUID;
+        createdOn=System.currentTimeMillis();
     }
-
-    public String getFileName() {
+    
+    public String getJobName() {
         return jobName;
     }
-
-    public void setFileName(String fName) {
+    
+    public void setJobName(String fName) {
         jobName = (fName);
     }
-
+    
     public String getJobToken() {
         return jobToken;
     }
-
+    
     public void setJobToken(String fName) {
         jobToken = (fName);
     }
-
+    
     public String getScheduler() {
         return scheduler;
     }
-
+    
     public void setScheduler(String fName) {
         scheduler = (fName);
     }
-
-    public String getStartTime() {
-        return starttime;
-    }
-
-    public void setStartTime(String fName) {
-        starttime = (fName);
-    }
-
-    public String getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(String fName) {
-        endTime = (fName);
-    }
-
-    public String getTotalTime() {
-        return totalTime;
-    }
-
-    public void setTotalTime(String fName) {
-        totalTime = (fName);
-    }
-
-    public String getNetworkOH() {
-        return networkOH;
-    }
-
-    public void setNetworkOH(String fName) {
-        networkOH = (fName);
-    }
-
-    public String getParsingOH() {
-        return this.parsingOH;
-    }
-
-    public void setParsingOH(String p) {
-        this.parsingOH = (p);
-    }
-
+    
+    
     public String getChunkSize() {
         return chunkSize;
     }
-
+    
     public void setChunkSize(String fName) {
         chunkSize = (fName);
     }
 
-    public String getTotalChunks() {
+    public int getTotalChunks() {
         return totalChunks;
     }
 
-    public void setTotalChunks(String fName) {
-        totalChunks = (fName);
+    public void setTotalChunks(int totalChunks) {
+        this.totalChunks = totalChunks;
     }
 
-    public String getTotalNodes() {
+    public int getTotalNodes() {
         return totalNodes;
     }
 
-    public void setTotalNodes(String fName) {
-        totalNodes = (fName);
+    public void setTotalNodes(int totalNodes) {
+        this.totalNodes = totalNodes;
     }
-
-    public String getAvgWaitinq() {
-        return avgWaitinq;
-    }
-
-    public void setAvgWaitinq(String fName) {
-        avgWaitinq = (fName);
-    }
-
-    public String getAvgSleeptime() {
-        return avgSleeptime;
-    }
-
-    public void setAvgSleeptime(String fName) {
-        avgSleeptime = (fName);
-    }
-
+    
+  
+    
     public String getAvgLoad() {
         return avgLoad;
     }
-
-    public void setAvgLoad(String l) {
-        avgLoad = (l);
+    
+    public void setAvgLoad(String load) {
+        avgLoad = (load);
+    }
+    
+    public String getSubmitterUUID() {
+        return submitterUUID;
     }
 
-    public String getFinished() {
+    public void setSubmitterUUID(String submitterUUID) {
+        this.submitterUUID = submitterUUID;
+    }
+
+    public long getCreatedOn() {
+        return createdOn;
+    }
+
+    public void setCreatedOn(long createdOn) {
+        this.createdOn = createdOn;
+    }
+
+    public long getStarttime() {
+        return starttime;
+    }
+
+    public void setStarttime(long starttime) {
+        this.starttime = starttime;
+    }
+
+    public long getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(long endTime) {
+        this.endTime = endTime;
+    }
+
+    public long getTotalTime() {
+        return totalTime;
+    }
+
+    public void setTotalTime(long totalTime) {
+        this.totalTime = totalTime;
+    }
+
+    public long getParsingOH() {
+        return parsingOH;
+    }
+
+    public void setParsingOH(long parsingOH) {
+        this.parsingOH = parsingOH;
+    }
+
+    public long getNetworkOH() {
+        return networkOH;
+    }
+
+    public void setNetworkOH(long networkOH) {
+        this.networkOH = networkOH;
+    }
+
+    public long getAvgWaitinq() {
+        return avgWaitinq;
+    }
+
+    public void setAvgWaitinq(long avgWaitinq) {
+        this.avgWaitinq = avgWaitinq;
+    }
+
+    public long getAvgSleeptime() {
+        return avgSleeptime;
+    }
+
+    public void setAvgSleeptime(long avgSleeptime) {
+        this.avgSleeptime = avgSleeptime;
+    }
+
+    public boolean isFinished() {
         return finished;
     }
 
-    public void setFinished(String fName) {
-        finished = (fName);
+    public void setFinished(boolean finished) {
+        this.finished = finished;
     }
 
+    
+    
+    
+    @Override
+    public String toString() {
+        return toString(0);
+    }
+
+    public String toString(int indentFactor) {
+        return this.toJSON().toString(indentFactor);
+    }
+
+    
+    public JSONObject toJSON() {
+        JSONObject result = new JSONObject();
+        result.put("jobName", jobName);
+        result.put("jobToken", jobToken);
+        result.put("submitterUUID", submitterUUID);
+        result.put("starttime", starttime);
+        result.put("endTime", endTime);
+        result.put("totalTime", totalTime);
+        result.put("parsingOH", parsingOH);
+        result.put("networkOH", networkOH);
+        result.put("chunkSize", chunkSize);
+        result.put("totalChunks", totalChunks);
+        result.put("totalNodes", totalNodes);
+        result.put("avgLoad", avgLoad);
+        result.put("avgWaitinq", avgWaitinq);
+        result.put("avgSleeptime", avgSleeptime);
+        result.put("finished", finished);
+        result.put("scheduler", scheduler);
+        result.put("createdOn", createdOn);
+        return result;
+    }
+    
     enum ResultComparator implements Comparator<Result> {
-        PID_SORT {
+        JOB_TOKEN_SORT {
             public int compare(Result o1, Result o2) {
                 return (o1.getJobToken()).compareTo(o2.getJobToken());
             }
         },
-        FILENAME_SORT {
+        JOBNAME_SORT {
             public int compare(Result o1, Result o2) {
-                return (o1.getFileName()).compareTo(o2.getFileName());
+                return (o1.getJobName()).compareTo(o2.getJobName());
             }
         },
         SCHEDULER_SORT {
@@ -195,27 +239,32 @@ public class Result {
         },
         STARTTIME_SORT {
             public int compare(Result o1, Result o2) {
-                return (o1.getStartTime()).compareTo(o2.getStartTime());
+                return Long.valueOf(o1.getStarttime()).compareTo(o2.getStarttime());
+            }
+        },
+        CREATEDON_SORT {
+            public int compare(Result o1, Result o2) {
+                return Long.valueOf(o1.getCreatedOn()).compareTo(o2.getCreatedOn());
             }
         },
         ENDTIME_SORT {
             public int compare(Result o1, Result o2) {
-                return (o1.getEndTime()).compareTo(o2.getEndTime());
+                return Long.valueOf(o1.getEndTime()).compareTo(o2.getEndTime());
             }
         },
         TOTALTIME_SORT {
             public int compare(Result o1, Result o2) {
-                return (o1.getTotalTime()).compareTo(o2.getTotalTime());
+                return Long.valueOf(o1.getTotalTime()).compareTo(o2.getTotalTime());
             }
         },
         NOH_SORT {
             public int compare(Result o1, Result o2) {
-                return (o1.getNetworkOH()).compareTo(o2.getNetworkOH());
+                return Long.valueOf(o1.getNetworkOH()).compareTo(o2.getNetworkOH());
             }
         },
         POH_SORT {
             public int compare(Result o1, Result o2) {
-                return (o1.getParsingOH()).compareTo(o2.getParsingOH());
+                return Long.valueOf(o1.getParsingOH()).compareTo(o2.getParsingOH());
             }
         },
         CHUNKSIZE_SORT {
@@ -225,12 +274,12 @@ public class Result {
         },
         TCHUNKS_SORT {
             public int compare(Result o1, Result o2) {
-                return (o1.getTotalChunks()).compareTo(o2.getTotalChunks());
+                return Integer.valueOf(o1.getTotalChunks()).compareTo(o2.getTotalChunks());
             }
         },
         TNODES_SORT {
             public int compare(Result o1, Result o2) {
-                return (o1.getTotalNodes()).compareTo(o2.getTotalNodes());
+                return Integer.valueOf(o1.getTotalNodes()).compareTo(o2.getTotalNodes());
             }
         },
         PRFM_SORT {
@@ -240,31 +289,25 @@ public class Result {
         },
         FINISHED_SORT {
             public int compare(Result o1, Result o2) {
-                return (o1.getFinished()).compareTo(o2.getFinished());
+                return Boolean.valueOf(o1.isFinished()).compareTo(o2.isFinished());
             }
         };
-
+        
         public static Comparator<Result> decending(final Comparator<Result> other) {
-            return new Comparator<Result>() {
-                public int compare(Result o1, Result o2) {
-                    return -1 * other.compare(o1, o2);
-                }
-            };
+            return (Result o1, Result o2) -> -1 * other.compare(o1, o2);
         }
-
+        
         public static Comparator<Result> getComparator(final ResultComparator... multipleOptions) {
-            return new Comparator<Result>() {
-                public int compare(Result o1, Result o2) {
-                    for (ResultComparator option : multipleOptions) {
-                        int result = option.compare(o1, o2);
-                        if (result != 0) {
-                            return result;
-                        }
+            return (Result o1, Result o2) -> {
+                for (ResultComparator option : multipleOptions) {
+                    int result = option.compare(o1, o2);
+                    if (result != 0) {
+                        return result;
                     }
-                    return 0;
                 }
+                return 0;
             };
         }
     }
-
+    
 }

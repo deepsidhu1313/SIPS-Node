@@ -35,6 +35,7 @@ import static in.co.s13.SIPS.settings.GlobalValues.dir_etc;
 import in.co.s13.SIPS.tools.ServiceOperations;
 import java.util.concurrent.ConcurrentHashMap;
 import static in.co.s13.SIPS.settings.GlobalValues.HAS_SHARED_STORAGE;
+import in.co.s13.SIPS.virtualdb.createResultWHDB;
 
 /**
  *
@@ -47,6 +48,9 @@ public class SIPSNode {
      * @throws java.io.IOException
      */
     public static void main(String[] args) throws IOException {
+        createResultWHDB createResultDB = new createResultWHDB();
+        Thread createResultDBThread= new Thread(createResultDB);
+        createResultDBThread.start();
         Settings loadSettings = new Settings();
         System.out.println("" + Util.getDeviceFromPath(new File(".").toPath()));
         Thread.currentThread().setName("Main");
@@ -102,7 +106,7 @@ public class SIPSNode {
             if (arguments.contains("--shared-storage")) {
                 GlobalValues.HAS_SHARED_STORAGE = true;
                 loadSettings.init();
-                loadSettings.saveSettings();
+                Settings.saveSettings();
             } else {
                 loadSettings.init();
 
@@ -155,7 +159,7 @@ public class SIPSNode {
 
             if (arguments.contains("--generate-app-uuid")) {
                 GlobalValues.NODE_UUID = Util.generateNodeUUID();
-                loadSettings.saveSettings();
+                Settings.saveSettings();
             }
 
             if (arguments.contains("--set-process-limit")) {

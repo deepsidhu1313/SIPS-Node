@@ -171,6 +171,51 @@ public class TaskHandler implements Runnable {
 //                            }
 //                        });
 
+                    } else if (command.contains("CREATE_JOB_TOKEN")) {
+                        String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
+                        String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
+                        String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
+                        String content = body.getString("OUTPUT");//.substring(body.indexOf("<OUTPUT>") + 8, body.indexOf("</OUTPUT>"));
+                        //   String ExitCode = body.substring(body.indexOf("<EXTCODE>") + 9, body.indexOf("</EXTCODE>"));
+//                        System.OUT.println(msg);
+                        int p = Integer.parseInt(pid);
+                        try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
+                            String sendmsg = "OK";
+
+                            byte[] bytes = sendmsg.getBytes("UTF-8");
+                            outToClient.writeInt(bytes.length);
+                            outToClient.write(bytes);
+
+                        }
+                        submitter.close();
+                        ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
+                        DistributionDBRow get = DistTable.get(ipAddress + "-" + cno.trim());
+                        get.setStartinq(Long.parseLong(content));
+                        get.setWaitinq(get.getStartinq() - get.getEntrinq());
+//                        
+//                        FXSplitTabs.distDBExecutor.execute(() -> {
+//                            {
+//                                System.OUT.println("size of master dist db " + FXSplitTabs.MasterDistDB.size());
+//                                int csize = FXSplitTabs.MasterDistDB.size();
+//                                while (csize <= p) {
+//                                    try {
+//                                        System.OUT.println("Waiting for Master DB to Create table " + p);
+//                                        Thread.currentThread().sleep(10000);
+//                                        csize = FXSplitTabs.MasterDistDB.size();
+//                                    } catch (InterruptedException ex) {
+//                                        Logger.getLogger(Handler.class.getName()).LOG(Level.SEVERE, null, ex);
+//                                    }
+//                                }
+//                                for (int i = 0; i < FXSplitTabs.MasterDistDB.get(p).size(); i++) {
+//                                    DistributionDBRow get = FXSplitTabs.MasterDistDB.get(p).get(i);
+//                                    if (get.getIp().trim().equalsIgnoreCase(ipAddress) && get.getCno() == Integer.parseInt(cno)) {
+//                                        get.setStartinq(Long.parseLong(content));
+//                                        get.setWaitinq(get.getStartinq() - get.getEntrinq());
+//                                    }
+//                                }
+//                            }
+//                        });
+
                     } else if (command.contains("enterinq")) {
                         String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
                         String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
