@@ -17,6 +17,9 @@
 package in.co.s13.SIPS.executor.sockets.handlers;
 
 import in.co.s13.SIPS.settings.GlobalValues;
+import static in.co.s13.SIPS.settings.GlobalValues.HAS_SHARED_STORAGE;
+import static in.co.s13.SIPS.settings.GlobalValues.HOST_NAME;
+import static in.co.s13.SIPS.settings.GlobalValues.dir_etc;
 import in.co.s13.SIPS.settings.Settings;
 import in.co.s13.SIPS.tools.ServiceOperations;
 import static in.co.s13.SIPS.tools.ServiceOperations.restartApiServer;
@@ -289,6 +292,7 @@ public class APIHandler implements Runnable {
                         response.put("LIVE-NODE-SCANNER", GlobalValues.CHECK_LIVE_NODE_THREAD.isAlive());
                         response.put("NODE-SCANNER", GlobalValues.NODE_SCANNING_THREAD.isAlive());
                         response.put("LOG-ROTATE", GlobalValues.LOG_ROTATE_THREAD.isAlive());
+                        response.put("CLEAN-RESULT-DB", GlobalValues.CLEAN_RESULT_DB_THREAD.isAlive());
                         body.put("Response", response);
 
                     } else if (args.length() == 0 && hasReadPermissions(key_permissions)) {
@@ -300,6 +304,7 @@ public class APIHandler implements Runnable {
                         response.put("LIVE-NODE-SCANNER", GlobalValues.CHECK_LIVE_NODE_THREAD.isAlive());
                         response.put("NODE-SCANNER", GlobalValues.NODE_SCANNING_THREAD.isAlive());
                         response.put("LOG-ROTATE", GlobalValues.LOG_ROTATE_THREAD.isAlive());
+                        response.put("CLEAN-RESULT-DB", GlobalValues.CLEAN_RESULT_DB_THREAD.isAlive());
                         body.put("Response", response);
                     } else {
                         body.put("Response", "Incorrect permissions or arguments!!");
@@ -418,6 +423,25 @@ public class APIHandler implements Runnable {
                     } else if (args.length() == 0 && hasReadPermissions(key_permissions)) {
                         response.put("Message", helpMessage.toString());
                         body.put("Response", response);
+                    } else if (!hasReadPermissions(key_permissions)) {
+                        response.put("Message", "Error!!\n \tIncorrect permissions.");
+                        body.put("Response", response);
+                    } else {
+                        response.put("Message", "Error!!\n \tIncorrect arguments.");
+                        body.put("Response", response);
+                    }
+                } else if (command.equalsIgnoreCase("gen-api-key")) {
+                    if (args.length() == 2 && hasExecutePermissions(key_permissions)) {
+                        String client = args.getString(0).trim(), permissions = args.getString(1);
+                        String key = Util.generateAPIKey();
+                        JSONObject info = new JSONObject();
+                        info.put("key", key);
+                        info.put("permissions", permissions);
+                        GlobalValues.API_JSON.put(client, info);
+                        Util.write(dir_etc + "/" + (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_API_KEYS) ? "common" : HOST_NAME) + "-" : "") + "api.json", GlobalValues.API_JSON.toString(4));
+                        response.put("Message", info);
+                        body.put("Response", response);
+                    
                     } else if (!hasReadPermissions(key_permissions)) {
                         response.put("Message", "Error!!\n \tIncorrect permissions.");
                         body.put("Response", response);

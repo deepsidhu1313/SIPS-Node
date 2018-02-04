@@ -18,8 +18,6 @@ package in.co.s13.SIPS.tools;
 
 import in.co.s13.SIPS.datastructure.Result;
 import in.co.s13.SIPS.settings.GlobalValues;
-import in.co.s13.SIPS.settings.Settings;
-import java.io.File;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,7 +42,9 @@ public class CleanResultDB implements Runnable {
 
             GlobalValues.RESULT_DB_EXECUTOR.submit(() -> {
                 for (Result result : GlobalValues.RESULT_DB.values()) {
-                    if ((TimeUnit.MILLISECONDS.toHours(System.currentTimeMillis() - result.getCreatedOn()) > 24)&&(!result.isFinished()|| (result.getStarttime()==Long.MIN_VALUE))) {
+                    if ((TimeUnit.MILLISECONDS.toHours(System.currentTimeMillis() - result.getCreatedOn()) > 24) && (!result.isFinished() || (result.getStarttime() == Long.MIN_VALUE))) {
+                        GlobalValues.RESULT_DB.remove(result.getJobToken());
+                    } else if (result.isFinished()) {
                         GlobalValues.RESULT_DB.remove(result.getJobToken());
                     }
                 }
