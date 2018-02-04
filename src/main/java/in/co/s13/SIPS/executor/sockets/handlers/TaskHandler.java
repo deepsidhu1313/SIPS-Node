@@ -21,6 +21,8 @@ import in.co.s13.SIPS.executor.ParallelProcess;
 import in.co.s13.SIPS.executor.PrintToFile;
 import in.co.s13.SIPS.settings.GlobalValues;
 import static in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB;
+import in.co.s13.SIPS.tools.Util;
+import in.co.s13.SIPS.virtualdb.UpdateResultDBbefExecVirtual;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -172,50 +174,26 @@ public class TaskHandler implements Runnable {
 //                        });
 
                     } else if (command.contains("CREATE_JOB_TOKEN")) {
-                        String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
-                        String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
-                        String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
-                        String content = body.getString("OUTPUT");//.substring(body.indexOf("<OUTPUT>") + 8, body.indexOf("</OUTPUT>"));
-                        //   String ExitCode = body.substring(body.indexOf("<EXTCODE>") + 9, body.indexOf("</EXTCODE>"));
-//                        System.OUT.println(msg);
-                        int p = Integer.parseInt(pid);
+                        String submitterUUID = body.getString("UUID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
+                        String jobname = body.getString("JOB_NAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
+                        String scheduler = body.getString("SCHEDULER");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
+                        String jobToken= Util.generateJobToken();
+                        GlobalValues.RESULT_DB_EXECUTOR.submit(new UpdateResultDBbefExecVirtual(jobname, jobToken, scheduler, submitterUUID));
                         try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
-                            String sendmsg = "OK";
-
+                            JSONObject replyJSON= new JSONObject();
+                            JSONObject replyBody= new JSONObject();
+                            JSONObject response = new JSONObject();
+                            response.put("Token", jobToken);
+                            replyBody.put("Response", response);
+                            replyJSON.put("Body", replyBody);
+                            String sendmsg = replyJSON.toString(0);
                             byte[] bytes = sendmsg.getBytes("UTF-8");
                             outToClient.writeInt(bytes.length);
                             outToClient.write(bytes);
 
                         }
                         submitter.close();
-                        ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
-                        DistributionDBRow get = DistTable.get(ipAddress + "-" + cno.trim());
-                        get.setStartinq(Long.parseLong(content));
-                        get.setWaitinq(get.getStartinq() - get.getEntrinq());
-//                        
-//                        FXSplitTabs.distDBExecutor.execute(() -> {
-//                            {
-//                                System.OUT.println("size of master dist db " + FXSplitTabs.MasterDistDB.size());
-//                                int csize = FXSplitTabs.MasterDistDB.size();
-//                                while (csize <= p) {
-//                                    try {
-//                                        System.OUT.println("Waiting for Master DB to Create table " + p);
-//                                        Thread.currentThread().sleep(10000);
-//                                        csize = FXSplitTabs.MasterDistDB.size();
-//                                    } catch (InterruptedException ex) {
-//                                        Logger.getLogger(Handler.class.getName()).LOG(Level.SEVERE, null, ex);
-//                                    }
-//                                }
-//                                for (int i = 0; i < FXSplitTabs.MasterDistDB.get(p).size(); i++) {
-//                                    DistributionDBRow get = FXSplitTabs.MasterDistDB.get(p).get(i);
-//                                    if (get.getIp().trim().equalsIgnoreCase(ipAddress) && get.getCno() == Integer.parseInt(cno)) {
-//                                        get.setStartinq(Long.parseLong(content));
-//                                        get.setWaitinq(get.getStartinq() - get.getEntrinq());
-//                                    }
-//                                }
-//                            }
-//                        });
-
+                        
                     } else if (command.contains("enterinq")) {
                         String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
                         String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));

@@ -893,7 +893,11 @@ public class Util {
         return java.util.UUID.randomUUID() + ":" + java.util.UUID.randomUUID();
     }
 
-    public static String generateAPIKey() {
+    public synchronized static String generateAPIKey() {
+        return java.util.UUID.randomUUID().toString();
+    }
+
+    public synchronized static String generateJobToken() {
         return java.util.UUID.randomUUID().toString();
     }
 

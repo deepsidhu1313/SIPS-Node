@@ -31,14 +31,9 @@ public class UpdateResultDBbefExecVirtual implements Runnable {
     long poh;
     int  tchunks,tnodes;
 
-    public UpdateResultDBbefExecVirtual(String projectName, String jobToken, Long Starttime, String ChunkSize, int TotalChunks, int  TotalNodes, long ParsingOH, String scheduler,String submitterUUID) {
+    public UpdateResultDBbefExecVirtual(String projectName, String jobToken,  String scheduler,String submitterUUID) {
         dbloc = "appdb/results.db";
-        startTime = Starttime;
         this.projectName = projectName;
-        chunksize = ChunkSize;
-        tchunks = TotalChunks;
-        tnodes = TotalNodes;
-        poh = ParsingOH;
         this.jobToken = jobToken;
         Scheduler = scheduler;
         this.submitterUUID=submitterUUID;
@@ -47,25 +42,25 @@ public class UpdateResultDBbefExecVirtual implements Runnable {
     @Override
     public void run() {
         // SQLiteJDBC db = new SQLiteJDBC();
-        sql = "INSERT INTO RESULT "
-                + "("
-                + "JOBTOKEN ,Projectname,"
-                + "SCHEDULER ,"
-                + "StartTime ,"
-                + "POH ,"
-                + "CHUNKSIZE ,"
-                + "TCHUNK ,"
-                + "TNODES ,"
-                + "FINISHED)"
-                + " VALUES ('" + jobToken + "','" + projectName + "','" + Scheduler + "','" + startTime + "','" + poh + "','" + chunksize + "','" + tchunks + "','" + tnodes + "','false');";
+//        sql = "INSERT INTO RESULT "
+//                + "("
+//                + "JOBTOKEN ,Projectname,"
+//                + "SCHEDULER ,"
+//                + "StartTime ,"
+//                + "POH ,"
+//                + "CHUNKSIZE ,"
+//                + "TCHUNK ,"
+//                + "TNODES ,"
+//                + "FINISHED)"
+//                + " VALUES ('" + jobToken + "','" + projectName + "','" + Scheduler + "','" + startTime + "','" + poh + "','" + chunksize + "','" + tchunks + "','" + tnodes + "','false');";
         //db.insert(dbloc, sql);
         Result res=new Result(projectName, jobToken,submitterUUID);
         res.setScheduler(Scheduler);
-        res.setStarttime(startTime);
-        res.setParsingOH(poh);
-        res.setChunkSize(chunksize);
-        res.setTotalChunks(tchunks);
-        res.setTotalNodes(tnodes);
+        //res.setStarttime(startTime);
+        //res.setParsingOH(poh);
+        //res.setChunkSize(chunksize);
+        //res.setTotalChunks(tchunks);
+        //res.setTotalNodes(tnodes);
         res.setFinished(false);
         GlobalValues.RESULT_DB.put(jobToken, res);
         /*  sql = "UPDATE  RESULT set "

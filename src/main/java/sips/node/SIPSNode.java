@@ -35,7 +35,6 @@ import static in.co.s13.SIPS.settings.GlobalValues.dir_etc;
 import in.co.s13.SIPS.tools.ServiceOperations;
 import java.util.concurrent.ConcurrentHashMap;
 import static in.co.s13.SIPS.settings.GlobalValues.HAS_SHARED_STORAGE;
-import in.co.s13.SIPS.virtualdb.createResultWHDB;
 
 /**
  *
@@ -48,9 +47,7 @@ public class SIPSNode {
      * @throws java.io.IOException
      */
     public static void main(String[] args) throws IOException {
-        createResultWHDB createResultDB = new createResultWHDB();
-        Thread createResultDBThread= new Thread(createResultDB);
-        createResultDBThread.start();
+
         Settings loadSettings = new Settings();
         System.out.println("" + Util.getDeviceFromPath(new File(".").toPath()));
         Thread.currentThread().setName("Main");
