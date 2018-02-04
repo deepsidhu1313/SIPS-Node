@@ -265,6 +265,15 @@ public class APIHandler implements Runnable {
                                 ServiceOperations.restartLogRotate();
                             }
                             response.put("LOG-ROTATE", GlobalValues.LOG_ROTATE_THREAD.isAlive());
+                        } else if (args.getString(0).equalsIgnoreCase("CLEAN-RESULT-DB")) {
+                            if (args.getString(1).equalsIgnoreCase("start")) {
+                                ServiceOperations.startCleanResultDB();
+                            } else if (args.getString(1).equalsIgnoreCase("stop")) {
+                                ServiceOperations.stopCleanResultDB();
+                            } else if (args.getString(1).equalsIgnoreCase("restart")) {
+                                ServiceOperations.restartCleanResultDB();
+                            }
+                            response.put("CLEAN-RESULT-DB", GlobalValues.CLEAN_RESULT_DB_THREAD.isAlive());
                         } else {
                             response.put("Error !!!", "Unknown Service!");
 

@@ -25,56 +25,22 @@ import in.co.s13.SIPS.settings.GlobalValues;
  */
 public class UpdateResultDBbefExecVirtual implements Runnable {
 
-    String dbloc, sql, projectName, chunksize, jobToken,  submitterUUID;
-    Long startTime;
+    String projectName, jobToken, submitterUUID;
     String Scheduler = "";
-    long poh;
-    int  tchunks,tnodes;
 
-    public UpdateResultDBbefExecVirtual(String projectName, String jobToken,  String scheduler,String submitterUUID) {
-        dbloc = "appdb/results.db";
+    public UpdateResultDBbefExecVirtual(String projectName, String jobToken, String scheduler, String submitterUUID) {
         this.projectName = projectName;
         this.jobToken = jobToken;
         Scheduler = scheduler;
-        this.submitterUUID=submitterUUID;
+        this.submitterUUID = submitterUUID;
     }
 
     @Override
     public void run() {
-        // SQLiteJDBC db = new SQLiteJDBC();
-//        sql = "INSERT INTO RESULT "
-//                + "("
-//                + "JOBTOKEN ,Projectname,"
-//                + "SCHEDULER ,"
-//                + "StartTime ,"
-//                + "POH ,"
-//                + "CHUNKSIZE ,"
-//                + "TCHUNK ,"
-//                + "TNODES ,"
-//                + "FINISHED)"
-//                + " VALUES ('" + jobToken + "','" + projectName + "','" + Scheduler + "','" + startTime + "','" + poh + "','" + chunksize + "','" + tchunks + "','" + tnodes + "','false');";
-        //db.insert(dbloc, sql);
-        Result res=new Result(projectName, jobToken,submitterUUID);
+        Result res = new Result(projectName, jobToken, submitterUUID);
         res.setScheduler(Scheduler);
-        //res.setStarttime(startTime);
-        //res.setParsingOH(poh);
-        //res.setChunkSize(chunksize);
-        //res.setTotalChunks(tchunks);
-        //res.setTotalNodes(tnodes);
         res.setFinished(false);
         GlobalValues.RESULT_DB.put(jobToken, res);
-        /*  sql = "UPDATE  RESULT set "
-         + "PID ='"+jobToken+"',"
-         + " StartTime ='"+startTime+"',"
-         + " POH ='"+poh+"',"
-         + " CHUNKSIZE ='"+chunksize+"' ,"
-         + " TCHUNK ='"+tchunks+"',"
-         + " TNODES ='"+tnodes+"' WHERE Filename='"+projectName+"' ;";
-         db.Update(dbloc, sql);
-      
-         */
-        // db.closeConnection();
-
     }
 
 }

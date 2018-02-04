@@ -344,5 +344,38 @@ public class ServiceOperations {
         stopLogRotate();
         startLogRotate();
     }
+    
+    public static synchronized void initCleanResultDBAtStartUp() {
+        if (GlobalValues.CLEAN_RESULT_DB_ENABLED_AT_START) {
+            startCleanResultDB();
+        }
+    }
+
+    public static synchronized void startCleanResultDB() {
+        if ((GlobalValues.CLEAN_RESULT_DB_THREAD == null || !GlobalValues.CLEAN_RESULT_DB_THREAD.isAlive())) {
+            GlobalValues.KEEP_CLEAN_RESULT_DB_THREAD_ALIVE = true;
+            GlobalValues.CLEAN_RESULT_DB_THREAD = new Thread(new CleanResultDB());
+            GlobalValues.CLEAN_RESULT_DB_THREAD.setName("Result DB Cleaner Scheduled Thread");
+            GlobalValues.CLEAN_RESULT_DB_THREAD.start();
+        }
+    }
+
+    public static synchronized void stopCleanResultDB() {
+        if (GlobalValues.KEEP_CLEAN_RESULT_DB_THREAD_ALIVE == true || GlobalValues.LOG_ROTATE_THREAD.isAlive()) {
+            GlobalValues.KEEP_CLEAN_RESULT_DB_THREAD_ALIVE = false;
+            while (GlobalValues.CLEAN_RESULT_DB_THREAD.isAlive()) {
+                try {
+                    Thread.sleep(1000L);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(ServiceOperations.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
+
+    public static synchronized void restartCleanResultDB() {
+        stopCleanResultDB();
+        startCleanResultDB();
+    }
 
 }

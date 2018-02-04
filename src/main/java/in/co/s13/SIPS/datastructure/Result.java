@@ -20,62 +20,60 @@ import java.util.Comparator;
 import org.json.JSONObject;
 
 public class Result {
-    
+
     private String jobName;
     private String jobToken;
     private String submitterUUID;
-    private long createdOn;
-    private long starttime;
-    private long endTime;
-    private long totalTime;
-    private long parsingOH;
-    private long networkOH;
+    private long createdOn = Long.MIN_VALUE;
+    private long starttime = Long.MIN_VALUE;
+    private long endTime = Long.MIN_VALUE;
+    private long totalTime = Long.MIN_VALUE;
+    private long parsingOH = Long.MIN_VALUE;
+    private long networkOH = Long.MIN_VALUE;
     private String chunkSize;
-    private int totalChunks;
-    private int totalNodes;
+    private int totalChunks = Integer.MIN_VALUE;
+    private int totalNodes = Integer.MIN_VALUE;
     private String avgLoad;
-    private long avgWaitinq;
-    private long avgSleeptime;
+    private long avgWaitinq = Long.MIN_VALUE;
+    private long avgSleeptime = Long.MIN_VALUE;
     private boolean finished;
     private String scheduler;
-    
-    
+
     public Result(String jobName, String jobToken, String submitterUUID) {
         this.jobName = jobName;
         this.jobToken = jobToken;
         this.submitterUUID = submitterUUID;
-        createdOn=System.currentTimeMillis();
+        createdOn = System.currentTimeMillis();
     }
-    
+
     public String getJobName() {
         return jobName;
     }
-    
+
     public void setJobName(String fName) {
         jobName = (fName);
     }
-    
+
     public String getJobToken() {
         return jobToken;
     }
-    
+
     public void setJobToken(String fName) {
         jobToken = (fName);
     }
-    
+
     public String getScheduler() {
         return scheduler;
     }
-    
+
     public void setScheduler(String fName) {
         scheduler = (fName);
     }
-    
-    
+
     public String getChunkSize() {
         return chunkSize;
     }
-    
+
     public void setChunkSize(String fName) {
         chunkSize = (fName);
     }
@@ -95,17 +93,15 @@ public class Result {
     public void setTotalNodes(int totalNodes) {
         this.totalNodes = totalNodes;
     }
-    
-  
-    
+
     public String getAvgLoad() {
         return avgLoad;
     }
-    
+
     public void setAvgLoad(String load) {
         avgLoad = (load);
     }
-    
+
     public String getSubmitterUUID() {
         return submitterUUID;
     }
@@ -186,9 +182,6 @@ public class Result {
         this.finished = finished;
     }
 
-    
-    
-    
     @Override
     public String toString() {
         return toString(0);
@@ -198,7 +191,6 @@ public class Result {
         return this.toJSON().toString(indentFactor);
     }
 
-    
     public JSONObject toJSON() {
         JSONObject result = new JSONObject();
         result.put("jobName", jobName);
@@ -220,7 +212,7 @@ public class Result {
         result.put("createdOn", createdOn);
         return result;
     }
-    
+
     enum ResultComparator implements Comparator<Result> {
         JOB_TOKEN_SORT {
             public int compare(Result o1, Result o2) {
@@ -292,11 +284,11 @@ public class Result {
                 return Boolean.valueOf(o1.isFinished()).compareTo(o2.isFinished());
             }
         };
-        
+
         public static Comparator<Result> decending(final Comparator<Result> other) {
             return (Result o1, Result o2) -> -1 * other.compare(o1, o2);
         }
-        
+
         public static Comparator<Result> getComparator(final ResultComparator... multipleOptions) {
             return (Result o1, Result o2) -> {
                 for (ResultComparator option : multipleOptions) {
@@ -309,5 +301,5 @@ public class Result {
             };
         }
     }
-    
+
 }

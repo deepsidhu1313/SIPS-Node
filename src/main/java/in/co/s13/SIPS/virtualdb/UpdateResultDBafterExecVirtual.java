@@ -27,7 +27,7 @@ import static in.co.s13.SIPS.settings.GlobalValues.RESULT_DB;
  */
 public class UpdateResultDBafterExecVirtual implements Runnable {
 
-    String dbloc, sql, jobToken, performance; 
+    String dbloc, sql, jobToken, performance;
     long stoptime, totaltime, NOH;
     long avgWaitInQ;
     long avgSleepTime;
@@ -45,18 +45,8 @@ public class UpdateResultDBafterExecVirtual implements Runnable {
 
     @Override
     public void run() {
-        // SQLiteJDBC db = new SQLiteJDBC();
-        sql = "UPDATE  RESULT set "
-                + " EndTime ='" + stoptime + "',"
-                + " TotalTime ='" + totaltime + "' ,"
-                + " NOH ='" + NOH + "',"
-                + " PRFM ='" + performance + "',"
-                + " FINISHED ='true' WHERE PID='" + jobToken + "' ;";
-        // db.Update(dbloc, sql);
-//        for () 
         {
             Result resultDBEntry = RESULT_DB.get(jobToken.trim());
-//        if (resultDBEntry.getPID().trim().equalsIgnoreCase())
             {
                 resultDBEntry.setEndTime(stoptime);
                 resultDBEntry.setTotalTime(totaltime);
@@ -65,7 +55,6 @@ public class UpdateResultDBafterExecVirtual implements Runnable {
                 resultDBEntry.setAvgSleeptime(avgSleepTime);
                 resultDBEntry.setAvgWaitinq(avgWaitInQ);
                 resultDBEntry.setFinished(true);
-//                if (!insertedResultIntoWH[Integer.parseInt(jobToken)]) 
                 {
                     GlobalValues.RESULT_DB_EXECUTOR.execute(new InsertResultWareHouse((resultDBEntry.getJobToken()), resultDBEntry.getJobName(),
                             resultDBEntry.getScheduler(),
@@ -79,19 +68,10 @@ public class UpdateResultDBafterExecVirtual implements Runnable {
                             "" + resultDBEntry.getTotalNodes(),
                             Double.parseDouble(resultDBEntry.getAvgLoad()),
                             "" + resultDBEntry.isFinished(), "" + resultDBEntry.getAvgWaitinq(), "" + resultDBEntry.getAvgSleeptime()));
-//                    insertedResultIntoWH[Integer.parseInt(jobToken)] = true;
                 }
-//                break;
             }
 
         }
-        // db.closeConnection();
-        //    if(Integer.parseInt(jobToken.trim())<1)
-//        {
-//        Thread t = new Thread(new createResultTable());
-//        t.start();
-//        }  
-//        
     }
 
 }
