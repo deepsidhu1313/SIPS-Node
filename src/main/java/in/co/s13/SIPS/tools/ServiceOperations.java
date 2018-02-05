@@ -22,10 +22,12 @@ import in.co.s13.SIPS.datastructure.threadpools.FixedThreadPool;
 import in.co.s13.SIPS.executor.sockets.APIServer;
 import in.co.s13.SIPS.executor.sockets.FileDownloadServer;
 import in.co.s13.SIPS.executor.sockets.FileServer;
+import in.co.s13.SIPS.executor.sockets.JobServer;
 import in.co.s13.SIPS.executor.sockets.PingServer;
 import in.co.s13.SIPS.executor.sockets.TaskFinishListenerServer;
 import in.co.s13.SIPS.executor.sockets.TaskServer;
 import in.co.s13.SIPS.settings.GlobalValues;
+import static in.co.s13.SIPS.settings.GlobalValues.JOB_LIMIT;
 import static in.co.s13.SIPS.settings.GlobalValues.PING_REQUEST_LIMIT;
 import static in.co.s13.SIPS.settings.GlobalValues.PING_REQUEST_LIMIT_FOR_LIVE_NODES;
 import static in.co.s13.SIPS.settings.GlobalValues.TASK_LIMIT;
@@ -132,6 +134,42 @@ public class ServiceOperations {
     public static synchronized void restartTaskServer() {
         stopTaskServer();
         startTaskServer();
+    }
+    
+    
+    public static synchronized void initJobServerAtStartUp() {
+        if (GlobalValues.JOB_SERVER_ENABLED_AT_START) {
+            startJobServer();
+        }
+    }
+
+    public static synchronized void startJobServer() {
+        if (GlobalValues.JOB_EXECUTOR == null || GlobalValues.JOB_EXECUTOR.isShutdown()) {
+            GlobalValues.JOB_EXECUTOR = new FixedThreadPool(JOB_LIMIT);
+        } else {
+            GlobalValues.JOB_EXECUTOR.changeSize(JOB_LIMIT);
+        }
+        GlobalValues.JOB_SERVER_IS_RUNNING = true;
+        if ((GlobalValues.JOB_SERVER_SOCKET == null || GlobalValues.JOB_SERVER_SOCKET.isClosed()) && (GlobalValues.JOB_SERVER_THREAD == null || !GlobalValues.JOB_SERVER_THREAD.isAlive())) {
+            GlobalValues.JOB_SERVER_THREAD = new Thread(new JobServer());
+            GlobalValues.JOB_SERVER_THREAD.start();
+        }
+    }
+
+    public static synchronized void stopJobServer() {
+        GlobalValues.JOB_SERVER_IS_RUNNING = false;
+//        if (GlobalValues.TASK_SERVER_SOCKET != null && !GlobalValues.TASK_SERVER_SOCKET.isClosed()) {
+//            try {
+//                GlobalValues.TASK_SERVER_SOCKET.close();
+//            } catch (IOException ex) {
+//                Logger.getLogger(ServiceOperations.class.getName()).LOG(Level.SEVERE, null, ex);
+//            }
+//        }
+    }
+
+    public static synchronized void restartJobServer() {
+        stopJobServer();
+        startJobServer();
     }
 
     public static synchronized void initFileServerAtStartUp() {

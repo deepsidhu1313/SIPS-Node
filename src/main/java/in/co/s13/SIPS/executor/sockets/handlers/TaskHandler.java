@@ -173,28 +173,7 @@ public class TaskHandler implements Runnable {
 //                            }
 //                        });
 
-                    } else if (command.contains("CREATE_JOB_TOKEN")) {
-                        String submitterUUID = body.getString("UUID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
-                        String jobname = body.getString("JOB_NAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
-                        String scheduler = body.getString("SCHEDULER");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
-                        String jobToken= Util.generateJobToken();
-                        GlobalValues.RESULT_DB_EXECUTOR.submit(new UpdateResultDBbefExecVirtual(jobname, jobToken, scheduler, submitterUUID));
-                        try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
-                            JSONObject replyJSON= new JSONObject();
-                            JSONObject replyBody= new JSONObject();
-                            JSONObject response = new JSONObject();
-                            response.put("Token", jobToken);
-                            replyBody.put("Response", response);
-                            replyJSON.put("Body", replyBody);
-                            String sendmsg = replyJSON.toString(0);
-                            byte[] bytes = sendmsg.getBytes("UTF-8");
-                            outToClient.writeInt(bytes.length);
-                            outToClient.write(bytes);
-
-                        }
-                        submitter.close();
-                        
-                    } else if (command.contains("enterinq")) {
+                    }  else if (command.contains("enterinq")) {
                         String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
                         String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
                         String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));

@@ -342,6 +342,7 @@ public class SIPSNode {
                         ServiceOperations.initPingServerAtStartUp();
                         ServiceOperations.initFileServerAtStartUp();
                         ServiceOperations.initTaskServerAtStartUp();
+                        ServiceOperations.initJobServerAtStartUp();
                         ServiceOperations.initFileDownloadServerAtStartUp();
                         ServiceOperations.initLogRotateAtStartUp();
                         ServiceOperations.initCleanResultDBAtStartUp();
@@ -359,7 +360,7 @@ public class SIPSNode {
                         ServiceOperations.initTaskServerAtStartUp();
                         ServiceOperations.initFileDownloadServerAtStartUp();
                         ServiceOperations.initLogRotateAtStartUp();
-
+                        ServiceOperations.initJobServerAtStartUp();
                         ServiceOperations.initCleanResultDBAtStartUp();
                         break;
                 }
@@ -373,7 +374,7 @@ public class SIPSNode {
                 ServiceOperations.initTaskServerAtStartUp();
                 ServiceOperations.initFileDownloadServerAtStartUp();
                 ServiceOperations.initLogRotateAtStartUp();
-
+                ServiceOperations.initJobServerAtStartUp();
                 ServiceOperations.initCleanResultDBAtStartUp();
             }
 
@@ -393,7 +394,8 @@ public class SIPSNode {
             ServiceOperations.initFileDownloadServerAtStartUp();
             ServiceOperations.initLogRotateAtStartUp();
             ServiceOperations.initCleanResultDBAtStartUp();
-
+            ServiceOperations.initJobServerAtStartUp();
+                        
         }
 
     }

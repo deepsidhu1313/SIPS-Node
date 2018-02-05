@@ -876,6 +876,18 @@ public class Util {
             GlobalValues.TASK_LOG_PRINTER.append("\n" + "[" + timestamp + "] [" + logLevel + "] [" + sout + "]");
         });
     }
+    
+    public static void appendToJobLog(GlobalValues.LOG_LEVEL logLevel, String sout) {
+        GlobalValues.LOG_IO_EXECUTOR.submit(() -> {
+            String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
+            if (logLevel == GlobalValues.LOG_LEVEL.ERROR) {
+                errPrintln(sout);
+            } else if (logLevel == GlobalValues.LOG_LEVEL.OUTPUT) {
+                outPrintln(sout);
+            }
+            GlobalValues.JOB_LOG_PRINTER.append("\n" + "[" + timestamp + "] [" + logLevel + "] [" + sout + "]");
+        });
+    }
 
     public static void appendToPingLog(GlobalValues.LOG_LEVEL logLevel, String sout) {
         GlobalValues.LOG_IO_EXECUTOR.submit(() -> {

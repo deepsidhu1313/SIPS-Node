@@ -149,6 +149,7 @@ public class Settings {
             FILE_SERVER_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "file-server.log";
             PING_SERVER_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "ping-server.log";
             TASK_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "tasks.log";
+            JOB_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "jobs.log";
             PING_REQ_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "ping.log";
 
             String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
@@ -200,6 +201,12 @@ public class Settings {
             GlobalValues.TASK_LOG_PRINTER.println("\n\n****************************************************************"
                     + "\n**************** " + timestamp + " ************************"
                     + "\n****************************************************************\n");
+            prevContent = Util.readFile(JOB_LOG_FILE);
+            GlobalValues.JOB_LOG_PRINTER = new PrintStream(JOB_LOG_FILE);
+            GlobalValues.JOB_LOG_PRINTER.println(prevContent);
+            GlobalValues.JOB_LOG_PRINTER.println("\n\n****************************************************************"
+                    + "\n**************** " + timestamp + " ************************"
+                    + "\n****************************************************************\n");
             prevContent = Util.readFile(PING_REQ_LOG_FILE);
             GlobalValues.PING_LOG_PRINTER = new PrintStream(PING_REQ_LOG_FILE);
             GlobalValues.PING_LOG_PRINTER.println(prevContent);
@@ -234,10 +241,12 @@ public class Settings {
             NODE_UUID = Util.generateNodeUUID();
         }
         TASK_LIMIT = serviceSettings.getInt("MAX_TASK_ALLOWED_IN_PARALLEL", TASK_LIMIT);
+        JOB_LIMIT = serviceSettings.getInt("MAX_JOB_ALLOWED_IN_PARALLEL", JOB_LIMIT);
         FILES_RESOLVER_LIMIT = serviceSettings.getInt("MAX_FILE_RESOLVE_IN_PARALLEL", FILES_RESOLVER_LIMIT);
         PING_HANDLER_LIMIT = serviceSettings.getInt("MAX_PING_RESPONSES_IN_PARALLEL", PING_HANDLER_LIMIT);
         API_HANDLER_LIMIT = serviceSettings.getInt("MAX_API_RESPONSES_IN_PARALLEL", API_HANDLER_LIMIT);
         TASK_HANDLER_LIMIT = serviceSettings.getInt("MAX_TASK_REQ_IN_PARALLEL", TASK_HANDLER_LIMIT);
+        JOB_HANDLER_LIMIT = serviceSettings.getInt("MAX_JOB_REQ_IN_PARALLEL", JOB_HANDLER_LIMIT);
         PING_REQUEST_LIMIT = serviceSettings.getInt("MAX_PING_REQUESTS_IN_PARALLEL", PING_REQUEST_LIMIT);
         PING_REQUEST_LIMIT_FOR_LIVE_NODES = serviceSettings.getInt("MAX_PING_REQUESTS_IN_PARALLEL_FOR_LIVE_NODES", 3);
         FILE_HANDLER_LIMIT = serviceSettings.getInt("FILE_HANDLER_LIMIT", FILE_HANDLER_LIMIT);
@@ -247,6 +256,7 @@ public class Settings {
         FILE_DOWNLOAD_SERVER_ENABLED_AT_START = serviceSettings.getBoolean("FILE_DOWNLOAD_SERVER_ENABLED_AT_START", FILE_DOWNLOAD_SERVER_ENABLED_AT_START);
         FILE_SERVER_ENABLED_AT_START = serviceSettings.getBoolean("FILE_SERVER_ENABLED_AT_START", FILE_SERVER_ENABLED_AT_START);
         TASK_SERVER_ENABLED_AT_START = serviceSettings.getBoolean("TASK_SERVER_ENABLED_AT_START", TASK_SERVER_ENABLED_AT_START);
+        JOB_SERVER_ENABLED_AT_START = serviceSettings.getBoolean("JOB_SERVER_ENABLED_AT_START", JOB_SERVER_ENABLED_AT_START);
         NODE_SCANNER_ENABLED_AT_START = serviceSettings.getBoolean("NODE_SCANNER_ENABLED_AT_START", NODE_SCANNER_ENABLED_AT_START);
         LIVE_NODE_SCANNER_ENABLED_AT_START = serviceSettings.getBoolean("LIVE_NODE_SCANNER_ENABLED_AT_START", LIVE_NODE_SCANNER_ENABLED_AT_START);
         LIVE_NODE_SCANNER_INTIAL_DELAY = serviceSettings.getLong("LIVE_NODE_SCANNER_INTIAL_DELAY", LIVE_NODE_SCANNER_INTIAL_DELAY);
@@ -285,12 +295,14 @@ public class Settings {
         }
         serviceSettings.put("UUID", NODE_UUID);
         serviceSettings.put("MAX_TASK_ALLOWED_IN_PARALLEL", TASK_LIMIT);
+        serviceSettings.put("MAX_JOB_ALLOWED_IN_PARALLEL", JOB_LIMIT);
         serviceSettings.put("MAX_FILE_RESOLVE_IN_PARALLEL", FILES_RESOLVER_LIMIT);
         serviceSettings.put("MAX_PING_RESPONSES_IN_PARALLEL", PING_HANDLER_LIMIT);
         serviceSettings.put("MAX_PING_REQUESTS_IN_PARALLEL", PING_REQUEST_LIMIT);
         serviceSettings.put("MAX_PING_REQUESTS_IN_PARALLEL_FOR_LIVE_NODES", PING_REQUEST_LIMIT_FOR_LIVE_NODES);
         serviceSettings.put("MAX_API_RESPONSES_IN_PARALLEL", API_HANDLER_LIMIT);
         serviceSettings.put("MAX_TASK_REQ_IN_PARALLEL", TASK_HANDLER_LIMIT);
+        serviceSettings.put("MAX_JOB_REQ_IN_PARALLEL", JOB_HANDLER_LIMIT);
         serviceSettings.put("FILE_HANDLER_LIMIT", FILE_HANDLER_LIMIT);
         serviceSettings.put("TOTAL_IP_SCANNING_THREADS", TOTAL_IP_SCANNING_THREADS);
         serviceSettings.put("PING_SERVER_ENABLED_AT_START", PING_SERVER_ENABLED_AT_START);
@@ -298,6 +310,7 @@ public class Settings {
         serviceSettings.put("FILE_DOWNLOAD_SERVER_ENABLED_AT_START", FILE_DOWNLOAD_SERVER_ENABLED_AT_START);
         serviceSettings.put("FILE_SERVER_ENABLED_AT_START", FILE_SERVER_ENABLED_AT_START);
         serviceSettings.put("TASK_SERVER_ENABLED_AT_START", TASK_SERVER_ENABLED_AT_START);
+        serviceSettings.put("JOB_SERVER_ENABLED_AT_START", JOB_SERVER_ENABLED_AT_START);
         serviceSettings.put("TASK_FINISH_LISTENER_ENABLED_AT_START", TASK_FINISH_LISTENER_SERVER_ENABLED_AT_START);
         serviceSettings.put("NODE_SCANNER_ENABLED_AT_START", NODE_SCANNER_ENABLED_AT_START);
         serviceSettings.put("LIVE_NODE_SCANNER_ENABLED_AT_START", LIVE_NODE_SCANNER_ENABLED_AT_START);

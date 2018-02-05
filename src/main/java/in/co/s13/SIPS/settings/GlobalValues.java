@@ -197,6 +197,7 @@ public class GlobalValues {
             FILE_SERVER_LOG_FILE,
             PING_SERVER_LOG_FILE,
             TASK_LOG_FILE,
+            JOB_LOG_FILE,
             PING_REQ_LOG_FILE;
     public static PrintStream OUT,
             ERR,
@@ -206,6 +207,7 @@ public class GlobalValues {
             FILE_SERVER_LOG_PRINTER,
             PING_SERVER_LOG_PRINTER,
             TASK_LOG_PRINTER,
+            JOB_LOG_PRINTER,
             PING_LOG_PRINTER;
 
     /**
@@ -228,8 +230,10 @@ public class GlobalValues {
     public static int PING_REQUEST_LIMIT_FOR_LIVE_NODES = 2;
     public static int API_HANDLER_LIMIT = 10;
     public static int TASK_HANDLER_LIMIT = 10;
+    public static int JOB_HANDLER_LIMIT = 10;
     public static int TASK_FINISH_LISTENER_HANDLER_LIMIT = 10;
     public static int TASK_LIMIT = (Runtime.getRuntime().availableProcessors() - 2) < 1 ? 1 : (Runtime.getRuntime().availableProcessors() - 2);
+    public static int JOB_LIMIT = (Runtime.getRuntime().availableProcessors() - 2) < 1 ? 1 : (Runtime.getRuntime().availableProcessors() - 2);
     public static AtomicLong TASK_WAITING = new AtomicLong(0);
     /**
      * *
@@ -240,10 +244,12 @@ public class GlobalValues {
     public static ExecutorService NODE_SCANNER_EXECUTOR = Executors.newFixedThreadPool(2);
     public static FixedThreadPool NETWORK_EXECUTOR;
     public static FixedThreadPool TASK_EXECUTOR;
+    public static FixedThreadPool JOB_EXECUTOR;
     public static FixedThreadPool PING_REQUEST_EXECUTOR;
     public static FixedThreadPool PING_REQUEST_EXECUTOR_FOR_LIVE_NODES;
     public static ExecutorService NODE_DB_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService TASK_DB_EXECUTOR = Executors.newFixedThreadPool(1);
+    public static ExecutorService JOB_DB_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService LIVE_DB_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService DIST_DB_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService RESULT_DB_EXECUTOR = Executors.newFixedThreadPool(1);
@@ -253,28 +259,28 @@ public class GlobalValues {
     /**
      * Server ThreadPools
      */
-    public static FixedThreadPool API_HANDLER_EXECUTOR_SERVICE, PING_HANDLER_EXECUTOR_SERVICE, FILE_DOWNLOAD_HANDLER_EXECUTOR_SERVICE, FILE_HANDLER_EXECUTOR_SERVICE, TASK_HANDLER_EXECUTOR_SERVICE, TASK_FINISH_LISTENER_HANDLER_EXECUTOR_SERVICE;
+    public static FixedThreadPool API_HANDLER_EXECUTOR_SERVICE, PING_HANDLER_EXECUTOR_SERVICE, FILE_DOWNLOAD_HANDLER_EXECUTOR_SERVICE, FILE_HANDLER_EXECUTOR_SERVICE, TASK_HANDLER_EXECUTOR_SERVICE,JOB_HANDLER_EXECUTOR_SERVICE, TASK_FINISH_LISTENER_HANDLER_EXECUTOR_SERVICE;
 
     /**
      * *
      * Server Threads
      */
-    public static Thread TASK_SERVER_THREAD, API_SERVER_THREAD, PING_SERVER_THREAD, FILE_DOWNLOAD_SERVER_THREAD, TASK_FINISH_LISTENER_SERVER_THREAD, FILE_SERVER_THREAD;
+    public static Thread TASK_SERVER_THREAD,JOB_SERVER_THREAD, API_SERVER_THREAD, PING_SERVER_THREAD, FILE_DOWNLOAD_SERVER_THREAD, TASK_FINISH_LISTENER_SERVER_THREAD, FILE_SERVER_THREAD;
 
     /**
      * Server sockets
      */
-    public static ServerSocket API_SERVER_SOCKET, FILE_DOWNLOAD_SERVER_SOCKET, FILE_SERVER_SOCKET, PING_SERVER_SOCKET, TASK_SERVER_SOCKET, TASK_FINISH_LISTENER_SERVER_SOCKET;
+    public static ServerSocket API_SERVER_SOCKET, FILE_DOWNLOAD_SERVER_SOCKET, FILE_SERVER_SOCKET, PING_SERVER_SOCKET, TASK_SERVER_SOCKET,JOB_SERVER_SOCKET, TASK_FINISH_LISTENER_SERVER_SOCKET;
 
     /**
      * Socket Ports
      */
-    public static int PING_SERVER_PORT = 13131, FILE_DOWNLOAD_SERVER_PORT = 13132, TASK_SERVER_PORT = 13133, TASK_FINISH_LISTENER_SERVER_PORT = 13134, FILE_SERVER_PORT = 13135, API_SERVER_PORT = 13139;
+    public static int PING_SERVER_PORT = 13131, FILE_DOWNLOAD_SERVER_PORT = 13132, TASK_SERVER_PORT = 13133, TASK_FINISH_LISTENER_SERVER_PORT = 13134, FILE_SERVER_PORT = 13135,JOB_SERVER_PORT = 13136, API_SERVER_PORT = 13139;
 
     /**
      * Server Flags
      */
-    public static boolean API_SERVER_IS_RUNNING = true, FILE_DOWNLOAD_SERVER_IS_RUNNING = true, FILE_SERVER_IS_RUNNING = true, PING_SERVER_IS_RUNNING = true, TASK_SERVER_IS_RUNNING = true, TASK_FINISH_SERVER_IS_RUNNING = true;
+    public static boolean API_SERVER_IS_RUNNING = true, FILE_DOWNLOAD_SERVER_IS_RUNNING = true, FILE_SERVER_IS_RUNNING = true, PING_SERVER_IS_RUNNING = true, TASK_SERVER_IS_RUNNING = true,JOB_SERVER_IS_RUNNING = true, TASK_FINISH_SERVER_IS_RUNNING = true;
     /**
      * Network Scheduled Thread Conditions
      */
@@ -289,7 +295,7 @@ public class GlobalValues {
     /**
      * Services Vars
      */
-    public static boolean PING_SERVER_ENABLED_AT_START = true, LOG_ROTATE_ENABLED_AT_START = true,CLEAN_RESULT_DB_ENABLED_AT_START = true, API_SERVER_ENABLED_AT_START = true, FILE_DOWNLOAD_SERVER_ENABLED_AT_START = true, FILE_SERVER_ENABLED_AT_START = true, TASK_SERVER_ENABLED_AT_START = true, NODE_SCANNER_ENABLED_AT_START = true, LIVE_NODE_SCANNER_ENABLED_AT_START = true, TASK_FINISH_LISTENER_SERVER_ENABLED_AT_START = true;
+    public static boolean PING_SERVER_ENABLED_AT_START = true, LOG_ROTATE_ENABLED_AT_START = true,CLEAN_RESULT_DB_ENABLED_AT_START = true, API_SERVER_ENABLED_AT_START = true, FILE_DOWNLOAD_SERVER_ENABLED_AT_START = true, FILE_SERVER_ENABLED_AT_START = true, TASK_SERVER_ENABLED_AT_START = true,JOB_SERVER_ENABLED_AT_START = true, NODE_SCANNER_ENABLED_AT_START = true, LIVE_NODE_SCANNER_ENABLED_AT_START = true, TASK_FINISH_LISTENER_SERVER_ENABLED_AT_START = true;
 
     public static long NODE_SCANNER_INTIAL_DELAY = 2L, LIVE_NODE_SCANNER_INTIAL_DELAY = 2L, NODE_SCANNER_PERIODIC_DELAY = 5L, LIVE_NODE_SCANNER_PERIODIC_DELAY = 5L;
     /**

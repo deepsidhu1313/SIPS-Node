@@ -24,18 +24,21 @@ import in.co.s13.SIPS.settings.Settings;
 import in.co.s13.SIPS.tools.ServiceOperations;
 import static in.co.s13.SIPS.tools.ServiceOperations.restartApiServer;
 import static in.co.s13.SIPS.tools.ServiceOperations.restartFileServer;
+import static in.co.s13.SIPS.tools.ServiceOperations.restartJobServer;
 import static in.co.s13.SIPS.tools.ServiceOperations.restartLiveNodeScanner;
 import static in.co.s13.SIPS.tools.ServiceOperations.restartNodeScanner;
 import static in.co.s13.SIPS.tools.ServiceOperations.restartPingServer;
 import static in.co.s13.SIPS.tools.ServiceOperations.restartTaskServer;
 import static in.co.s13.SIPS.tools.ServiceOperations.startApiServer;
 import static in.co.s13.SIPS.tools.ServiceOperations.startFileServer;
+import static in.co.s13.SIPS.tools.ServiceOperations.startJobServer;
 import static in.co.s13.SIPS.tools.ServiceOperations.startLiveNodeScanner;
 import static in.co.s13.SIPS.tools.ServiceOperations.startNodeScanner;
 import static in.co.s13.SIPS.tools.ServiceOperations.startPingServer;
 import static in.co.s13.SIPS.tools.ServiceOperations.startTaskServer;
 import static in.co.s13.SIPS.tools.ServiceOperations.stopApiServer;
 import static in.co.s13.SIPS.tools.ServiceOperations.stopFileServer;
+import static in.co.s13.SIPS.tools.ServiceOperations.stopJobServer;
 import static in.co.s13.SIPS.tools.ServiceOperations.stopLiveNodeScanner;
 import static in.co.s13.SIPS.tools.ServiceOperations.stopNodeScanner;
 import static in.co.s13.SIPS.tools.ServiceOperations.stopPingServer;
@@ -232,6 +235,15 @@ public class APIHandler implements Runnable {
                                 restartTaskServer();
                             }
                             response.put("TASK-SERVER", !GlobalValues.TASK_SERVER_SOCKET.isClosed());
+                        } else if (args.getString(0).equalsIgnoreCase("JOB-SERVER")) {
+                            if (args.getString(1).equalsIgnoreCase("start")) {
+                                startJobServer();
+                            } else if (args.getString(1).equalsIgnoreCase("stop")) {
+                                stopJobServer();
+                            } else if (args.getString(1).equalsIgnoreCase("restart")) {
+                                restartJobServer();
+                            }
+                            response.put("JOB-SERVER", !GlobalValues.JOB_SERVER_SOCKET.isClosed());
                         } else if (args.getString(0).equalsIgnoreCase("API-SERVER")) {
                             if (args.getString(1).equalsIgnoreCase("start")) {
                                 startApiServer();
@@ -288,6 +300,7 @@ public class APIHandler implements Runnable {
                         response.put("FILE-SERVER", !GlobalValues.FILE_SERVER_SOCKET.isClosed());
                         response.put("FILE-DOWNLOAD-SERVER", !GlobalValues.FILE_DOWNLOAD_SERVER_SOCKET.isClosed());
                         response.put("TASK-SERVER", !GlobalValues.TASK_SERVER_SOCKET.isClosed());
+                        response.put("JOB-SERVER", !GlobalValues.JOB_SERVER_SOCKET.isClosed());
                         response.put("API-SERVER", !GlobalValues.API_SERVER_SOCKET.isClosed());
                         response.put("LIVE-NODE-SCANNER", GlobalValues.CHECK_LIVE_NODE_THREAD.isAlive());
                         response.put("NODE-SCANNER", GlobalValues.NODE_SCANNING_THREAD.isAlive());
@@ -300,6 +313,7 @@ public class APIHandler implements Runnable {
                         response.put("FILE-SERVER", !GlobalValues.FILE_SERVER_SOCKET.isClosed());
                         response.put("FILE-DOWNLOAD-SERVER", !GlobalValues.FILE_DOWNLOAD_SERVER_SOCKET.isClosed());
                         response.put("TASK-SERVER", !GlobalValues.TASK_SERVER_SOCKET.isClosed());
+                        response.put("JOB-SERVER", !GlobalValues.JOB_SERVER_SOCKET.isClosed());
                         response.put("API-SERVER", !GlobalValues.API_SERVER_SOCKET.isClosed());
                         response.put("LIVE-NODE-SCANNER", GlobalValues.CHECK_LIVE_NODE_THREAD.isAlive());
                         response.put("NODE-SCANNER", GlobalValues.NODE_SCANNING_THREAD.isAlive());
@@ -487,6 +501,10 @@ public class APIHandler implements Runnable {
                         GlobalValues.TASK_HANDLER_LIMIT = args.getInt(1);
                         response.put("TASK_HANDLER_LIMIT", GlobalValues.TASK_HANDLER_LIMIT);
 
+                    }else if (args.length() == 2 && args.getString(0).equalsIgnoreCase("JOB_HANDLER_LIMIT") && hasWritePermissions(key_permissions)) {
+                        GlobalValues.JOB_HANDLER_LIMIT = args.getInt(1);
+                        response.put("JOB_HANDLER_LIMIT", GlobalValues.JOB_HANDLER_LIMIT);
+
                     } else if (args.length() == 2 && args.getString(0).equalsIgnoreCase("TASK_FINISH_LISTENER_HANDLER_LIMIT") && hasWritePermissions(key_permissions)) {
                         GlobalValues.TASK_FINISH_LISTENER_HANDLER_LIMIT = args.getInt(1);
                         response.put("TASK_FINISH_LISTENER_HANDLER_LIMIT", GlobalValues.TASK_FINISH_LISTENER_HANDLER_LIMIT);
@@ -518,6 +536,10 @@ public class APIHandler implements Runnable {
                     } else if (args.length() == 2 && args.getString(0).equalsIgnoreCase("TASK_SERVER_ENABLED_AT_START") && hasWritePermissions(key_permissions)) {
                         GlobalValues.TASK_SERVER_ENABLED_AT_START = args.getBoolean(1);
                         response.put("TASK_SERVER_ENABLED_AT_START", GlobalValues.TASK_SERVER_ENABLED_AT_START);
+
+                    } else if (args.length() == 2 && args.getString(0).equalsIgnoreCase("JOB_SERVER_ENABLED_AT_START") && hasWritePermissions(key_permissions)) {
+                        GlobalValues.JOB_SERVER_ENABLED_AT_START = args.getBoolean(1);
+                        response.put("JOB_SERVER_ENABLED_AT_START", GlobalValues.JOB_SERVER_ENABLED_AT_START);
 
                     } else if (args.length() == 2 && args.getString(0).equalsIgnoreCase("NODE_SCANNER_ENABLED_AT_START") && hasWritePermissions(key_permissions)) {
                         GlobalValues.NODE_SCANNER_ENABLED_AT_START = args.getBoolean(1);
@@ -567,6 +589,9 @@ public class APIHandler implements Runnable {
                     } else if (args.length() == 1 && args.getString(0).equalsIgnoreCase("TASK_HANDLER_LIMIT") && hasReadPermissions(key_permissions)) {
                         response.put("TASK_HANDLER_LIMIT", GlobalValues.TASK_HANDLER_LIMIT);
 
+                    } else if (args.length() == 1 && args.getString(0).equalsIgnoreCase("JOB_HANDLER_LIMIT") && hasReadPermissions(key_permissions)) {
+                        response.put("JOB_HANDLER_LIMIT", GlobalValues.JOB_HANDLER_LIMIT);
+
                     } else if (args.length() == 1 && args.getString(0).equalsIgnoreCase("TASK_FINISH_LISTENER_HANDLER_LIMIT") && hasReadPermissions(key_permissions)) {
                         response.put("TASK_FINISH_LISTENER_HANDLER_LIMIT", GlobalValues.TASK_FINISH_LISTENER_HANDLER_LIMIT);
 
@@ -591,6 +616,9 @@ public class APIHandler implements Runnable {
                     } else if (args.length() == 1 && args.getString(0).equalsIgnoreCase("TASK_SERVER_ENABLED_AT_START") && hasReadPermissions(key_permissions)) {
                         response.put("TASK_SERVER_ENABLED_AT_START", GlobalValues.TASK_SERVER_ENABLED_AT_START);
 
+                    } else if (args.length() == 1 && args.getString(0).equalsIgnoreCase("JOB_SERVER_ENABLED_AT_START") && hasReadPermissions(key_permissions)) {
+                        response.put("JOB_SERVER_ENABLED_AT_START", GlobalValues.JOB_SERVER_ENABLED_AT_START);
+
                     } else if (args.length() == 1 && args.getString(0).equalsIgnoreCase("NODE_SCANNER_ENABLED_AT_START") && hasReadPermissions(key_permissions)) {
                         response.put("NODE_SCANNER_ENABLED_AT_START", GlobalValues.NODE_SCANNER_ENABLED_AT_START);
 
@@ -612,14 +640,17 @@ public class APIHandler implements Runnable {
                         response.put("PING_REQUEST_LIMIT", GlobalValues.PING_REQUEST_LIMIT);
                         response.put("API_HANDLER_LIMIT", GlobalValues.API_HANDLER_LIMIT);
                         response.put("TASK_HANDLER_LIMIT", GlobalValues.TASK_HANDLER_LIMIT);
-                        response.put("TASK_FINISH_LISTENER_HANDLER_LIMIT", GlobalValues.TASK_FINISH_LISTENER_HANDLER_LIMIT);
                         response.put("TASK_LIMIT", GlobalValues.TASK_LIMIT);
+                        response.put("JOB_HANDLER_LIMIT", GlobalValues.JOB_HANDLER_LIMIT);
+                        response.put("JOB_LIMIT", GlobalValues.JOB_LIMIT);
+                        response.put("TASK_FINISH_LISTENER_HANDLER_LIMIT", GlobalValues.TASK_FINISH_LISTENER_HANDLER_LIMIT);
                         response.put("PING_SERVER_ENABLED_AT_START", GlobalValues.PING_SERVER_ENABLED_AT_START);
                         response.put("LOG_ROTATE_ENABLED_AT_START", GlobalValues.LOG_ROTATE_ENABLED_AT_START);
                         response.put("API_SERVER_ENABLED_AT_START", GlobalValues.API_SERVER_ENABLED_AT_START);
                         response.put("FILE_DOWNLOAD_SERVER_ENABLED_AT_START", GlobalValues.FILE_DOWNLOAD_SERVER_ENABLED_AT_START);
                         response.put("FILE_SERVER_ENABLED_AT_START", GlobalValues.FILE_SERVER_ENABLED_AT_START);
                         response.put("TASK_SERVER_ENABLED_AT_START", GlobalValues.TASK_SERVER_ENABLED_AT_START);
+                        response.put("JOB_SERVER_ENABLED_AT_START", GlobalValues.JOB_SERVER_ENABLED_AT_START);
                         response.put("NODE_SCANNER_ENABLED_AT_START", GlobalValues.NODE_SCANNER_ENABLED_AT_START);
                         response.put("LIVE_NODE_SCANNER_ENABLED_AT_START", GlobalValues.LIVE_NODE_SCANNER_ENABLED_AT_START);
                         response.put("TASK_FINISH_LISTENER_SERVER_ENABLED_AT_START", GlobalValues.TASK_FINISH_LISTENER_SERVER_ENABLED_AT_START);
