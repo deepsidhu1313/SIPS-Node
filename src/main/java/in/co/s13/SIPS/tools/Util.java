@@ -706,11 +706,7 @@ public class Util {
             }
 
             System.out.println("Digest(in hex format):: " + sb.toString());
-        } catch (NoSuchAlgorithmException ex) {
-            Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
+        } catch (NoSuchAlgorithmException | IOException ex) {
             Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
         }
         saveCheckSum(datafile + ".sha", sb.toString());
@@ -718,7 +714,11 @@ public class Util {
     }
 
     public static String LoadCheckSum(String ld) {
-        return readFile(ld);
+        File f = new File(ld);
+        if (!f.exists()) {
+            Util.getCheckSum(ld.substring(0, ld.length() - 3));
+        }
+        return readFile(ld).trim();
     }
 
     public static String readFile(String location) {
@@ -876,7 +876,7 @@ public class Util {
             GlobalValues.TASK_LOG_PRINTER.append("\n" + "[" + timestamp + "] [" + logLevel + "] [" + sout + "]");
         });
     }
-    
+
     public static void appendToJobLog(GlobalValues.LOG_LEVEL logLevel, String sout) {
         GlobalValues.LOG_IO_EXECUTOR.submit(() -> {
             String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));

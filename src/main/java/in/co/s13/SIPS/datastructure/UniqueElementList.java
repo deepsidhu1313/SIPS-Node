@@ -96,7 +96,7 @@ public class UniqueElementList {
         if (arrayList.size() > 0) {
             return arrayList.get(0);
         }
-        return null;
+        return new Hop("Empty", Long.MAX_VALUE);
     }
 
 }

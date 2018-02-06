@@ -23,8 +23,11 @@ import in.co.s13.SIPS.settings.GlobalValues;
 import static in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB;
 import in.co.s13.SIPS.tools.Util;
 import in.co.s13.SIPS.virtualdb.UpdateResultDBbefExecVirtual;
+import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
@@ -84,15 +87,15 @@ public class JobHandler implements Runnable {
 
                         }
                         submitter.close();
-                    }  else if (command.contains("CREATE_JOB_TOKEN")) {
+                    } else if (command.contains("CREATE_JOB_TOKEN")) {
                         String submitterUUID = body.getString("UUID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
                         String jobname = body.getString("JOB_NAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
                         String scheduler = body.getString("SCHEDULER");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
-                        String jobToken= Util.generateJobToken();
+                        String jobToken = Util.generateJobToken();
                         GlobalValues.RESULT_DB_EXECUTOR.submit(new UpdateResultDBbefExecVirtual(jobname, jobToken, scheduler, submitterUUID));
                         try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
-                            JSONObject replyJSON= new JSONObject();
-                            JSONObject replyBody= new JSONObject();
+                            JSONObject replyJSON = new JSONObject();
+                            JSONObject replyBody = new JSONObject();
                             JSONObject response = new JSONObject();
                             response.put("Token", jobToken);
                             replyBody.put("Response", response);
@@ -104,8 +107,66 @@ public class JobHandler implements Runnable {
 
                         }
                         submitter.close();
-                        
-                    } 
+
+                    } else if (command.contains("UPLOAD_FILE")) {
+                        String submitterUUID = body.getString("UUID");
+                        String jobname = body.getString("JOB_NAME");
+                        String jobToken = body.getString("JOB_TOKEN");
+                        String filePath = body.getString("PATH");
+                        String sha = body.getString("SHA");
+                        try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
+                            JSONObject replyJSON = new JSONObject();
+                            JSONObject replyBody = new JSONObject();
+                            JSONObject response = new JSONObject();
+                            boolean foundLocal = false;
+                            File cachedFile = new File("cache/" + submitterUUID + "/" + jobname + "/" + filePath);
+                            if (cachedFile.exists()) {
+                                if (Util.LoadCheckSum(cachedFile.getAbsolutePath() + ".sha").trim().equalsIgnoreCase(sha.trim())) {
+                                    response.put("Message", "FOUND_LOCAL");
+                                    foundLocal = true;
+                                } else {
+                                    response.put("Message", "SEND_NEW");
+
+                                }
+                            } else {
+                                response.put("Message", "SEND_NEW");
+
+                            }
+                            replyBody.put("Response", response);
+                            replyJSON.put("Body", replyBody);
+                            String sendmsg = replyJSON.toString(0);
+                            byte[] bytes = sendmsg.getBytes("UTF-8");
+                            outToClient.writeInt(bytes.length);
+                            outToClient.write(bytes);
+                            if (foundLocal) {
+                                File copyTo = new File("data/" + jobToken + "/" + filePath);
+                                Util.copyFileUsingStream(cachedFile, copyTo);
+                                Util.getCheckSum(copyTo.getAbsolutePath());
+                            } else {
+                                File toDownload = new File("data/" + jobToken + "/" + filePath);
+                                toDownload.getParentFile().mkdirs();
+                                try (FileOutputStream fos = new FileOutputStream(toDownload); BufferedOutputStream bos = new BufferedOutputStream(fos)) {
+                                    long fileLen, downData;
+                                    fileLen = dataInputStream.readLong();
+                                    System.out.println("Prepared to recieve File of Size " + fileLen);
+                                    downData = fileLen;
+                                    int n = 0;
+                                    byte[] buf = new byte[8192];
+                                    while (fileLen > 0 && ((n = dataInputStream.read(buf, 0, (int) Math.min(buf.length, fileLen))) != -1)) {
+                                        bos.write(buf, 0, n);
+                                        fileLen -= n;
+                                    }
+                                    bos.flush();
+                                }
+
+                                Util.getCheckSum(toDownload.getAbsolutePath());
+                                Util.copyFileUsingStream(toDownload, cachedFile);
+                                Util.getCheckSum(cachedFile.getAbsolutePath());
+
+                            }
+                        }
+                        submitter.close();
+                    }
                 }
             }
         } catch (IOException ex) {

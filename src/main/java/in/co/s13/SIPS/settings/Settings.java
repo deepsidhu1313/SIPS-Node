@@ -145,9 +145,9 @@ public class Settings {
             ERR_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "err.log";
             LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "app.log";
             API_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "api.log";
-            FILE_DOWNLOAD_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "file-download.log";
-            FILE_SERVER_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "file-server.log";
-            PING_SERVER_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "ping-server.log";
+            FILE_DOWNLOAD_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "file_download.log";
+            FILE_SERVER_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "file_server.log";
+            PING_SERVER_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "ping_server.log";
             TASK_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "tasks.log";
             JOB_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "jobs.log";
             PING_REQ_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "ping.log";
