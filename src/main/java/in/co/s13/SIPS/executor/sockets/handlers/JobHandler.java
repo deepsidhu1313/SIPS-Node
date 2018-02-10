@@ -16,11 +16,8 @@
  */
 package in.co.s13.SIPS.executor.sockets.handlers;
 
-import in.co.s13.SIPS.datastructure.DistributionDBRow;
 import in.co.s13.SIPS.executor.ParallelProcess;
-import in.co.s13.SIPS.executor.PrintToFile;
 import in.co.s13.SIPS.settings.GlobalValues;
-import static in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB;
 import in.co.s13.SIPS.tools.Util;
 import in.co.s13.SIPS.virtualdb.UpdateResultDBbefExecVirtual;
 import java.io.BufferedOutputStream;
@@ -35,7 +32,6 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONObject;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
@@ -74,13 +70,18 @@ public class JobHandler implements Runnable {
                     JSONObject body = messageJson.getJSONObject("Body");//messageString.substring(messageString.indexOf("<Body>") + 6, messageString.indexOf("</Body>"));
                     System.out.println(messageString);
                     if (command.contains("START_JOB")) {
-                        GlobalValues.TASK_WAITING.incrementAndGet();
-                        GlobalValues.TASK_EXECUTOR.submit(new ParallelProcess(body, ipAddress));
-                        System.out.println("created process");
+                        GlobalValues.JOB_WAITING.incrementAndGet();
+                        GlobalValues.JOB_EXECUTOR.submit(new ParallelProcess(body, ipAddress));
+                        System.out.println("Created Job");
 
                         try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
-                            String sendmsg = "OK";
-
+                            JSONObject replyJSON = new JSONObject();
+                            JSONObject replyBody = new JSONObject();
+                            JSONObject response = new JSONObject();
+                            response.put("Message", "Job Started");
+                            replyBody.put("Response", response);
+                            replyJSON.put("Body", replyBody);
+                            String sendmsg = replyJSON.toString(0);
                             byte[] bytes = sendmsg.getBytes("UTF8");
                             outToClient.writeInt(bytes.length);
                             outToClient.write(bytes);

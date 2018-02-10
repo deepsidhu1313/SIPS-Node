@@ -18,9 +18,7 @@ package in.co.s13.SIPS.settings;
 
 import in.co.s13.SIPS.datastructure.DistributionDBRow;
 import in.co.s13.SIPS.datastructure.FileDownQueReq;
-import in.co.s13.SIPS.datastructure.Hop;
 import in.co.s13.SIPS.datastructure.Resource;
-import in.co.s13.SIPS.datastructure.UniqueElementList;
 import in.co.s13.SIPS.datastructure.threadpools.FixedThreadPool;
 import in.co.s13.SIPS.db.OLDSQLiteJDBC;
 import in.co.s13.SIPS.datastructure.LiveDBRow;
@@ -235,6 +233,7 @@ public class GlobalValues {
     public static int TASK_LIMIT = (Runtime.getRuntime().availableProcessors() - 2) < 1 ? 1 : (Runtime.getRuntime().availableProcessors() - 2);
     public static int JOB_LIMIT = (Runtime.getRuntime().availableProcessors() - 2) < 1 ? 1 : (Runtime.getRuntime().availableProcessors() - 2);
     public static AtomicLong TASK_WAITING = new AtomicLong(0);
+    public static AtomicLong JOB_WAITING = new AtomicLong(0);
     /**
      * *
      * Executors
@@ -318,8 +317,8 @@ public class GlobalValues {
     public static boolean IS_WRITING = false;
     public static JSONObject BLACKLIST_JSON, NETWORKS_TO_SCAN_JSON, IPs_TO_SCAN_JSON, API_JSON;
     public static ConcurrentHashMap<String, String> ROUTING_TABLE = new ConcurrentHashMap<>();
-    public static ConcurrentHashMap<String, Hop> ADJACENT_NODES_TABLE = new ConcurrentHashMap<>();
-    public static ConcurrentHashMap<String, UniqueElementList> NON_ADJACENT_NODES_TABLE = new ConcurrentHashMap<>();
+//    public static ConcurrentHashMap<String, Hop> ADJACENT_NODES_TABLE = new ConcurrentHashMap<>();
+//    public static ConcurrentHashMap<String, UniqueElementList> NON_ADJACENT_NODES_TABLE = new ConcurrentHashMap<>();
 
     /**
      * Task Storage
@@ -350,7 +349,6 @@ public class GlobalValues {
     public static boolean KEEP_LOG_ROTATE_ALIVE = true;
     public static Thread LOG_ROTATE_THREAD;
     
-    public static long NODE_EXPIRY_TIME = 60;
 
     public static boolean KEEP_CLEAN_RESULT_DB_THREAD_ALIVE = true;
     public static Thread CLEAN_RESULT_DB_THREAD;

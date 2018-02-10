@@ -159,5 +159,11 @@
             <artifactId>common-json</artifactId>
             <version>0.1</version>
         </dependency>
+         <dependency>
+            <groupId>in.co.s13</groupId>
+            <artifactId>SIPS-lib</artifactId>
+            <version>0.1-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
 </project>

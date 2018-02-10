@@ -16,11 +16,9 @@
  */
 package in.co.s13.SIPS.Scanner;
 
-import in.co.s13.SIPS.datastructure.Hop;
-import in.co.s13.SIPS.datastructure.UniqueElementList;
+import in.co.s13.sips.lib.common.datastructure.Hop;
+import in.co.s13.sips.lib.common.datastructure.UniqueElementList;
 import in.co.s13.SIPS.settings.GlobalValues;
-import static in.co.s13.SIPS.settings.GlobalValues.ADJACENT_NODES_TABLE;
-import static in.co.s13.SIPS.settings.GlobalValues.NON_ADJACENT_NODES_TABLE;
 import in.co.s13.SIPS.datastructure.LiveDBRow;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -40,6 +38,8 @@ import static in.co.s13.SIPS.settings.GlobalValues.CURRENTLY_SCANNING;
 import static in.co.s13.SIPS.settings.GlobalValues.LIVE_DB_EXECUTOR;
 import static in.co.s13.SIPS.settings.GlobalValues.LIVE_NODE_ADJ_DB;
 import in.co.s13.SIPS.tools.Util;
+import static in.co.s13.sips.lib.common.settings.GlobalValues.ADJACENT_NODES_TABLE;
+import static in.co.s13.sips.lib.common.settings.GlobalValues.NON_ADJACENT_NODES_TABLE;
 
 class Ping implements Runnable {
 

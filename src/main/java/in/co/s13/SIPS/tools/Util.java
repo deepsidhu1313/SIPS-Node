@@ -18,7 +18,7 @@ package in.co.s13.SIPS.tools;
 
 import com.sun.management.OperatingSystemMXBean;
 import in.co.s13.SIPS.datastructure.IPHostnameCombo;
-import in.co.s13.SIPS.datastructure.UniqueElementList;
+import in.co.s13.sips.lib.common.datastructure.UniqueElementList;
 import in.co.s13.SIPS.executor.sockets.TaskServer;
 import in.co.s13.SIPS.settings.GlobalValues;
 import static in.co.s13.SIPS.settings.GlobalValues.DUMP_LOG;
@@ -66,6 +66,8 @@ import org.json.JSONObject;
 import static in.co.s13.SIPS.settings.GlobalValues.OUT;
 import static in.co.s13.SIPS.settings.GlobalValues.ERR;
 import static in.co.s13.SIPS.settings.GlobalValues.LOG;
+import static in.co.s13.sips.lib.common.settings.GlobalValues.ADJACENT_NODES_TABLE;
+import static in.co.s13.sips.lib.common.settings.GlobalValues.NON_ADJACENT_NODES_TABLE;
 
 /**
  * Utility methods for jDiskMark
@@ -1051,10 +1053,10 @@ public class Util {
 
     public static synchronized JSONObject getAdjacentTableInJSON() {
         JSONObject json = new JSONObject();
-        Enumeration<String> en = GlobalValues.ADJACENT_NODES_TABLE.keys();
+        Enumeration<String> en = ADJACENT_NODES_TABLE.keys();
         while (en.hasMoreElements()) {
             String key = en.nextElement();
-            Long value = GlobalValues.ADJACENT_NODES_TABLE.get(key).getDistance();
+            Long value = ADJACENT_NODES_TABLE.get(key).getDistance();
             json.put(key, value);
         }
         return json;
@@ -1062,10 +1064,10 @@ public class Util {
 
     public static synchronized JSONObject getNonAdjacentTableInJSON() {
         JSONObject json = new JSONObject();
-        Enumeration<String> en = GlobalValues.NON_ADJACENT_NODES_TABLE.keys();
+        Enumeration<String> en = NON_ADJACENT_NODES_TABLE.keys();
         while (en.hasMoreElements()) {
             String key = en.nextElement();
-            UniqueElementList value = GlobalValues.NON_ADJACENT_NODES_TABLE.get(key);
+            UniqueElementList value = NON_ADJACENT_NODES_TABLE.get(key);
             json.put(key, value.getNearestHop().toJSON());
         }
         return json;
@@ -1121,9 +1123,9 @@ public class Util {
 
         }
         if (desending) {
-            Collections.sort((al), LiveDBRow.LiveDBRowComparator.decending(LiveDBRow.LiveDBRowComparator.valueOf(compartorValue)));
+            Collections.sort((al), LiveDBRow.LiveNodeComparator.decending(LiveDBRow.LiveNodeComparator.valueOf(compartorValue)));
         } else {
-            Collections.sort((al), LiveDBRow.LiveDBRowComparator.getComparator(LiveDBRow.LiveDBRowComparator.valueOf(compartorValue)));
+            Collections.sort((al), LiveDBRow.LiveNodeComparator.getComparator(LiveDBRow.LiveNodeComparator.valueOf(compartorValue)));
 
         }
         for (int i = 0; i < al.size(); i++) {

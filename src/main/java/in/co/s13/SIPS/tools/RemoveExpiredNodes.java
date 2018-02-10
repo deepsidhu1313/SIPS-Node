@@ -17,6 +17,9 @@
 package in.co.s13.SIPS.tools;
 
 import in.co.s13.SIPS.settings.GlobalValues;
+import static in.co.s13.sips.lib.common.settings.GlobalValues.ADJACENT_NODES_TABLE;
+import static in.co.s13.sips.lib.common.settings.GlobalValues.NODE_EXPIRY_TIME;
+import static in.co.s13.sips.lib.common.settings.GlobalValues.NON_ADJACENT_NODES_TABLE;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -34,24 +37,24 @@ public class RemoveExpiredNodes implements Runnable {
 
     @Override
     public void run() {
-        GlobalValues.ADJACENT_NODES_TABLE.forEach((t, u) -> {
-            if (TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - u.getTimestamp()) >= GlobalValues.NODE_EXPIRY_TIME) {
-                GlobalValues.ADJACENT_NODES_TABLE.remove(u.getId());
+        ADJACENT_NODES_TABLE.forEach((t, u) -> {
+            if (TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - u.getTimestamp()) >= NODE_EXPIRY_TIME) {
+                ADJACENT_NODES_TABLE.remove(u.getId());
             }
         });
 
-        GlobalValues.NON_ADJACENT_NODES_TABLE.forEach((t, u) -> {
+        NON_ADJACENT_NODES_TABLE.forEach((t, u) -> {
             u.removeExpiredElements();
         });
 
         GlobalValues.LIVE_NODE_ADJ_DB.forEach((t, u) -> {
-            if (TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - u.getLastCheckAgo()) >= GlobalValues.NODE_EXPIRY_TIME) {
+            if (TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - u.getLastCheckAgo()) >= NODE_EXPIRY_TIME) {
                 GlobalValues.LIVE_NODE_ADJ_DB.remove(u.getUuid());
             }
         });
 
         GlobalValues.LIVE_NODE_NON_ADJ_DB.forEach((t, u) -> {
-            if (TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - u.getLastCheckAgo()) >= GlobalValues.NODE_EXPIRY_TIME) {
+            if (TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - u.getLastCheckAgo()) >= NODE_EXPIRY_TIME) {
                 GlobalValues.LIVE_NODE_NON_ADJ_DB.remove(u.getUuid());
             }
         });
