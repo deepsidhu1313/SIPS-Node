@@ -18,8 +18,8 @@ package in.co.s13.SIPS.Scanner;
 
 import in.co.s13.SIPS.settings.GlobalValues;
 import static in.co.s13.SIPS.settings.GlobalValues.*;
-import in.co.s13.SIPS.datastructure.LiveDBRow;
 import in.co.s13.SIPS.tools.Util;
+import in.co.s13.sips.lib.common.datastructure.Node;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.concurrent.TimeUnit;
@@ -46,7 +46,7 @@ public class CheckLiveNodes implements Runnable {
                     Enumeration<String> keys = GlobalValues.LIVE_NODE_ADJ_DB.keys();
                     while (keys.hasMoreElements()) {
                         String key = keys.nextElement();
-                        LiveDBRow liveNode = GlobalValues.LIVE_NODE_ADJ_DB.get(key);
+                        Node liveNode = GlobalValues.LIVE_NODE_ADJ_DB.get(key);
                         if (TimeUnit.SECONDS.convert(liveNode.getLastCheckAgo(), TimeUnit.MILLISECONDS) > 10) {
                             ArrayList<String> ips = liveNode.getIpAddresses();
                             for (int i = 0; i < ips.size(); i++) {
@@ -63,7 +63,7 @@ public class CheckLiveNodes implements Runnable {
                     Enumeration<String> keys2 = GlobalValues.LIVE_NODE_NON_ADJ_DB.keys();
                     while (keys2.hasMoreElements()) {
                         String key = keys2.nextElement();
-                        LiveDBRow liveNode = GlobalValues.LIVE_NODE_NON_ADJ_DB.get(key);
+                        Node liveNode = GlobalValues.LIVE_NODE_NON_ADJ_DB.get(key);
                         if (TimeUnit.SECONDS.convert(liveNode.getLastCheckAgo(), TimeUnit.MILLISECONDS) > 10) {
                             ArrayList<String> ips = liveNode.getIpAddresses();
                             for (int i = 0; i < ips.size(); i++) {

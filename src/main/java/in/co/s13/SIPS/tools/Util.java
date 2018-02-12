@@ -66,8 +66,11 @@ import org.json.JSONObject;
 import static in.co.s13.SIPS.settings.GlobalValues.OUT;
 import static in.co.s13.SIPS.settings.GlobalValues.ERR;
 import static in.co.s13.SIPS.settings.GlobalValues.LOG;
+import in.co.s13.sips.lib.common.datastructure.Node;
 import static in.co.s13.sips.lib.common.settings.GlobalValues.ADJACENT_NODES_TABLE;
 import static in.co.s13.sips.lib.common.settings.GlobalValues.NON_ADJACENT_NODES_TABLE;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 /**
  * Utility methods for jDiskMark
@@ -1082,7 +1085,7 @@ public class Util {
         Enumeration<String> en = GlobalValues.LIVE_NODE_ADJ_DB.keys();
         while (en.hasMoreElements()) {
             String key = en.nextElement();
-            LiveDBRow value = GlobalValues.LIVE_NODE_ADJ_DB.get(key);
+            Node value = GlobalValues.LIVE_NODE_ADJ_DB.get(key);
             json.put(key, value.toJSON());
         }
         return json;
@@ -1093,14 +1096,14 @@ public class Util {
         Enumeration<String> en = GlobalValues.LIVE_NODE_ADJ_DB.keys();
         while (en.hasMoreElements()) {
             String key = en.nextElement();
-            LiveDBRow value = GlobalValues.LIVE_NODE_ADJ_DB.get(key);
+            Node value = GlobalValues.LIVE_NODE_ADJ_DB.get(key);
             json.put(key, value.toJSON());
         }
 
         Enumeration<String> en2 = GlobalValues.LIVE_NODE_NON_ADJ_DB.keys();
         while (en2.hasMoreElements()) {
             String key = en2.nextElement();
-            LiveDBRow value = GlobalValues.LIVE_NODE_NON_ADJ_DB.get(key);
+            Node value = GlobalValues.LIVE_NODE_NON_ADJ_DB.get(key);
             json.put(key, value.toJSON());
         }
         return json;
@@ -1108,7 +1111,7 @@ public class Util {
 
     public static JSONObject getLiveNodesInJSON(int list_mode, boolean desending, String compartorValue) {
         JSONObject json = new JSONObject();
-        ArrayList<LiveDBRow> al = new ArrayList();
+        ArrayList<Node> al = new ArrayList();
         switch (list_mode) {
             case 0:
                 al.addAll(GlobalValues.LIVE_NODE_ADJ_DB.values());
@@ -1129,7 +1132,7 @@ public class Util {
 
         }
         for (int i = 0; i < al.size(); i++) {
-            LiveDBRow live = al.get(i);
+            Node live = al.get(i);
             json.put(live.getUuid(), live.toJSON());
         }
 
@@ -1141,7 +1144,7 @@ public class Util {
         Enumeration<String> en = GlobalValues.LIVE_NODE_NON_ADJ_DB.keys();
         while (en.hasMoreElements()) {
             String key = en.nextElement();
-            LiveDBRow value = GlobalValues.LIVE_NODE_NON_ADJ_DB.get(key);
+            Node value = GlobalValues.LIVE_NODE_NON_ADJ_DB.get(key);
             json.put(key, value.toJSON());
         }
         return json;
@@ -1225,6 +1228,27 @@ public class Util {
         }
         result.put(host, array);
         return result;
+    }
+
+    public static Object deserialize(String fileName) throws IOException,
+            ClassNotFoundException {
+        Object obj;
+        try (FileInputStream fis = new FileInputStream(fileName); ObjectInputStream ois = new ObjectInputStream(fis)) {
+            obj = ois.readObject();
+        }
+        return obj;
+    }
+
+    // serialize the given object and save it to file
+    public static void serialize(Object obj, String fileName) {
+        try (FileOutputStream fos = new FileOutputStream(fileName)) {
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(obj);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Util.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Util.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public static void main(String[] args) throws UnknownHostException {

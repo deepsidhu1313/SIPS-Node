@@ -25,6 +25,7 @@ import in.co.s13.SIPS.datastructure.LiveDBRow;
 import in.co.s13.SIPS.datastructure.NodeDBRow;
 import in.co.s13.SIPS.datastructure.Result;
 import in.co.s13.SIPS.datastructure.TaskDBRow;
+import in.co.s13.sips.lib.common.datastructure.Node;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.util.ArrayList;
@@ -307,8 +308,8 @@ public class GlobalValues {
      */
     //  public static ArrayList<String> livehosts = new ArrayList();
     //  public static ObservableList<LiveNode> liveNodes = FXCollections.observableArrayList();
-    public static ConcurrentHashMap<String, LiveDBRow> LIVE_NODE_ADJ_DB = new ConcurrentHashMap<>();
-    public static ConcurrentHashMap<String, LiveDBRow> LIVE_NODE_NON_ADJ_DB = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<String, Node> LIVE_NODE_ADJ_DB = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<String, Node> LIVE_NODE_NON_ADJ_DB = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<String, NodeDBRow> ALL_NODE_DB = new ConcurrentHashMap<>();
     public static ArrayList<String> HOSTS = new ArrayList<>();
     public static ConcurrentHashMap<String, String> CURRENTLY_SCANNING = new ConcurrentHashMap<>();

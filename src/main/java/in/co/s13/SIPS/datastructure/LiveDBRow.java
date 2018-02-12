@@ -18,10 +18,11 @@ package in.co.s13.SIPS.datastructure;
 
 import in.co.s13.SIPS.Scanner.NetScanner;
 import in.co.s13.sips.lib.common.datastructure.LiveNode;
+import in.co.s13.sips.lib.common.datastructure.Node;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class LiveDBRow extends LiveNode {
+public class LiveDBRow extends LiveNode implements Node{
 
     public LiveDBRow(String uuid, String host, String os, String processor, int task_limit,
             int qwait, long ram, long free_memory, long hdd_size, long hdd_free, JSONObject benchmarking_results, long lastCheckedOn) {

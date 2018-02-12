@@ -16,6 +16,7 @@
  */
 package in.co.s13.SIPS.executor.sockets.handlers;
 
+import in.co.s13.SIPS.executor.Job;
 import in.co.s13.SIPS.executor.ParallelProcess;
 import in.co.s13.SIPS.settings.GlobalValues;
 import in.co.s13.SIPS.tools.Util;
@@ -69,9 +70,10 @@ public class JobHandler implements Runnable {
                     String command = messageJson.getString("Command");//messageString.substring(messageString.indexOf("<Command>") + 9, messageString.indexOf("</Command>"));
                     JSONObject body = messageJson.getJSONObject("Body");//messageString.substring(messageString.indexOf("<Body>") + 6, messageString.indexOf("</Body>"));
                     System.out.println(messageString);
-                    if (command.contains("START_JOB")) {
+                    if (command.equals("START_JOB")) {
                         GlobalValues.JOB_WAITING.incrementAndGet();
-                        GlobalValues.JOB_EXECUTOR.submit(new ParallelProcess(body, ipAddress));
+                        String jobToken = body.getString("JOB_TOKEN");
+                        GlobalValues.JOB_EXECUTOR.submit(new Job(jobToken));
                         System.out.println("Created Job");
 
                         try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
@@ -88,7 +90,24 @@ public class JobHandler implements Runnable {
 
                         }
                         submitter.close();
-                    } else if (command.contains("CREATE_JOB_TOKEN")) {
+                    }else if (command.equals("GET_JOB_STATUS")) {
+                        String jobToken = body.getString("JOB_TOKEN");
+                        
+                        try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
+                            JSONObject replyJSON = new JSONObject();
+                            JSONObject replyBody = new JSONObject();
+                            JSONObject response = new JSONObject();
+                            response.put("Message", GlobalValues.RESULT_DB.get(jobToken));
+                            replyBody.put("Response", response);
+                            replyJSON.put("Body", replyBody);
+                            String sendmsg = replyJSON.toString(0);
+                            byte[] bytes = sendmsg.getBytes("UTF8");
+                            outToClient.writeInt(bytes.length);
+                            outToClient.write(bytes);
+
+                        }
+                        submitter.close();
+                    } else if (command.equals("CREATE_JOB_TOKEN")) {
                         String submitterUUID = body.getString("UUID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
                         String jobname = body.getString("JOB_NAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
                         String scheduler = body.getString("SCHEDULER");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
@@ -109,7 +128,7 @@ public class JobHandler implements Runnable {
                         }
                         submitter.close();
 
-                    } else if (command.contains("UPLOAD_FILE")) {
+                    } else if (command.equals("UPLOAD_FILE")) {
                         String submitterUUID = body.getString("UUID");
                         String jobname = body.getString("JOB_NAME");
                         String jobToken = body.getString("JOB_TOKEN");

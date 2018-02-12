@@ -38,12 +38,19 @@ public class Result {
     private long avgSleeptime = Long.MIN_VALUE;
     private boolean finished;
     private String scheduler;
+    private String status;
 
+    public Result() {
+    }
+    
+    
     public Result(String jobName, String jobToken, String submitterUUID) {
         this.jobName = jobName;
         this.jobToken = jobToken;
         this.submitterUUID = submitterUUID;
+        this.status="Created";
         createdOn = System.currentTimeMillis();
+        
     }
 
     public String getJobName() {
@@ -182,6 +189,16 @@ public class Result {
         this.finished = finished;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+   
+    
     @Override
     public String toString() {
         return toString(0);
@@ -209,6 +226,7 @@ public class Result {
         result.put("avgSleeptime", avgSleeptime);
         result.put("finished", finished);
         result.put("scheduler", scheduler);
+        result.put("status", status);
         result.put("createdOn", createdOn);
         return result;
     }
