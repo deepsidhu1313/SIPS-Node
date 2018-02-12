@@ -157,61 +157,61 @@ public class Settings {
             GlobalValues.ERR = new PrintStream(GlobalValues.ERR_FILE);
             GlobalValues.ERR.println(prevContent);
             GlobalValues.ERR.println("\n\n****************************************************************"
-                    + "\n**************** " + timestamp + " ************************"
+                    + "\n**************** " + timestamp + " ***********************"
                     + "\n****************************************************************\n");
             prevContent = Util.readFile(OUT_FILE);
             GlobalValues.OUT = new PrintStream(GlobalValues.OUT_FILE);
             GlobalValues.OUT.println(prevContent);
             GlobalValues.OUT.println("\n\n****************************************************************"
-                    + "\n**************** " + timestamp + " ************************"
+                    + "\n**************** " + timestamp + " ***********************"
                     + "\n****************************************************************\n");
             prevContent = Util.readFile(LOG_FILE);
             GlobalValues.LOG = new PrintStream(GlobalValues.LOG_FILE);
             GlobalValues.LOG.println(prevContent);
             GlobalValues.LOG.println("\n\n****************************************************************"
-                    + "\n**************** " + timestamp + " ************************"
+                    + "\n**************** " + timestamp + " ***********************"
                     + "\n****************************************************************\n");
             prevContent = Util.readFile(API_LOG_FILE);
             GlobalValues.API_LOG_PRINTER = new PrintStream(API_LOG_FILE);
             GlobalValues.API_LOG_PRINTER.println(prevContent);
             GlobalValues.API_LOG_PRINTER.println("\n\n****************************************************************"
-                    + "\n**************** " + timestamp + " ************************"
+                    + "\n**************** " + timestamp + " ***********************"
                     + "\n****************************************************************\n");
             prevContent = Util.readFile(FILE_DOWNLOAD_LOG_FILE);
             GlobalValues.FILE_DOWNLOAD_QUE_LOG_PRINTER = new PrintStream(FILE_DOWNLOAD_LOG_FILE);
             GlobalValues.FILE_DOWNLOAD_QUE_LOG_PRINTER.println(prevContent);
             GlobalValues.FILE_DOWNLOAD_QUE_LOG_PRINTER.println("\n\n****************************************************************"
-                    + "\n**************** " + timestamp + " ************************"
+                    + "\n**************** " + timestamp + " ***********************"
                     + "\n****************************************************************\n");
             prevContent = Util.readFile(FILE_SERVER_LOG_FILE);
             GlobalValues.FILE_SERVER_LOG_PRINTER = new PrintStream(FILE_SERVER_LOG_FILE);
             GlobalValues.FILE_SERVER_LOG_PRINTER.println(prevContent);
             GlobalValues.FILE_SERVER_LOG_PRINTER.println("\n\n****************************************************************"
-                    + "\n**************** " + timestamp + " ************************"
+                    + "\n**************** " + timestamp + " ***********************"
                     + "\n****************************************************************\n");
             prevContent = Util.readFile(PING_SERVER_LOG_FILE);
             GlobalValues.PING_SERVER_LOG_PRINTER = new PrintStream(PING_SERVER_LOG_FILE);
             GlobalValues.PING_SERVER_LOG_PRINTER.println(prevContent);
             GlobalValues.PING_SERVER_LOG_PRINTER.println("\n\n****************************************************************"
-                    + "\n**************** " + timestamp + " ************************"
+                    + "\n**************** " + timestamp + " ***********************"
                     + "\n****************************************************************\n");
             prevContent = Util.readFile(TASK_LOG_FILE);
             GlobalValues.TASK_LOG_PRINTER = new PrintStream(TASK_LOG_FILE);
             GlobalValues.TASK_LOG_PRINTER.println(prevContent);
             GlobalValues.TASK_LOG_PRINTER.println("\n\n****************************************************************"
-                    + "\n**************** " + timestamp + " ************************"
+                    + "\n**************** " + timestamp + " ***********************"
                     + "\n****************************************************************\n");
             prevContent = Util.readFile(JOB_LOG_FILE);
             GlobalValues.JOB_LOG_PRINTER = new PrintStream(JOB_LOG_FILE);
             GlobalValues.JOB_LOG_PRINTER.println(prevContent);
             GlobalValues.JOB_LOG_PRINTER.println("\n\n****************************************************************"
-                    + "\n**************** " + timestamp + " ************************"
+                    + "\n**************** " + timestamp + " ***********************"
                     + "\n****************************************************************\n");
             prevContent = Util.readFile(PING_REQ_LOG_FILE);
             GlobalValues.PING_LOG_PRINTER = new PrintStream(PING_REQ_LOG_FILE);
             GlobalValues.PING_LOG_PRINTER.println(prevContent);
             GlobalValues.PING_LOG_PRINTER.println("\n\n****************************************************************"
-                    + "\n**************** " + timestamp + " ************************"
+                    + "\n**************** " + timestamp + " ***********************"
                     + "\n****************************************************************\n");
 
         } catch (FileNotFoundException ex) {
