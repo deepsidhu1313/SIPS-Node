@@ -5,7 +5,10 @@
  */
 package in.co.s13.SIPS.executor;
 
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ast.CompilationUnit;
 import in.co.s13.SIPS.db.SQLiteJDBC;
+import in.co.s13.SIPS.executor.parser.ModASTParallelFor;
 import in.co.s13.SIPS.settings.GlobalValues;
 import in.co.s13.SIPS.tools.GetDBFiles;
 import in.co.s13.SIPS.tools.Util;
@@ -14,6 +17,8 @@ import in.co.s13.sips.lib.common.datastructure.ParallelForLoop;
 import in.co.s13.sips.scheduler.LoadScheduler;
 import in.co.s13.sips.schedulers.Chunk;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -89,6 +94,7 @@ public class Job implements Runnable {
                     parallelForBeginLine.add(rs.getInt("BeginLine"));
                     parallelForEndLine.add(rs.getInt("EndLine"));
                 }
+
                 parsedDB.closeConnection();
                 for (int j = 0; j < parallelForBeginLine.size(); j++) {
                     int parallel4BL = parallelForBeginLine.get(j);
@@ -138,23 +144,23 @@ public class Job implements Runnable {
                         try {
                             min = Byte.parseByte(varinit);
 
-                        } catch (Exception e) {
+                        } catch (NumberFormatException e) {
                             sql = "SELECT * FROM SAVVAL WHERE BeginLine <= " + (parallel4BL + 1) + " ;";
-                            ResultSet rs99 = parsedDB.select(parsedDBLoc, sql);
-                            int id = 1;
-                            while (rs99.next()) {
-                                id = rs99.getInt("ID");
-                            }
-                            sql = "SELECT * FROM VAL" + id + "";
-                            ResultSet rs98 = simDB.select(simDBLoc, sql);
-                            while (rs98.next()) {
-                                if (rs98.getString("NAME").equals(varinit)) {
-                                    varinit = "" + rs98.getString("VALUE");
-                                    min = Byte.parseByte(varinit);
+                            try (ResultSet rs99 = parsedDB.select(parsedDBLoc, sql)) {
+                                int id = 1;
+                                while (rs99.next()) {
+                                    id = rs99.getInt("ID");
+                                }
+                                sql = "SELECT * FROM VAL" + id + "";
+                                try (ResultSet rs98 = simDB.select(simDBLoc, sql)) {
+                                    while (rs98.next()) {
+                                        if (rs98.getString("NAME").equals(varinit)) {
+                                            varinit = "" + rs98.getString("VALUE");
+                                            min = Byte.parseByte(varinit);
+                                        }
+                                    }
                                 }
                             }
-                            rs99.close();
-                            rs98.close();
                             parsedDB.closeConnection();
                             simDB.closeConnection();
                         }
@@ -162,21 +168,21 @@ public class Job implements Runnable {
                             max = Byte.parseByte(limit);
                         } catch (NumberFormatException e) {
                             sql = "SELECT * FROM SAVVAL WHERE BeginLine < " + (parallel4BL + 1) + " ;";
-                            ResultSet rs99 = parsedDB.select(parsedDBLoc, sql);
-                            int id = 1;
-                            while (rs99.next()) {
-                                id = rs99.getInt("ID");
-                            }
-                            sql = "SELECT * FROM VAL" + id + "";
-                            ResultSet rs98 = simDB.select(simDBLoc, sql);
-                            while (rs98.next()) {
-                                if (rs98.getString("NAME").equals(limit)) {
-                                    limit = "" + rs98.getString("VALUE");
-                                    max = Byte.parseByte(limit);
+                            try (ResultSet rs99 = parsedDB.select(parsedDBLoc, sql)) {
+                                int id = 1;
+                                while (rs99.next()) {
+                                    id = rs99.getInt("ID");
+                                }
+                                sql = "SELECT * FROM VAL" + id + "";
+                                try (ResultSet rs98 = simDB.select(simDBLoc, sql)) {
+                                    while (rs98.next()) {
+                                        if (rs98.getString("NAME").equals(limit)) {
+                                            limit = "" + rs98.getString("VALUE");
+                                            max = Byte.parseByte(limit);
+                                        }
+                                    }
                                 }
                             }
-                            rs99.close();
-                            rs98.close();
                             simDB.closeConnection();
                             parsedDB.closeConnection();
                         }
@@ -191,45 +197,45 @@ public class Job implements Runnable {
                         try {
                             min = Short.parseShort(varinit);
 
-                        } catch (Exception e) {
+                        } catch (NumberFormatException e) {
                             sql = "SELECT * FROM SAVVAL WHERE BeginLine <= " + (parallel4BL + 1) + " ;";
-                            ResultSet rs99 = parsedDB.select(parsedDBLoc, sql);
-                            int id = 1;
-                            while (rs99.next()) {
-                                id = rs99.getInt("ID");
-                            }
-                            sql = "SELECT * FROM VAL" + id + "";
-                            ResultSet rs98 = simDB.select(simDBLoc, sql);
-                            while (rs98.next()) {
-                                if (rs98.getString("NAME").equals(varinit)) {
-                                    varinit = "" + rs98.getString("VALUE");
-                                    min = Short.parseShort(varinit);
+                            try (ResultSet rs99 = parsedDB.select(parsedDBLoc, sql)) {
+                                int id = 1;
+                                while (rs99.next()) {
+                                    id = rs99.getInt("ID");
+                                }
+                                sql = "SELECT * FROM VAL" + id + "";
+                                try (ResultSet rs98 = simDB.select(simDBLoc, sql)) {
+                                    while (rs98.next()) {
+                                        if (rs98.getString("NAME").equals(varinit)) {
+                                            varinit = "" + rs98.getString("VALUE");
+                                            min = Short.parseShort(varinit);
+                                        }
+                                    }
                                 }
                             }
-                            rs99.close();
-                            rs98.close();
                             parsedDB.closeConnection();
                             simDB.closeConnection();
                         }
                         try {
                             max = Short.parseShort(limit);
-                        } catch (Exception e) {
+                        } catch (NumberFormatException e) {
                             sql = "SELECT * FROM SAVVAL WHERE BeginLine < " + (parallel4BL + 1) + " ;";
-                            ResultSet rs99 = parsedDB.select(parsedDBLoc, sql);
-                            int id = 1;
-                            while (rs99.next()) {
-                                id = rs99.getInt("ID");
-                            }
-                            sql = "SELECT * FROM VAL" + id + "";
-                            ResultSet rs98 = simDB.select(simDBLoc, sql);
-                            while (rs98.next()) {
-                                if (rs98.getString("NAME").equals(limit)) {
-                                    limit = "" + rs98.getString("VALUE");
-                                    max = Short.parseShort(limit);
+                            try (ResultSet rs99 = parsedDB.select(parsedDBLoc, sql)) {
+                                int id = 1;
+                                while (rs99.next()) {
+                                    id = rs99.getInt("ID");
+                                }
+                                sql = "SELECT * FROM VAL" + id + "";
+                                try (ResultSet rs98 = simDB.select(simDBLoc, sql)) {
+                                    while (rs98.next()) {
+                                        if (rs98.getString("NAME").equals(limit)) {
+                                            limit = "" + rs98.getString("VALUE");
+                                            max = Short.parseShort(limit);
+                                        }
+                                    }
                                 }
                             }
-                            rs99.close();
-                            rs98.close();
                             simDB.closeConnection();
                             parsedDB.closeConnection();
                         }
@@ -244,45 +250,45 @@ public class Job implements Runnable {
                         try {
                             min = Integer.parseInt(varinit);
 
-                        } catch (Exception e) {
+                        } catch (NumberFormatException e) {
                             sql = "SELECT * FROM SAVVAL WHERE BeginLine <= " + (parallel4BL + 1) + " ;";
-                            ResultSet rs99 = parsedDB.select(parsedDBLoc, sql);
-                            int id = 1;
-                            while (rs99.next()) {
-                                id = rs99.getInt("ID");
-                            }
-                            sql = "SELECT * FROM VAL" + id + "";
-                            ResultSet rs98 = simDB.select(simDBLoc, sql);
-                            while (rs98.next()) {
-                                if (rs98.getString("NAME").equals(varinit)) {
-                                    varinit = "" + rs98.getString("VALUE");
-                                    min = Integer.parseInt(varinit);
+                            try (ResultSet rs99 = parsedDB.select(parsedDBLoc, sql)) {
+                                int id = 1;
+                                while (rs99.next()) {
+                                    id = rs99.getInt("ID");
+                                }
+                                sql = "SELECT * FROM VAL" + id + "";
+                                try (ResultSet rs98 = simDB.select(simDBLoc, sql)) {
+                                    while (rs98.next()) {
+                                        if (rs98.getString("NAME").equals(varinit)) {
+                                            varinit = "" + rs98.getString("VALUE");
+                                            min = Integer.parseInt(varinit);
+                                        }
+                                    }
                                 }
                             }
-                            rs99.close();
-                            rs98.close();
                             parsedDB.closeConnection();
                             simDB.closeConnection();
                         }
                         try {
                             max = Integer.parseInt(limit);
-                        } catch (Exception e) {
+                        } catch (NumberFormatException e) {
                             sql = "SELECT * FROM SAVVAL WHERE BeginLine < " + (parallel4BL + 1) + " ;";
-                            ResultSet rs99 = parsedDB.select(parsedDBLoc, sql);
-                            int id = 1;
-                            while (rs99.next()) {
-                                id = rs99.getInt("ID");
-                            }
-                            sql = "SELECT * FROM VAL" + id + "";
-                            ResultSet rs98 = simDB.select(simDBLoc, sql);
-                            while (rs98.next()) {
-                                if (rs98.getString("NAME").equals(limit)) {
-                                    limit = "" + rs98.getString("VALUE");
-                                    max = Integer.parseInt(limit);
+                            try (ResultSet rs99 = parsedDB.select(parsedDBLoc, sql)) {
+                                int id = 1;
+                                while (rs99.next()) {
+                                    id = rs99.getInt("ID");
+                                }
+                                sql = "SELECT * FROM VAL" + id + "";
+                                try (ResultSet rs98 = simDB.select(simDBLoc, sql)) {
+                                    while (rs98.next()) {
+                                        if (rs98.getString("NAME").equals(limit)) {
+                                            limit = "" + rs98.getString("VALUE");
+                                            max = Integer.parseInt(limit);
+                                        }
+                                    }
                                 }
                             }
-                            rs99.close();
-                            rs98.close();
                             simDB.closeConnection();
                             parsedDB.closeConnection();
                         }
@@ -297,45 +303,45 @@ public class Job implements Runnable {
                         try {
                             min = Long.parseLong(varinit);
 
-                        } catch (Exception e) {
+                        } catch (NumberFormatException e) {
                             sql = "SELECT * FROM SAVVAL WHERE BeginLine <= " + (parallel4BL + 1) + " ;";
-                            ResultSet rs99 = parsedDB.select(parsedDBLoc, sql);
-                            int id = 1;
-                            while (rs99.next()) {
-                                id = rs99.getInt("ID");
-                            }
-                            sql = "SELECT * FROM VAL" + id + "";
-                            ResultSet rs98 = simDB.select(simDBLoc, sql);
-                            while (rs98.next()) {
-                                if (rs98.getString("NAME").equals(varinit)) {
-                                    varinit = "" + rs98.getString("VALUE");
-                                    min = Long.parseLong(varinit);
+                            try (ResultSet rs99 = parsedDB.select(parsedDBLoc, sql)) {
+                                int id = 1;
+                                while (rs99.next()) {
+                                    id = rs99.getInt("ID");
+                                }
+                                sql = "SELECT * FROM VAL" + id + "";
+                                try (ResultSet rs98 = simDB.select(simDBLoc, sql)) {
+                                    while (rs98.next()) {
+                                        if (rs98.getString("NAME").equals(varinit)) {
+                                            varinit = "" + rs98.getString("VALUE");
+                                            min = Long.parseLong(varinit);
+                                        }
+                                    }
                                 }
                             }
-                            rs99.close();
-                            rs98.close();
                             parsedDB.closeConnection();
                             simDB.closeConnection();
                         }
                         try {
                             max = Long.parseLong(limit);
-                        } catch (Exception e) {
+                        } catch (NumberFormatException e) {
                             sql = "SELECT * FROM SAVVAL WHERE BeginLine < " + (parallel4BL + 1) + " ;";
-                            ResultSet rs99 = parsedDB.select(parsedDBLoc, sql);
-                            int id = 1;
-                            while (rs99.next()) {
-                                id = rs99.getInt("ID");
-                            }
-                            sql = "SELECT * FROM VAL" + id + "";
-                            ResultSet rs98 = simDB.select(simDBLoc, sql);
-                            while (rs98.next()) {
-                                if (rs98.getString("NAME").equals(limit)) {
-                                    limit = "" + rs98.getString("VALUE");
-                                    max = Long.parseLong(limit);
+                            try (ResultSet rs99 = parsedDB.select(parsedDBLoc, sql)) {
+                                int id = 1;
+                                while (rs99.next()) {
+                                    id = rs99.getInt("ID");
+                                }
+                                sql = "SELECT * FROM VAL" + id + "";
+                                try (ResultSet rs98 = simDB.select(simDBLoc, sql)) {
+                                    while (rs98.next()) {
+                                        if (rs98.getString("NAME").equals(limit)) {
+                                            limit = "" + rs98.getString("VALUE");
+                                            max = Long.parseLong(limit);
+                                        }
+                                    }
                                 }
                             }
-                            rs99.close();
-                            rs98.close();
                             simDB.closeConnection();
                             parsedDB.closeConnection();
                         }
@@ -350,45 +356,45 @@ public class Job implements Runnable {
                         try {
                             min = Float.parseFloat(varinit);
 
-                        } catch (Exception e) {
+                        } catch (NumberFormatException e) {
                             sql = "SELECT * FROM SAVVAL WHERE BeginLine <= " + (parallel4BL + 1) + " ;";
-                            ResultSet rs99 = parsedDB.select(parsedDBLoc, sql);
-                            int id = 1;
-                            while (rs99.next()) {
-                                id = rs99.getInt("ID");
-                            }
-                            sql = "SELECT * FROM VAL" + id + "";
-                            ResultSet rs98 = simDB.select(simDBLoc, sql);
-                            while (rs98.next()) {
-                                if (rs98.getString("NAME").equals(varinit)) {
-                                    varinit = "" + rs98.getString("VALUE");
-                                    min = Float.parseFloat(varinit);
+                            try (ResultSet rs99 = parsedDB.select(parsedDBLoc, sql)) {
+                                int id = 1;
+                                while (rs99.next()) {
+                                    id = rs99.getInt("ID");
+                                }
+                                sql = "SELECT * FROM VAL" + id + "";
+                                try (ResultSet rs98 = simDB.select(simDBLoc, sql)) {
+                                    while (rs98.next()) {
+                                        if (rs98.getString("NAME").equals(varinit)) {
+                                            varinit = "" + rs98.getString("VALUE");
+                                            min = Float.parseFloat(varinit);
+                                        }
+                                    }
                                 }
                             }
-                            rs99.close();
-                            rs98.close();
                             parsedDB.closeConnection();
                             simDB.closeConnection();
                         }
                         try {
                             max = Float.parseFloat(limit);
-                        } catch (Exception e) {
+                        } catch (NumberFormatException e) {
                             sql = "SELECT * FROM SAVVAL WHERE BeginLine < " + (parallel4BL + 1) + " ;";
-                            ResultSet rs99 = parsedDB.select(parsedDBLoc, sql);
-                            int id = 1;
-                            while (rs99.next()) {
-                                id = rs99.getInt("ID");
-                            }
-                            sql = "SELECT * FROM VAL" + id + "";
-                            ResultSet rs98 = simDB.select(simDBLoc, sql);
-                            while (rs98.next()) {
-                                if (rs98.getString("NAME").equals(limit)) {
-                                    limit = "" + rs98.getString("VALUE");
-                                    max = Float.parseFloat(limit);
+                            try (ResultSet rs99 = parsedDB.select(parsedDBLoc, sql)) {
+                                int id = 1;
+                                while (rs99.next()) {
+                                    id = rs99.getInt("ID");
+                                }
+                                sql = "SELECT * FROM VAL" + id + "";
+                                try (ResultSet rs98 = simDB.select(simDBLoc, sql)) {
+                                    while (rs98.next()) {
+                                        if (rs98.getString("NAME").equals(limit)) {
+                                            limit = "" + rs98.getString("VALUE");
+                                            max = Float.parseFloat(limit);
+                                        }
+                                    }
                                 }
                             }
-                            rs99.close();
-                            rs98.close();
                             simDB.closeConnection();
                             parsedDB.closeConnection();
                         }
@@ -403,45 +409,45 @@ public class Job implements Runnable {
                         try {
                             min = Integer.parseInt(varinit);
 
-                        } catch (Exception e) {
+                        } catch (NumberFormatException e) {
                             sql = "SELECT * FROM SAVVAL WHERE BeginLine <= " + (parallel4BL + 1) + " ;";
-                            ResultSet rs99 = parsedDB.select(parsedDBLoc, sql);
-                            int id = 1;
-                            while (rs99.next()) {
-                                id = rs99.getInt("ID");
-                            }
-                            sql = "SELECT * FROM VAL" + id + "";
-                            ResultSet rs98 = simDB.select(simDBLoc, sql);
-                            while (rs98.next()) {
-                                if (rs98.getString("NAME").equals(varinit)) {
-                                    varinit = "" + rs98.getString("VALUE");
-                                    min = Integer.parseInt(varinit);
+                            try (ResultSet rs99 = parsedDB.select(parsedDBLoc, sql)) {
+                                int id = 1;
+                                while (rs99.next()) {
+                                    id = rs99.getInt("ID");
+                                }
+                                sql = "SELECT * FROM VAL" + id + "";
+                                try (ResultSet rs98 = simDB.select(simDBLoc, sql)) {
+                                    while (rs98.next()) {
+                                        if (rs98.getString("NAME").equals(varinit)) {
+                                            varinit = "" + rs98.getString("VALUE");
+                                            min = Integer.parseInt(varinit);
+                                        }
+                                    }
                                 }
                             }
-                            rs99.close();
-                            rs98.close();
                             parsedDB.closeConnection();
                             simDB.closeConnection();
                         }
                         try {
                             max = Integer.parseInt(limit);
-                        } catch (Exception e) {
+                        } catch (NumberFormatException e) {
                             sql = "SELECT * FROM SAVVAL WHERE BeginLine < " + (parallel4BL + 1) + " ;";
-                            ResultSet rs99 = parsedDB.select(parsedDBLoc, sql);
-                            int id = 1;
-                            while (rs99.next()) {
-                                id = rs99.getInt("ID");
-                            }
-                            sql = "SELECT * FROM VAL" + id + "";
-                            ResultSet rs98 = simDB.select(simDBLoc, sql);
-                            while (rs98.next()) {
-                                if (rs98.getString("NAME").equals(limit)) {
-                                    limit = "" + rs98.getString("VALUE");
-                                    max = Integer.parseInt(limit);
+                            try (ResultSet rs99 = parsedDB.select(parsedDBLoc, sql)) {
+                                int id = 1;
+                                while (rs99.next()) {
+                                    id = rs99.getInt("ID");
+                                }
+                                sql = "SELECT * FROM VAL" + id + "";
+                                try (ResultSet rs98 = simDB.select(simDBLoc, sql)) {
+                                    while (rs98.next()) {
+                                        if (rs98.getString("NAME").equals(limit)) {
+                                            limit = "" + rs98.getString("VALUE");
+                                            max = Integer.parseInt(limit);
+                                        }
+                                    }
                                 }
                             }
-                            rs99.close();
-                            rs98.close();
                             simDB.closeConnection();
                             parsedDB.closeConnection();
                         }
@@ -453,13 +459,30 @@ public class Job implements Runnable {
                         }
                         datatype = 5;
                     }
-                    System.out.println("Live Nodes AL:"+Util.getAllLiveNodesInArrayList());
-                    System.out.println("Live Nodes :"+GlobalValues.LIVE_NODE_ADJ_DB);
                     ParallelForLoop parallelForLoop = new ParallelForLoop(min, max, diff, datatype, reverseLoop);
-                    ArrayList<ParallelForSENP> al = loadScheduler.scheduleParallelFor(Util.getAllLiveNodesInArrayList(), parallelForLoop);
+                    ArrayList<ParallelForSENP> al = loadScheduler.scheduleParallelFor(Util.getAllLiveNodesInArrayList(), parallelForLoop, schedulerJSON);
+                    System.out.println("Parallel For Loop Chunks: " + al.toString());
+                    sql = "SELECT * FROM META;";
+                    ResultSet rs99 = parsedDB.select(parsedDBLoc, sql);
+                    String parent = "", file = "";
+                    while (rs99.next()) {
+                        parent = rs99.getString("PARENT");
+                        file = rs99.getString("FILE");
+                    }
+                    FileInputStream in = new FileInputStream(new File("data/" + jobToken + "/src/" + parent + "/" + file));
+                    CompilationUnit cu = JavaParser.parse(in);
+                    for (int k = 0; k < al.size(); k++) {
+                        ParallelForSENP get = al.get(k);
+                        ModASTParallelFor ma = new ModASTParallelFor((parallel4BL + 1), datatype, get.getStart(), get.getEnd(), "" + diff);
+                        ma.visit(cu, null);
+                        System.out.println("Modified AST: " + cu.toString());
+                        Util.copyFolder(new File("data/" + jobToken + "/src/"), new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":" + k + "/"));
+                        Util.write("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + k + "/" + parent + "/" + file, cu.toString());
+                    }
+
                 }
             }
-        } catch (SQLException ex) {
+        } catch (SQLException | FileNotFoundException ex) {
             Logger.getLogger(Job.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

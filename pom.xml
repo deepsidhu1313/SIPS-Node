@@ -171,5 +171,11 @@
             <version>0.1-SNAPSHOT</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>com.github.javaparser</groupId>
+            <artifactId>javaparser-core</artifactId>
+            <version>3.5.2</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
 </project>

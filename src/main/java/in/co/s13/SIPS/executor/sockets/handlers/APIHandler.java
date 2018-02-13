@@ -88,7 +88,6 @@ public class APIHandler implements Runnable {
             Thread.currentThread().setName("API handler for " + ipAddress);
             Util.appendToApiLog(GlobalValues.LOG_LEVEL.OUTPUT, "API Request From " + ipAddress);
             if (msg.length() > 1) {
-                //System.OUT.println("hurray cond 1");
                 int key_permissions = 0;//default value to 0, no harm done by malformed key
                 Util.appendToApiLog(GlobalValues.LOG_LEVEL.OUTPUT, "Recieved API Request " + msg.toString(4));
                 String command = msg.getString("Command");
@@ -146,7 +145,6 @@ public class APIHandler implements Runnable {
                         Util.appendToApiLog(GlobalValues.LOG_LEVEL.OUTPUT, sendmsg2);
                         return;
                     }
-                    System.out.println("" + GlobalValues.API_LIST.toString());
                     String key = keyInfo.getString("key");
                     key_permissions = keyInfo.getInt("permissions");;
                     if (!key.trim().equalsIgnoreCase(apiKey.trim())) {
