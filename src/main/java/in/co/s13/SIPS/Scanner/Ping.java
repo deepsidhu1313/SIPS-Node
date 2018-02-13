@@ -147,10 +147,12 @@ class Ping implements Runnable {
                     }
                     // using endTime as Last Checked ON timestamp, as that is the time when we hear back from node
                     if (LIVE_NODE_ADJ_DB.containsKey(uuid)) {
-                        LIVE_NODE_ADJ_DB.replace(uuid, new LiveDBRow(uuid, hostname, osname, cpuname, (task_limit), (task_waiting), ram, freeRam, hdd_size, hdd_free, benchmarks, endTime));
+                        LiveDBRow liveDBRow = new LiveDBRow(uuid, hostname, osname, cpuname, (task_limit), (task_waiting), ram, freeRam, hdd_size, hdd_free, benchmarks, endTime);
+                        Node toReplaced=LIVE_NODE_ADJ_DB.replace(uuid, liveDBRow);
                         updatedRecord = true;
                     } else {
-                        LIVE_NODE_ADJ_DB.put(uuid, new LiveDBRow(uuid, hostname, osname, cpuname, (task_limit), (task_waiting), ram, freeRam, hdd_size, hdd_free, benchmarks, endTime));
+                        LiveDBRow liveDBRow = new LiveDBRow(uuid, hostname, osname, cpuname, (task_limit), (task_waiting), ram, freeRam, hdd_size, hdd_free, benchmarks, endTime);
+                        LIVE_NODE_ADJ_DB.put(uuid, liveDBRow);
 
                     }
                     Node live = LIVE_NODE_ADJ_DB.get(uuid);
@@ -267,7 +269,7 @@ class Ping implements Runnable {
             s.close();
 
         } catch (IOException ex) {
-            Util.appendToPingLog(GlobalValues.LOG_LEVEL.ERROR,IPadress + " is dead:" + ex);
+            Util.appendToPingLog(GlobalValues.LOG_LEVEL.ERROR, IPadress + " is dead:" + ex);
             LIVE_NODE_ADJ_DB.remove(IPadress.trim());
             LIVE_NODE_ADJ_DB.remove(UUID.trim());
             ADJACENT_NODES_TABLE.remove(UUID.trim());

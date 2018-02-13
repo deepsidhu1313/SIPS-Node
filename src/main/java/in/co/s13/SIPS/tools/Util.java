@@ -1109,6 +1109,13 @@ public class Util {
         return json;
     }
 
+    public static ArrayList<Node> getAllLiveNodesInArrayList() {
+        ArrayList<Node> result = new ArrayList<>();
+        result.addAll(GlobalValues.LIVE_NODE_ADJ_DB.values());
+        result.addAll(GlobalValues.LIVE_NODE_NON_ADJ_DB.values());
+        return result;
+    }
+
     public static JSONObject getLiveNodesInJSON(int list_mode, boolean desending, String compartorValue) {
         JSONObject json = new JSONObject();
         ArrayList<Node> al = new ArrayList();

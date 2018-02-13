@@ -32,7 +32,7 @@ public class RemoveExpiredNodes implements Runnable {
 
     public RemoveExpiredNodes() {
         ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
-        scheduledExecutorService.scheduleAtFixedRate(this, 30, 45, TimeUnit.SECONDS);
+        scheduledExecutorService.scheduleAtFixedRate(this, 30, 600, TimeUnit.SECONDS);
     }
 
     @Override
@@ -48,13 +48,13 @@ public class RemoveExpiredNodes implements Runnable {
         });
 
         GlobalValues.LIVE_NODE_ADJ_DB.forEach((t, u) -> {
-            if (TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - u.getLastCheckAgo()) >= NODE_EXPIRY_TIME) {
+            if (TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - u.getLastCheckedOn()) >= NODE_EXPIRY_TIME) {
                 GlobalValues.LIVE_NODE_ADJ_DB.remove(u.getUuid());
             }
         });
 
         GlobalValues.LIVE_NODE_NON_ADJ_DB.forEach((t, u) -> {
-            if (TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - u.getLastCheckAgo()) >= NODE_EXPIRY_TIME) {
+            if (TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - u.getLastCheckedOn()) >= NODE_EXPIRY_TIME) {
                 GlobalValues.LIVE_NODE_NON_ADJ_DB.remove(u.getUuid());
             }
         });
