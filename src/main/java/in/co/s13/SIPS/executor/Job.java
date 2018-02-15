@@ -7,9 +7,11 @@ package in.co.s13.SIPS.executor;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
+import in.co.s13.SIPS.datastructure.DistributionDBRow;
 import in.co.s13.SIPS.db.SQLiteJDBC;
 import in.co.s13.SIPS.executor.parser.ModASTParallelFor;
 import in.co.s13.SIPS.settings.GlobalValues;
+import static in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB;
 import in.co.s13.SIPS.tools.GetDBFiles;
 import in.co.s13.SIPS.tools.Util;
 import in.co.s13.sips.lib.ParallelForSENP;
@@ -23,6 +25,7 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONObject;
@@ -50,6 +53,7 @@ public class Job implements Runnable {
         String schedulerName = schedulerJSON.getString("Name", "NotFound");
         if (schedulerName.equals("NotFound")) {
             GlobalValues.RESULT_DB_EXECUTOR.submit(() -> {
+                Thread.currentThread().setName("Result DB executor thread");
                 GlobalValues.RESULT_DB.get(jobToken).setStatus("No Scheduler Defined in Manifest");
             });
             return;
@@ -471,14 +475,21 @@ public class Job implements Runnable {
                     }
                     FileInputStream in = new FileInputStream(new File("data/" + jobToken + "/src/" + parent + "/" + file));
                     CompilationUnit cu = JavaParser.parse(in);
+                    ConcurrentHashMap<String, DistributionDBRow> DistTable = new ConcurrentHashMap<>();
                     for (int k = 0; k < al.size(); k++) {
                         ParallelForSENP get = al.get(k);
                         ModASTParallelFor ma = new ModASTParallelFor((parallel4BL + 1), datatype, get.getStart(), get.getEnd(), "" + diff);
                         ma.visit(cu, null);
                         System.out.println("Modified AST: " + cu.toString());
-                        Util.copyFolder(new File("data/" + jobToken + "/src/"), new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":" + k + "/"));
-                        Util.write("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + k + "/" + parent + "/" + file, cu.toString());
+                        Util.copyFolder(new File("data/" + jobToken + "/src/"), new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + k + "/src/"));
+                        Util.write("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + k + "/src/" + parent + "/" + file, cu.toString());
+                        Distributor dist = new Distributor(get.getNodeUUID(), "" + k, jobToken);
+                        dist.upload();
+
+                        DistTable.put(get.getNodeUUID() + "-" + k, new DistributionDBRow(i, get.getNodeUUID(), jobToken, k, datatype, schedulerName, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, diff.toString(), get.getStart(), get.getEnd(), "0", 0, -999));
+
                     }
+                    MASTER_DIST_DB.put(jobToken.trim(), DistTable);
 
                 }
             }

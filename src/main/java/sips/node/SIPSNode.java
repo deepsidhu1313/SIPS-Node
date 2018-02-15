@@ -342,6 +342,7 @@ public class SIPSNode {
                         ServiceOperations.initPingServerAtStartUp();
                         ServiceOperations.initFileServerAtStartUp();
                         ServiceOperations.initTaskServerAtStartUp();
+                        ServiceOperations.initTaskFinishListenerServerAtStartUp();
                         ServiceOperations.initJobServerAtStartUp();
                         ServiceOperations.initFileDownloadServerAtStartUp();
                         ServiceOperations.initLogRotateAtStartUp();
@@ -358,6 +359,7 @@ public class SIPSNode {
                         ServiceOperations.initApiServerAtStartUp();
                         ServiceOperations.initFileServerAtStartUp();
                         ServiceOperations.initTaskServerAtStartUp();
+                        ServiceOperations.initTaskFinishListenerServerAtStartUp();
                         ServiceOperations.initFileDownloadServerAtStartUp();
                         ServiceOperations.initLogRotateAtStartUp();
                         ServiceOperations.initJobServerAtStartUp();
@@ -372,6 +374,7 @@ public class SIPSNode {
                 ServiceOperations.initPingServerAtStartUp();
                 ServiceOperations.initFileServerAtStartUp();
                 ServiceOperations.initTaskServerAtStartUp();
+                ServiceOperations.initTaskFinishListenerServerAtStartUp();
                 ServiceOperations.initFileDownloadServerAtStartUp();
                 ServiceOperations.initLogRotateAtStartUp();
                 ServiceOperations.initJobServerAtStartUp();
@@ -391,11 +394,12 @@ public class SIPSNode {
             ServiceOperations.initPingServerAtStartUp();
             ServiceOperations.initFileServerAtStartUp();
             ServiceOperations.initTaskServerAtStartUp();
+            ServiceOperations.initTaskFinishListenerServerAtStartUp();
             ServiceOperations.initFileDownloadServerAtStartUp();
             ServiceOperations.initLogRotateAtStartUp();
             ServiceOperations.initCleanResultDBAtStartUp();
             ServiceOperations.initJobServerAtStartUp();
-                        
+
         }
 
     }

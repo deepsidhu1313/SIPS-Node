@@ -16,6 +16,7 @@
  */
 package in.co.s13.SIPS.executor;
 
+import in.co.s13.SIPS.settings.GlobalValues;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -49,16 +50,17 @@ public class sendCommOverHead implements Runnable {
     public void run() {
         try {
             s = new Socket();
-            s.connect(new InetSocketAddress(ipadd, 13131));
+            s.connect(new InetSocketAddress(ipadd, GlobalValues.TASK_SERVER_PORT));
             try (OutputStream os = s.getOutputStream(); DataOutputStream outToServer = new DataOutputStream(os)) {
                 JSONObject sendmsgJsonObj = new JSONObject();
                 sendmsgJsonObj.put("Command", cmd);
                 JSONObject sendmsgBodyJsonObj = new JSONObject();
                 sendmsgBodyJsonObj.put("PID", ID);
+                sendmsgBodyJsonObj.put("UUID", GlobalValues.NODE_UUID);
                 sendmsgBodyJsonObj.put("CNO", chunkno);
                 sendmsgBodyJsonObj.put("FILENAME", filename);
                 sendmsgBodyJsonObj.put("OUTPUT", value);
-                sendmsgJsonObj.put("BODY", sendmsgBodyJsonObj);
+                sendmsgJsonObj.put("Body", sendmsgBodyJsonObj);
                 String sendmsg = sendmsgJsonObj.toString();
 //                                                "<Command>" + cmd + "</Command>"
 //                        + "<Body><PID>" + ID + "</PID>"

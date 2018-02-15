@@ -41,10 +41,10 @@ public class createDistributionDBVirtual implements Runnable {
     SQLiteJDBC db = new SQLiteJDBC();
     int counter = 0;
     int vartype = 0;
-    int Scheduler = 0;
+    String Scheduler = "";
     ConcurrentHashMap<String, DistributionDBRow> DistDBTable = new ConcurrentHashMap<>();
 
-    public createDistributionDBVirtual(String fileName, String pid, ArrayList IP, ArrayList starttime, ArrayList parsingoverhead, ArrayList chunksze, int vart, ArrayList lower, ArrayList upper, int schudle) {
+    public createDistributionDBVirtual(String fileName, String pid, ArrayList IP, ArrayList starttime, ArrayList parsingoverhead, ArrayList chunksze, int vart, ArrayList lower, ArrayList upper, String scheduler) {
         dbloc = "data/" + pid + "/dist-db/dist-" + pid + ".db";
         PID = pid;
         ip = IP;
@@ -54,7 +54,7 @@ public class createDistributionDBVirtual implements Runnable {
         vartype = vart;
         low = lower;
         up = upper;
-        Scheduler = schudle;
+        Scheduler = scheduler;
         File df = new File(dbloc).getParentFile();
         if (!df.exists()) {
             df.mkdirs();
@@ -126,7 +126,7 @@ public class createDistributionDBVirtual implements Runnable {
              + poh.get(i) + "','"
              + "0','9999');";
              //     db.insert(dbloc, sql);
-             */ DistDBTable.put(ip.get(i) + "-" + i, new DistributionDBRow(i, ip.get(i), Integer.parseInt(PID.trim()),
+             */ DistDBTable.put(ip.get(i) + "-" + i, new DistributionDBRow(i, ip.get(i), (PID.trim()),
                     i, vartype, Scheduler, Long.parseLong(startTime.get(i)),
                     0, 0, 0, 0,
                     Long.parseLong(poh.get(i)), 0, 0, 0, 0,

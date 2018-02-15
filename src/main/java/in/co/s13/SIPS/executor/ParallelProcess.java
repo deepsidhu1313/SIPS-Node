@@ -85,7 +85,7 @@ public class ParallelProcess implements Runnable {
                 JSONArray tmp = manifest.getJSONArray("LIB");//line.substring(line.indexOf("<LIB>") + 5, line.indexOf("</LIB>"));
                 if (tmp.length() > 0) {
                     for (int i = 0; i < tmp.length(); i++) {
-                        libList.add(tmp.getString(i));
+                        libList.add("lib/"+tmp.getString(i));
                     }
                 }
             }

@@ -16,6 +16,7 @@
  */
 package in.co.s13.SIPS.executor;
 
+import in.co.s13.SIPS.settings.GlobalValues;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -24,6 +25,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.json.JSONObject;
 
 /**
  *
@@ -46,14 +48,18 @@ public class sendStartInQue implements Runnable {
     public void run() {
         try {
             try (Socket s = new Socket()) {
-                s.connect(new InetSocketAddress(ipadd, 13131));
+                s.connect(new InetSocketAddress(ipadd, GlobalValues.TASK_SERVER_PORT));
                 try (OutputStream os = s.getOutputStream(); DataOutputStream outToServer = new DataOutputStream(os); DataInputStream dIn = new DataInputStream(s.getInputStream())) {
-                    String sendmsg = "<Command>" + cmd + "</Command>"
-                            + "<Body><PID>" + ID + "</PID>"
-                            + "<CNO>" + chunkno + "</CNO>"
-                            + "<FILENAME>" + filename + "</FILENAME>"
-                            + "<OUTPUT>" + value + "</OUTPUT>"
-                            + "</Body>";
+                    JSONObject msg = new JSONObject();
+                    JSONObject msgBody = new JSONObject();
+                    msgBody.put("PID", ID);
+                    msgBody.put("UUID", GlobalValues.NODE_UUID);
+                    msgBody.put("CNO", chunkno);
+                    msgBody.put("FILENAME", filename);
+                    msgBody.put("OUTPUT", value);
+                    msg.put("Command", cmd);
+                    msg.put("Body", msgBody);
+                    String sendmsg = msg.toString();
                     byte[] bytes = sendmsg.getBytes("UTF-8");
                     outToServer.writeInt(bytes.length);
                     outToServer.write(bytes);

@@ -16,6 +16,7 @@
  */
 package in.co.s13.SIPS.executor;
 
+import in.co.s13.SIPS.settings.GlobalValues;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -48,29 +49,23 @@ public class sendOverHead implements Runnable {
     public void run() {
         try {
             Socket s = new Socket();
-            s.connect(new InetSocketAddress(ipadd, 13135));
+            s.connect(new InetSocketAddress(ipadd, GlobalValues.TASK_FINISH_LISTENER_SERVER_PORT));
             OutputStream os = s.getOutputStream();
-            try (DataInputStream dIn = new DataInputStream(s.getInputStream()) //inFromServer.close();
-                    ;
+            try (DataInputStream dIn = new DataInputStream(s.getInputStream());
                      DataOutputStream outToServer = new DataOutputStream(os)) {
                 JSONObject sendmsgJsonObj = new JSONObject();
                 sendmsgJsonObj.put("Command", cmd);
                 JSONObject sendmsgBodyJsonObj = new JSONObject();
                 sendmsgBodyJsonObj.put("PID", ID);
+                sendmsgBodyJsonObj.put("UUID", GlobalValues.NODE_UUID);
                 sendmsgBodyJsonObj.put("CNO", chunkno);
                 sendmsgBodyJsonObj.put("FILENAME", filename);
                 sendmsgBodyJsonObj.put("OUTPUT", value);
                 sendmsgBodyJsonObj.put("EXTCODE", exitCode);
-                sendmsgJsonObj.put("BODY", sendmsgBodyJsonObj);
+                sendmsgJsonObj.put("Body", sendmsgBodyJsonObj);
 
                 String sendmsg = sendmsgJsonObj.toString();
-
-//                        "<Command>" + cmd + "</Command>"
-//                        + "<Body><PID>" + ID + "</PID>"
-//                        + "<CNO>" + chunkno + "</CNO>"
-//                        + "<FILENAME>" + filename + "</FILENAME>"
-//                        + "<OUTPUT>" + value + "</OUTPUT>"
-//                        + "<EXTCODE>" + exitCode + "</EXTCODE></Body>";
+                System.out.println("Send Overhead Message :"+sendmsgJsonObj.toString(4)+" to "+ipadd);
                 byte[] bytes = sendmsg.getBytes("UTF-8");
                 outToServer.writeInt(bytes.length);
                 outToServer.write(bytes);

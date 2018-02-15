@@ -60,7 +60,8 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
         cno = CNO;
         exitCode = EXITCODE;
         System.out.println("size of master dist db " + MASTER_DIST_DB.size());
-        while (MASTER_DIST_DB.size() <= Integer.parseInt(PID.trim())) {
+        //while (MASTER_DIST_DB.size() <= Integer.parseInt(PID.trim())) 
+        {
             try {
                 System.out.println("Waiting for Master DB to Create table " + PID + " Current SIze:" + MASTER_DIST_DB.size());
                 Thread.currentThread().sleep(10000);
@@ -191,10 +192,10 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                 ArrayList<Integer> XTC = new ArrayList<>();
                  */
                 String Node = "";
-                Integer PID = 0;
+                String PID = "";
                 Integer CNO = 0;
                 Integer VARTYPE = 0;
-                Integer SCHEDULER = 0;
+                String SCHEDULER = "";
                 Long LStart = 0L;
                 Long Lend = 0L;
                 Long Lexec = 0L;

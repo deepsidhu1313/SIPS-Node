@@ -313,6 +313,15 @@ public class FileHandler implements Runnable {
                             outToClient.writeInt(bytes.length);
                             outToClient.write(bytes);
 
+                        } else {
+
+                            String sendmsg = "FileNotFound";
+
+                            byte[] bytes = sendmsg.getBytes("UTF-8");
+                            outToClient.writeInt(bytes.length);
+
+                            outToClient.write(bytes);
+
                         }
                     }
 
@@ -329,7 +338,9 @@ public class FileHandler implements Runnable {
         }
         {
             try {
-                submitter.close();
+                if (submitter != null && !submitter.isClosed()) {
+                    submitter.close();
+                }
             } catch (IOException ex) {
                 Logger.getLogger(FileHandler.class.getName()).log(Level.SEVERE, null, ex);
             }

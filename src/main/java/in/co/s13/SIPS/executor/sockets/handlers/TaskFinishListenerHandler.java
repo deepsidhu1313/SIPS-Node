@@ -76,7 +76,6 @@ public class TaskFinishListenerHandler implements Runnable {
                         String content = body.getString("OUTPUT");//substring(body.indexOf("<OUTPUT>") + 8, body.indexOf("</OUTPUT>"));
                         String ExitCode = body.getString("EXTCODE");//substring(body.indexOf("<EXTCODE>") + 9, body.indexOf("</EXTCODE>"));
 
-                        int p = Integer.parseInt(pid);
                         {
                             String sendmsg = "OK";
 
@@ -95,7 +94,6 @@ public class TaskFinishListenerHandler implements Runnable {
                         String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
                         String content = body.getString("OUTPUT");//substring(body.indexOf("<OUTPUT>") + 8, body.indexOf("</OUTPUT>"));
                         String ExitCode = body.getString("EXTCODE");//substring(body.indexOf("<EXTCODE>") + 9, body.indexOf("</EXTCODE>"));
-                        int p = Integer.parseInt(pid);
                         {
                             String sendmsg = "OK";
 

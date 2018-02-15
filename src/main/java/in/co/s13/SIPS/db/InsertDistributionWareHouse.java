@@ -27,10 +27,10 @@ public class InsertDistributionWareHouse implements Runnable {
 
     public static boolean created = false;
     String Node;
-    Integer PID;
+    String PID;
     Integer CNO;
     Integer VARTYPE;
-    Integer SCHEDULER;
+    String SCHEDULER;
     Long LStart;
     Long Lend;
     Long Lexec;
@@ -51,10 +51,10 @@ public class InsertDistributionWareHouse implements Runnable {
     SQLiteJDBC distWH = new SQLiteJDBC();
 
     public InsertDistributionWareHouse(String Node,
-            Integer PID,
+            String PID,
             Integer CNO,
             Integer VARTYPE,
-            Integer SCHEDULER,
+            String SCHEDULER,
             Long LStart,
             Long Lend,
             Long Lexec,

@@ -27,11 +27,11 @@ public class DistributionDBRow {
     private Integer id;
     private String ip;
     private Double prfm;
-    private Integer pid, cno, vartype, scheduler, exitcode;
+    private Integer cno, vartype, exitcode;
     private Long lstarttime, lendtime, lexctime, nexecutiontime, noh, poh, entrinq, startinq, waitinq, sleeptime;
-    private String chunksize, lowlimit, uplimit, counter;
+    private String pid, chunksize, lowlimit, scheduler, uplimit, counter;
 
-    public DistributionDBRow(int id, String ip, int pid, int cno, int vartype, int scheduler,
+    public DistributionDBRow(int id, String ip, String pid, int cno, int vartype, String scheduler,
             long lstarttime, long lendtime, long lexctime, long nexecutiontime, long noh, long poh,
             long entrinq, long startinq, long waitinq, long sleeptime,
             String chunksize, String lowlimit, String uplimit, String counter, double prfm, int exitcode) {
@@ -75,11 +75,11 @@ public class DistributionDBRow {
         this.ip = (ip);
     }
 
-    public int getPid() {
+    public String getPid() {
         return pid;
     }
 
-    public void setPid(int pid) {
+    public void setPid(String pid) {
         this.pid = (pid);
     }
 
@@ -99,12 +99,12 @@ public class DistributionDBRow {
         this.vartype = (vartype);
     }
 
-    public int getScheduler() {
+    public String getScheduler() {
         return scheduler;
     }
 
-    public void setScheduler(int scheduler) {
-        this.scheduler = (scheduler);
+    public void setScheduler(String scheduler) {
+        this.scheduler = scheduler;
     }
 
     public long getLstarttime() {
@@ -259,7 +259,7 @@ public class DistributionDBRow {
         },
         PID_SORT {
             public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                return Integer.valueOf(o1.getPid()).compareTo(o2.getPid());
+                return (o1.getPid()).compareTo(o2.getPid());
             }
         },
         CNO_SORT {

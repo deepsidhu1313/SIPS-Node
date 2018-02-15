@@ -32,13 +32,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONObject;
 
-/**
- *
- * @author NAVDEEP SINGH SIDHU <navdeepsingh.sidhu95@gmail.com>
- */
+
 public class DownloadFile {
 
-    public final static int SOCKET_PORT = 13133;      // you may change this
+    public final static int SOCKET_PORT = GlobalValues.FILE_SERVER_PORT;      // you may change this
     String SERVER = "";  // localhost
     public final static int FILE_SIZE = 999999999;
     ArrayList<String> logmsg = new ArrayList<>();

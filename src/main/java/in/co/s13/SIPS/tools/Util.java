@@ -669,8 +669,6 @@ public class Util {
             }
         }
     }
-    
-    
 
     public static boolean deleteDirectory(File directory) {
         if (directory.exists()) {
@@ -749,6 +747,7 @@ public class Util {
     }
 
     public static void write(File f, String text) {
+        f.getParentFile().mkdirs();
         try (FileWriter fw = new FileWriter(f);
                 PrintWriter pw = new PrintWriter(fw)) {
             pw.print(text);
@@ -761,6 +760,8 @@ public class Util {
     }
 
     public static void write(String path, String text) {
+        File file = new File(path);
+        file.getParentFile().mkdirs();
         try (FileWriter fw = new FileWriter(new File(path));
                 PrintWriter pw = new PrintWriter(fw)) {
             pw.print(text);

@@ -24,13 +24,12 @@ import org.json.JSONObject;
  */
 public class FileDownQueReq {
 
-    private String ip, checksum, filename, reqmsg;
-    private int id;
+    private String id, ip, checksum, filename, reqmsg;
     private boolean finished;
     private long starttime, remainingTime;
     private double size, remainingsize;
 
-    public FileDownQueReq(String ip, int id, String checksum, String filename, long starttime, long remainingTime, double size, double remainingsize, boolean finished, String reqmsg) {
+    public FileDownQueReq(String ip, String id, String checksum, String filename, long starttime, long remainingTime, double size, double remainingsize, boolean finished, String reqmsg) {
         this.ip = ip;
         this.checksum = checksum;
         this.filename = filename;
@@ -75,13 +74,15 @@ public class FileDownQueReq {
         return reqmsg;
     }
 
-    public void setId(int id) {
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
         this.id = id;
     }
 
-    public int getId() {
-        return id;
-    }
+
 
     public void setStarttime(long starttime) {
         this.starttime = starttime;

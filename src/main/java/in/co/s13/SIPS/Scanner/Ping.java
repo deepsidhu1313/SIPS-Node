@@ -49,6 +49,9 @@ class Ping implements Runnable {
 
     Ping(String ip, String uuid) {
         IPadress = ip.trim();
+        if (IPadress.contains("%")) {
+            IPadress = IPadress.substring(0, IPadress.indexOf("%"));
+        }
         UUID = uuid;
     }
 
@@ -148,7 +151,7 @@ class Ping implements Runnable {
                     // using endTime as Last Checked ON timestamp, as that is the time when we hear back from node
                     if (LIVE_NODE_ADJ_DB.containsKey(uuid)) {
                         LiveDBRow liveDBRow = new LiveDBRow(uuid, hostname, osname, cpuname, (task_limit), (task_waiting), ram, freeRam, hdd_size, hdd_free, benchmarks, endTime);
-                        Node toReplaced=LIVE_NODE_ADJ_DB.replace(uuid, liveDBRow);
+                        Node toReplaced = LIVE_NODE_ADJ_DB.replace(uuid, liveDBRow);
                         updatedRecord = true;
                     } else {
                         LiveDBRow liveDBRow = new LiveDBRow(uuid, hostname, osname, cpuname, (task_limit), (task_waiting), ram, freeRam, hdd_size, hdd_free, benchmarks, endTime);
@@ -271,8 +274,20 @@ class Ping implements Runnable {
         } catch (IOException ex) {
             Util.appendToPingLog(GlobalValues.LOG_LEVEL.ERROR, IPadress + " is dead:" + ex);
             LIVE_NODE_ADJ_DB.remove(IPadress.trim());
-            LIVE_NODE_ADJ_DB.remove(UUID.trim());
-            ADJACENT_NODES_TABLE.remove(UUID.trim());
+            Node node = LIVE_NODE_ADJ_DB.get(UUID.trim());
+            if (node != null) {
+                ArrayList<String> ips = node.getIpAddresses();
+                if (ips.size() > 1) {
+                    ips.remove(IPadress.trim());
+                    node.setIpAddresses(ips);
+                    LIVE_NODE_ADJ_DB.replace(UUID.trim(), node);
+                } else {
+                    LIVE_NODE_ADJ_DB.get(UUID.trim());
+                    ADJACENT_NODES_TABLE.remove(UUID.trim());
+
+                }
+
+            }
             try {
                 s.close();
             } catch (IOException ex1) {
