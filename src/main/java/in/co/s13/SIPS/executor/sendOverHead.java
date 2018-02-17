@@ -65,7 +65,7 @@ public class sendOverHead implements Runnable {
                 sendmsgJsonObj.put("Body", sendmsgBodyJsonObj);
 
                 String sendmsg = sendmsgJsonObj.toString();
-                System.out.println("Send Overhead Message :"+sendmsgJsonObj.toString(4)+" to "+ipadd);
+//                System.out.println("Send Overhead Message :"+sendmsgJsonObj.toString(4)+" to "+ipadd);
                 byte[] bytes = sendmsg.getBytes("UTF-8");
                 outToServer.writeInt(bytes.length);
                 outToServer.write(bytes);
