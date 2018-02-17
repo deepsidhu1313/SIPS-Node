@@ -24,12 +24,12 @@ import org.json.JSONObject;
  */
 public class FileDownQueReq {
 
-    private String id, ip, checksum, filename, reqmsg;
+    private String id, ip, checksum, filename, reqmsg, nodeUUID, projectName;
     private boolean finished;
     private long starttime, remainingTime;
     private double size, remainingsize;
 
-    public FileDownQueReq(String ip, String id, String checksum, String filename, long starttime, long remainingTime, double size, double remainingsize, boolean finished, String reqmsg) {
+    public FileDownQueReq(String ip, String id, String checksum, String filename, long starttime, long remainingTime, double size, double remainingsize, boolean finished, String reqmsg, String nodeUUID, String projectName) {
         this.ip = ip;
         this.checksum = checksum;
         this.filename = filename;
@@ -40,6 +40,8 @@ public class FileDownQueReq {
         this.size = size;
         this.remainingsize = remainingsize;
         this.reqmsg = reqmsg;
+        this.nodeUUID = nodeUUID;
+        this.projectName = projectName;
     }
 
     public void setIp(String ip) {
@@ -81,8 +83,6 @@ public class FileDownQueReq {
     public void setId(String id) {
         this.id = id;
     }
-
-
 
     public void setStarttime(long starttime) {
         this.starttime = starttime;
@@ -129,6 +129,22 @@ public class FileDownQueReq {
 
     }
 
+    public String getNodeUUID() {
+        return nodeUUID;
+    }
+
+    public void setNodeUUID(String nodeUUID) {
+        this.nodeUUID = nodeUUID;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+
     @Override
     public String toString() {
         return this.toJSON().toString();
@@ -146,6 +162,8 @@ public class FileDownQueReq {
         request.put("size", size);
         request.put("remainingsize", remainingsize);
         request.put("reqmsg", reqmsg);
+        request.put("nodeUUID", nodeUUID);
+        request.put("projectName", projectName);
         return request;
     }
 

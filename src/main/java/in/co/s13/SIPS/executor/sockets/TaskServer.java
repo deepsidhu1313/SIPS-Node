@@ -53,7 +53,7 @@ public class TaskServer implements Runnable {
                     out.println("PATH=/bin:/usr/bin:/usr/local/bin");
                     out.println("WORK=${PWD}/");
                     out.println("cd  \"${WORK}${1}/\"");
-                    out.println("bash ${WORK}ant/bin/ant");
+                    out.println("bash ant");
                     //       OUT.println("bash process-executor.sh \"$3\"");
                 } catch (FileNotFoundException ex) {
                     Logger.getLogger(TaskServer.class.getName()).log(Level.SEVERE, null, ex);
@@ -72,7 +72,7 @@ public class TaskServer implements Runnable {
                 out2.println("PATH=/bin:/usr/bin:/usr/local/bin");
                 out2.println("WORK=${PWD}/");
                 out2.println("cd  \"${WORK}${1}/\"");
-                out2.println("bash ${WORK}ant/bin/ant -Darg1=$2");
+                out2.println("bash ant -Darg1=$2");
 
 //out2.println("bash  simulate.sh $2");
             } catch (FileNotFoundException ex) {
@@ -94,7 +94,7 @@ public class TaskServer implements Runnable {
                     // OUT.println("set arg2=%2 ");
                     // OUT.println("set arg3=%3 ");
                     out.println("cd /d %PFRAMEWORK_HOME%%arg1%");
-                    out.println("CALL %PFRAMEWORK_HOME%\\ant\\bin\\ant.bat");
+                    out.println("CALL ant");
                 } catch (FileNotFoundException ex) {
                     Logger.getLogger(TaskServer.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -115,7 +115,7 @@ public class TaskServer implements Runnable {
                     out.println("set arg4=%4 ");
                     //  OUT.println("java -jar lib1.jar 0 %arg4%");
                     out.println("cd /d %PFRAMEWORK_HOME%%arg1%");
-                    out.println("CALL  %PFRAMEWORK_HOME%\\ant\\bin\\ant.bat  -Darg1= %arg2%");
+                    out.println("CALL ant.bat  -Darg1= %arg2%");
                     // OUT.println("java -cp .;%PFRAMEWORK_HOME%lib1.jar %arg3%");
                     //  OUT.println(" cd %PFRAMEWORK_HOME%");
                     //  OUT.println("java -jar lib1.jar 1 %arg4%");
@@ -125,7 +125,7 @@ public class TaskServer implements Runnable {
 
             }
         }
-        File d2 = new File("var");
+        File d2 = new File("proc");
         if (!d2.exists()) {
             d2.mkdir();
         }

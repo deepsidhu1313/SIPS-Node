@@ -71,6 +71,7 @@ import static in.co.s13.sips.lib.common.settings.GlobalValues.ADJACENT_NODES_TAB
 import static in.co.s13.sips.lib.common.settings.GlobalValues.NON_ADJACENT_NODES_TABLE;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.PrintStream;
 
 /**
  * Utility methods for jDiskMark
@@ -746,31 +747,23 @@ public class Util {
         return new JSONObject((content.length() < 1) ? "{}" : content);
     }
 
-    public static void write(File f, String text) {
+    public synchronized static void write(File f, String text) {
         f.getParentFile().mkdirs();
         try (FileWriter fw = new FileWriter(f);
                 PrintWriter pw = new PrintWriter(fw)) {
             pw.print(text);
-            pw.close();
-            fw.close();
+            pw.flush();
+            fw.flush();
         } catch (IOException ex) {
             Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
 
-    public static void write(String path, String text) {
-        File file = new File(path);
+    public synchronized static void write(String path, String text) {
+        File file = new File(path).getAbsoluteFile();
         file.getParentFile().mkdirs();
-        try (FileWriter fw = new FileWriter(new File(path));
-                PrintWriter pw = new PrintWriter(fw)) {
-            pw.print(text);
-            pw.close();
-            fw.close();
-        } catch (IOException ex) {
-            Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
+        write(file, text);
     }
 
     public static void saveCheckSum(String Filename, String con) {
@@ -910,15 +903,15 @@ public class Util {
     }
 
     public static String generateNodeUUID() {
-        return java.util.UUID.randomUUID() + ":" + java.util.UUID.randomUUID();
+        return java.util.UUID.randomUUID().toString().replaceAll("-", "") + "" + java.util.UUID.randomUUID().toString().replaceAll("-", "");
     }
 
     public synchronized static String generateAPIKey() {
-        return java.util.UUID.randomUUID().toString();
+        return java.util.UUID.randomUUID().toString().replaceAll("-", "");
     }
 
     public synchronized static String generateJobToken() {
-        return java.util.UUID.randomUUID().toString();
+        return java.util.UUID.randomUUID().toString().replaceAll("-", "");
     }
 
     /**

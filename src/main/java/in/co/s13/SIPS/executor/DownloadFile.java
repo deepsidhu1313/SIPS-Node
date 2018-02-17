@@ -32,7 +32,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONObject;
 
-
 public class DownloadFile {
 
     public final static int SOCKET_PORT = GlobalValues.FILE_SERVER_PORT;      // you may change this
@@ -41,7 +40,7 @@ public class DownloadFile {
     ArrayList<String> logmsg = new ArrayList<>();
     int MAX_THREADSLEEP = 100000, sleepcounter = 0;
 
-    public DownloadFile(String IP, String id, String cno, String projectname, String localFolder, ArrayList<String> FileList) {
+    public DownloadFile(String IP, String id, String cno, String projectname, String localFolder, ArrayList<String> FileList, String uuid) {
         SERVER = IP;
         ExecutorService rfExecutor = Executors.newFixedThreadPool(5);
         FileList.stream().forEach((_item) -> {
@@ -66,7 +65,7 @@ public class DownloadFile {
 
                                 sendMsgJSONBody.put("PID", id);
                                 sendMsgJSONBody.put("CNO", cno);
-                                sendMsgJSONBody.put("FILENAME", projectname);
+                                sendMsgJSONBody.put("PROJECT", projectname);
                                 sendMsgJSONBody.put("FILE", _item);
                                 sendMsgJSON.put("Body", sendMsgJSONBody);
                                 String sendmsg = sendMsgJSON.toString();
@@ -81,7 +80,7 @@ public class DownloadFile {
                                         dIn.readFully(message, 0, message.length); // read the message
                                     }
                                     String reply = new String(message);
-                                    ipDir = new File("cache/" + IP);
+                                    ipDir = new File("cache/" + uuid+"/"+projectname);
                                     if (!ipDir.exists()) {
                                         ipDir.mkdirs();
                                     }
@@ -134,9 +133,10 @@ public class DownloadFile {
 
                                         sendMsgJSONBody.put("PID", id);
                                         sendMsgJSONBody.put("CNO", cno);
-                                        sendMsgJSONBody.put("FILENAME", projectname);
+                                        sendMsgJSONBody.put("PROJECT", projectname);
                                         sendMsgJSONBody.put("FILE", _item);
                                         sendMsgJSONBody.put("IP", SERVER);
+                                        sendMsgJSONBody.put("UUID", uuid);
                                         sendMsgJSONBody.put("CHECKSUM", checksum);
                                         sendMsgJSON.put("Body", sendMsgJSONBody);
 
@@ -213,7 +213,7 @@ public class DownloadFile {
                         Thread t2 = new Thread(new sendCommOverHead("ComOH", IP, id, cno, projectname, "" + (endtime - starttime)));
                         t2.start();
 
-                    } // read length of incoming message
+                    }
                 }
                 );
                 rfExecutor.submit(rt);

@@ -127,7 +127,7 @@ public class InsertDistributionWareHouse implements Runnable {
                     + "PRFM DOUBLE,"
                     + "EXITCODE INT,"
                     + "TIMESTAMP DATE);";
-            distWH.createtable("appdb/dw-dist.db", sql);
+            distWH.createtable("log/dw-dist.db", sql);
             distWH.closeConnection();
             created = true;
         }
@@ -182,7 +182,7 @@ public class InsertDistributionWareHouse implements Runnable {
                     + "','" + PRFM
                     + "','" + EXITCODE
                     + "','" + dateFormat.format(date) + "');";
-            distWH.insert("appdb/dw-dist.db", sql);
+            distWH.insert("log/dw-dist.db", sql);
         }
         distWH.closeConnection();
 

@@ -18,13 +18,16 @@ package in.co.s13.SIPS.executor;
 
 import in.co.s13.SIPS.datastructure.TaskDBRow;
 import in.co.s13.SIPS.settings.GlobalValues;
+import in.co.s13.SIPS.settings.Settings;
 import in.co.s13.SIPS.tools.Util;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -59,18 +62,12 @@ public class ParallelProcess implements Runnable {
         ip = ipadd;
         pid = body.getString("PID");//substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
         cno = body.getString("CNO");//body.substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
+        String uuid = body.getString("UUID");
         files = body.getJSONArray("FILES");//body.substring(body.indexOf("<FILES>") + 7, body.indexOf("</FILES>"));
-        //String[] filesList = (files.split("$@r@r@$"));
         for (int i = 0; i < files.length(); i++) {
             JSONObject filesList1 = files.getJSONObject(i);
             fname.add(filesList1.getString("FILENAME"));
             content.add(filesList1.getString("CONTENT"));
-//            if (filesList1.contains("<FILENAME>")) {
-//                fname.add(filesList1.substring(filesList1.indexOf("<FILENAME>") + 10, filesList1.indexOf("</FILENAME>")).trim());
-//            }
-//            if (filesList1.contains("<CONTENT>")) {
-//                content.add(filesList1.substring(filesList1.indexOf("<CONTENT>") + 9, filesList1.indexOf("</CONTENT>")).trim());
-//            }
         }
 
         manifest = body.getJSONObject("MANIFEST");//substring(body.indexOf("<MANIFEST>") + 10, body.indexOf("</MANIFEST>"));
@@ -78,14 +75,12 @@ public class ParallelProcess implements Runnable {
         main = manifest.getString("MAIN");//substring(manifest.indexOf("<MAIN>") + 6, manifest.indexOf("</MAIN>"));
         projectName = manifest.getString("PROJECT");//substring(manifest.indexOf("<PROJECT>") + 9, manifest.indexOf("</PROJECT>"));
 
-        //String[] lines = manifest.split("\n");
-        //for (String line : lines) 
         {
             if (manifest.has("LIB")) {
                 JSONArray tmp = manifest.getJSONArray("LIB");//line.substring(line.indexOf("<LIB>") + 5, line.indexOf("</LIB>"));
                 if (tmp.length() > 0) {
                     for (int i = 0; i < tmp.length(); i++) {
-                        libList.add("lib/"+tmp.getString(i));
+                        libList.add("lib/" + tmp.getString(i));
                     }
                 }
             }
@@ -150,32 +145,18 @@ public class ParallelProcess implements Runnable {
                     }
                 }
             }
-//            if (line.contains("<OUTPUTFREQUENCY>")) {
-//                String tmp = line.substring(line.indexOf("<OUTPUTFREQUENCY>") + 17, line.indexOf("</OUTPUTFREQUENCY>"));
-//            }
             opfrequecy = manifest.getInt("OUTPUTFREQUENCY", opfrequecy);//Integer.parseInt(tmp.trim());
 
         }
         GlobalValues.TASK_ID.incrementAndGet();
-        GlobalValues.TASK_DB.put("" + ip + "-ID-" + pid + "c" + cno, new TaskDBRow(pid, projectName, ipadd, (int) counter, process));
-        //GlobalValues.LOCAL_PROCESS_ID.add(counter);
-//        processDBExecutor.execute(() -> {
-//            String sql = "INSERT INTO PROC (ID,"
-//                    + " ALIENID ,"
-//                    + "FNAME,"
-//                    + "CNO     ,"
-//                    + "IP   ) VALUES('" + counter + "','" + pid + "','" + projectName + "','" + cno + "','" + ip + "');";
-//
-//            procDB.insert("appdb/proc.db", sql);
-//            procDB.closeConnection();
-//        });
-        createProcess(ip, pid, fname, content);
+        GlobalValues.TASK_DB.put("" + ip + "-ID-" + pid + "-CN-" + cno, new TaskDBRow(pid, projectName, ipadd, (int) counter, process));
+        createProcess(ip, pid, fname, content, uuid);
 
     }
 
-    public void createProcess(String ip, String PID, ArrayList<String> filename, ArrayList<String> Content) throws FileNotFoundException {
-        loc = "var/" + ip + "-ID-" + PID + "c" + cno;
-        File d2 = new File("var");
+    public void createProcess(String ip, String PID, ArrayList<String> filename, ArrayList<String> Content, String uuid) throws FileNotFoundException {
+        loc = "proc/" + uuid + "/" + PID + "/" + cno;
+        File d2 = new File("proc");
         if (!d2.exists()) {
             d2.mkdir();
         }
@@ -186,31 +167,33 @@ public class ParallelProcess implements Runnable {
         } else {
             d.mkdir();
         }
+               
+        
+        JSONObject meta = new JSONObject();
+        meta.put("JOB_TOKEN", pid);
+        meta.put("SENDER_IP", ip);
+        meta.put("CHUNK_NO", cno);
+        meta.put("SENDER_UUID", uuid);
+        meta.put("UUID", GlobalValues.NODE_UUID);
+        meta.put("PROJECT", projectName);
         ArrayList<String> temp = new ArrayList<>();
         temp.addAll(libList);
         temp.addAll(attachments);
+        Util.write(new File(loc + "/task.json"), meta.toString());
         generateScript(loc, main);
 
         if (!temp.isEmpty()) {
-            DownloadFile recieveFile = new DownloadFile(ip, pid, cno, projectName, loc, temp);
+            DownloadFile recieveFile = new DownloadFile(ip, pid, cno, projectName, loc, temp, uuid);
             fileLog = recieveFile.getFileLog();
         }
 
         for (int i = 0; i < Content.size(); i++) {
-            File f = new File("var/" + ip + "-ID-" + PID + "c" + cno + "/" + filename.get(i));
-            if (!f.getParentFile().exists()) {
-                f.getParentFile().mkdirs();
-            }
-            try (PrintStream out = new PrintStream("var/" + ip + "-ID-" + PID + "c" + cno + "/" + filename.get(i)) //new AppendFileStream
-                    ) {
-                out.print(Content.get(i));
-                out.close();
-            }
+            Util.write(loc + "/" + filename.get(i), Content.get(i));
         }
     }
 
-    public void generateScript(String id, String main) {
-        File f = new File(id + "/build.xml");
+    public void generateScript(String location, String main) {
+        File f = new File(location + "/build.xml");
         {
             PrintStream out = null;
             if (f.exists()) {
@@ -234,7 +217,7 @@ public class ParallelProcess implements Runnable {
                 }
 
                 out.println("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
-                        + "<project default=\"run\" basedir=\".\" name=\"" + id.trim() + "\">\n"
+                        + "<project default=\"run\" basedir=\".\" name=\"" + location.trim() + "\">\n"
                         + "  <!--this file was created by Eclipse Runnable JAR Export Wizard-->\n"
                         + "  <!--ANT 1.7 is required                                        -->\n"
                         + "\n"
@@ -257,7 +240,7 @@ public class ParallelProcess implements Runnable {
                         + "   </target>"
                         + "  <!-- Libraries on which your code depends -->\n"
                         + "  <path id=\"classpath.base\">                                                                                                                           \n"
-                        + "     <fileset dir=\"libs\">                                                                                                                          \n"
+                        + "     <fileset dir=\"lib\">                                                                                                                          \n"
                         + "         <include name=\"**/*.jar\" />                                                                                                          \n"
                         + "     </fileset>\n"
                         + "</path>  \n"
@@ -286,7 +269,7 @@ public class ParallelProcess implements Runnable {
             Long startTime = System.currentTimeMillis();
             if (GlobalValues.OS_Name == 0) {
                 String pwd = "" + GlobalValues.PWD;
-                String cmd[] = {"process-executor.bat ", loc};
+                String cmd[] = {"bin/process-executor.bat ", loc};
                 for (int i = 0; i <= cmd.length - 1; i++) {
                     cmd2 += cmd[i];
                 }
@@ -297,7 +280,7 @@ public class ParallelProcess implements Runnable {
 
             } else if (GlobalValues.OS_Name == 2) {
                 String workingDir = System.getProperty("user.dir");
-                String scriptloc = "" + workingDir + "/process-executor.sh";
+                String scriptloc = "" + workingDir + "/bin/process-executor.sh";
                 String cmd[] = {"/bin/bash", scriptloc, loc};
                 for (int i = 0; i <= cmd.length - 1; i++) {
                     cmd2 += cmd[i];

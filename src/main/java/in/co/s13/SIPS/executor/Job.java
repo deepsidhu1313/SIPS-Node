@@ -465,7 +465,7 @@ public class Job implements Runnable {
                     }
                     ParallelForLoop parallelForLoop = new ParallelForLoop(min, max, diff, datatype, reverseLoop);
                     ArrayList<ParallelForSENP> al = loadScheduler.scheduleParallelFor(Util.getAllLiveNodesInArrayList(), parallelForLoop, schedulerJSON);
-                    System.out.println("Parallel For Loop Chunks: " + al.toString());
+//                    System.out.println("Parallel For Loop Chunks: " + al.toString());
                     sql = "SELECT * FROM META;";
                     ResultSet rs99 = parsedDB.select(parsedDBLoc, sql);
                     String parent = "", file = "";
@@ -480,7 +480,7 @@ public class Job implements Runnable {
                         ParallelForSENP get = al.get(k);
                         ModASTParallelFor ma = new ModASTParallelFor((parallel4BL + 1), datatype, get.getStart(), get.getEnd(), "" + diff);
                         ma.visit(cu, null);
-                        System.out.println("Modified AST: " + cu.toString());
+//                        System.out.println("Modified AST: " + cu.toString());
                         Util.copyFolder(new File("data/" + jobToken + "/src/"), new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + k + "/src/"));
                         Util.write("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + k + "/src/" + parent + "/" + file, cu.toString());
                         Distributor dist = new Distributor(get.getNodeUUID(), "" + k, jobToken);

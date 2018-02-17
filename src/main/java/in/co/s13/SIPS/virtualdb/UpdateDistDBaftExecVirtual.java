@@ -35,7 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class UpdateDistDBaftExecVirtual implements Runnable {
 
-    String dbloc, sql, IP, fname, pid, performance, cno, exitCode;
+    String dbloc, sql, IP, fname, pid, performance, cno, exitCode,uuid;
     Long startTime, endtime, exectime, NOH, lexecTime;
     // ResultSet rs, rs2, rs3, rs4, rs5, rs6, rs7;
 
@@ -50,7 +50,7 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
     int counter = 0, vartype;
     ConcurrentHashMap<String, DistributionDBRow> DistTable;
 
-    public UpdateDistDBaftExecVirtual(Long endTime, Long ExecTime, String filename, String ip, String PID, String CNO, String EXITCODE) {
+    public UpdateDistDBaftExecVirtual(Long endTime, Long ExecTime, String filename, String ip, String PID, String CNO, String EXITCODE,String nodeUUID) {
         dbloc = "data/" + PID + "/dist-db/dist-" + PID + ".db";
         endtime = endTime;
         exectime = ExecTime;
@@ -70,6 +70,7 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                 Logger.getLogger(UpdateDistDBaftExecVirtual.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        this.uuid=nodeUUID;
         DistTable = MASTER_DIST_DB.get((PID.trim()));
     }
 
@@ -82,7 +83,7 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
             // Settings.outPrintln(rs.getString("LStartTime"));
             //while (rs.next())
 //            for () {
-            DistributionDBRow get = DistTable.get(IP + "-" + cno.trim());
+            DistributionDBRow get = DistTable.get(uuid + "-" + cno.trim());
             startTime = get.getLstarttime();
             vartype = get.getVartype();
             //      chunkSize = new BigDecimal(get.getChunksize());
@@ -216,7 +217,7 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                 {
 //                    for ()
                     {
-                        DistributionDBRow DistTable1 = DistTable.get(IP.trim() + "-" + cno.trim());
+                        DistributionDBRow DistTable1 = DistTable.get(uuid.trim() + "-" + cno.trim());
 //                                if (DistTable1.getIp().trim().equalsIgnoreCase(IP) && DistTable1.getCno() == Integer.parseInt(cno.trim())) 
                         {
                             CommOH = (DistTable1.getNoh());

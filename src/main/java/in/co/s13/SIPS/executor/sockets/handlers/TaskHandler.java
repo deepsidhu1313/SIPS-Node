@@ -62,12 +62,12 @@ public class TaskHandler implements Runnable {
                 String ipAddress = inetAddress.getHostAddress();
                 Thread.currentThread().setName("Process handler for " + ipAddress);
                 if (messageString.length() > 1) {
-                    System.out.println("IP adress of sender is " + ipAddress);
+//                    System.out.println("IP adress of sender is " + ipAddress);
 
 //                    System.OUT.println("" + messageString);
                     String command = messageJson.getString("Command");//messageString.substring(messageString.indexOf("<Command>") + 9, messageString.indexOf("</Command>"));
                     JSONObject body = messageJson.getJSONObject("Body");//messageString.substring(messageString.indexOf("<Body>") + 6, messageString.indexOf("</Body>"));
-                    System.out.println(messageString);
+//                    System.out.println(messageString);
                     if (command.contains("createprocess")) {
                         GlobalValues.TASK_WAITING.incrementAndGet();
                         GlobalValues.TASK_EXECUTOR.submit(new ParallelProcess(body, ipAddress));
@@ -239,15 +239,15 @@ public class TaskHandler implements Runnable {
 //                        System.OUT.println(msg);
 //                        int p = Integer.parseInt(pid);
 
-                            try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
-                         String sendmsg = "OK";
+//                        try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
+//                            String sendmsg = "OK";
+//
+//                            byte[] bytes = sendmsg.getBytes("UTF-8");
+//                            outToClient.writeInt(bytes.length);
+//                            outToClient.write(bytes);
+//
+//                        }
 
-                         byte[] bytes = sendmsg.getBytes("UTF-8");
-                         outToClient.writeInt(bytes.length);
-                         outToClient.write(bytes);
-
-                         }
-                         
                         submitter.close();
                         ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
                         if (DistTable != null) {

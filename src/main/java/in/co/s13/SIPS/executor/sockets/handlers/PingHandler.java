@@ -55,15 +55,15 @@ public class PingHandler implements Runnable {
                 if (length > 0) {
                     dataInputStream.readFully(message, 0, message.length); // read the message
                 }
-                msg = new JSONObject(new String(message));
+                String request = new String(message);
+//                System.out.println("Ping Handler Received:" + request);
+                msg = new JSONObject(request);
 
                 InetAddress inetAddress = submitter.getInetAddress();
                 String ipAddress = inetAddress.getHostAddress();
                 Thread.currentThread().setName("Ping handler for " + ipAddress);
                 if (msg.length() > 1) {
-//                    System.OUT.println("IP adress of sender is " + ipAddress);
 
-                    // System.OUT.println("" + msg);
                     String command = msg.getString("Command");
                     JSONObject pingRequestBody = msg.getJSONObject("Body");
                     String clientUUID = pingRequestBody.getString("UUID");

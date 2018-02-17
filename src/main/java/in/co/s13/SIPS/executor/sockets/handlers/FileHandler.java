@@ -81,11 +81,11 @@ public class FileHandler implements Runnable {
                         String fileToSend = body.getString("FILE");//substring(body.indexOf("<FILE>") + 6, body.indexOf("</FILE>"));
                         String pid = body.getString("PID");//substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
                         String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
-                        String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
+                        String projectName = body.getString("PROJECT");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
 
 //                        System.out.println("Accepted connection : " + submitter);
                         // send file
-                        File myFile = new File("data/" + pid + "/" + fileToSend);
+                        File myFile = new File("data/" + pid  + "/" + fileToSend);
 
                         if (myFile.getAbsolutePath().trim().contains("data/" + pid) && myFile.exists()) {
                             String sendmsg = "foundfile";
@@ -153,11 +153,12 @@ public class FileHandler implements Runnable {
                         String pid2 = body.getString("PID");//substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
                         String cno2 = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
                         String classname = body.getString("CLASSNAME");//substring(body.indexOf("<CLASSNAME>") + 11, body.indexOf("</CLASSNAME>"));
-                        String instance = body.getString("INSTANCE");//substring(body.indexOf("<INSTANCE>") + 10, body.indexOf("</INSTANCE>"));
+                        int instance = body.getInt("INSTANCE");//substring(body.indexOf("<INSTANCE>") + 10, body.indexOf("</INSTANCE>"));
+                        String projectName = body.getString("PROJECT");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
 
 //                        System.out.println("Accepted connection : " + submitter);
                         // send file
-                        File myFile2 = new File("data/" + pid2 + "/sim/" + classname + "/" + objToSend + "-instance-" + instance + ".obj");
+                        File myFile2 = new File("data/" + pid2 +  "/.simulated/" + classname + "/" + objToSend + "-instance-" + instance + ".obj");
 
                         if (myFile2.getAbsolutePath().trim().contains("data/" + pid2) && myFile2.exists()) {
                             String sendmsg = "foundobj";
@@ -165,6 +166,7 @@ public class FileHandler implements Runnable {
                             byte[] bytes = sendmsg.getBytes("UTF-8");
                             outToClient.writeInt(bytes.length);
                             outToClient.write(bytes);
+                            Util.appendToFileServerLog(GlobalValues.LOG_LEVEL.OUTPUT, "Sending " + sendmsg + " to " + ipAddress);
 
                             File fsha = new File(myFile2.getAbsolutePath().trim() + ".sha");
                             if (fsha.exists()) {
@@ -201,7 +203,7 @@ public class FileHandler implements Runnable {
                                 fis = new FileInputStream(myFile2);
                                 bis = new BufferedInputStream(fis);
                                 int theByte = 0;
-                                Util.appendToFileServerLog(GlobalValues.LOG_LEVEL.OUTPUT, "Sending " + objToSend + "(" + myFile2.length() + " bytes)");
+                                Util.appendToFileServerLog(GlobalValues.LOG_LEVEL.OUTPUT, "Sending " + objToSend + " (" + myFile2.length() + " bytes)");
                                 /* while ((theByte = bis.read()) != -1) {
                                 outToClient.write(theByte);
                                 // bos.flush();
@@ -234,11 +236,12 @@ public class FileHandler implements Runnable {
                         String pid2 = body.getString("PID");//substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
                         String cno2 = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
                         String classname = body.getString("CLASSNAME");//substring(body.indexOf("<CLASSNAME>") + 11, body.indexOf("</CLASSNAME>"));
-                        String instance = body.getString("INSTANCE");//substring(body.indexOf("<INSTANCE>") + 10, body.indexOf("</INSTANCE>"));
+                        int instance = body.getInt("INSTANCE");//substring(body.indexOf("<INSTANCE>") + 10, body.indexOf("</INSTANCE>"));
+                        String projectName = body.getString("PROJECT");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
 
                         System.out.println("Accepted connection : " + submitter);
                         // send file
-                        File myFile2 = new File("data/" + pid2 + "/sim/" + classname + "/" + objToSend + "-instance-" + instance + ".obj");
+                        File myFile2 = new File("data/" + pid2  + "/.simulated/" + classname + "/" + objToSend + "-instance-" + instance + ".obj");
 
                         if (myFile2.getAbsolutePath().trim().contains("data/" + pid2) && myFile2.exists()) {
                             String sendmsg = "foundobj";
@@ -284,11 +287,11 @@ public class FileHandler implements Runnable {
                         String fileToSend = body.getString("FILE");//substring(body.indexOf("<FILE>") + 6, body.indexOf("</FILE>"));
                         String pid = body.getString("PID");//substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
                         String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
-                        String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
+                        String projectName = body.getString("PROJECT");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
 
                         System.out.println("Accepted connection : " + submitter);
                         // send file
-                        File myFile = new File("data/" + pid + "/" + fileToSend);
+                        File myFile = new File("data/" + pid + "/" +  fileToSend);
 
                         if (myFile.getAbsolutePath().trim().contains("data/" + pid) && myFile.exists()) {
                             String sendmsg = "foundfile";
@@ -321,6 +324,8 @@ public class FileHandler implements Runnable {
                             outToClient.writeInt(bytes.length);
 
                             outToClient.write(bytes);
+                            Util.appendToFileServerLog(GlobalValues.LOG_LEVEL.ERROR, "Sending " + sendmsg + " to " + ipAddress);
+                            Util.appendToFileServerLog(GlobalValues.LOG_LEVEL.ERROR, "File doesnot exist:"+myFile.getAbsolutePath());
 
                         }
                     }

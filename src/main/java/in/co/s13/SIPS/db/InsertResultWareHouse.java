@@ -75,7 +75,7 @@ public class InsertResultWareHouse implements Runnable {
                     + "AVGWAITINQ TEXT,"
                     + "AVGSLEEP TEXT,"
                     + "TIMESTAMP DATE);";
-            resWH.createtable("appdb/dw-result.db", sql);
+            resWH.createtable("log/dw-result.db", sql);
             resWH.closeConnection();
         }
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.sss");
@@ -111,7 +111,7 @@ public class InsertResultWareHouse implements Runnable {
                 + "','" + AVGWAITINQ
                 + "','" + AVGSLEEP
                 + "','" + dateFormat.format(date) + "');";
-        resWH.insert("appdb/dw-result.db", sql);
+        resWH.insert("log/dw-result.db", sql);
         resWH.closeConnection();
         counter++;
     }

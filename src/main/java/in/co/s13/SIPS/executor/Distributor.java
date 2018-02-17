@@ -65,6 +65,7 @@ public class Distributor {
         JSONObject body = new JSONObject();
         body.put("PID", jobToken);
         body.put("CNO", chunkNumber);
+        body.put("UUID", GlobalValues.NODE_UUID);
         JSONArray files = new JSONArray();
         CollectFiles collectFiles = new CollectFiles();
         ArrayList<String> toSend = collectFiles.getFiles("data/" + jobToken + "/dist/" + nodeUUID + ":CN:" + chunkNumber + "/src");
@@ -76,7 +77,12 @@ public class Distributor {
             files.put(file);
         }
         body.put("FILES", files);
-        body.put("MANIFEST", Util.readJSONFile("data/" + jobToken + "/manifest.json"));
+        JSONObject manifest = Util.readJSONFile("data/" + jobToken + "/manifest.json");
+        /**
+         * Remove sensitive info from manifest
+         */
+        manifest.remove("API-KEY");
+        body.put("MANIFEST", manifest);
 
         for (int i = 0; i < ips.size(); i++) {
             String get = ips.get(i);
@@ -87,19 +93,18 @@ public class Distributor {
     }
 
     public boolean sendTask(String host, JSONObject body) {
-        try (Socket socket = new Socket()) {
+        try (Socket socket = new Socket(host, GlobalValues.TASK_SERVER_PORT)) {
 
-            socket.connect(new InetSocketAddress(host, GlobalValues.TASK_SERVER_PORT));
             try (OutputStream os = socket.getOutputStream(); DataInputStream dIn = new DataInputStream(socket.getInputStream()); DataOutputStream outToServer = new DataOutputStream(os)) {
                 JSONObject requestJson = new JSONObject();
                 requestJson.put("Command", "createprocess");
                 requestJson.put("Body", body);
                 String sendmsg = requestJson.toString();
-                System.out.println("Sending "+jobToken+" chunk no:"+chunkNumber+" to "+host);
+                System.out.println("Sending " + jobToken + " chunk no:" + chunkNumber + " to " + host);
                 byte[] bytes = sendmsg.getBytes("UTF-8");
                 outToServer.writeInt(bytes.length);
                 outToServer.write(bytes);
-                
+
                 int length = dIn.readInt();                    // read length of incoming message
                 byte[] message = new byte[length];
 

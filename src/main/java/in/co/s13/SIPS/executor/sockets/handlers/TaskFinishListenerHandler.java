@@ -64,17 +64,18 @@ public class TaskFinishListenerHandler implements Runnable {
                 if (msg.length() > 1) {
                     //                    Util.outPrintln("IP adress of sender is " + ipAddress);
 
-                    Util.appendToTasksLog(GlobalValues.LOG_LEVEL.OUTPUT,"Recieved " + msg);
+                    Util.appendToTasksLog(GlobalValues.LOG_LEVEL.OUTPUT, "Recieved " + msg);
 
-                    String command = msg.getString("Command");//substring(msg.indexOf("<Command>") + 9, msg.indexOf("</Command>"));
-                    JSONObject body = msg.getJSONObject("Body");;//substring(msg.indexOf("<Body>") + 6, msg.indexOf("</Body>"));
+                    String command = msg.getString("Command");
+                    JSONObject body = msg.getJSONObject("Body");;
                     //     Settings.outPrintln(msg);
                     if (command.equalsIgnoreCase("Finished")) {
-                        String pid = body.getString("PID");//substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
-                        String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
-                        String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
-                        String content = body.getString("OUTPUT");//substring(body.indexOf("<OUTPUT>") + 8, body.indexOf("</OUTPUT>"));
-                        String ExitCode = body.getString("EXTCODE");//substring(body.indexOf("<EXTCODE>") + 9, body.indexOf("</EXTCODE>"));
+                        String pid = body.getString("PID");
+                        String cno = body.getString("CNO");
+                        String fname = body.getString("FILENAME");
+                        String content = body.getString("OUTPUT");
+                        String ExitCode = body.getString("EXTCODE");
+                        String uuid = body.getString("UUID");
 
                         {
                             String sendmsg = "OK";
@@ -84,16 +85,17 @@ public class TaskFinishListenerHandler implements Runnable {
                             outToClient.write(bytes);
 
                         }
-                        Util.appendToTasksLog(GlobalValues.LOG_LEVEL.OUTPUT,"size of master dist db " + MASTER_DIST_DB.size());
-                        Thread t = new Thread(new UpdateDistDBaftExecVirtual(System.currentTimeMillis(), Long.parseLong(content), fname, ipAddress, pid, cno, ExitCode));
+                        Util.appendToTasksLog(GlobalValues.LOG_LEVEL.OUTPUT, "size of master dist db " + MASTER_DIST_DB.size());
+                        Thread t = new Thread(new UpdateDistDBaftExecVirtual(System.currentTimeMillis(), Long.parseLong(content), fname, ipAddress, pid, cno, ExitCode, uuid));
                         GlobalValues.DIST_DB_EXECUTOR.execute(t);
                         submitter.close();
                     } else if (command.contains("Error")) {
-                        String pid = body.getString("PID");//substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
-                        String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
-                        String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
-                        String content = body.getString("OUTPUT");//substring(body.indexOf("<OUTPUT>") + 8, body.indexOf("</OUTPUT>"));
-                        String ExitCode = body.getString("EXTCODE");//substring(body.indexOf("<EXTCODE>") + 9, body.indexOf("</EXTCODE>"));
+                        String pid = body.getString("PID");
+                        String cno = body.getString("CNO");
+                        String fname = body.getString("FILENAME");
+                        String content = body.getString("OUTPUT");
+                        String ExitCode = body.getString("EXTCODE");
+                        String uuid = body.getString("UUID");
                         {
                             String sendmsg = "OK";
 
@@ -102,7 +104,7 @@ public class TaskFinishListenerHandler implements Runnable {
                             outToClient.write(bytes);
                         }
                         submitter.close();
-                        Thread t = new Thread(new UpdateDistDBaftExecVirtual(System.currentTimeMillis(), Long.parseLong(content), fname, ipAddress, pid, cno, ExitCode));
+                        Thread t = new Thread(new UpdateDistDBaftExecVirtual(System.currentTimeMillis(), Long.parseLong(content), fname, ipAddress, pid, cno, ExitCode, uuid));
                         GlobalValues.DIST_DB_EXECUTOR.execute(t);
                     } else {
                         submitter.close();

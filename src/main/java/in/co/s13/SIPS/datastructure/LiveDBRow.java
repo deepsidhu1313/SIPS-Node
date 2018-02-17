@@ -22,7 +22,7 @@ import in.co.s13.sips.lib.common.datastructure.Node;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class LiveDBRow extends LiveNode implements Node{
+public class LiveDBRow extends LiveNode implements Node {
 
     public LiveDBRow(String uuid, String host, String os, String processor, int task_limit,
             int qwait, long ram, long free_memory, long hdd_size, long hdd_free, JSONObject benchmarking_results, long lastCheckedOn) {
@@ -34,7 +34,9 @@ public class LiveDBRow extends LiveNode implements Node{
         JSONArray array = livedbRow.getJSONArray("ipAddresses");
         for (int i = 0; i < array.length(); i++) {
             String ip = array.getString(i);
-            //addIp(ip);
+            if (ip.contains("%")) {
+                ip = ip.substring(0, ip.indexOf("%"));
+            }
             NetScanner.addip(ip);
         }
     }
