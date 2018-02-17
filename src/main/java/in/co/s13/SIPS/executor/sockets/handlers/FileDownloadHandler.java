@@ -376,7 +376,7 @@ public class FileDownloadHandler implements Runnable {
                         submitter.close();
 
                         FileDownQueReq downQue2 = GlobalValues.DOWNLOAD_QUEUE.get(pathtoFile.trim() + "-" + pid2.trim() + "-" + checksum.trim() + "-" + ip.trim());
-                        System.out.println(pathtoFile + " added to QUE PID: " + pid2 + " Checksum:" + checksum + " IP: " + ip + (downQue2 == null ? " is null " : " is not null ") + "\n But list is :" + GlobalValues.DOWNLOAD_QUEUE);
+//                        System.out.println(pathtoFile + " added to QUE PID: " + pid2 + " Checksum:" + checksum + " IP: " + ip + (downQue2 == null ? " is null " : " is not null ") + "\n But list is :" + GlobalValues.DOWNLOAD_QUEUE);
                         if (downQue2 != null) {
                             Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "Added in Queue : " + downQue2.toString() + " sending Message " + sendmsg);
 

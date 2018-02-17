@@ -115,7 +115,7 @@ public class TaskFinishListenerHandler implements Runnable {
         } catch (IOException ex) {
             Logger.getLogger(TaskFinishListenerHandler.class.getName()).log(Level.SEVERE, null, ex);
             try {
-                if (!submitter.isClosed()) {
+                if (submitter != null && !submitter.isClosed()) {
                     submitter.close();
                 }
             } catch (IOException ex1) {
