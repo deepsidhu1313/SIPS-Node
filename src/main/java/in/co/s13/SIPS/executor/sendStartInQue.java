@@ -42,10 +42,12 @@ public class sendStartInQue implements Runnable {
         this.value = value;
         cmd = overheadName;
         chunkno = chunknumber;
+        System.out.println("Created send Start In Que");
     }
 
     @Override
     public void run() {
+        System.out.println("Running send Start In Que");
         try {
             try (Socket s = new Socket()) {
                 s.connect(new InetSocketAddress(ipadd, GlobalValues.TASK_SERVER_PORT));

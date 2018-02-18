@@ -17,6 +17,7 @@
 package in.co.s13.SIPS.datastructure;
 
 import java.util.Comparator;
+import org.json.JSONObject;
 
 /**
  *
@@ -25,7 +26,7 @@ import java.util.Comparator;
 public class DistributionDBRow {
 
     private Integer id;
-    private String ip;
+    private String uuid;
     private Double prfm;
     private Integer cno, vartype, exitcode;
     private Long lstarttime, lendtime, lexctime, nexecutiontime, noh, poh, entrinq, startinq, waitinq, sleeptime;
@@ -36,7 +37,7 @@ public class DistributionDBRow {
             long entrinq, long startinq, long waitinq, long sleeptime,
             String chunksize, String lowlimit, String uplimit, String counter, double prfm, int exitcode) {
         this.id = (id);
-        this.ip = (ip);
+        this.uuid = (ip);
         this.pid = (pid);
         this.cno = (cno);
         this.vartype = (vartype);
@@ -59,20 +60,132 @@ public class DistributionDBRow {
         this.sleeptime = (sleeptime);
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = (id);
+    public void setId(Integer id) {
+        this.id = id;
     }
 
-    public String getIp() {
-        return ip;
+    public String getUuid() {
+        return uuid;
     }
 
-    public void setIp(String ip) {
-        this.ip = (ip);
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    public Double getPrfm() {
+        return prfm;
+    }
+
+    public void setPrfm(Double prfm) {
+        this.prfm = prfm;
+    }
+
+    public Integer getCno() {
+        return cno;
+    }
+
+    public void setCno(Integer cno) {
+        this.cno = cno;
+    }
+
+    public Integer getVartype() {
+        return vartype;
+    }
+
+    public void setVartype(Integer vartype) {
+        this.vartype = vartype;
+    }
+
+    public Integer getExitcode() {
+        return exitcode;
+    }
+
+    public void setExitcode(Integer exitcode) {
+        this.exitcode = exitcode;
+    }
+
+    public Long getLstarttime() {
+        return lstarttime;
+    }
+
+    public void setLstarttime(Long lstarttime) {
+        this.lstarttime = lstarttime;
+    }
+
+    public Long getLendtime() {
+        return lendtime;
+    }
+
+    public void setLendtime(Long lendtime) {
+        this.lendtime = lendtime;
+    }
+
+    public Long getLexctime() {
+        return lexctime;
+    }
+
+    public void setLexctime(Long lexctime) {
+        this.lexctime = lexctime;
+    }
+
+    public Long getNexecutiontime() {
+        return nexecutiontime;
+    }
+
+    public void setNexecutiontime(Long nexecutiontime) {
+        this.nexecutiontime = nexecutiontime;
+    }
+
+    public Long getNoh() {
+        return noh;
+    }
+
+    public void setNoh(Long noh) {
+        this.noh = noh;
+    }
+
+    public Long getPoh() {
+        return poh;
+    }
+
+    public void setPoh(Long poh) {
+        this.poh = poh;
+    }
+
+    public Long getEntrinq() {
+        return entrinq;
+    }
+
+    public void setEntrinq(Long entrinq) {
+        this.entrinq = entrinq;
+    }
+
+    public Long getStartinq() {
+        return startinq;
+    }
+
+    public void setStartinq(Long startinq) {
+        this.startinq = startinq;
+    }
+
+    public Long getWaitinq() {
+        return startinq-entrinq;
+    }
+
+    public void setWaitinq(Long waitinq) {
+        this.waitinq = waitinq;
+    }
+
+    public Long getSleeptime() {
+        return sleeptime;
+    }
+
+    public void setSleeptime(Long sleeptime) {
+        this.sleeptime = sleeptime;
     }
 
     public String getPid() {
@@ -80,23 +193,23 @@ public class DistributionDBRow {
     }
 
     public void setPid(String pid) {
-        this.pid = (pid);
+        this.pid = pid;
     }
 
-    public int getCno() {
-        return cno;
+    public String getChunksize() {
+        return chunksize;
     }
 
-    public void setCno(int cno) {
-        this.cno = (cno);
+    public void setChunksize(String chunksize) {
+        this.chunksize = chunksize;
     }
 
-    public int getVartype() {
-        return vartype;
+    public String getLowlimit() {
+        return lowlimit;
     }
 
-    public void setVartype(int vartype) {
-        this.vartype = (vartype);
+    public void setLowlimit(String lowlimit) {
+        this.lowlimit = lowlimit;
     }
 
     public String getScheduler() {
@@ -107,109 +220,12 @@ public class DistributionDBRow {
         this.scheduler = scheduler;
     }
 
-    public long getLstarttime() {
-        return lstarttime;
-    }
-
-    public void setLstarttime(long lstarttime) {
-
-        this.lstarttime = (lstarttime);
-    }
-
-    public long getLendtime() {
-        return lendtime;
-    }
-
-    public void setLendtime(long lendtime) {
-        this.lendtime = (lendtime);
-    }
-
-    public long getLexctime() {
-        return lexctime;
-    }
-
-    public void setLexctime(long lexctime) {
-        this.lexctime = (lexctime);
-    }
-
-    public long getNexecutiontime() {
-        return nexecutiontime;
-    }
-
-    public void setNexecutiontime(long nexecutiontime) {
-        this.nexecutiontime = (nexecutiontime);
-    }
-
-    public long getNoh() {
-        return noh;
-    }
-
-    public void setNoh(long noh) {
-        this.noh = (noh);
-    }
-
-    public long getPoh() {
-        return poh;
-    }
-
-    public void setPoh(long poh) {
-        this.poh = (poh);
-    }
-
-    public void setStartinq(long poh) {
-        this.startinq = (poh);
-    }
-
-    public long getStartinq() {
-        return startinq;
-    }
-
-    public void setEntrinq(long poh) {
-        this.entrinq = (poh);
-    }
-
-    public long getEntrinq() {
-        return entrinq;
-    }
-
-    public void setWaitinq(long poh) {
-        this.waitinq = (poh);
-    }
-
-    public long getWaitinq() {
-        return waitinq;
-    }
-
-    public void setSleeptime(long poh) {
-        this.sleeptime = (poh);
-    }
-
-    public long getSleeptime() {
-        return sleeptime;
-    }
-
-    public String getChunksize() {
-        return chunksize;
-    }
-
-    public void setChunksize(String chunksize) {
-        this.chunksize = (chunksize);
-    }
-
-    public String getLowlimit() {
-        return lowlimit;
-    }
-
-    public void setLowlimit(String lowlimit) {
-        this.lowlimit = (lowlimit);
-    }
-
     public String getUplimit() {
         return uplimit;
     }
 
     public void setUplimit(String uplimit) {
-        this.uplimit = (uplimit);
+        this.uplimit = uplimit;
     }
 
     public String getCounter() {
@@ -217,32 +233,44 @@ public class DistributionDBRow {
     }
 
     public void setCounter(String counter) {
-        this.counter = (counter);
+        this.counter = counter;
     }
 
-    public double getPrfm() {
-        return prfm;
-    }
-
-    public void setPrfm(double prfm) {
-        this.prfm = (prfm);
-    }
-
-    public int getExitcode() {
-        return exitcode;
-    }
-
-    public void setExitcode(int exitcode) {
-        this.exitcode = (exitcode);
-    }
 
     @Override
     public String toString() {
-        return "" + id + "\t" + ip + "\t" + pid + "\t" + cno + "\t"
-                + vartype + "\t" + scheduler + "\t" + lstarttime + "\t" + lendtime + "\t"
-                + lexctime + "\t" + nexecutiontime + "\t" + noh + "\t" + poh + "\t" + chunksize + "\t"
-                + lowlimit + "\t" + uplimit + "\t" + counter + "\t" + prfm + "\t" + exitcode + "\n";
+    return toString(0);
+    }
 
+    public String toString(int indentFactor) {
+    return toJSON().toString(indentFactor);
+    }
+
+    public JSONObject toJSON() {
+        JSONObject result = new JSONObject();
+        result.put("id", id);
+        result.put("uuid", uuid);
+        result.put("prfm", prfm);
+        result.put("cno", cno);
+        result.put("vartype", vartype);
+        result.put("exitcode", exitcode);
+        result.put("lstarttime", lstarttime);
+        result.put("lendtime", lendtime);
+        result.put("lexctime", lexctime);
+        result.put("nexecutiontime", nexecutiontime);
+        result.put("noh", noh);
+        result.put("poh", poh);
+        result.put("entrinq", entrinq);
+        result.put("startinq", startinq);
+        result.put("waitinq", getWaitinq());
+        result.put("sleeptime", sleeptime);
+        result.put("pid", pid);
+        result.put("chunksize", chunksize);
+        result.put("lowlimit", lowlimit);
+        result.put("scheduler", scheduler);
+        result.put("uplimit", uplimit);
+        result.put("counter", counter);
+        return result;
     }
 
     public enum DistributionDBRowComparator implements Comparator<DistributionDBRow> {
@@ -254,7 +282,7 @@ public class DistributionDBRow {
         },
         IP_SORT {
             public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                return o1.getIp().compareTo(o2.getIp());
+                return o1.getUuid().compareTo(o2.getUuid());
             }
         },
         PID_SORT {

@@ -18,16 +18,13 @@ package in.co.s13.SIPS.executor;
 
 import in.co.s13.SIPS.datastructure.TaskDBRow;
 import in.co.s13.SIPS.settings.GlobalValues;
-import in.co.s13.SIPS.settings.Settings;
 import in.co.s13.SIPS.tools.Util;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -74,6 +71,8 @@ public class ParallelProcess implements Runnable {
         counter = GlobalValues.TASK_ID.get();
         main = manifest.getString("MAIN");//substring(manifest.indexOf("<MAIN>") + 6, manifest.indexOf("</MAIN>"));
         projectName = manifest.getString("PROJECT");//substring(manifest.indexOf("<PROJECT>") + 9, manifest.indexOf("</PROJECT>"));
+        Thread sendEnteredInQueue = new Thread(new sendStartInQue("enterinq", ip, pid, cno, projectName, "" + System.currentTimeMillis()));
+        sendEnteredInQueue.start();
 
         {
             if (manifest.has("LIB")) {
@@ -150,6 +149,7 @@ public class ParallelProcess implements Runnable {
         }
         GlobalValues.TASK_ID.incrementAndGet();
         GlobalValues.TASK_DB.put("" + ip + "-ID-" + pid + "-CN-" + cno, new TaskDBRow(pid, projectName, ipadd, (int) counter, process));
+
         createProcess(ip, pid, fname, content, uuid);
 
     }
@@ -167,8 +167,7 @@ public class ParallelProcess implements Runnable {
         } else {
             d.mkdir();
         }
-               
-        
+
         JSONObject meta = new JSONObject();
         meta.put("JOB_TOKEN", pid);
         meta.put("SENDER_IP", ip);
@@ -260,8 +259,8 @@ public class ParallelProcess implements Runnable {
     @Override
     public void run() {
         Thread.currentThread().setName("ParallelProcessThread" + ip + "-" + pid);
-        Thread eiq = new Thread(new sendStartInQue("startinque", ip, pid, cno, projectName, "" + System.currentTimeMillis()));
-        eiq.start();
+        Thread sendStartInQueue = new Thread(new sendStartInQue("startinque", ip, pid, cno, projectName, "" + System.currentTimeMillis()));
+        sendStartInQueue.start();
         try {
             GlobalValues.TASK_WAITING.decrementAndGet();
             ProcessBuilder pb = null;

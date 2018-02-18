@@ -16,6 +16,7 @@
  */
 package in.co.s13.SIPS.executor.sockets.handlers;
 
+import in.co.s13.SIPS.datastructure.DistributionDBRow;
 import in.co.s13.SIPS.settings.GlobalValues;
 import static in.co.s13.SIPS.settings.GlobalValues.HAS_SHARED_STORAGE;
 import static in.co.s13.SIPS.settings.GlobalValues.HOST_NAME;
@@ -50,6 +51,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONArray;
@@ -334,6 +336,29 @@ public class APIHandler implements Runnable {
                         response.put("Message", "Error!!\n \tIncorrect arguments.");
                         body.put("Response", response);
                     }
+                } else if (command.equalsIgnoreCase("dist-table")) {
+                    if (args.length() > 0 && hasReadPermissions(key_permissions)) {
+                        JSONObject distTable = new JSONObject();
+                        JSONArray table = new JSONArray();
+                        ConcurrentHashMap<String, DistributionDBRow> distTable2 = GlobalValues.MASTER_DIST_DB.get(args.get(0));
+                        if (distTable2 != null) {
+                            for (int i = 0; i < distTable2.size(); i++) {
+                                DistributionDBRow get = distTable2.get(i);
+                                table.put(get);
+                            }
+                        } else {
+                            table.put("No Table Found");
+                        }
+                        distTable.put("Table", table);
+                        response.put("Message", distTable);
+                        body.put("Response", response);
+                    } else if (!hasReadPermissions(key_permissions)) {
+                        response.put("Message", "Error!!\n \tIncorrect permissions.");
+                        body.put("Response", response);
+                    } else {
+                        response.put("Message", "Error!!\n \tIncorrect arguments.");
+                        body.put("Response", response);
+                    }
                 } else if (command.equalsIgnoreCase("nodes")) {
                     if (args.length() == 0
                             && hasReadPermissions(key_permissions)) {
@@ -453,7 +478,7 @@ public class APIHandler implements Runnable {
                         Util.write(dir_etc + "/" + (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_API_KEYS) ? "common" : HOST_NAME) + "-" : "") + "api.json", GlobalValues.API_JSON.toString(4));
                         response.put("Message", info);
                         body.put("Response", response);
-                    
+
                     } else if (!hasReadPermissions(key_permissions)) {
                         response.put("Message", "Error!!\n \tIncorrect permissions.");
                         body.put("Response", response);
@@ -499,7 +524,7 @@ public class APIHandler implements Runnable {
                         GlobalValues.TASK_HANDLER_LIMIT = args.getInt(1);
                         response.put("TASK_HANDLER_LIMIT", GlobalValues.TASK_HANDLER_LIMIT);
 
-                    }else if (args.length() == 2 && args.getString(0).equalsIgnoreCase("JOB_HANDLER_LIMIT") && hasWritePermissions(key_permissions)) {
+                    } else if (args.length() == 2 && args.getString(0).equalsIgnoreCase("JOB_HANDLER_LIMIT") && hasWritePermissions(key_permissions)) {
                         GlobalValues.JOB_HANDLER_LIMIT = args.getInt(1);
                         response.put("JOB_HANDLER_LIMIT", GlobalValues.JOB_HANDLER_LIMIT);
 

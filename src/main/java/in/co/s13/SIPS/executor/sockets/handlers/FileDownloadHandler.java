@@ -396,7 +396,7 @@ public class FileDownloadHandler implements Runnable {
                             {
 
                                 try (Socket sock = new Socket(ip.trim(), GlobalValues.FILE_SERVER_PORT)) {
-                                    System.out.println("Connecting...");
+//                                    System.out.println("Connecting...");
                                     try (OutputStream sockos = sock.getOutputStream(); DataOutputStream outToServer = new DataOutputStream(sockos)) {
                                         JSONObject downreqJsonObj = new JSONObject();
                                         downreqJsonObj.put("Command", "resolveObject");
@@ -441,7 +441,7 @@ public class FileDownloadHandler implements Runnable {
                                                     sockdin.readFully(message, 0, message.length); // read the message
                                                 }
                                                 String checksum2 = new String(message);
-                                                System.out.println("CheckSum Recieved " + checksum2);
+//                                                System.out.println("CheckSum Recieved " + checksum2);
                                                 Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "CheckSum Recieved " + checksum2 + " for REQUEST : " + downQue2.toString());
 
                                                 //InputStream is = sock.getInputStream();
@@ -488,7 +488,7 @@ public class FileDownloadHandler implements Runnable {
                                                                 Long allTimeForDownloading = (elapsedTime * (downData / (downData - fileLen)));
                                                                 Long remainingTime = allTimeForDownloading - elapsedTime;
                                                                 downQue2.setRemainingTime(remainingTime);
-                                                                            System.out.println("Remaining "+fileLen);
+//                                                                            System.out.println("Remaining "+fileLen);
                                                             }
                                                             bos.flush();
                                                         }

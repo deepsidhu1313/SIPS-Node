@@ -21,6 +21,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.logging.Level;
@@ -42,29 +43,29 @@ public class sendSleeptime implements Runnable {
         this.value = value;
         cmd = overheadName;
         chunkno = chunknumber;
+        System.out.println("Sending sleep time to " + ipadd);
+
     }
 
     @Override
     public void run() {
-        try {
-            try (Socket s = new Socket()) {
-                s.connect(new InetSocketAddress(ipadd, GlobalValues.TASK_SERVER_PORT));
-                try (OutputStream os = s.getOutputStream(); DataOutputStream outToServer = new DataOutputStream(os); DataInputStream dIn = new DataInputStream(s.getInputStream())) {
-                    JSONObject msg = new JSONObject();
-                    JSONObject msgBody = new JSONObject();
-                    msgBody.put("PID", ID);
-                    msgBody.put("UUID", GlobalValues.NODE_UUID);
-                    msgBody.put("CNO", chunkno);
-                    msgBody.put("FILENAME", filename);
-                    msgBody.put("OUTPUT", value);
-                    msg.put("Command", cmd);
-                    msg.put("Body", msgBody);
-                    String sendmsg = msg.toString();
-                    byte[] bytes = sendmsg.getBytes("UTF-8");
-                    outToServer.writeInt(bytes.length);
-                    outToServer.write(bytes);
-
-                    /* int length = dIn.readInt();                    // read length of incoming message
+        System.out.println("Run Sending sleep time to " + ipadd);
+    try (Socket s = new Socket(ipadd, GlobalValues.TASK_SERVER_PORT); OutputStream os = s.getOutputStream(); DataOutputStream outToServer = new DataOutputStream(os); DataInputStream dIn = new DataInputStream(s.getInputStream())) {
+            JSONObject msg = new JSONObject();
+            JSONObject msgBody = new JSONObject();
+            msgBody.put("PID", ID);
+            msgBody.put("UUID", GlobalValues.NODE_UUID);
+            msgBody.put("CNO", chunkno);
+            msgBody.put("FILENAME", filename);
+            msgBody.put("OUTPUT", value);
+            msg.put("Command", cmd);
+            msg.put("Body", msgBody);
+            String sendmsg = msg.toString();
+            byte[] bytes = sendmsg.getBytes("UTF-8");
+            outToServer.writeInt(bytes.length);
+            outToServer.write(bytes);
+            System.out.println("Sending " + msg.toString() + " to " + ipadd);
+            /* int length = dIn.readInt();                    // read length of incoming message
                     byte[] message = new byte[length];
                     
                     if (length > 0) {
@@ -74,15 +75,11 @@ public class sendSleeptime implements Runnable {
                     if (reply.contains("OK")) {
                     } else {
                     }*/
-                }
-                s.close();
-                //inFromServer.close();
-            }
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(sendSleeptime.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(sendOutput.class.getName()).log(Level.SEVERE, null, ex);
-
+            Logger.getLogger(sendSleeptime.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }
 
 }

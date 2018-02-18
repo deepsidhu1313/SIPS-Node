@@ -98,10 +98,10 @@ public class DownloadFile {
                                             dIn.readFully(message, 0, message.length); // read the message
                                         }
                                         checksum = new String(message);
-                                        System.out.println("CheckSum Recieved " + checksum);
+//                                        System.out.println("CheckSum Recieved " + checksum);
                                         sock.close();
                                     } else {
-                                        System.out.println("Couldn't find file");
+//                                        System.out.println("Couldn't find file");
                                         logmsg.add("Couldn't Find File on Master, Plz check file exists in Frameworks data directory " + _item);
                                     }
                                 }
@@ -168,17 +168,17 @@ public class DownloadFile {
                                             } else if (rpl.equalsIgnoreCase("inque")) {
 //                                                String vl = reply.substring(reply.indexOf("<RT>") + 4, reply.indexOf("</RT>"));
                                                 sock.close();
-                                                double valts = reply.getDouble("RT");
-                                                if (valts < 1000) {
-                                                    valts = 1000.0;
+                                                double remainingTime = reply.getDouble("RT");
+                                                if (remainingTime < 1000) {
+                                                    remainingTime = 1000.0;
                                                 }
-                                                long stime = (long) ((valts * 0.13) + 13);
+                                                long stime = (long) ((remainingTime * 0.13) + 13);
                                                 long start = System.currentTimeMillis();
                                                 Thread.sleep(stime);
                                                 long end = System.currentTimeMillis();
-                                                Thread eiq = new Thread(new sendSleeptime("sleeptime", IP, id, cno, projectname, "" + (end - start)));
-                                                eiq.setPriority(Thread.NORM_PRIORITY + 1);
-                                                GlobalValues.SEND_SLEEPTIME_EXECUTOR_SERVICE.execute(eiq);
+                                                Thread sendSleepTimeThread = new Thread(new sendSleeptime("sleeptime", IP, id, cno, projectname, "" + (end - start)));
+                                                sendSleepTimeThread.setPriority(Thread.NORM_PRIORITY + 1);
+                                                GlobalValues.SEND_SLEEPTIME_EXECUTOR_SERVICE.submit(sendSleepTimeThread);
 
                                             } else if (rpl.equalsIgnoreCase("addedinq")) {
                                                 sock.close();
@@ -186,9 +186,9 @@ public class DownloadFile {
 
                                                 Thread.currentThread().sleep(500);
                                                 long end = System.currentTimeMillis();
-                                                Thread eiq = new Thread(new sendSleeptime("sleeptime", IP, id, cno, projectname, "" + (end - start)));
-                                                eiq.setPriority(Thread.NORM_PRIORITY + 1);
-                                                GlobalValues.SEND_SLEEPTIME_EXECUTOR_SERVICE.execute(eiq);
+                                                Thread sendSleepTimeThread = new Thread(new sendSleeptime("sleeptime", IP, id, cno, projectname, "" + (end - start)));
+                                                sendSleepTimeThread.setPriority(Thread.NORM_PRIORITY + 1);
+                                                GlobalValues.SEND_SLEEPTIME_EXECUTOR_SERVICE.submit(sendSleepTimeThread);
 
                                             } else {
                                                 System.out.println("Couldn't find file");

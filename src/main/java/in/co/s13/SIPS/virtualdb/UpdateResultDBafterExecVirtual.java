@@ -55,6 +55,7 @@ public class UpdateResultDBafterExecVirtual implements Runnable {
                 resultDBEntry.setAvgSleeptime(avgSleepTime);
                 resultDBEntry.setAvgWaitinq(avgWaitInQ);
                 resultDBEntry.setFinished(true);
+                resultDBEntry.setStatus("Job Finished");
                 {
                     GlobalValues.RESULT_DB_EXECUTOR.execute(new InsertResultWareHouse((resultDBEntry.getJobToken()), resultDBEntry.getJobName(),
                             resultDBEntry.getScheduler(),

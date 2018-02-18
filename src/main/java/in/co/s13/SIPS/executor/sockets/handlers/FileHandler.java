@@ -231,7 +231,6 @@ public class FileHandler implements Runnable {
                         }
 
                     } else if (command.trim().equalsIgnoreCase("resolveObjectChecksum")) {
-                        System.out.println("finding Object");
                         String objToSend = body.getString("OBJECT");//substring(body.indexOf("<OBJECT>") + 8, body.indexOf("</OBJECT>"));
                         String pid2 = body.getString("PID");//substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
                         String cno2 = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
@@ -239,7 +238,6 @@ public class FileHandler implements Runnable {
                         int instance = body.getInt("INSTANCE");//substring(body.indexOf("<INSTANCE>") + 10, body.indexOf("</INSTANCE>"));
                         String projectName = body.getString("PROJECT");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
 
-                        System.out.println("Accepted connection : " + submitter);
                         // send file
                         File myFile2 = new File("data/" + pid2  + "/.simulated/" + classname + "/" + objToSend + "-instance-" + instance + ".obj");
 
@@ -281,7 +279,6 @@ public class FileHandler implements Runnable {
 
                         }
 
-                        System.out.println("Done.");
                     } else if (command.trim().equalsIgnoreCase("sendfileChecksum")) {
                         Util.outPrintln("finding file");
                         String fileToSend = body.getString("FILE");//substring(body.indexOf("<FILE>") + 6, body.indexOf("</FILE>"));

@@ -33,11 +33,11 @@ import org.json.JSONObject;
  */
 public class sendEnterInQue implements Runnable {
 
-    String ipadd = "", ID = "", outPut = "", filename = "", value = "", cmd, chunkno;
+    String ipadd = "", jobToken = "", outPut = "", filename = "", value = "", cmd, chunkno;
 
-    public sendEnterInQue(String overheadName, String ip, String PID, String chunknumber, String Filename, String value) {
+    public sendEnterInQue(String overheadName, String ip, String jobToken, String chunknumber, String Filename, String value) {
         ipadd = ip;
-        ID = PID;
+        this.jobToken = jobToken;
         filename = Filename;
         this.value = value;
         cmd = overheadName;
@@ -52,7 +52,7 @@ public class sendEnterInQue implements Runnable {
                 try (OutputStream os = s.getOutputStream(); DataOutputStream outToServer = new DataOutputStream(os); DataInputStream dIn = new DataInputStream(s.getInputStream())) {
                     JSONObject msg = new JSONObject();
                     JSONObject msgBody = new JSONObject();
-                    msgBody.put("PID", ID);
+                    msgBody.put("PID", jobToken);
                     msgBody.put("UUID", GlobalValues.NODE_UUID);
                     msgBody.put("CNO", chunkno);
                     msgBody.put("FILENAME", filename);

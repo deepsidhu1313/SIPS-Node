@@ -16,6 +16,7 @@
  */
 package in.co.s13.SIPS.executor.sockets.handlers;
 
+import in.co.s13.SIPS.datastructure.Result;
 import in.co.s13.SIPS.executor.Job;
 import in.co.s13.SIPS.executor.ParallelProcess;
 import in.co.s13.SIPS.settings.GlobalValues;
@@ -90,14 +91,20 @@ public class JobHandler implements Runnable {
 
                         }
                         submitter.close();
-                    }else if (command.equals("GET_JOB_STATUS")) {
+                    } else if (command.equals("GET_JOB_STATUS")) {
                         String jobToken = body.getString("JOB_TOKEN");
-                        
+
                         try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
                             JSONObject replyJSON = new JSONObject();
                             JSONObject replyBody = new JSONObject();
                             JSONObject response = new JSONObject();
-                            response.put("Message", GlobalValues.RESULT_DB.get(jobToken));
+                            Result result = GlobalValues.RESULT_DB.get(jobToken);
+                            if (result != null) {
+                                response.put("Message", result);
+                            } else {
+                                response.put("Message", new JSONObject().put("Error!","No Result Found For Token "+jobToken).toString());
+                            
+                            }
                             replyBody.put("Response", response);
                             replyJSON.put("Body", replyBody);
                             String sendmsg = replyJSON.toString(0);

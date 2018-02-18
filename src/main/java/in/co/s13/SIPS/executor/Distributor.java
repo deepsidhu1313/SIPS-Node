@@ -13,7 +13,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -61,38 +60,43 @@ public class Distributor {
 
     public void upload() {
         Node node = GlobalValues.LIVE_NODE_ADJ_DB.get(nodeUUID);
-        ArrayList<String> ips = node.getIpAddresses();
-        JSONObject body = new JSONObject();
-        body.put("PID", jobToken);
-        body.put("CNO", chunkNumber);
-        body.put("UUID", GlobalValues.NODE_UUID);
-        JSONArray files = new JSONArray();
-        CollectFiles collectFiles = new CollectFiles();
-        ArrayList<String> toSend = collectFiles.getFiles("data/" + jobToken + "/dist/" + nodeUUID + ":CN:" + chunkNumber + "/src");
-        for (int i = 0; i < toSend.size(); i++) {
-            String filePath = toSend.get(i);
-            JSONObject file = new JSONObject();
-            file.put("FILENAME", filePath.substring(filePath.lastIndexOf("/src/")));
-            file.put("CONTENT", Util.readFile(filePath));
-            files.put(file);
-        }
-        body.put("FILES", files);
-        JSONObject manifest = Util.readJSONFile("data/" + jobToken + "/manifest.json");
-        /**
-         * Remove sensitive info from manifest
-         */
-        manifest.remove("API-KEY");
-        body.put("MANIFEST", manifest);
+        if (node != null) {
+            ArrayList<String> ips = node.getIpAddresses();
+            JSONObject body = new JSONObject();
+            body.put("PID", jobToken);
+            body.put("CNO", chunkNumber);
+            body.put("UUID", GlobalValues.NODE_UUID);
+            JSONArray files = new JSONArray();
+            CollectFiles collectFiles = new CollectFiles();
+            ArrayList<String> toSend = collectFiles.getFiles("data/" + jobToken + "/dist/" + nodeUUID + ":CN:" + chunkNumber + "/src");
+            for (int i = 0; i < toSend.size(); i++) {
+                String filePath = toSend.get(i);
+                JSONObject file = new JSONObject();
+                file.put("FILENAME", filePath.substring(filePath.lastIndexOf("/src/")));
+                file.put("CONTENT", Util.readFile(filePath));
+                files.put(file);
+            }
+            body.put("FILES", files);
+            JSONObject manifest = Util.readJSONFile("data/" + jobToken + "/manifest.json");
+            /**
+             * Remove sensitive info from manifest
+             */
+            manifest.getJSONObject("MASTER",new JSONObject()).remove("API-KEY");
+            body.put("MANIFEST", manifest);
 
-        for (int i = 0; i < ips.size(); i++) {
-            String get = ips.get(i);
-            if (sendTask(get, body)) {
-                break;
+            for (int i = 0; i < ips.size(); i++) {
+                String get = ips.get(i);
+                if (sendTask(get, body)) {
+                    break;
+                }
             }
         }
     }
 
     public boolean sendTask(String host, JSONObject body) {
+        if (host.contains("%")) {
+            host = host.substring(0, host.indexOf("%"));
+        }
         try (Socket socket = new Socket(host, GlobalValues.TASK_SERVER_PORT)) {
 
             try (OutputStream os = socket.getOutputStream(); DataInputStream dIn = new DataInputStream(socket.getInputStream()); DataOutputStream outToServer = new DataOutputStream(os)) {

@@ -8,10 +8,12 @@ package in.co.s13.SIPS.executor;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import in.co.s13.SIPS.datastructure.DistributionDBRow;
+import in.co.s13.SIPS.datastructure.Result;
 import in.co.s13.SIPS.db.SQLiteJDBC;
 import in.co.s13.SIPS.executor.parser.ModASTParallelFor;
 import in.co.s13.SIPS.settings.GlobalValues;
 import static in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB;
+import static in.co.s13.SIPS.settings.GlobalValues.RESULT_DB;
 import in.co.s13.SIPS.tools.GetDBFiles;
 import in.co.s13.SIPS.tools.Util;
 import in.co.s13.sips.lib.ParallelForSENP;
@@ -47,6 +49,7 @@ public class Job implements Runnable {
 
     @Override
     public void run() {
+        long parsingStartTime = System.currentTimeMillis();
         System.out.println("Starting Job : " + jobToken);
         JSONObject manifestJSON = Util.readJSONFile("data/" + jobToken + "/manifest.json");
         JSONObject schedulerJSON = manifestJSON.getJSONObject("SCHEDULER", new JSONObject());
@@ -486,12 +489,20 @@ public class Job implements Runnable {
                         Distributor dist = new Distributor(get.getNodeUUID(), "" + k, jobToken);
                         dist.upload();
 
-                        DistTable.put(get.getNodeUUID() + "-" + k, new DistributionDBRow(i, get.getNodeUUID(), jobToken, k, datatype, schedulerName, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, diff.toString(), get.getStart(), get.getEnd(), "0", 0, -999));
+                        DistTable.put(get.getNodeUUID() + "-" + k, new DistributionDBRow(i, get.getNodeUUID(), jobToken, k, datatype, schedulerName, System.currentTimeMillis(), 0, 0, 0, 0, 0, 0, 0, 0, 0, diff.toString(), get.getStart(), get.getEnd(), "0", 0, 9999));
 
                     }
                     MASTER_DIST_DB.put(jobToken.trim(), DistTable);
 
                 }
+            }
+            Result resultDBEntry = RESULT_DB.get(jobToken.trim());
+            long parsingEndTime = System.currentTimeMillis();
+            if (resultDBEntry != null) {
+                resultDBEntry.setTotalNodes(MASTER_DIST_DB.get(jobToken.trim()).size());
+                resultDBEntry.setStarttime(System.currentTimeMillis());
+                resultDBEntry.setParsingOH(parsingEndTime - parsingStartTime);
+                resultDBEntry.setStatus("Job Distributed and Started");
             }
         } catch (SQLException | FileNotFoundException ex) {
             Logger.getLogger(Job.class.getName()).log(Level.SEVERE, null, ex);
