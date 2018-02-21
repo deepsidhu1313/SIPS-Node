@@ -25,8 +25,6 @@ import in.co.s13.SIPS.settings.GlobalValues;
 import in.co.s13.SIPS.tools.Util;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import static in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -164,13 +162,13 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                                 }
                             }
                         }
-                        GlobalValues.DIST_DB_EXECUTOR.execute(new InsertDistributionWareHouse(Node, PID, CNO, VARTYPE, SCHEDULER, LStart, Lend, Lexec, CS, LOWL, UPL, COUNTER, Nexec, CommOH, ParOH, ENTERINQ, STARTINQ, WAITINQ, SLEEP, PRFM, XTC, fname));
+                        GlobalValues.DIST_DB_EXECUTOR.submit(new InsertDistributionWareHouse(Node, PID, CNO, VARTYPE, SCHEDULER, LStart, Lend, Lexec, CS, LOWL, UPL, COUNTER, Nexec, CommOH, ParOH, ENTERINQ, STARTINQ, WAITINQ, SLEEP, PRFM, XTC, fname));
 
                     }
 
                     //Evaluate performance of all nodes after execution
                     if (isFinished) {
-                        GlobalValues.NODE_DB_EXECUTOR.execute(() -> {
+                        GlobalValues.NODE_DB_EXECUTOR.submit(() -> {
                             if (counter > nodeUUIDs.size()) {
                                 counter = nodeUUIDs.size();
                             }
@@ -220,7 +218,7 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                                     }
 
                                 }*/
-                                GlobalValues.RESULT_DB_EXECUTOR.execute(() -> {
+                                GlobalValues.RESULT_DB_EXECUTOR.submit(() -> {
                                     long temp = Long.MIN_VALUE;
                                     Result result = GlobalValues.RESULT_DB.get(pid.trim());
                                     if (result != null) {
@@ -249,7 +247,7 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                                     tempNOH /= c;
                                     tempavgSleeptime /= c;
                                     tempavgWaitinQ /= c;
-                                    GlobalValues.RESULT_DB_EXECUTOR.execute(new UpdateResultDBafterExecVirtual(pid, endtime, ttime, tempNOH, "" + tempload, tempavgWaitinQ, tempavgSleeptime));
+                                    GlobalValues.RESULT_DB_EXECUTOR.submit(new UpdateResultDBafterExecVirtual(pid, endtime, ttime, tempNOH, "" + tempload, tempavgWaitinQ, tempavgSleeptime));
                                     //  controlpanel.Settings.distDWDBExecutor.execute(new InsDistWareHouse(Node, PID, CNO, VARTYPE, SCHEDULER, LStart, Lend, Lexec, CS, LOWL, UPL, COUNTER, Nexec, CommOH, ParOH, PRFM, XTC, fname));
                                 });
                             }

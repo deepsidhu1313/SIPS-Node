@@ -51,6 +51,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -342,15 +343,20 @@ public class APIHandler implements Runnable {
                         JSONArray table = new JSONArray();
                         ConcurrentHashMap<String, DistributionDBRow> distTable2 = GlobalValues.MASTER_DIST_DB.get(args.get(0));
                         if (distTable2 != null) {
-                            for (int i = 0; i < distTable2.size(); i++) {
-                                DistributionDBRow get = distTable2.get(i);
-                                table.put(get);
+                            ArrayList<DistributionDBRow> values = new ArrayList<>(distTable2.values());
+                            for (int i = 0; i < values.size(); i++) {
+                                DistributionDBRow get = values.get(i);
+                                if (get != null) {
+                                    table.put(get.toString());
+                                }
                             }
+                            distTable.put("Table2", distTable2);
+
                         } else {
                             table.put("No Table Found");
                         }
                         distTable.put("Table", table);
-                        response.put("Message", distTable);
+                        response.put("Message", distTable.toString());
                         body.put("Response", response);
                     } else if (!hasReadPermissions(key_permissions)) {
                         response.put("Message", "Error!!\n \tIncorrect permissions.");

@@ -61,11 +61,11 @@ public class TaskFinishListenerHandler implements Runnable {
 
                 InetAddress inetAddress = submitter.getInetAddress();
                 String ipAddress = inetAddress.getHostAddress();
-                if (msg.length() > 1) {
+                if (msg.toString().length() > 1) {
                     //                    Util.outPrintln("IP adress of sender is " + ipAddress);
 
                     Util.appendToTasksLog(GlobalValues.LOG_LEVEL.OUTPUT, "Recieved " + msg);
-
+                    System.out.println("Task Finish Handler Recieved:"+msg);
                     String command = msg.getString("Command");
                     JSONObject body = msg.getJSONObject("Body");;
                     //     Settings.outPrintln(msg);
@@ -87,7 +87,7 @@ public class TaskFinishListenerHandler implements Runnable {
                         }
                         Util.appendToTasksLog(GlobalValues.LOG_LEVEL.OUTPUT, "size of master dist db " + MASTER_DIST_DB.size());
                         Thread t = new Thread(new UpdateDistDBaftExecVirtual(System.currentTimeMillis(), Long.parseLong(content), fname, ipAddress, pid, cno, ExitCode, uuid));
-                        GlobalValues.DIST_DB_EXECUTOR.execute(t);
+                        GlobalValues.DIST_DB_EXECUTOR.submit(t);
                         submitter.close();
                     } else if (command.contains("Error")) {
                         String pid = body.getString("PID");
@@ -105,7 +105,7 @@ public class TaskFinishListenerHandler implements Runnable {
                         }
                         submitter.close();
                         Thread t = new Thread(new UpdateDistDBaftExecVirtual(System.currentTimeMillis(), Long.parseLong(content), fname, ipAddress, pid, cno, ExitCode, uuid));
-                        GlobalValues.DIST_DB_EXECUTOR.execute(t);
+                        GlobalValues.DIST_DB_EXECUTOR.submit(t);
                     } else {
                         submitter.close();
 

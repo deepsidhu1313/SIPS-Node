@@ -367,7 +367,7 @@ public class ParallelProcess implements Runnable {
             t2.start();
 
         }
-        System.gc();
+       
     }
 
 }

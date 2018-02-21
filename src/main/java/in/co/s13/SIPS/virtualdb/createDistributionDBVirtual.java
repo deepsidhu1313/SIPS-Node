@@ -131,7 +131,7 @@ public class createDistributionDBVirtual implements Runnable {
                     0, 0, 0, 0,
                     Long.parseLong(poh.get(i)), 0, 0, 0, 0,
                     (chunksize.get(i)),
-                    (low.get(i)), (up.get(i)), "0", 0, 9999));
+                    (low.get(i)), (up.get(i)), "0", 0, 9999,"",""));
 
         }
         System.out.println("Creating DIST DB :" + PID);

@@ -67,7 +67,7 @@ public class Benchmarks {
         result.put("SOR", res[2]);
         result.put("Monte Carlo", res[3]);
         result.put("Sparse matmult", res[4]);
-        result.put("LU ", res[5]);
+        result.put("LU", res[5]);
 //        if (res[5] == 0.0) {
 //            System.out.println(" ERROR, INVALID NUMERICAL RESULT!");
 //        } else {

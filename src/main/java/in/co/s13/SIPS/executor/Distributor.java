@@ -26,7 +26,7 @@ import org.json.JSONObject;
  */
 public class Distributor {
 
-    private String nodeUUID, chunkNumber, jobToken;
+    private String nodeUUID, chunkNumber, jobToken, toIPAddress, hostName;
 
     public Distributor(String nodeUUID, String chunkNumber, String jobToken) {
         this.nodeUUID = nodeUUID;
@@ -58,9 +58,27 @@ public class Distributor {
         this.chunkNumber = chunkNumber;
     }
 
+    public String getToIPAddress() {
+        return toIPAddress;
+    }
+
+    public void setToIPAddress(String toIPAddress) {
+        this.toIPAddress = toIPAddress;
+    }
+
+    public String getHostName() {
+        return hostName;
+    }
+
+    public void setHostName(String hostName) {
+        this.hostName = hostName;
+    }
+
+    
     public void upload() {
         Node node = GlobalValues.LIVE_NODE_ADJ_DB.get(nodeUUID);
         if (node != null) {
+            this.hostName=node.getHostname();
             ArrayList<String> ips = node.getIpAddresses();
             JSONObject body = new JSONObject();
             body.put("PID", jobToken);
@@ -81,11 +99,14 @@ public class Distributor {
             /**
              * Remove sensitive info from manifest
              */
-            manifest.getJSONObject("MASTER",new JSONObject()).remove("API-KEY");
+            manifest.getJSONObject("MASTER", new JSONObject()).remove("API-KEY");
             body.put("MANIFEST", manifest);
 
             for (int i = 0; i < ips.size(); i++) {
                 String get = ips.get(i);
+                if (get.startsWith("127") && (!GlobalValues.NODE_UUID.equals(nodeUUID))) {
+                    continue;
+                }
                 if (sendTask(get, body)) {
                     break;
                 }
@@ -117,6 +138,7 @@ public class Distributor {
                 }
                 String reply = (new String(message));
                 if (reply.equals("OK")) {
+                    toIPAddress = host;
                     return true;
                 }
             } catch (Exception e) {

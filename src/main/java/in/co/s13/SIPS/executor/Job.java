@@ -20,6 +20,7 @@ import in.co.s13.sips.lib.ParallelForSENP;
 import in.co.s13.sips.lib.common.datastructure.ParallelForLoop;
 import in.co.s13.sips.scheduler.LoadScheduler;
 import in.co.s13.sips.schedulers.Chunk;
+import in.co.s13.sips.schedulers.GA;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -66,6 +67,9 @@ public class Job implements Runnable {
             if (schedulerName.endsWith("Chunk")) {
                 loadScheduler = new LoadScheduler(new Chunk());
                 System.out.println("Using Chunk Scheduler For " + jobToken);
+            }else if (schedulerName.endsWith("GA")) {
+                loadScheduler = new LoadScheduler(new GA());
+                System.out.println("Using GA Scheduler For " + jobToken);
             }
         } else {
             try {
@@ -489,7 +493,7 @@ public class Job implements Runnable {
                         Distributor dist = new Distributor(get.getNodeUUID(), "" + k, jobToken);
                         dist.upload();
 
-                        DistTable.put(get.getNodeUUID() + "-" + k, new DistributionDBRow(i, get.getNodeUUID(), jobToken, k, datatype, schedulerName, System.currentTimeMillis(), 0, 0, 0, 0, 0, 0, 0, 0, 0, diff.toString(), get.getStart(), get.getEnd(), "0", 0, 9999));
+                        DistTable.put(get.getNodeUUID() + "-" + k, new DistributionDBRow(i, get.getNodeUUID(), jobToken, k, datatype, schedulerName, System.currentTimeMillis(), 0, 0, 0, 0, 0, 0, 0, 0, 0, diff.toString(), get.getStart(), get.getEnd(), "0", 0, 9999, dist.getToIPAddress(), dist.getHostName()));
 
                     }
                     MASTER_DIST_DB.put(jobToken.trim(), DistTable);

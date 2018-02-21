@@ -30,14 +30,14 @@ public class DistributionDBRow {
     private Double prfm;
     private Integer cno, vartype, exitcode;
     private Long lstarttime, lendtime, lexctime, nexecutiontime, noh, poh, entrinq, startinq, waitinq, sleeptime;
-    private String pid, chunksize, lowlimit, scheduler, uplimit, counter;
+    private String pid, chunksize, lowlimit, scheduler, uplimit, counter,ipAddress,hostName;
 
-    public DistributionDBRow(int id, String ip, String pid, int cno, int vartype, String scheduler,
+    public DistributionDBRow(int id, String uuid, String pid, int cno, int vartype, String scheduler,
             long lstarttime, long lendtime, long lexctime, long nexecutiontime, long noh, long poh,
             long entrinq, long startinq, long waitinq, long sleeptime,
-            String chunksize, String lowlimit, String uplimit, String counter, double prfm, int exitcode) {
+            String chunksize, String lowlimit, String uplimit, String counter, double prfm, int exitcode,String ipAddress,String hostname) {
         this.id = (id);
-        this.uuid = (ip);
+        this.uuid = (uuid);
         this.pid = (pid);
         this.cno = (cno);
         this.vartype = (vartype);
@@ -58,6 +58,8 @@ public class DistributionDBRow {
         this.startinq = (startinq);
         this.waitinq = (waitinq);
         this.sleeptime = (sleeptime);
+        this.ipAddress=ipAddress;
+        this.hostName=hostname;
     }
 
     public Integer getId() {
@@ -236,6 +238,24 @@ public class DistributionDBRow {
         this.counter = counter;
     }
 
+    public String getIpAddress() {
+        return ipAddress;
+    }
+
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
+    }
+
+    public String getHostName() {
+        return hostName;
+    }
+
+    public void setHostName(String hostName) {
+        this.hostName = hostName;
+    }
+
+    
+    
 
     @Override
     public String toString() {
@@ -250,6 +270,8 @@ public class DistributionDBRow {
         JSONObject result = new JSONObject();
         result.put("id", id);
         result.put("uuid", uuid);
+        result.put("ipAddress", ipAddress);
+        result.put("hostname", hostName);
         result.put("prfm", prfm);
         result.put("cno", cno);
         result.put("vartype", vartype);

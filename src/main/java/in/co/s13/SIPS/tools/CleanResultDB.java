@@ -41,13 +41,13 @@ public class CleanResultDB implements Runnable {
         while (GlobalValues.KEEP_CLEAN_RESULT_DB_THREAD_ALIVE) {
 
             GlobalValues.RESULT_DB_EXECUTOR.submit(() -> {
-                for (Result result : GlobalValues.RESULT_DB.values()) {
-                    if ((TimeUnit.MILLISECONDS.toHours(System.currentTimeMillis() - result.getCreatedOn()) > 24) && (!result.isFinished() || (result.getStarttime() == Long.MIN_VALUE))) {
+                GlobalValues.RESULT_DB.values().forEach((result) -> {
+                    if ((TimeUnit.MILLISECONDS.toHours(System.currentTimeMillis() - result.getCreatedOn()) > 24) && ((result.getStarttime() == Long.MIN_VALUE) || !result.isFinished())) {
                         GlobalValues.RESULT_DB.remove(result.getJobToken());
                     } else if (result.isFinished()) {
                         GlobalValues.RESULT_DB.remove(result.getJobToken());
                     }
-                }
+                });
             });
 
             try {

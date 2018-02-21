@@ -48,6 +48,7 @@ public class UpdateResultDBafterExecVirtual implements Runnable {
         {
             Result resultDBEntry = RESULT_DB.get(jobToken.trim());
             {
+                System.out.println(" Task "+jobToken+" Finsihed");
                 resultDBEntry.setEndTime(stoptime);
                 resultDBEntry.setTotalTime(totaltime);
                 resultDBEntry.setNetworkOH(NOH);
@@ -57,7 +58,7 @@ public class UpdateResultDBafterExecVirtual implements Runnable {
                 resultDBEntry.setFinished(true);
                 resultDBEntry.setStatus("Job Finished");
                 {
-                    GlobalValues.RESULT_DB_EXECUTOR.execute(new InsertResultWareHouse((resultDBEntry.getJobToken()), resultDBEntry.getJobName(),
+                    GlobalValues.RESULT_DB_EXECUTOR.submit(new InsertResultWareHouse((resultDBEntry.getJobToken()), resultDBEntry.getJobName(),
                             resultDBEntry.getScheduler(),
                             "" + resultDBEntry.getStarttime(),
                             "" + resultDBEntry.getEndTime(),

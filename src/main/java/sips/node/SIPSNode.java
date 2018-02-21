@@ -96,6 +96,11 @@ public class SIPSNode {
                 System.exit(0);
             }
 
+            if (arguments.contains("--clean")) {
+                Util.deleteDirectory(new File("data/"));
+                Util.deleteDirectory(new File("proc/"));
+            }
+
             /**
              * *
              * Important flag
