@@ -65,7 +65,7 @@ public class TaskFinishListenerHandler implements Runnable {
                     //                    Util.outPrintln("IP adress of sender is " + ipAddress);
 
                     Util.appendToTasksLog(GlobalValues.LOG_LEVEL.OUTPUT, "Recieved " + msg);
-                    System.out.println("Task Finish Handler Recieved:"+msg);
+                    System.out.println("Task Finish Handler Recieved:" + msg);
                     String command = msg.getString("Command");
                     JSONObject body = msg.getJSONObject("Body");;
                     //     Settings.outPrintln(msg);
@@ -85,10 +85,11 @@ public class TaskFinishListenerHandler implements Runnable {
                             outToClient.write(bytes);
 
                         }
-                        Util.appendToTasksLog(GlobalValues.LOG_LEVEL.OUTPUT, "size of master dist db " + MASTER_DIST_DB.size());
+                        submitter.close();
                         Thread t = new Thread(new UpdateDistDBaftExecVirtual(System.currentTimeMillis(), Long.parseLong(content), fname, ipAddress, pid, cno, ExitCode, uuid));
                         GlobalValues.DIST_DB_EXECUTOR.submit(t);
-                        submitter.close();
+                        Util.appendToTasksLog(GlobalValues.LOG_LEVEL.OUTPUT, "size of master dist db " + MASTER_DIST_DB.size());
+
                     } else if (command.contains("Error")) {
                         String pid = body.getString("PID");
                         String cno = body.getString("CNO");

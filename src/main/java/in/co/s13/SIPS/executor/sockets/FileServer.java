@@ -46,6 +46,8 @@ public class FileServer implements Runnable {
 
     @Override
     public void run() {
+                Thread.currentThread().setName("File Server Thread");
+
         try {
             if (GlobalValues.FILE_SERVER_SOCKET == null || GlobalValues.FILE_SERVER_SOCKET.isClosed()) {
                 GlobalValues.FILE_SERVER_SOCKET = new ServerSocket(GlobalValues.FILE_SERVER_PORT);
@@ -60,7 +62,7 @@ public class FileServer implements Runnable {
                 Socket s = GlobalValues.FILE_SERVER_SOCKET.accept();
                 Thread t = new Thread(new FileHandler(s));
                 t.setPriority(Thread.NORM_PRIORITY + 1);
-                t.setName("FileHandlIngThread");
+                t.setName("File handling Thread");
                 GlobalValues.FILE_HANDLER_EXECUTOR_SERVICE.submit(t);
 
             } catch (IOException ex) {

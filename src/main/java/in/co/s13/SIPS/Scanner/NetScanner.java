@@ -38,6 +38,11 @@ public class NetScanner implements Runnable {
 //        CURRENTLY_SCANNING = new ArrayList();
         addip("127.0.0.1");
 
+        JSONArray ipsArray = IPs_TO_SCAN_JSON.getJSONArray("ips", new JSONArray());
+        for (int i = 0; i < ipsArray.length(); i++) {
+            String val = ipsArray.getString(i);
+            addip(val);
+        }
         JSONArray blacklistIPArray = BLACKLIST_JSON.getJSONArray("blacklist", new JSONArray());
         for (int i = 0; i < blacklistIPArray.length(); i++) {
             String val = blacklistIPArray.getString(i);
@@ -48,18 +53,15 @@ public class NetScanner implements Runnable {
             String val = networksArray.getString(i);
             addnetwork(val);
         }
-        for (int i = 0; i < GlobalValues.IP_ADDRESSES.length(); i++) {
-            JSONObject iface = GlobalValues.IP_ADDRESSES.getJSONObject(i);
-            String ip = iface.getString("ip");
-            if (!ip.startsWith("127")) {
-                addnetwork(ip);
-            }
+        if (GlobalValues.SCANNING_LOCAL_NETWORK_FOR_RESOURCES) {
+            for (int i = 0; i < GlobalValues.IP_ADDRESSES.length(); i++) {
+                JSONObject iface = GlobalValues.IP_ADDRESSES.getJSONObject(i);
+                String ip = iface.getString("ip");
+                if (!ip.startsWith("127")) {
+                    addnetwork(ip);
+                }
 
-        }
-        JSONArray ipsArray = IPs_TO_SCAN_JSON.getJSONArray("ips", new JSONArray());
-        for (int i = 0; i < ipsArray.length(); i++) {
-            String val = ipsArray.getString(i);
-            addip(val);
+            }
         }
     }
 

@@ -37,6 +37,7 @@ public class RemoveExpiredNodes implements Runnable {
 
     @Override
     public void run() {
+        Thread.currentThread().setName("Remove Expired Node");
         ADJACENT_NODES_TABLE.forEach((t, u) -> {
             if (TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - u.getTimestamp()) >= NODE_EXPIRY_TIME) {
                 ADJACENT_NODES_TABLE.remove(u.getId());

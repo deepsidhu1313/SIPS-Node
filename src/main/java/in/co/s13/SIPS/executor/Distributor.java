@@ -8,6 +8,7 @@ package in.co.s13.SIPS.executor;
 import in.co.s13.SIPS.settings.GlobalValues;
 import in.co.s13.SIPS.tools.CollectFiles;
 import in.co.s13.SIPS.tools.Util;
+import in.co.s13.sips.lib.common.datastructure.IPAddress;
 import in.co.s13.sips.lib.common.datastructure.Node;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONArray;
@@ -74,12 +76,12 @@ public class Distributor {
         this.hostName = hostName;
     }
 
-    
-    public void upload() {
+    public boolean upload() {
         Node node = GlobalValues.LIVE_NODE_ADJ_DB.get(nodeUUID);
         if (node != null) {
-            this.hostName=node.getHostname();
-            ArrayList<String> ips = node.getIpAddresses();
+            this.hostName = node.getHostname();
+            ArrayList<IPAddress> ips = new ArrayList<>(node.getIpAddresses().values());
+            Collections.sort(ips, IPAddress.IPAddressComparator.DISTANCE.thenComparing(IPAddress.IPAddressComparator.PING_SCORE.reversed()));
             JSONObject body = new JSONObject();
             body.put("PID", jobToken);
             body.put("CNO", chunkNumber);
@@ -103,15 +105,16 @@ public class Distributor {
             body.put("MANIFEST", manifest);
 
             for (int i = 0; i < ips.size(); i++) {
-                String get = ips.get(i);
+                String get = ips.get(i).getIp();
                 if (get.startsWith("127") && (!GlobalValues.NODE_UUID.equals(nodeUUID))) {
                     continue;
                 }
                 if (sendTask(get, body)) {
-                    break;
+                    return true;
                 }
             }
         }
+        return false;
     }
 
     public boolean sendTask(String host, JSONObject body) {

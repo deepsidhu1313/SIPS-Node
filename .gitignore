@@ -28,3 +28,4 @@ hs_err_pid*
 /nbproject/private/
 /target/
 deployToCS.sh
+deployToLAN.sh

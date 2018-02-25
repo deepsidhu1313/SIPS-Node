@@ -792,7 +792,7 @@ public class Util {
         }
     }
 
-    public static synchronized void outPrintln(String sout) {
+    public static void outPrintln(String sout) {
         String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
         if (VERBOSE) {
             System.out.println(sout);
@@ -804,7 +804,7 @@ public class Util {
         OUT.append("\n" + "[" + timestamp + "] [" + sout + "]");
     }
 
-    public static synchronized void errPrintln(String sout) {
+    public static void errPrintln(String sout) {
         String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
         if (VERBOSE) {
             System.err.println(sout);

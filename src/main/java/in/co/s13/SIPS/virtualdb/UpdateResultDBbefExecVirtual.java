@@ -37,6 +37,7 @@ public class UpdateResultDBbefExecVirtual implements Runnable {
 
     @Override
     public void run() {
+        Thread.currentThread().setName("UpdateDistDBbefExecVirtual Started For " + jobToken);
         Result res = new Result(projectName, jobToken, submitterUUID);
         res.setScheduler(Scheduler);
         res.setFinished(false);

@@ -33,6 +33,8 @@ public class CleanResultDB implements Runnable {
 
     @Override
     public void run() {
+        
+        Thread.currentThread().setName("Clean Result DB");
         try {
             Thread.sleep(TimeUnit.MILLISECONDS.convert(2, TimeUnit.SECONDS));
         } catch (InterruptedException ex) {

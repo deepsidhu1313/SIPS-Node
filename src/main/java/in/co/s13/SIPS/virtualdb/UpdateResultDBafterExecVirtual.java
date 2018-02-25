@@ -45,7 +45,8 @@ public class UpdateResultDBafterExecVirtual implements Runnable {
 
     @Override
     public void run() {
-        {
+        {        Thread.currentThread().setName("UpdateResultDBaftExecVirtual Started For "+jobToken);
+
             Result resultDBEntry = RESULT_DB.get(jobToken.trim());
             {
                 System.out.println(" Task "+jobToken+" Finsihed");

@@ -97,13 +97,24 @@ public class TaskHandler implements Runnable {
 
                         }
                         submitter.close();
-                        ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
-                        if (DistTable != null) {
-                            DistributionDBRow get = DistTable.get(uuid + "-" + cno.trim());
-                            if (get != null) {
-                                get.setNoh(get.getNoh() + Long.parseLong(content));
+                        int counter = 0;
+                        boolean exist = false;
+                        while (!exist && counter < 5) {
+                            ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
+                            if (DistTable != null) {
+                                exist = true;
+                                DistributionDBRow get = DistTable.get(uuid + "-" + cno.trim());
+                                if (get != null) {
+                                    get.setNoh(get.getNoh() + Long.parseLong(content));
 //                                System.out.println("Set Network OH in Q:\n" + get.toString(4));
+                                }
                             }
+                            try {
+                                Thread.currentThread().sleep(1000);
+                            } catch (InterruptedException ex) {
+                                Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            counter++;
                         }
 
                     } else if (command.contains("startinque")) {
@@ -127,6 +138,7 @@ public class TaskHandler implements Runnable {
                         GlobalValues.DIST_DB_EXECUTOR.execute(() -> {
                             ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
                             if (DistTable != null) {
+
                                 DistributionDBRow get = DistTable.get(uuid + "-" + cno.trim());
                                 if (get != null) {
                                     get.setStartinq(Long.parseLong(content));
@@ -153,7 +165,7 @@ public class TaskHandler implements Runnable {
                         GlobalValues.DIST_DB_EXECUTOR.execute(() -> {
                             int counter = 0;
                             boolean exist = false;
-                            while (!exist || counter < 5) {
+                            while (!exist && counter < 5) {
                                 ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get(pid.trim());
 //                                System.out.println("\n\nRetriving DIST Table From:\n " + MASTER_DIST_DB.values());
                                 if (DistTable != null) {
@@ -163,11 +175,12 @@ public class TaskHandler implements Runnable {
                                     DistributionDBRow get = DistTable.get(uuid + "-" + cno.trim());
                                     if (get != null) {
                                         get.setEntrinq(Long.parseLong(content));
+                                        break;
 //                                        System.out.println("Set Enter in Q:\n" + get.toString(4));
                                     }
                                 }
                                 try {
-                                    Thread.currentThread().sleep(10000);
+                                    Thread.currentThread().sleep(1000);
                                 } catch (InterruptedException ex) {
                                     Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
                                 }
@@ -193,12 +206,23 @@ public class TaskHandler implements Runnable {
 //
 //                        }
                         submitter.close();
-                        ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
-                        if (DistTable != null) {
-                            DistributionDBRow get = DistTable.get(uuid + "-" + cno.trim());
-                            if (get != null) {
-                                get.setSleeptime(get.getSleeptime() + Long.parseLong(content));
+                        int counter = 0;
+                        boolean exist = false;
+                        while (!exist && counter < 5) {
+                            ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
+                            if (DistTable != null) {
+                                exist = true;
+                                DistributionDBRow get = DistTable.get(uuid + "-" + cno.trim());
+                                if (get != null) {
+                                    get.setSleeptime(get.getSleeptime() + Long.parseLong(content));
+                                }
                             }
+                            try {
+                                Thread.currentThread().sleep(1000);
+                            } catch (InterruptedException ex) {
+                                Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            counter++;
                         }
 
                     } else if (command.contains("kill")) {

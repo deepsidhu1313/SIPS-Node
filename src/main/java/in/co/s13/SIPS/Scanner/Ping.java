@@ -159,10 +159,11 @@ class Ping implements Runnable {
 
                     }
                     Node live = LIVE_NODE_ADJ_DB.get(uuid);
-
+                    live.getIP(IPadress).setDistance(distance);
+                    live.getIP(IPadress).incrementPingScore();
                     for (int i = 0; i < ips.size(); i++) {
                         String get = ips.get(i);
-                        live.addIp(get);
+                        live.addIP(get);
                     }
 //                    System.OUT.println("Live Node DB " + LIVE_NODE_ADJ_DB.toString());
                     if (ADJACENT_NODES_TABLE.containsKey(uuid)) {
@@ -273,23 +274,20 @@ class Ping implements Runnable {
 
         } catch (IOException ex) {
             Util.appendToPingLog(GlobalValues.LOG_LEVEL.ERROR, IPadress + " is dead:" + ex);
-            LIVE_NODE_ADJ_DB.remove(IPadress.trim());
             Node node = LIVE_NODE_ADJ_DB.get(UUID.trim());
             if (node != null) {
-                ArrayList<String> ips = node.getIpAddresses();
-                if (ips.size() > 1) {
-                    ips.remove(IPadress.trim());
-                    node.setIpAddresses(ips);
+                if (node.getIpAddresses().values().size() > 1) {
+                    node.getIpAddresses().get(IPadress.trim()).decrementPingScore();
                     LIVE_NODE_ADJ_DB.replace(UUID.trim(), node);
                 } else {
-                    LIVE_NODE_ADJ_DB.get(UUID.trim());
+                    LIVE_NODE_ADJ_DB.remove(UUID.trim());
                     ADJACENT_NODES_TABLE.remove(UUID.trim());
-
                 }
-
             }
             try {
-                s.close();
+                if (s != null && !s.isClosed()) {
+                    s.close();
+                }
             } catch (IOException ex1) {
                 Logger.getLogger(Ping.class.getName()).log(Level.SEVERE, null, ex1);
             }

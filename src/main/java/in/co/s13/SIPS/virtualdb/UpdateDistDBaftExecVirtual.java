@@ -61,10 +61,14 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
         System.out.println("size of master dist db " + MASTER_DIST_DB.size());
         this.uuid = nodeUUID;
         DistTable = MASTER_DIST_DB.get((PID.trim()));
+        System.out.println("UpdateDistDBaftExecVirtual Created For "+pid+" CNO"+cno);
     }
 
     @Override
     public void run() {
+        System.out.println("UpdateDistDBaftExecVirtual Started For "+pid+" CNO"+cno);
+        
+        Thread.currentThread().setName("UpdateDistDBaftExecVirtual Started For "+pid+" CNO"+cno);
         {
             if (DistTable != null) {
                 DistributionDBRow get = DistTable.get(uuid + "-" + cno.trim());
@@ -162,7 +166,7 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                                 }
                             }
                         }
-                        GlobalValues.DIST_DB_EXECUTOR.submit(new InsertDistributionWareHouse(Node, PID, CNO, VARTYPE, SCHEDULER, LStart, Lend, Lexec, CS, LOWL, UPL, COUNTER, Nexec, CommOH, ParOH, ENTERINQ, STARTINQ, WAITINQ, SLEEP, PRFM, XTC, fname));
+                        GlobalValues.DIST_WH_DB_EXECUTOR.submit(new InsertDistributionWareHouse(Node, PID, CNO, VARTYPE, SCHEDULER, LStart, Lend, Lexec, CS, LOWL, UPL, COUNTER, Nexec, CommOH, ParOH, ENTERINQ, STARTINQ, WAITINQ, SLEEP, PRFM, XTC, fname));
 
                     }
 
@@ -247,7 +251,7 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                                     tempNOH /= c;
                                     tempavgSleeptime /= c;
                                     tempavgWaitinQ /= c;
-                                    GlobalValues.RESULT_DB_EXECUTOR.submit(new UpdateResultDBafterExecVirtual(pid, endtime, ttime, tempNOH, "" + tempload, tempavgWaitinQ, tempavgSleeptime));
+                                    GlobalValues.RESULT_WH_DB_EXECUTOR.submit(new UpdateResultDBafterExecVirtual(pid, endtime, ttime, tempNOH, "" + tempload, tempavgWaitinQ, tempavgSleeptime));
                                     //  controlpanel.Settings.distDWDBExecutor.execute(new InsDistWareHouse(Node, PID, CNO, VARTYPE, SCHEDULER, LStart, Lend, Lexec, CS, LOWL, UPL, COUNTER, Nexec, CommOH, ParOH, PRFM, XTC, fname));
                                 });
                             }
