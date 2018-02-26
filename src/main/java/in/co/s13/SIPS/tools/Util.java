@@ -72,6 +72,7 @@ import static in.co.s13.sips.lib.common.settings.GlobalValues.NON_ADJACENT_NODES
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintStream;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Utility methods for jDiskMark
@@ -1103,6 +1104,26 @@ public class Util {
             json.put(key, value.toJSON());
         }
         return json;
+    }
+
+    public static ConcurrentHashMap<String, Node> getAllLiveNodes() {
+        ConcurrentHashMap<String, Node> liveNodes = new ConcurrentHashMap<String, Node>();
+        Enumeration<String> en = GlobalValues.LIVE_NODE_ADJ_DB.keys();
+        while (en.hasMoreElements()) {
+            String key = en.nextElement();
+            Node value = GlobalValues.LIVE_NODE_ADJ_DB.get(key);
+            liveNodes.put(key, value);
+        }
+
+        Enumeration<String> en2 = GlobalValues.LIVE_NODE_NON_ADJ_DB.keys();
+        while (en2.hasMoreElements()) {
+            String key = en2.nextElement();
+            if (!liveNodes.containsKey(key)) {
+                Node value = GlobalValues.LIVE_NODE_NON_ADJ_DB.get(key);
+                liveNodes.put(key, value);
+            }
+        }
+        return liveNodes;
     }
 
     public static ArrayList<Node> getAllLiveNodesInArrayList() {

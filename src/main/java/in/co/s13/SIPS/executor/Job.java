@@ -471,7 +471,7 @@ public class Job implements Runnable {
                         datatype = 5;
                     }
                     ParallelForLoop parallelForLoop = new ParallelForLoop(min, max, diff, datatype, reverseLoop);
-                    ArrayList<ParallelForSENP> al = loadScheduler.scheduleParallelFor(Util.getAllLiveNodesInArrayList(), parallelForLoop, schedulerJSON);
+                    ArrayList<ParallelForSENP> al = loadScheduler.scheduleParallelFor(Util.getAllLiveNodes(), parallelForLoop, schedulerJSON);
 //                    System.out.println("Parallel For Loop Chunks: " + al.toString());
                     sql = "SELECT * FROM META;";
                     ResultSet rs99 = parsedDB.select(parsedDBLoc, sql);
