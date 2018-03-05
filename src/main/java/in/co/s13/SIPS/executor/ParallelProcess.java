@@ -16,6 +16,7 @@
  */
 package in.co.s13.SIPS.executor;
 
+import com.sun.management.OperatingSystemMXBean;
 import in.co.s13.SIPS.datastructure.TaskDBRow;
 import in.co.s13.SIPS.settings.GlobalValues;
 import in.co.s13.SIPS.tools.Util;
@@ -25,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -54,6 +56,7 @@ public class ParallelProcess implements Runnable {
     Long totalTime;
     int opfrequecy = 250000;
     private Process process;
+    double loadAvg = 0;
 
     public ParallelProcess(JSONObject body, String ipadd) throws FileNotFoundException {
         ip = ipadd;
@@ -305,12 +308,17 @@ public class ParallelProcess implements Runnable {
 
             String s = null;
             String output = "";
+            OperatingSystemMXBean osBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+            Runtime runtime = Runtime.getRuntime();
+            int noOfCores = runtime.availableProcessors();
             output = fileLog.stream().map((fileLog1) -> "\n" + fileLog1).reduce(output, String::concat);
             int ocounter = 0;
+            long loadCounter=0;
             while ((s = stdInput.readLine()) != null) {
                 ocounter++;
+                loadAvg += osBean.getSystemLoadAverage();
+                loadCounter++;
                 Util.outPrintln(s);
-
                 if (ocounter == opfrequecy) {
 
                     output += "\n" + s;
@@ -332,6 +340,8 @@ public class ParallelProcess implements Runnable {
             Util.outPrintln("Here is the standard error of the command (if any):\n");
             while ((s = stdError.readLine()) != null) {
                 ocounter++;
+                loadAvg += osBean.getSystemLoadAverage();
+                loadCounter++;
                 Util.outPrintln(s);
                 success = false;
                 if (ocounter == opfrequecy) {
@@ -347,6 +357,8 @@ public class ParallelProcess implements Runnable {
             }
             Thread outputThread3 = new Thread(new sendOutput(ip, pid, cno, projectName, output));
             outputThread3.start();
+            loadAvg/=loadCounter;
+            
             ////settings.outPrintln("Process executed");
             int exitValue = process.waitFor();
             Util.outPrintln("\n\nExit Value is " + exitValue);
@@ -360,14 +372,14 @@ public class ParallelProcess implements Runnable {
             Logger.getLogger(ParallelProcess.class.getName()).log(Level.SEVERE, null, ex);
         }
         if (success) {
-            Thread t2 = new Thread(new sendOverHead("Finished", ip, pid, cno, projectName, "" + totalTime, "0"));
+            Thread t2 = new Thread(new sendOverHead("Finished", ip, pid, cno, projectName, "" + totalTime, "0",loadAvg));
             t2.start();
         } else {
-            Thread t2 = new Thread(new sendOverHead("Error", ip, pid, cno, projectName, "" + totalTime, "1"));
+            Thread t2 = new Thread(new sendOverHead("Error", ip, pid, cno, projectName, "" + totalTime, "1",loadAvg));
             t2.start();
 
         }
-       
+
     }
 
 }

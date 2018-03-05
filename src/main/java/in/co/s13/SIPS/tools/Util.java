@@ -42,7 +42,6 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
@@ -71,7 +70,6 @@ import static in.co.s13.sips.lib.common.settings.GlobalValues.ADJACENT_NODES_TAB
 import static in.co.s13.sips.lib.common.settings.GlobalValues.NON_ADJACENT_NODES_TABLE;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintStream;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -414,12 +412,9 @@ public class Util {
     }
 
     public static double getCPULoad() {
-        OperatingSystemMXBean osMBean
-                = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+        OperatingSystemMXBean osBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
 
-        RuntimeMXBean runtimeMBean = ManagementFactory.getRuntimeMXBean();
-
-        double load = osMBean.getSystemLoadAverage();
+        double load = osBean.getSystemLoadAverage();
 
         return load;
     }

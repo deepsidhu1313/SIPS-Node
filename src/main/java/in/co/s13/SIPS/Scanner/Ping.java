@@ -118,6 +118,8 @@ class Ping implements Runnable {
                 hdd_free = reply.getLong("HDD_FREE");
                 hdd_size = reply.getLong("HDD_SIZE");
                 uuid = reply.getString("UUID");
+                double cpuload=reply.getDouble("CPULOAD", Double.MIN_VALUE);
+                            
                 long processingTime = reply.getLong("PROCESS_TIME");
                 long distance = ((endTime - startTime) - (processingTime)) / 2;
                 JSONObject adjacentNodes = reply.getJSONObject("ADJ_NODES");
@@ -150,11 +152,11 @@ class Ping implements Runnable {
                     }
                     // using endTime as Last Checked ON timestamp, as that is the time when we hear back from node
                     if (LIVE_NODE_ADJ_DB.containsKey(uuid)) {
-                        LiveDBRow liveDBRow = new LiveDBRow(uuid, hostname, osname, cpuname, (task_limit), (task_waiting), ram, freeRam, hdd_size, hdd_free, benchmarks, endTime);
+                        LiveDBRow liveDBRow = new LiveDBRow(uuid, hostname, osname, cpuname, (task_limit), (task_waiting), ram, freeRam, hdd_size, hdd_free, benchmarks, endTime,cpuload);
                         Node toReplaced = LIVE_NODE_ADJ_DB.replace(uuid, liveDBRow);
                         updatedRecord = true;
                     } else {
-                        LiveDBRow liveDBRow = new LiveDBRow(uuid, hostname, osname, cpuname, (task_limit), (task_waiting), ram, freeRam, hdd_size, hdd_free, benchmarks, endTime);
+                        LiveDBRow liveDBRow = new LiveDBRow(uuid, hostname, osname, cpuname, (task_limit), (task_waiting), ram, freeRam, hdd_size, hdd_free, benchmarks, endTime,cpuload);
                         LIVE_NODE_ADJ_DB.put(uuid, liveDBRow);
 
                     }
@@ -265,10 +267,7 @@ class Ping implements Runnable {
                 });
                 Util.appendToPingLog(GlobalValues.LOG_LEVEL.OUTPUT, "\n\n**************************Live Nodes******************* \n" + Util.getAllLiveNodesInJSON().toString(4));
             }
-//            catch (Exception e) {
-//                System.ERR.println("Exception " + e);
-//                CURRENTLY_SCANNING.remove(IPadress.trim());
-//            }
+
 
             s.close();
 

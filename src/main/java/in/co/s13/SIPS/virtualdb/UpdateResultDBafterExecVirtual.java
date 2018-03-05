@@ -49,7 +49,7 @@ public class UpdateResultDBafterExecVirtual implements Runnable {
 
             Result resultDBEntry = RESULT_DB.get(jobToken.trim());
             {
-                System.out.println(" Task "+jobToken+" Finsihed");
+//                System.out.println(" Task "+jobToken+" Finsihed");
                 resultDBEntry.setEndTime(stoptime);
                 resultDBEntry.setTotalTime(totaltime);
                 resultDBEntry.setNetworkOH(NOH);

@@ -76,7 +76,7 @@ public class TaskFinishListenerHandler implements Runnable {
                         String content = body.getString("OUTPUT");
                         String ExitCode = body.getString("EXTCODE");
                         String uuid = body.getString("UUID");
-
+                        double avgLoad = body.getDouble("AVGLOAD", Double.MAX_VALUE);
                         {
                             String sendmsg = "OK";
 
@@ -86,7 +86,7 @@ public class TaskFinishListenerHandler implements Runnable {
 
                         }
                         submitter.close();
-                        Thread t = new Thread(new UpdateDistDBaftExecVirtual(System.currentTimeMillis(), Long.parseLong(content), fname, ipAddress, pid, cno, ExitCode, uuid));
+                        Thread t = new Thread(new UpdateDistDBaftExecVirtual(System.currentTimeMillis(), Long.parseLong(content), fname, ipAddress, pid, cno, ExitCode, uuid,avgLoad));
                         GlobalValues.DIST_DB_EXECUTOR.submit(t);
                         Util.appendToTasksLog(GlobalValues.LOG_LEVEL.OUTPUT, "size of master dist db " + MASTER_DIST_DB.size());
 
@@ -97,6 +97,7 @@ public class TaskFinishListenerHandler implements Runnable {
                         String content = body.getString("OUTPUT");
                         String ExitCode = body.getString("EXTCODE");
                         String uuid = body.getString("UUID");
+                        double avgLoad = body.getDouble("AVGLOAD", Double.MAX_VALUE);
                         {
                             String sendmsg = "OK";
 
@@ -105,7 +106,7 @@ public class TaskFinishListenerHandler implements Runnable {
                             outToClient.write(bytes);
                         }
                         submitter.close();
-                        Thread t = new Thread(new UpdateDistDBaftExecVirtual(System.currentTimeMillis(), Long.parseLong(content), fname, ipAddress, pid, cno, ExitCode, uuid));
+                        Thread t = new Thread(new UpdateDistDBaftExecVirtual(System.currentTimeMillis(), Long.parseLong(content), fname, ipAddress, pid, cno, ExitCode, uuid,avgLoad));
                         GlobalValues.DIST_DB_EXECUTOR.submit(t);
                     } else {
                         submitter.close();

@@ -23,21 +23,23 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class LiveDBRow extends LiveNode implements Node {
-
+    
     public LiveDBRow(String uuid, String host, String os, String processor, int task_limit,
-            int qwait, long ram, long free_memory, long hdd_size, long hdd_free, JSONObject benchmarking_results, long lastCheckedOn) {
-        super(uuid, host, os, processor, task_limit, qwait, ram, free_memory, hdd_size, hdd_free, benchmarking_results, lastCheckedOn);
+            int qwait, long ram, long free_memory, long hdd_size, long hdd_free, JSONObject benchmarking_results, long lastCheckedOn,double cpuAvgLoad) {
+        super(uuid, host, os, processor, task_limit, qwait, ram, free_memory, hdd_size, hdd_free, benchmarking_results, lastCheckedOn,cpuAvgLoad);
     }
-
+    
     public LiveDBRow(JSONObject livedbRow) {
         super(livedbRow);
         JSONArray array = livedbRow.getJSONArray("ipAddresses");
         for (int i = 0; i < array.length(); i++) {
-            String ip = array.getString(i);
+            JSONObject ipAddress = array.getJSONObject(i);
+            String ip = ipAddress.getString("ip", "");
             if (ip.contains("%")) {
                 ip = ip.substring(0, ip.indexOf("%"));
             }
             NetScanner.addip(ip);
+            super.getIpAddresses().get(ip).setPingScore(ipAddress.getLong("pingScore", 0l));
         }
     }
 }

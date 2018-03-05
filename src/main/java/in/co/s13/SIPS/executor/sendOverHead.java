@@ -34,8 +34,9 @@ import org.json.JSONObject;
 public class sendOverHead implements Runnable {
 
     String ipadd = "", ID = "", outPut = "", filename = "", value = "", cmd, chunkno, exitCode;
+    double avgLoad = Double.MAX_VALUE;
 
-    public sendOverHead(String overheadName, String ip, String PID, String chunknumber, String Filename, String value, String ExitCode) {
+    public sendOverHead(String overheadName, String ip, String PID, String chunknumber, String Filename, String value, String ExitCode, double avgLoad) {
         ipadd = ip;
         ID = PID;
         filename = Filename;
@@ -43,6 +44,7 @@ public class sendOverHead implements Runnable {
         cmd = overheadName;
         chunkno = chunknumber;
         exitCode = ExitCode;
+        this.avgLoad=avgLoad;
     }
 
     @Override
@@ -52,7 +54,7 @@ public class sendOverHead implements Runnable {
             s.connect(new InetSocketAddress(ipadd, GlobalValues.TASK_FINISH_LISTENER_SERVER_PORT));
             OutputStream os = s.getOutputStream();
             try (DataInputStream dIn = new DataInputStream(s.getInputStream());
-                     DataOutputStream outToServer = new DataOutputStream(os)) {
+                    DataOutputStream outToServer = new DataOutputStream(os)) {
                 JSONObject sendmsgJsonObj = new JSONObject();
                 sendmsgJsonObj.put("Command", cmd);
                 JSONObject sendmsgBodyJsonObj = new JSONObject();
@@ -62,6 +64,7 @@ public class sendOverHead implements Runnable {
                 sendmsgBodyJsonObj.put("FILENAME", filename);
                 sendmsgBodyJsonObj.put("OUTPUT", value);
                 sendmsgBodyJsonObj.put("EXTCODE", exitCode);
+                sendmsgBodyJsonObj.put("AVGLOAD", avgLoad);
                 sendmsgJsonObj.put("Body", sendmsgBodyJsonObj);
 
                 String sendmsg = sendmsgJsonObj.toString();

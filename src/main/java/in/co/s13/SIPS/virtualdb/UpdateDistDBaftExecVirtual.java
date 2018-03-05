@@ -48,8 +48,8 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
 
     int counter = 0, vartype;
     ConcurrentHashMap<String, DistributionDBRow> DistTable;
-
-    public UpdateDistDBaftExecVirtual(Long endTime, Long ExecTime, String filename, String ip, String PID, String CNO, String EXITCODE, String nodeUUID) {
+double avgLoad;
+    public UpdateDistDBaftExecVirtual(Long endTime, Long ExecTime, String filename, String ip, String PID, String CNO, String EXITCODE, String nodeUUID,double avgLoad) {
         dbloc = "data/" + PID + "/dist-db/dist-" + PID + ".db";
         endtime = endTime;
         exectime = ExecTime;
@@ -58,6 +58,7 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
         pid = PID;
         cno = CNO;
         exitCode = EXITCODE;
+        this.avgLoad=avgLoad;
         System.out.println("size of master dist db " + MASTER_DIST_DB.size());
         this.uuid = nodeUUID;
         DistTable = MASTER_DIST_DB.get((PID.trim()));
@@ -82,6 +83,7 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                     get.setNexecutiontime(exectime);
                     get.setLexctime(lexecTime);
                     get.setNoh(get.getNoh() + NOH);
+                    get.setAvgLoad(avgLoad);
                     get.setExitcode(Integer.parseInt(exitCode.trim()));
                     ArrayList<DistributionDBRow> tempDist = new ArrayList<>();
                     tempDist.addAll(DistTable.values());
@@ -176,9 +178,9 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                             if (counter > nodeUUIDs.size()) {
                                 counter = nodeUUIDs.size();
                             }
-                            for (int i = 0; i < nodeUUIDs.size(); i++) {
+                            /* for (int i = 0; i < nodeUUIDs.size(); i++) {
 //                                sql = "SELECT * FROM ALLN WHERE IP='" + nodeUUIDs.get(i) + "'";
-                                /* for (IPAddress nodeIP : allNodeDB) {
+                                for (IPAddress nodeIP : allNodeDB) {
                                     if (nodeIP.getFirstName().trim().equalsIgnoreCase(nodeUUIDs.get(i).trim())) {
                                         double tempprfm = nodeIP.getCpuLoad();
                                         double tempprfm2 = (tempprfm + ((double) 1 * ((double) counter / (double) (nodeUUIDs.size())))) / 2;
@@ -221,7 +223,9 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                                         counter--;
                                     }
 
-                                }*/
+                                }
+                            }*/
+                            
                                 GlobalValues.RESULT_DB_EXECUTOR.submit(() -> {
                                     long temp = Long.MIN_VALUE;
                                     Result result = GlobalValues.RESULT_DB.get(pid.trim());
@@ -254,7 +258,6 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                                     GlobalValues.RESULT_WH_DB_EXECUTOR.submit(new UpdateResultDBafterExecVirtual(pid, endtime, ttime, tempNOH, "" + tempload, tempavgWaitinQ, tempavgSleeptime));
                                     //  controlpanel.Settings.distDWDBExecutor.execute(new InsDistWareHouse(Node, PID, CNO, VARTYPE, SCHEDULER, LStart, Lend, Lexec, CS, LOWL, UPL, COUNTER, Nexec, CommOH, ParOH, PRFM, XTC, fname));
                                 });
-                            }
                         });
 
                     }

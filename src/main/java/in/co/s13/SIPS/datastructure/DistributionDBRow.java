@@ -27,7 +27,7 @@ public class DistributionDBRow {
 
     private Integer id;
     private String uuid;
-    private Double prfm;
+    private Double prfm,avgLoad;
     private Integer cno, vartype, exitcode;
     private Long lstarttime, lendtime, lexctime, nexecutiontime, noh, poh, entrinq, startinq, waitinq, sleeptime;
     private String pid, chunksize, lowlimit, scheduler, uplimit, counter,ipAddress,hostName;
@@ -35,7 +35,7 @@ public class DistributionDBRow {
     public DistributionDBRow(int id, String uuid, String pid, int cno, int vartype, String scheduler,
             long lstarttime, long lendtime, long lexctime, long nexecutiontime, long noh, long poh,
             long entrinq, long startinq, long waitinq, long sleeptime,
-            String chunksize, String lowlimit, String uplimit, String counter, double prfm, int exitcode,String ipAddress,String hostname) {
+            String chunksize, String lowlimit, String uplimit, String counter, double prfm, int exitcode,String ipAddress,String hostname,double avgLoad) {
         this.id = (id);
         this.uuid = (uuid);
         this.pid = (pid);
@@ -60,6 +60,7 @@ public class DistributionDBRow {
         this.sleeptime = (sleeptime);
         this.ipAddress=ipAddress;
         this.hostName=hostname;
+        this.avgLoad=avgLoad;
     }
 
     public Integer getId() {
@@ -254,6 +255,14 @@ public class DistributionDBRow {
         this.hostName = hostName;
     }
 
+    public Double getAvgLoad() {
+        return avgLoad;
+    }
+
+    public void setAvgLoad(Double avgLoad) {
+        this.avgLoad = avgLoad;
+    }
+
     
     
 
@@ -292,6 +301,7 @@ public class DistributionDBRow {
         result.put("scheduler", scheduler);
         result.put("uplimit", uplimit);
         result.put("counter", counter);
+        result.put("avgLoad", avgLoad);
         return result;
     }
 
