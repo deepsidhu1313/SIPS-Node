@@ -17,8 +17,8 @@
 package in.co.s13.SIPS.executor.sockets.handlers;
 
 import in.co.s13.SIPS.datastructure.Result;
+import in.co.s13.SIPS.db.SQLiteJDBC;
 import in.co.s13.SIPS.executor.Job;
-import in.co.s13.SIPS.executor.ParallelProcess;
 import in.co.s13.SIPS.settings.GlobalValues;
 import in.co.s13.SIPS.tools.Util;
 import in.co.s13.SIPS.virtualdb.UpdateResultDBbefExecVirtual;
@@ -31,6 +31,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.sql.ResultSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONObject;
@@ -102,8 +108,39 @@ public class JobHandler implements Runnable {
                             if (result != null) {
                                 response.put("Message", result);
                             } else {
-                                response.put("Message", new JSONObject().put("Error!","No Result Found For Token "+jobToken).toString());
-                            
+                                Future<ConcurrentHashMap<String, JSONObject>> fut = GlobalValues.RESULT_WH_DB_EXECUTOR.submit(() -> {
+                                    SQLiteJDBC resWH = new SQLiteJDBC();
+                                    ResultSet rs = resWH.select("log/dw-result.db", "SELECT * FROM RESULTWH WHERE PID='" + jobToken + "';");
+                                    ConcurrentHashMap<String, JSONObject> resultTable = new ConcurrentHashMap<>();
+                                    while (rs.next()) {
+                                        JSONObject jsonObject = new JSONObject();
+                                        jsonObject.put("project", rs.getString("PROJECT"));
+                                        jsonObject.put("pid", rs.getString("PID"));
+                                        jsonObject.put("scheduler", rs.getString("SCHEDULER"));
+                                        jsonObject.put("StartTime", rs.getLong("STARTTIME"));
+                                        jsonObject.put("EndTime", rs.getLong("ENDTIME"));
+                                        jsonObject.put("TotalTime", rs.getLong("TOTALTIME"));
+                                        jsonObject.put("networkOverHead", rs.getLong("NOH"));
+                                        jsonObject.put("parsingOverHead", rs.getLong("POH"));
+                                        jsonObject.put("TotalChunks", rs.getInt("TCHUNKS"));
+                                        jsonObject.put("TotalNodes", rs.getInt("TNODES"));
+                                        jsonObject.put("AvgLoad", rs.getDouble("PRFM"));
+                                        jsonObject.put("Finished", rs.getBoolean("FINISHED"));
+                                        jsonObject.put("AvgWaitInQueue", rs.getLong("AVGWAITINQ"));
+                                        jsonObject.put("AvgSleepTime", rs.getLong("AVGSLEEP"));
+                                        jsonObject.put("TimeStamp", rs.getLong("TIMESTAMP"));
+                                        resultTable.put(rs.getString("PID"), jsonObject);
+                                    }
+                                    resWH.closeConnection();
+                                    return resultTable;
+                                });
+                                ConcurrentHashMap<String, JSONObject> resultTable = (fut.get(Long.MAX_VALUE, TimeUnit.SECONDS));
+                                if (!resultTable.isEmpty()) {
+                                    response.put("Message", resultTable);
+                                } else {
+                                    response.put("Message", new JSONObject().put("Error!", "No Result Found For Token " + jobToken).toString());
+                                }
+
                             }
                             replyBody.put("Response", response);
                             replyJSON.put("Body", replyBody);
@@ -112,6 +149,8 @@ public class JobHandler implements Runnable {
                             outToClient.writeInt(bytes.length);
                             outToClient.write(bytes);
 
+                        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
+                            Logger.getLogger(JobHandler.class.getName()).log(Level.SEVERE, null, ex);
                         }
                         submitter.close();
                     } else if (command.equals("CREATE_JOB_TOKEN")) {

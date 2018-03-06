@@ -27,15 +27,15 @@ public class DistributionDBRow {
 
     private Integer id;
     private String uuid;
-    private Double prfm,avgLoad;
+    private Double prfm, avgLoad;
     private Integer cno, vartype, exitcode;
     private Long lstarttime, lendtime, lexctime, nexecutiontime, noh, poh, entrinq, startinq, waitinq, sleeptime;
-    private String pid, chunksize, lowlimit, scheduler, uplimit, counter,ipAddress,hostName;
+    private String pid, chunksize, lowlimit, scheduler, uplimit, counter, ipAddress, hostName;
 
     public DistributionDBRow(int id, String uuid, String pid, int cno, int vartype, String scheduler,
             long lstarttime, long lendtime, long lexctime, long nexecutiontime, long noh, long poh,
             long entrinq, long startinq, long waitinq, long sleeptime,
-            String chunksize, String lowlimit, String uplimit, String counter, double prfm, int exitcode,String ipAddress,String hostname,double avgLoad) {
+            String chunksize, String lowlimit, String uplimit, String counter, double prfm, int exitcode, String ipAddress, String hostname, double avgLoad) {
         this.id = (id);
         this.uuid = (uuid);
         this.pid = (pid);
@@ -58,9 +58,9 @@ public class DistributionDBRow {
         this.startinq = (startinq);
         this.waitinq = (waitinq);
         this.sleeptime = (sleeptime);
-        this.ipAddress=ipAddress;
-        this.hostName=hostname;
-        this.avgLoad=avgLoad;
+        this.ipAddress = ipAddress;
+        this.hostName = hostname;
+        this.avgLoad = avgLoad;
     }
 
     public Integer getId() {
@@ -176,7 +176,7 @@ public class DistributionDBRow {
     }
 
     public Long getWaitinq() {
-        return startinq-entrinq;
+        return (this.waitinq < 0 ? startinq - entrinq : waitinq);
     }
 
     public void setWaitinq(Long waitinq) {
@@ -263,16 +263,13 @@ public class DistributionDBRow {
         this.avgLoad = avgLoad;
     }
 
-    
-    
-
     @Override
     public String toString() {
-    return toString(0);
+        return toString(0);
     }
 
     public String toString(int indentFactor) {
-    return toJSON().toString(indentFactor);
+        return toJSON().toString(indentFactor);
     }
 
     public JSONObject toJSON() {

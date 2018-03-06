@@ -33,7 +33,7 @@ public class Result {
     private String chunkSize;
     private int totalChunks = Integer.MIN_VALUE;
     private int totalNodes = Integer.MIN_VALUE;
-    private String avgLoad;
+    private double avgLoad;
     private long avgWaitinq = Long.MIN_VALUE;
     private long avgSleeptime = Long.MIN_VALUE;
     private boolean finished;
@@ -101,11 +101,11 @@ public class Result {
         this.totalNodes = totalNodes;
     }
 
-    public String getAvgLoad() {
+    public double getAvgLoad() {
         return avgLoad;
     }
 
-    public void setAvgLoad(String load) {
+    public void setAvgLoad(double load) {
         avgLoad = (load);
     }
 
@@ -294,7 +294,7 @@ public class Result {
         },
         PRFM_SORT {
             public int compare(Result o1, Result o2) {
-                return (o1.getAvgLoad()).compareTo(o2.getAvgLoad());
+                return Double.valueOf(o1.getAvgLoad()).compareTo(o2.getAvgLoad());
             }
         },
         FINISHED_SORT {

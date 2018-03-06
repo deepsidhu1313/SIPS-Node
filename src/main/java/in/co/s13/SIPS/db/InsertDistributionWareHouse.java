@@ -168,10 +168,10 @@ public class InsertDistributionWareHouse implements Runnable {
                     + "','" + LStart
                     + "','" + Lend
                     + "','" + Lexec
-                    + "','" + CS.toString()
-                    + "','" + LOWL.toString()
-                    + "','" + UPL.toString()
-                    + "','" + COUNTER.toString()
+                    + "','" + CS
+                    + "','" + LOWL
+                    + "','" + UPL
+                    + "','" + COUNTER
                     + "','" + Nexec
                     + "','" + CommOH
                     + "','" + ParOH

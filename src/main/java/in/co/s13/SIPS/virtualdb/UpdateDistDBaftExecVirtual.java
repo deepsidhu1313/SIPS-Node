@@ -48,8 +48,9 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
 
     int counter = 0, vartype;
     ConcurrentHashMap<String, DistributionDBRow> DistTable;
-double avgLoad;
-    public UpdateDistDBaftExecVirtual(Long endTime, Long ExecTime, String filename, String ip, String PID, String CNO, String EXITCODE, String nodeUUID,double avgLoad) {
+    double avgLoad;
+
+    public UpdateDistDBaftExecVirtual(Long endTime, Long ExecTime, String filename, String ip, String PID, String CNO, String EXITCODE, String nodeUUID, double avgLoad) {
         dbloc = "data/" + PID + "/dist-db/dist-" + PID + ".db";
         endtime = endTime;
         exectime = ExecTime;
@@ -58,18 +59,18 @@ double avgLoad;
         pid = PID;
         cno = CNO;
         exitCode = EXITCODE;
-        this.avgLoad=avgLoad;
+        this.avgLoad = avgLoad;
         System.out.println("size of master dist db " + MASTER_DIST_DB.size());
         this.uuid = nodeUUID;
         DistTable = MASTER_DIST_DB.get((PID.trim()));
-        System.out.println("UpdateDistDBaftExecVirtual Created For "+pid+" CNO"+cno);
+        System.out.println("UpdateDistDBaftExecVirtual Created For " + pid + " CNO" + cno);
     }
 
     @Override
     public void run() {
-        System.out.println("UpdateDistDBaftExecVirtual Started For "+pid+" CNO"+cno);
-        
-        Thread.currentThread().setName("UpdateDistDBaftExecVirtual Started For "+pid+" CNO"+cno);
+        System.out.println("UpdateDistDBaftExecVirtual Started For " + pid + " CNO" + cno);
+
+        Thread.currentThread().setName("UpdateDistDBaftExecVirtual Started For " + pid + " CNO" + cno);
         {
             if (DistTable != null) {
                 DistributionDBRow get = DistTable.get(uuid + "-" + cno.trim());
@@ -162,7 +163,7 @@ double avgLoad;
                                     STARTINQ = (distRow.getStartinq());
                                     WAITINQ = (distRow.getWaitinq());
                                     SLEEP = (distRow.getSleeptime());
-                                    PRFM = (distRow.getPrfm());
+                                    PRFM = (distRow.getAvgLoad());
                                     XTC = (distRow.getExitcode());
 //                            break;
                                 }
@@ -225,39 +226,36 @@ double avgLoad;
 
                                 }
                             }*/
-                            
-                                GlobalValues.RESULT_DB_EXECUTOR.submit(() -> {
-                                    long temp = Long.MIN_VALUE;
-                                    Result result = GlobalValues.RESULT_DB.get(pid.trim());
-                                    if (result != null) {
-                                        temp = result.getStarttime();
+
+                            GlobalValues.RESULT_DB_EXECUTOR.submit(() -> {
+                                long temp = Long.MIN_VALUE;
+                                Result result = GlobalValues.RESULT_DB.get(pid.trim());
+                                if (result != null) {
+                                    temp = result.getStarttime();
+                                }
+                                Long StartTime = temp;
+                                Long ttime = endtime - StartTime;
+                                Long tempNOH = 0L;
+                                long tempavgWaitinQ = 0, tempavgSleeptime = 0;
+                                double tempload = 0.0;
+                                int c = 0;
+                                {
+                                    for (DistributionDBRow distTableRow : DistTable.values()) {
+                                        tempNOH += distTableRow.getNoh();
+                                        double d = distTableRow.getAvgLoad();
+                                        tempavgSleeptime += distTableRow.getSleeptime();
+                                        tempavgWaitinQ += distTableRow.getWaitinq();
+                                        tempload += d;
+                                        c++;
                                     }
-                                    Long StartTime = temp;
-                                    Long ttime = endtime - StartTime;
-                                    Long tempNOH = 0L;
-                                    long tempavgWaitinQ = 0, tempavgSleeptime = 0;
-                                    double tempload = 0.0;
-                                    int c = 0;
-                                    {
-                                        for (DistributionDBRow DistTable1 : DistTable.values()) {
-                                            tempNOH += DistTable1.getNoh();
-                                            double d = DistTable1.getPrfm();
-                                            if (d < 0.1) {
-                                                d = 0.1;
-                                            }
-                                            tempavgSleeptime += DistTable1.getSleeptime();
-                                            tempavgWaitinQ += DistTable1.getWaitinq();
-                                            tempload += d;
-                                            c++;
-                                        }
-                                    }
-                                    tempload /= c;
-                                    tempNOH /= c;
-                                    tempavgSleeptime /= c;
-                                    tempavgWaitinQ /= c;
-                                    GlobalValues.RESULT_WH_DB_EXECUTOR.submit(new UpdateResultDBafterExecVirtual(pid, endtime, ttime, tempNOH, "" + tempload, tempavgWaitinQ, tempavgSleeptime));
-                                    //  controlpanel.Settings.distDWDBExecutor.execute(new InsDistWareHouse(Node, PID, CNO, VARTYPE, SCHEDULER, LStart, Lend, Lexec, CS, LOWL, UPL, COUNTER, Nexec, CommOH, ParOH, PRFM, XTC, fname));
-                                });
+                                }
+                                tempload /= c;
+                                tempNOH /= c;
+                                tempavgSleeptime /= c;
+                                tempavgWaitinQ /= c;
+                                GlobalValues.RESULT_WH_DB_EXECUTOR.submit(new UpdateResultDBafterExecVirtual(pid, endtime, ttime, tempNOH, tempload, tempavgWaitinQ, tempavgSleeptime));
+                                //  controlpanel.Settings.distDWDBExecutor.execute(new InsDistWareHouse(Node, PID, CNO, VARTYPE, SCHEDULER, LStart, Lend, Lexec, CS, LOWL, UPL, COUNTER, Nexec, CommOH, ParOH, PRFM, XTC, fname));
+                            });
                         });
 
                     }

@@ -27,18 +27,18 @@ import static in.co.s13.SIPS.settings.GlobalValues.RESULT_DB;
  */
 public class UpdateResultDBafterExecVirtual implements Runnable {
 
-    String dbloc, sql, jobToken, performance;
+    String dbloc, sql, jobToken;
     long stoptime, totaltime, NOH;
     long avgWaitInQ;
     long avgSleepTime;
-
-    public UpdateResultDBafterExecVirtual(String jobToken, long STOPTIME, long TOTALTIME, long NetOH, String PERFORM, long avgWaitInQ, long avgSleepTime) {
+double avgload;
+    public UpdateResultDBafterExecVirtual(String jobToken, long STOPTIME, long TOTALTIME, long NetOH, double avgload, long avgWaitInQ, long avgSleepTime) {
         dbloc = "appdb/results.db";
         this.jobToken = jobToken;
         stoptime = STOPTIME;
         totaltime = TOTALTIME;
         NOH = NetOH;
-        performance = PERFORM;
+        avgload = avgload;
         this.avgSleepTime = avgSleepTime;
         this.avgWaitInQ = avgWaitInQ;
     }
@@ -53,7 +53,7 @@ public class UpdateResultDBafterExecVirtual implements Runnable {
                 resultDBEntry.setEndTime(stoptime);
                 resultDBEntry.setTotalTime(totaltime);
                 resultDBEntry.setNetworkOH(NOH);
-                resultDBEntry.setAvgLoad(performance);
+                resultDBEntry.setAvgLoad(avgload);
                 resultDBEntry.setAvgSleeptime(avgSleepTime);
                 resultDBEntry.setAvgWaitinq(avgWaitInQ);
                 resultDBEntry.setFinished(true);
@@ -69,7 +69,7 @@ public class UpdateResultDBafterExecVirtual implements Runnable {
                             "" + resultDBEntry.getChunkSize(),
                             "" + resultDBEntry.getTotalChunks(),
                             "" + resultDBEntry.getTotalNodes(),
-                            Double.parseDouble(resultDBEntry.getAvgLoad()),
+                            (resultDBEntry.getAvgLoad()),
                             "" + resultDBEntry.isFinished(), "" + resultDBEntry.getAvgWaitinq(), "" + resultDBEntry.getAvgSleeptime()));
                 }
             }

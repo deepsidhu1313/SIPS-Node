@@ -12,7 +12,6 @@ import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.expr.LongLiteralExpr;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
-
 /**
  *
  * @author Nika
@@ -36,7 +35,6 @@ public class ModASTParallelFor extends VoidVisitorAdapter {
     }
 
     public void visit(BinaryExpr n, Object arg) {
-
         if (n.getBegin().get().line == beginline) {
             switch (vartype) {
                 case 0:
@@ -71,11 +69,11 @@ public class ModASTParallelFor extends VoidVisitorAdapter {
                     IntegerLiteralExpr init2 = new IntegerLiteralExpr();//(IntegerLiteralExpr) n.getRight();
                     init2.setValue(upperbound);
                     n.setRight(init2);
-                    if (n.getOperator() == BinaryExpr.Operator.LESS) {
+                    if (n.getOperator()==(BinaryExpr.Operator.LESS)) {
                         if (!upperbound.trim().equalsIgnoreCase(max.trim())) {
                             n.setOperator(BinaryExpr.Operator.LESS_EQUALS);
                         }
-                    } else if (n.getOperator() == BinaryExpr.Operator.GREATER) {
+                    } else if (n.getOperator()==(BinaryExpr.Operator.GREATER)) {
                         if (!upperbound.trim().equalsIgnoreCase(max.trim())) {
                             n.setOperator(BinaryExpr.Operator.GREATER_EQUALS);
                         }

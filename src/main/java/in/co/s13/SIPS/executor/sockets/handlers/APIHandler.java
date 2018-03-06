@@ -17,6 +17,7 @@
 package in.co.s13.SIPS.executor.sockets.handlers;
 
 import in.co.s13.SIPS.datastructure.DistributionDBRow;
+import in.co.s13.SIPS.db.SQLiteJDBC;
 import in.co.s13.SIPS.settings.GlobalValues;
 import static in.co.s13.SIPS.settings.GlobalValues.HAS_SHARED_STORAGE;
 import static in.co.s13.SIPS.settings.GlobalValues.HOST_NAME;
@@ -51,8 +52,14 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONArray;
@@ -343,17 +350,56 @@ public class APIHandler implements Runnable {
                         JSONArray table = new JSONArray();
                         ConcurrentHashMap<String, DistributionDBRow> distTable2 = GlobalValues.MASTER_DIST_DB.get(args.get(0));
                         if (distTable2 != null) {
-                            ArrayList<DistributionDBRow> values = new ArrayList<>(distTable2.values());
-                            for (int i = 0; i < values.size(); i++) {
-                                DistributionDBRow get = values.get(i);
-                                if (get != null) {
-                                    table.put(get.toString());
-                                }
-                            }
+//                            ArrayList<DistributionDBRow> values = new ArrayList<>(distTable2.values());
+//                            for (int i = 0; i < values.size(); i++) {
+//                                DistributionDBRow get = values.get(i);
+//                                if (get != null) {
+////                                    table.put(get.toString());
+//                                }
+//                            }
                             distTable.put("Table2", distTable2);
 
                         } else {
-                            table.put("No Table Found");
+
+                            Future<ConcurrentHashMap<String, JSONObject>> fut = GlobalValues.DIST_WH_DB_EXECUTOR.submit(() -> {
+                                SQLiteJDBC resWH = new SQLiteJDBC();
+                                ResultSet rs = resWH.select("log/dw-dist.db", "SELECT * FROM DISTWH WHERE PID='" + args.get(0) + "';");
+                                ConcurrentHashMap<String, JSONObject> distTable3 = new ConcurrentHashMap<>();
+                                while (rs.next()) {
+                                    JSONObject jsonObject = new JSONObject();
+                                    jsonObject.put("ip", rs.getString("IP"));
+                                    jsonObject.put("project", rs.getString("PROJECT"));
+                                    jsonObject.put("pid", rs.getString("PID"));
+                                    jsonObject.put("cno", rs.getInt("CNO"));
+                                    jsonObject.put("vartype", rs.getString("VARTYPE"));
+                                    jsonObject.put("scheduler", rs.getString("SCHEDULER"));
+                                    jsonObject.put("localStartTime", rs.getLong("LStartTime"));
+                                    jsonObject.put("localEndTime", rs.getLong("LEndTime"));
+                                    jsonObject.put("localExcTime", rs.getLong("LExcTime"));
+                                    jsonObject.put("chunkSize", rs.getString("CHUNKSIZE"));
+                                    jsonObject.put("low", rs.getString("LOWLIMIT"));
+                                    jsonObject.put("high", rs.getString("UPLIMIT"));
+                                    jsonObject.put("networkExcTime", rs.getLong("NExecutionTime"));
+                                    jsonObject.put("networkOverHead", rs.getLong("NOH"));
+                                    jsonObject.put("parsingOverHead", rs.getLong("POH"));
+                                    jsonObject.put("EnteredInQueueOn", rs.getLong("ENTERINQ"));
+                                    jsonObject.put("StartInQueueOn", rs.getLong("STARTINQ"));
+                                    jsonObject.put("WaitInQueue", rs.getLong("WAITINQ"));
+                                    jsonObject.put("SleepTime", rs.getLong("SLEEPTIME"));
+                                    jsonObject.put("AvgLoad", rs.getDouble("PRFM"));
+                                    jsonObject.put("ExitCode", rs.getInt("EXITCODE"));
+                                    jsonObject.put("TimeStamp", rs.getLong("TIMESTAMP"));
+                                    distTable3.put(rs.getString("IP") + "-" + rs.getInt("CNO"), jsonObject);
+                                }
+                                resWH.closeConnection();
+                                return distTable3;
+                            });
+                            ConcurrentHashMap<String, JSONObject> distTable3 = (fut.get(Long.MAX_VALUE, TimeUnit.SECONDS));
+                            if (!distTable3.isEmpty()) {
+                                distTable.put("Table3", distTable3);
+                            } else {
+                                table.put("No Table Found");
+                            }
                         }
                         distTable.put("Table", table);
                         response.put("Message", distTable.toString());
@@ -708,6 +754,12 @@ public class APIHandler implements Runnable {
             } catch (IOException ex1) {
                 Logger.getLogger(APIHandler.class.getName()).log(Level.SEVERE, null, ex1);
             }
+        } catch (InterruptedException ex) {
+            Logger.getLogger(APIHandler.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ExecutionException ex) {
+            Logger.getLogger(APIHandler.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (TimeoutException ex) {
+            Logger.getLogger(APIHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

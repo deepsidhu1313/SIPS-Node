@@ -20,7 +20,12 @@ import in.co.s13.sips.lib.ParallelForSENP;
 import in.co.s13.sips.lib.common.datastructure.ParallelForLoop;
 import in.co.s13.sips.scheduler.LoadScheduler;
 import in.co.s13.sips.schedulers.Chunk;
+import in.co.s13.sips.schedulers.Factoring;
 import in.co.s13.sips.schedulers.GA;
+import in.co.s13.sips.schedulers.GA2;
+import in.co.s13.sips.schedulers.GSS;
+import in.co.s13.sips.schedulers.QSS;
+import in.co.s13.sips.schedulers.TSS;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -67,9 +72,24 @@ public class Job implements Runnable {
             if (schedulerName.endsWith("Chunk")) {
                 loadScheduler = new LoadScheduler(new Chunk());
                 System.out.println("Using Chunk Scheduler For " + jobToken);
-            }else if (schedulerName.endsWith("GA")) {
+            } else if (schedulerName.endsWith("GA")) {
                 loadScheduler = new LoadScheduler(new GA());
                 System.out.println("Using GA Scheduler For " + jobToken);
+            } else if (schedulerName.endsWith("GA2")) {
+                loadScheduler = new LoadScheduler(new GA2());
+                System.out.println("Using GA Scheduler For " + jobToken);
+            } else if (schedulerName.endsWith("Factoring")) {
+                loadScheduler = new LoadScheduler(new Factoring());
+                System.out.println("Using Factoring Scheduler For " + jobToken);
+            } else if (schedulerName.endsWith("GSS")) {
+                loadScheduler = new LoadScheduler(new GSS());
+                System.out.println("Using GSS Scheduler For " + jobToken);
+            } else if (schedulerName.endsWith("QSS")) {
+                loadScheduler = new LoadScheduler(new QSS());
+                System.out.println("Using TSS Scheduler For " + jobToken);
+            } else if (schedulerName.endsWith("TSS")) {
+                loadScheduler = new LoadScheduler(new TSS());
+                System.out.println("Using TSS Scheduler For " + jobToken);
             }
         } else {
             try {
@@ -472,7 +492,7 @@ public class Job implements Runnable {
                     }
                     ParallelForLoop parallelForLoop = new ParallelForLoop(min, max, diff, datatype, reverseLoop);
                     ArrayList<ParallelForSENP> al = loadScheduler.scheduleParallelFor(Util.getAllLiveNodes(), parallelForLoop, schedulerJSON);
-//                    System.out.println("Parallel For Loop Chunks: " + al.toString());
+                    System.out.println("Parallel For Loop Chunks: " + al.toString());
                     sql = "SELECT * FROM META;";
                     ResultSet rs99 = parsedDB.select(parsedDBLoc, sql);
                     String parent = "", file = "";
@@ -480,20 +500,21 @@ public class Job implements Runnable {
                         parent = rs99.getString("PARENT");
                         file = rs99.getString("FILE");
                     }
-                    FileInputStream in = new FileInputStream(new File("data/" + jobToken + "/src/" + parent + "/" + file));
-                    CompilationUnit cu = JavaParser.parse(in);
                     ConcurrentHashMap<String, DistributionDBRow> DistTable = new ConcurrentHashMap<>();
                     for (int k = 0; k < al.size(); k++) {
                         ParallelForSENP get = al.get(k);
+                        Util.copyFolder(new File("data/" + jobToken + "/src/"), new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + k + "/src/"));
                         ModASTParallelFor ma = new ModASTParallelFor((parallel4BL + 1), datatype, get.getStart(), get.getEnd(), "" + diff);
+                        FileInputStream in = new FileInputStream(new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + k + "/src/" + parent + "/" + file));
+                        CompilationUnit cu = JavaParser.parse(in);
+
                         ma.visit(cu, null);
 //                        System.out.println("Modified AST: " + cu.toString());
-                        Util.copyFolder(new File("data/" + jobToken + "/src/"), new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + k + "/src/"));
                         Util.write("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + k + "/src/" + parent + "/" + file, cu.toString());
                         Distributor dist = new Distributor(get.getNodeUUID(), "" + k, jobToken);
                         dist.upload();
 
-                        DistTable.put(get.getNodeUUID() + "-" + k, new DistributionDBRow(i, get.getNodeUUID(), jobToken, k, datatype, schedulerName, System.currentTimeMillis(), 0, 0, 0, 0, 0, 0, 0, 0, 0, diff.toString(), get.getStart(), get.getEnd(), "0", 0, 9999, dist.getToIPAddress(), dist.getHostName(),0));
+                        DistTable.put(get.getNodeUUID() + "-" + k, new DistributionDBRow(i, get.getNodeUUID(), jobToken, k, datatype, schedulerName, System.currentTimeMillis(), 0, 0, 0, 0, 0, 0, 0, 0, 0, get.getDiff(), get.getStart(), get.getEnd(), "0", 0, 9999, dist.getToIPAddress(), dist.getHostName(), 0));
 
                     }
                     MASTER_DIST_DB.put(jobToken.trim(), DistTable);
@@ -503,7 +524,8 @@ public class Job implements Runnable {
             Result resultDBEntry = RESULT_DB.get(jobToken.trim());
             long parsingEndTime = System.currentTimeMillis();
             if (resultDBEntry != null) {
-                resultDBEntry.setTotalNodes(MASTER_DIST_DB.get(jobToken.trim()).size());
+                resultDBEntry.setTotalChunks(MASTER_DIST_DB.get(jobToken.trim()).size());
+                resultDBEntry.setTotalNodes(loadScheduler.getTotalNodes());
                 resultDBEntry.setStarttime(System.currentTimeMillis());
                 resultDBEntry.setParsingOH(parsingEndTime - parsingStartTime);
                 resultDBEntry.setStatus("Job Distributed and Started");
