@@ -24,10 +24,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author nika
- */
 public class FixedThreadPool {
 
     private ExecutorService executor;
@@ -82,7 +78,7 @@ public class FixedThreadPool {
             list.add(task);
             System.out.println("Adding task " + task + " to List as Thread Pool is restarting");
         } else {
-            executor.execute(task);
+            executor.submit(task);
         }
     }
 
@@ -100,7 +96,7 @@ public class FixedThreadPool {
     }
 
     public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
-        return executor.awaitTermination(timeout, TimeUnit.DAYS);
+        return executor.awaitTermination(timeout, unit);
     }
 
     public List<Runnable> shutdownNow() {
