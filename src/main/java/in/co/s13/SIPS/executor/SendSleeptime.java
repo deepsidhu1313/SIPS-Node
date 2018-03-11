@@ -32,11 +32,11 @@ import org.json.JSONObject;
  *
  * @author Nika
  */
-public class sendSleeptime implements Runnable {
+public class SendSleeptime implements Runnable {
 
     String ipadd = "", ID = "", outPut = "", filename = "", value = "", cmd, chunkno;
 
-    public sendSleeptime(String overheadName, String ip, String PID, String chunknumber, String Filename, String value) {
+    public SendSleeptime(String overheadName, String ip, String PID, String chunknumber, String Filename, String value) {
         ipadd = ip;
         ID = PID;
         filename = Filename;
@@ -76,9 +76,9 @@ public class sendSleeptime implements Runnable {
                     } else {
                     }*/
         } catch (UnsupportedEncodingException ex) {
-            Logger.getLogger(sendSleeptime.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SendSleeptime.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(sendSleeptime.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SendSleeptime.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

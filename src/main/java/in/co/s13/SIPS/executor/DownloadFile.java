@@ -42,10 +42,11 @@ public class DownloadFile {
 
     public DownloadFile(String IP, String id, String cno, String projectname, String localFolder, ArrayList<String> FileList, String uuid) {
         SERVER = IP;
-        ExecutorService rfExecutor = Executors.newFixedThreadPool(5);
+        ExecutorService downloadFileExecutor = Executors.newFixedThreadPool(5);
         FileList.stream().forEach((_item) -> {
             if (_item.trim().length() > 0) {
-                Thread rt = new Thread(() -> {
+//                Thread rt = new Thread
+        downloadFileExecutor.submit(() -> {
 
                     int bytesRead;
                     int current = 0;
@@ -176,9 +177,9 @@ public class DownloadFile {
                                                 long start = System.currentTimeMillis();
                                                 Thread.sleep(stime);
                                                 long end = System.currentTimeMillis();
-                                                Thread sendSleepTimeThread = new Thread(new sendSleeptime("sleeptime", IP, id, cno, projectname, "" + (end - start)));
-                                                sendSleepTimeThread.setPriority(Thread.NORM_PRIORITY + 1);
-                                                GlobalValues.SEND_SLEEPTIME_EXECUTOR_SERVICE.submit(sendSleepTimeThread);
+//                                                Thread sendSleepTimeThread = new Thread(new SendSleeptime("sleeptime", IP, id, cno, projectname, "" + (end - start)));
+//                                                sendSleepTimeThread.setPriority(Thread.NORM_PRIORITY + 1);
+                                                GlobalValues.SEND_SLEEPTIME_EXECUTOR_SERVICE.submit(new SendSleeptime("sleeptime", IP, id, cno, projectname, "" + (end - start)));
 
                                             } else if (rpl.equalsIgnoreCase("addedinq")) {
                                                 sock.close();
@@ -186,9 +187,9 @@ public class DownloadFile {
 
                                                 Thread.currentThread().sleep(500);
                                                 long end = System.currentTimeMillis();
-                                                Thread sendSleepTimeThread = new Thread(new sendSleeptime("sleeptime", IP, id, cno, projectname, "" + (end - start)));
-                                                sendSleepTimeThread.setPriority(Thread.NORM_PRIORITY + 1);
-                                                GlobalValues.SEND_SLEEPTIME_EXECUTOR_SERVICE.submit(sendSleepTimeThread);
+//                                                Thread sendSleepTimeThread = new Thread(new SendSleeptime("sleeptime", IP, id, cno, projectname, "" + (end - start)));
+//                                                sendSleepTimeThread.setPriority(Thread.NORM_PRIORITY + 1);
+                                                GlobalValues.SEND_SLEEPTIME_EXECUTOR_SERVICE.submit(new SendSleeptime("sleeptime", IP, id, cno, projectname, "" + (end - start)));
 
                                             } else {
                                                 System.out.println("Couldn't find file");
@@ -210,19 +211,20 @@ public class DownloadFile {
                             sleepcounter++;
                         }
                         long endtime = System.currentTimeMillis();
-                        Thread t2 = new Thread(new sendCommOverHead("ComOH", IP, id, cno, projectname, "" + (endtime - starttime)));
-                        t2.start();
+//                        Thread t2 = new Thread(new SendCommOverHead("ComOH", IP, id, cno, projectname, "" + (endtime - starttime)));
+//                        t2.start();
+                        GlobalValues.SEND_COMMOH_EXECUTOR_SERVICE.submit(new SendCommOverHead("ComOH", IP, id, cno, projectname, "" + (endtime - starttime)));
 
                     }
                 }
                 );
-                rfExecutor.submit(rt);
+//                downloadFileExecutor.submit(rt);
             }
         });
 
-        rfExecutor.shutdown();
+        downloadFileExecutor.shutdown();
         try {
-            rfExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+            downloadFileExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
 
         } catch (InterruptedException ex) {
             Logger.getLogger(DownloadFile.class

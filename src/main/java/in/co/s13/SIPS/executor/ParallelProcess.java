@@ -74,8 +74,8 @@ public class ParallelProcess implements Runnable {
         counter = GlobalValues.TASK_ID.get();
         main = manifest.getString("MAIN");//substring(manifest.indexOf("<MAIN>") + 6, manifest.indexOf("</MAIN>"));
         projectName = manifest.getString("PROJECT");//substring(manifest.indexOf("<PROJECT>") + 9, manifest.indexOf("</PROJECT>"));
-        Thread sendEnteredInQueue = new Thread(new sendStartInQue("enterinq", ip, pid, cno, projectName, "" + System.currentTimeMillis()));
-        sendEnteredInQueue.start();
+        SendStartInQue sendEnteredInQueue = (new SendStartInQue("enterinq", ip, pid, cno, projectName, "" + System.currentTimeMillis()));
+        GlobalValues.SEND_ENTER_IN_QUEUE_EXECUTOR_SERVICE.submit(sendEnteredInQueue);
 
         {
             if (manifest.has("LIB")) {
@@ -262,8 +262,8 @@ public class ParallelProcess implements Runnable {
     @Override
     public void run() {
         Thread.currentThread().setName("ParallelProcessThread" + ip + "-" + pid);
-        Thread sendStartInQueue = new Thread(new sendStartInQue("startinque", ip, pid, cno, projectName, "" + System.currentTimeMillis()));
-        sendStartInQueue.start();
+        SendStartInQue sendStartInQueue = (new SendStartInQue("startinque", ip, pid, cno, projectName, "" + System.currentTimeMillis()));
+        GlobalValues.SEND_START_IN_QUEUE_EXECUTOR_SERVICE.submit(sendStartInQueue);
         try {
             GlobalValues.TASK_WAITING.decrementAndGet();
             ProcessBuilder pb = null;
@@ -313,7 +313,7 @@ public class ParallelProcess implements Runnable {
             int noOfCores = runtime.availableProcessors();
             output = fileLog.stream().map((fileLog1) -> "\n" + fileLog1).reduce(output, String::concat);
             int ocounter = 0;
-            long loadCounter=0;
+            long loadCounter = 0;
             while ((s = stdInput.readLine()) != null) {
                 ocounter++;
                 loadAvg += osBean.getSystemLoadAverage();
@@ -322,8 +322,8 @@ public class ParallelProcess implements Runnable {
                 if (ocounter == opfrequecy) {
 
                     output += "\n" + s;
-                    Thread outputThread = new Thread(new sendOutput(ip, pid, cno, projectName, output));
-                    outputThread.start();
+                    SendOutput outputThread = (new SendOutput(ip, pid, cno, projectName, output));
+                    GlobalValues.SEND_OUTPUT_EXECUTOR_SERVICE.submit(outputThread);
                     ocounter = 0;
                     output = "";
                 } else {
@@ -331,8 +331,8 @@ public class ParallelProcess implements Runnable {
                     output += "\n" + s;
                 }
             }
-            Thread outputThread = new Thread(new sendOutput(ip, pid, cno, projectName, output));
-            outputThread.start();
+            SendOutput outputThread = (new SendOutput(ip, pid, cno, projectName, output));
+            GlobalValues.SEND_OUTPUT_EXECUTOR_SERVICE.submit(outputThread);
             output = "\n";
 
             ocounter = 0;
@@ -347,18 +347,18 @@ public class ParallelProcess implements Runnable {
                 if (ocounter == opfrequecy) {
 
                     output += "\n" + s;
-                    Thread outputThread2 = new Thread(new sendOutput(ip, pid, cno, projectName, output));
-                    outputThread2.start();
+                    SendOutput outputThread2 = (new SendOutput(ip, pid, cno, projectName, output));
+                    GlobalValues.SEND_OUTPUT_EXECUTOR_SERVICE.submit(outputThread2);
                     ocounter = 0;
                     output = "\n";
                 } else {
                     output += "\n" + s;
                 }
             }
-            Thread outputThread3 = new Thread(new sendOutput(ip, pid, cno, projectName, output));
-            outputThread3.start();
-            loadAvg/=loadCounter;
-            
+            SendOutput outputThread3 = (new SendOutput(ip, pid, cno, projectName, output));
+            GlobalValues.SEND_OUTPUT_EXECUTOR_SERVICE.submit(outputThread3);
+            loadAvg /= loadCounter;
+
             ////settings.outPrintln("Process executed");
             int exitValue = process.waitFor();
             Util.outPrintln("\n\nExit Value is " + exitValue);
@@ -372,11 +372,11 @@ public class ParallelProcess implements Runnable {
             Logger.getLogger(ParallelProcess.class.getName()).log(Level.SEVERE, null, ex);
         }
         if (success) {
-            Thread t2 = new Thread(new sendOverHead("Finished", ip, pid, cno, projectName, "" + totalTime, "0",loadAvg));
-            t2.start();
+            SendOverHead t2 = (new SendOverHead("Finished", ip, pid, cno, projectName, "" + totalTime, "0", loadAvg));
+            GlobalValues.SEND_FINISH_EXECUTOR_SERVICE.submit(t2);
         } else {
-            Thread t2 = new Thread(new sendOverHead("Error", ip, pid, cno, projectName, "" + totalTime, "1",loadAvg));
-            t2.start();
+            SendOverHead t2 = (new SendOverHead("Error", ip, pid, cno, projectName, "" + totalTime, "1", loadAvg));
+            GlobalValues.SEND_FINISH_EXECUTOR_SERVICE.submit(t2);
 
         }
 

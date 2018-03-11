@@ -42,7 +42,7 @@ public class TaskFinishListenerServer implements Runnable {
 
     @Override
     public void run() {
-             Thread.currentThread().setName("Task Finish Server");
+        Thread.currentThread().setName("Task Finish Server");
 
         try {
             if (GlobalValues.TASK_FINISH_LISTENER_SERVER_SOCKET == null || GlobalValues.TASK_FINISH_LISTENER_SERVER_SOCKET.isClosed()) {
@@ -56,10 +56,10 @@ public class TaskFinishListenerServer implements Runnable {
         while (GlobalValues.TASK_FINISH_SERVER_IS_RUNNING) {
             try {
                 Socket s = GlobalValues.TASK_FINISH_LISTENER_SERVER_SOCKET.accept();
-                Thread t = new Thread(new TaskFinishListenerHandler(s));
+//                Thread t = new Thread(new TaskFinishListenerHandler(s));
                 //t.setPriority(Thread.NORM_PRIORITY);
-                t.setName("FinishServerThread");
-                GlobalValues.TASK_FINISH_LISTENER_HANDLER_EXECUTOR_SERVICE.submit(t);
+//                t.setName("FinishServerThread");
+                GlobalValues.TASK_FINISH_LISTENER_HANDLER_EXECUTOR_SERVICE.submit(new TaskFinishListenerHandler(s));
 
             } catch (IOException ex) {
                 Logger.getLogger(TaskFinishListenerServer.class.getName()).log(Level.SEVERE, null, ex);

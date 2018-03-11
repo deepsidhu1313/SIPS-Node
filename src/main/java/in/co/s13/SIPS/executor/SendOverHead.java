@@ -31,12 +31,12 @@ import org.json.JSONObject;
  *
  * @author Nika
  */
-public class sendOverHead implements Runnable {
+public class SendOverHead implements Runnable {
 
     String ipadd = "", ID = "", outPut = "", filename = "", value = "", cmd, chunkno, exitCode;
     double avgLoad = Double.MAX_VALUE;
 
-    public sendOverHead(String overheadName, String ip, String PID, String chunknumber, String Filename, String value, String ExitCode, double avgLoad) {
+    public SendOverHead(String overheadName, String ip, String PID, String chunknumber, String Filename, String value, String ExitCode, double avgLoad) {
         ipadd = ip;
         ID = PID;
         filename = Filename;
@@ -85,7 +85,7 @@ public class sendOverHead implements Runnable {
                 s.close();
             }
         } catch (IOException ex) {
-            Logger.getLogger(sendOutput.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SendOutput.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }

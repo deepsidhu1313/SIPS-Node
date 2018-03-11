@@ -56,9 +56,9 @@ public class PingServer implements Runnable {
             try {
                 Socket s = GlobalValues.PING_SERVER_SOCKET.accept();
 
-                Thread t = new Thread(new PingHandler(s));
+//                Thread t = new Thread(new PingHandler(s));
                 //t.setPriority(Thread.NORM_PRIORITY+1);
-                GlobalValues.PING_HANDLER_EXECUTOR_SERVICE.submit(t);
+                GlobalValues.PING_HANDLER_EXECUTOR_SERVICE.submit(new PingHandler(s));
 
             } catch (IOException ex) {
                 Logger.getLogger(PingServer.class.getName()).log(Level.SEVERE, null, ex);

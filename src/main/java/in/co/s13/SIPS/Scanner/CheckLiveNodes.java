@@ -54,9 +54,9 @@ public class CheckLiveNodes implements Runnable {
                             Collections.sort(ips,IPAddress.IPAddressComparator.DISTANCE.thenComparing(IPAddress.IPAddressComparator.PING_SCORE.reversed()));
                             for (int i = 0; i < ips.size(); i++) {
                                 String get = ips.get(i).getIp();
-                                Thread p1 = new Thread(new Ping(get, liveNode.getUuid()));
-                                p1.setPriority(Thread.NORM_PRIORITY + 2);
-                                PING_REQUEST_EXECUTOR_FOR_LIVE_NODES.submit(p1);
+//                                Thread p1 = new Thread(new Ping(get, liveNode.getUuid()));
+//                                p1.setPriority(Thread.NORM_PRIORITY + 2);
+                                PING_REQUEST_EXECUTOR_FOR_LIVE_NODES.submit(new Ping(get, liveNode.getUuid()));
                                 Util.appendToPingLog(LOG_LEVEL.OUTPUT, "Submitted Ping request for Adjacent " + liveNode.getUuid() + " on IP :" + get);
                             }
                         }
@@ -72,9 +72,9 @@ public class CheckLiveNodes implements Runnable {
                             Collections.sort(ips,IPAddress.IPAddressComparator.DISTANCE.thenComparing(IPAddress.IPAddressComparator.PING_SCORE.reversed()));
                             for (int i = 0; i < ips.size(); i++) {
                                 String get = ips.get(i).getIp();
-                                Thread p1 = new Thread(new Ping(get, liveNode.getUuid()));
-                                p1.setPriority(Thread.NORM_PRIORITY + 2);
-                                PING_REQUEST_EXECUTOR_FOR_LIVE_NODES.submit(p1);
+//                                Thread p1 = new Thread(new Ping(get, liveNode.getUuid()));
+//                                p1.setPriority(Thread.NORM_PRIORITY + 2);
+                                PING_REQUEST_EXECUTOR_FOR_LIVE_NODES.submit(new Ping(get, liveNode.getUuid()));
                                 Util.appendToPingLog(LOG_LEVEL.OUTPUT, "Submitted Ping request for Non-Adjacent " + liveNode.getUuid() + " on IP :" + get);
                             }
                         }

@@ -58,10 +58,10 @@ public class FileDownloadServer implements Runnable {
         while (GlobalValues.FILE_DOWNLOAD_SERVER_IS_RUNNING) {
             try {
                 Socket s = GlobalValues.FILE_DOWNLOAD_SERVER_SOCKET.accept();
-                Thread t = new Thread(new FileDownloadHandler(s));
-                t.setPriority(Thread.NORM_PRIORITY + 1);
-                t.setName("File Download Handling Thread");
-                GlobalValues.FILE_DOWNLOAD_HANDLER_EXECUTOR_SERVICE.submit(t);
+//                Thread t = new Thread(new FileDownloadHandler(s));
+//                t.setPriority(Thread.NORM_PRIORITY + 1);
+//                t.setName("File Download Handling Thread");
+                GlobalValues.FILE_DOWNLOAD_HANDLER_EXECUTOR_SERVICE.submit(new FileDownloadHandler(s));
 
             } catch (IOException ex) {
                 Logger.getLogger(FileDownloadServer.class

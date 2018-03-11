@@ -16,8 +16,6 @@
  */
 package in.co.s13.SIPS.initializer;
 
-import in.co.s13.SIPS.Scanner.AddLivenodes;
-import in.co.s13.SIPS.Scanner.CheckLiveNodes;
 import in.co.s13.SIPS.tools.HDDInfo;
 import in.co.s13.SIPS.tools.MemoryInfo;
 import java.util.concurrent.Executors;

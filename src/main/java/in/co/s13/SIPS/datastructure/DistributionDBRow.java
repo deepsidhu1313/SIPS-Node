@@ -17,6 +17,7 @@
 package in.co.s13.SIPS.datastructure;
 
 import java.util.Comparator;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.json.JSONObject;
 
 /**
@@ -27,10 +28,11 @@ public class DistributionDBRow {
 
     private Integer id;
     private String uuid;
-    private Double prfm, avgLoad;
+    private Double prfm, avgLoad, avgUploadSpeed, avgDownloadSpeed;
     private Integer cno, vartype, exitcode;
-    private Long lstarttime, lendtime, lexctime, nexecutiontime, noh, poh, entrinq, startinq, waitinq, sleeptime;
+    private Long lstarttime, lendtime, lexctime, nexecutiontime, noh, poh, entrinq, startinq, waitinq, sleeptime, uploadedDataInKB, downloadedDataInKB;
     private String pid, chunksize, lowlimit, scheduler, uplimit, counter, ipAddress, hostName;
+    private AtomicInteger cacheHit, cacheMiss;
 
     public DistributionDBRow(int id, String uuid, String pid, int cno, int vartype, String scheduler,
             long lstarttime, long lendtime, long lexctime, long nexecutiontime, long noh, long poh,
@@ -263,6 +265,58 @@ public class DistributionDBRow {
         this.avgLoad = avgLoad;
     }
 
+    public Double getAvgUploadSpeed() {
+        return avgUploadSpeed;
+    }
+
+    public void setAvgUploadSpeed(Double avgUploadSpeed) {
+        this.avgUploadSpeed = avgUploadSpeed;
+    }
+
+    public Double getAvgDownloadSpeed() {
+        return avgDownloadSpeed;
+    }
+
+    public void setAvgDownloadSpeed(Double avgDownloadSpeed) {
+        this.avgDownloadSpeed = avgDownloadSpeed;
+    }
+
+    public Long getUploadedDataInKB() {
+        return uploadedDataInKB;
+    }
+
+    public void setUploadedDataInKB(Long uploadedDataInKB) {
+        this.uploadedDataInKB = uploadedDataInKB;
+    }
+
+    public Long getDownloadedDataInKB() {
+        return downloadedDataInKB;
+    }
+
+    public void setDownloadedDataInKB(Long downloadedDataInKB) {
+        this.downloadedDataInKB = downloadedDataInKB;
+    }
+
+    public AtomicInteger getCacheHit() {
+        return cacheHit;
+    }
+
+    public void setCacheHit(AtomicInteger cacheHit) {
+        this.cacheHit = cacheHit;
+    }
+
+    public AtomicInteger getCacheMiss() {
+        return cacheMiss;
+    }
+
+    public void setCacheMiss(AtomicInteger cacheMiss) {
+        this.cacheMiss = cacheMiss;
+    }
+
+    public double getCacheHitMissRatio() {
+        return this.getCacheHit().get() / this.getCacheMiss().get();
+    }
+
     @Override
     public String toString() {
         return toString(0);
@@ -299,121 +353,140 @@ public class DistributionDBRow {
         result.put("uplimit", uplimit);
         result.put("counter", counter);
         result.put("avgLoad", avgLoad);
+        result.put("avgDownloadSpeed", avgDownloadSpeed);
+        result.put("avgUploadSpeed", avgUploadSpeed);
+        result.put("uploadDataInKB", uploadedDataInKB);
+        result.put("downloadDataInKB", downloadedDataInKB);
+        result.put("cacheHit", cacheHit);
+        result.put("cacheMiss", cacheMiss);
+        result.put("cacheHitMissRatio", this.getCacheHitMissRatio());
         return result;
     }
 
     public enum DistributionDBRowComparator implements Comparator<DistributionDBRow> {
 
         ID_SORT {
+            @Override
             public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                return Integer.valueOf(o1.getId()).compareTo(o2.getId());
+                return o1.getId().compareTo(o2.getId());
             }
         },
         IP_SORT {
+            @Override
             public int compare(DistributionDBRow o1, DistributionDBRow o2) {
                 return o1.getUuid().compareTo(o2.getUuid());
             }
         },
         PID_SORT {
+            @Override
             public int compare(DistributionDBRow o1, DistributionDBRow o2) {
                 return (o1.getPid()).compareTo(o2.getPid());
             }
         },
         CNO_SORT {
+            @Override
             public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                return Integer.valueOf(o1.getCno()).compareTo(o2.getCno());
+                return o1.getCno().compareTo(o2.getCno());
             }
         },
         VARTYPE_SORT {
+            @Override
             public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                return Integer.valueOf(o1.getVartype()).compareTo(o2.getVartype());
+                return o1.getVartype().compareTo(o2.getVartype());
             }
         },
         SCHEDULER_SORT {
+            @Override
             public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                return Integer.valueOf(o1.getVartype()).compareTo(o2.getVartype());
+                return o1.getVartype().compareTo(o2.getVartype());
             }
         },
         LSTARTTIME_SORT {
+            @Override
             public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                return Long.valueOf(o1.getLstarttime()).compareTo(o2.getLstarttime());
+                return o1.getLstarttime().compareTo(o2.getLstarttime());
             }
         },
         LENDTIME_SORT {
+            @Override
             public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                return Long.valueOf(o1.getLendtime()).compareTo(o2.getLendtime());
+                return o1.getLendtime().compareTo(o2.getLendtime());
             }
         },
         LEXCTIME_SORT {
+            @Override
             public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                return Long.valueOf(o1.getLexctime()).compareTo(o2.getLexctime());
+                return o1.getLexctime().compareTo(o2.getLexctime());
             }
         },
         NEXECUTIONTIME_SORT {
+            @Override
             public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                return Long.valueOf(o1.getNexecutiontime()).compareTo(o2.getNexecutiontime());
+                return o1.getNexecutiontime().compareTo(o2.getNexecutiontime());
             }
         },
         NOH_SORT {
+            @Override
             public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                return Long.valueOf(o1.getNoh()).compareTo(o2.getNoh());
+                return o1.getNoh().compareTo(o2.getNoh());
             }
         },
         POH_SORT {
+            @Override
             public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                return Long.valueOf(o1.getPoh()).compareTo(o2.getPoh());
+                return o1.getPoh().compareTo(o2.getPoh());
             }
         },
         CHUNKSIZE_SORT {
+            @Override
             public int compare(DistributionDBRow o1, DistributionDBRow o2) {
                 return o1.getChunksize().compareTo(o2.getChunksize());
             }
         },
         LOWLIMIT_SORT {
+            @Override
             public int compare(DistributionDBRow o1, DistributionDBRow o2) {
                 return o1.getLowlimit().compareTo(o2.getLowlimit());
             }
         },
         UPLIMIT_SORT {
+            @Override
             public int compare(DistributionDBRow o1, DistributionDBRow o2) {
                 return o1.getUplimit().compareTo(o2.getUplimit());
             }
         },
         COUNTER_SORT {
+            @Override
             public int compare(DistributionDBRow o1, DistributionDBRow o2) {
                 return o1.getCounter().compareTo(o2.getCounter());
             }
         },
         PRFM_SORT {
+            @Override
             public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                return Double.valueOf(o1.getPrfm()).compareTo(o2.getPrfm());
+                return o1.getPrfm().compareTo(o2.getPrfm());
             }
         },
         EXITCODE_SORT {
+            @Override
             public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                return Integer.valueOf(o1.getExitcode()).compareTo(o2.getExitcode());
+                return o1.getExitcode().compareTo(o2.getExitcode());
             }
         };
 
         public static Comparator<DistributionDBRow> decending(final Comparator<DistributionDBRow> other) {
-            return new Comparator<DistributionDBRow>() {
-                public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                    return -1 * other.compare(o1, o2);
-                }
-            };
+            return (DistributionDBRow o1, DistributionDBRow o2) -> -1 * other.compare(o1, o2);
         }
 
         public static Comparator<DistributionDBRow> getComparator(final DistributionDBRowComparator... multipleOptions) {
-            return new Comparator<DistributionDBRow>() {
-                public int compare(DistributionDBRow o1, DistributionDBRow o2) {
-                    for (DistributionDBRowComparator option : multipleOptions) {
-                        int result = option.compare(o1, o2);
-                        if (result != 0) {
-                            return result;
-                        }
+            return (DistributionDBRow o1, DistributionDBRow o2) -> {
+                for (DistributionDBRowComparator option : multipleOptions) {
+                    int result = option.compare(o1, o2);
+                    if (result != 0) {
+                        return result;
                     }
-                    return 0;
                 }
+                return 0;
             };
         }
     }

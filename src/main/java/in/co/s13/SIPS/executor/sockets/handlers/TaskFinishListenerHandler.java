@@ -88,7 +88,7 @@ public class TaskFinishListenerHandler implements Runnable {
                         submitter.close();
                         Thread t = new Thread(new UpdateDistDBaftExecVirtual(System.currentTimeMillis(), Long.parseLong(content), fname, ipAddress, pid, cno, ExitCode, uuid,avgLoad));
                         GlobalValues.DIST_DB_EXECUTOR.submit(t);
-                        Util.appendToTasksLog(GlobalValues.LOG_LEVEL.OUTPUT, "size of master dist db " + MASTER_DIST_DB.size());
+//                        Util.appendToTasksLog(GlobalValues.LOG_LEVEL.OUTPUT, "size of master dist db " + MASTER_DIST_DB.size());
 
                     } else if (command.contains("Error")) {
                         String pid = body.getString("PID");

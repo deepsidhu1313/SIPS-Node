@@ -256,6 +256,12 @@ public class GlobalValues {
     public static ExecutorService RESULT_WH_DB_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService LOG_IO_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService SEND_SLEEPTIME_EXECUTOR_SERVICE = Executors.newFixedThreadPool(1);
+    public static ExecutorService SEND_OUTPUT_EXECUTOR_SERVICE = Executors.newFixedThreadPool(TASK_LIMIT);
+    public static ExecutorService SEND_FINISH_EXECUTOR_SERVICE = Executors.newFixedThreadPool(TASK_LIMIT);
+    public static ExecutorService SEND_START_IN_QUEUE_EXECUTOR_SERVICE = Executors.newFixedThreadPool(TASK_LIMIT);
+    public static ExecutorService SEND_ENTER_IN_QUEUE_EXECUTOR_SERVICE = Executors.newFixedThreadPool(TASK_LIMIT);
+    public static ExecutorService SEND_COMMOH_EXECUTOR_SERVICE = Executors.newFixedThreadPool(TASK_LIMIT);
+    public static ExecutorService OUTPUT_WRITER_EXECUTOR = Executors.newFixedThreadPool(TASK_LIMIT);
 
     /**
      * Server ThreadPools

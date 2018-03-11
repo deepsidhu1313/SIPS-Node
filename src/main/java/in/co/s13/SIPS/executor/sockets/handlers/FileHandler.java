@@ -82,7 +82,7 @@ public class FileHandler implements Runnable {
                         String pid = body.getString("PID");//substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
                         String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
                         String projectName = body.getString("PROJECT");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
-
+                        String nodeUUID = body.getString("UUID");
 //                        System.out.println("Accepted connection : " + submitter);
                         // send file
                         File myFile = new File("data/" + pid  + "/" + fileToSend);
@@ -155,7 +155,7 @@ public class FileHandler implements Runnable {
                         String classname = body.getString("CLASSNAME");//substring(body.indexOf("<CLASSNAME>") + 11, body.indexOf("</CLASSNAME>"));
                         int instance = body.getInt("INSTANCE");//substring(body.indexOf("<INSTANCE>") + 10, body.indexOf("</INSTANCE>"));
                         String projectName = body.getString("PROJECT");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
-
+                        String nodeUUID = body.getString("UUID");
 //                        System.out.println("Accepted connection : " + submitter);
                         // send file
                         File myFile2 = new File("data/" + pid2 +  "/.simulated/" + classname + "/" + objToSend + "-instance-" + instance + ".obj");

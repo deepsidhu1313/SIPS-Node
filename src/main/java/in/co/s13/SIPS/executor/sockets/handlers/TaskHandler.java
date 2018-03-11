@@ -206,24 +206,26 @@ public class TaskHandler implements Runnable {
 //
 //                        }
                         submitter.close();
-                        int counter = 0;
-                        boolean exist = false;
-                        while (!exist && counter < 5) {
-                            ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
-                            if (DistTable != null) {
-                                exist = true;
-                                DistributionDBRow get = DistTable.get(uuid + "-" + cno.trim());
-                                if (get != null) {
-                                    get.setSleeptime(get.getSleeptime() + Long.parseLong(content));
+                        GlobalValues.DIST_DB_EXECUTOR.execute(() -> {
+                            int counter = 0;
+                            boolean exist = false;
+                            while (!exist && counter < 5) {
+                                ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
+                                if (DistTable != null) {
+                                    exist = true;
+                                    DistributionDBRow get = DistTable.get(uuid + "-" + cno.trim());
+                                    if (get != null) {
+                                        get.setSleeptime(get.getSleeptime() + Long.parseLong(content));
+                                    }
                                 }
+                                try {
+                                    Thread.currentThread().sleep(1000);
+                                } catch (InterruptedException ex) {
+                                    Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                                counter++;
                             }
-                            try {
-                                Thread.currentThread().sleep(1000);
-                            } catch (InterruptedException ex) {
-                                Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                            counter++;
-                        }
+                        });
 
                     } else if (command.contains("kill")) {
                         String pid = body.getString("PID");//body.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
@@ -263,8 +265,8 @@ public class TaskHandler implements Runnable {
                         }
 
                         submitter.close();
-                        Thread outToFile = new Thread(new PrintToFile(fname, pid, cno, content));
-                        outToFile.start();
+                        PrintToFile outToFile = (new PrintToFile(fname, pid, cno, content));
+                        GlobalValues.OUTPUT_WRITER_EXECUTOR.submit(outToFile);
                     }
                 }
             }

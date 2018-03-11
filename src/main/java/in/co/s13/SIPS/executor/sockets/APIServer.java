@@ -40,9 +40,9 @@ public class APIServer implements Runnable {
         }
         if (GlobalValues.API_HANDLER_EXECUTOR_SERVICE == null || GlobalValues.API_HANDLER_EXECUTOR_SERVICE.isShutdown()) {
             GlobalValues.API_HANDLER_EXECUTOR_SERVICE = new FixedThreadPool(GlobalValues.API_HANDLER_LIMIT);
-        }else{
+        } else {
             GlobalValues.API_HANDLER_EXECUTOR_SERVICE.changeSize(GlobalValues.API_HANDLER_LIMIT);
-        
+
         }
     }
 
@@ -61,9 +61,7 @@ public class APIServer implements Runnable {
         while (GlobalValues.API_SERVER_IS_RUNNING) {
             try {
                 Socket s = GlobalValues.API_SERVER_SOCKET.accept();
-                Thread t = new Thread(new APIHandler(s));
-                //t.setPriority(Thread.NORM_PRIORITY+1);
-                GlobalValues.API_HANDLER_EXECUTOR_SERVICE.submit(t);
+                GlobalValues.API_HANDLER_EXECUTOR_SERVICE.submit(new APIHandler(s));
 
             } catch (IOException ex) {
                 Logger.getLogger(APIServer.class.getName()).log(Level.SEVERE, null, ex);

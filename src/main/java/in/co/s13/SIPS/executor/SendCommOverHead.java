@@ -31,13 +31,13 @@ import org.json.JSONObject;
  *
  * @author Nika
  */
-public class sendCommOverHead implements Runnable {
+public class SendCommOverHead implements Runnable {
 
     String ipadd = "", ID = "", outPut = "", filename = "", value = "", cmd, chunkno;
 
     Socket s;
 
-    public sendCommOverHead(String overheadName, String ip, String PID, String chunknumber, String Filename, String value) {
+    public SendCommOverHead(String overheadName, String ip, String PID, String chunknumber, String Filename, String value) {
         ipadd = ip;
         ID = PID;
         filename = Filename;
@@ -91,11 +91,11 @@ public class sendCommOverHead implements Runnable {
             }
 
         } catch (IOException ex) {
-            Logger.getLogger(sendOutput.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SendOutput.class.getName()).log(Level.SEVERE, null, ex);
             try {
                 s.close();
             } catch (IOException ex1) {
-                Logger.getLogger(sendCommOverHead.class.getName()).log(Level.SEVERE, null, ex1);
+                Logger.getLogger(SendCommOverHead.class.getName()).log(Level.SEVERE, null, ex1);
             }
         }
 

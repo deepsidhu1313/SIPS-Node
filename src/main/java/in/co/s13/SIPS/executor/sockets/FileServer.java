@@ -60,10 +60,10 @@ public class FileServer implements Runnable {
         while (GlobalValues.FILE_SERVER_IS_RUNNING) {
             try {
                 Socket s = GlobalValues.FILE_SERVER_SOCKET.accept();
-                Thread t = new Thread(new FileHandler(s));
-                t.setPriority(Thread.NORM_PRIORITY + 1);
-                t.setName("File handling Thread");
-                GlobalValues.FILE_HANDLER_EXECUTOR_SERVICE.submit(t);
+//                Thread t = new Thread(new FileHandler(s));
+//                t.setPriority(Thread.NORM_PRIORITY + 1);
+//                t.setName("File handling Thread");
+                GlobalValues.FILE_HANDLER_EXECUTOR_SERVICE.submit(new FileHandler(s));
 
             } catch (IOException ex) {
                 Logger.getLogger(FileServer.class

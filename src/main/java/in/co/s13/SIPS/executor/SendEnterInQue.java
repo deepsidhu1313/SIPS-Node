@@ -31,11 +31,11 @@ import org.json.JSONObject;
  *
  * @author Nika
  */
-public class sendEnterInQue implements Runnable {
+public class SendEnterInQue implements Runnable {
 
     String ipadd = "", jobToken = "", outPut = "", filename = "", value = "", cmd, chunkno;
 
-    public sendEnterInQue(String overheadName, String ip, String jobToken, String chunknumber, String Filename, String value) {
+    public SendEnterInQue(String overheadName, String ip, String jobToken, String chunknumber, String Filename, String value) {
         ipadd = ip;
         this.jobToken = jobToken;
         filename = Filename;
@@ -79,7 +79,7 @@ public class sendEnterInQue implements Runnable {
                 //inFromServer.close();
             }
         } catch (IOException ex) {
-            Logger.getLogger(sendOutput.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SendOutput.class.getName()).log(Level.SEVERE, null, ex);
 
         }
 
