@@ -32,7 +32,7 @@ public class DistributionDBRow {
     private Integer cno, vartype, exitcode;
     private Long lstarttime, lendtime, lexctime, nexecutiontime, noh, poh, entrinq, startinq, waitinq, sleeptime, uploadedDataInKB, downloadedDataInKB;
     private String pid, chunksize, lowlimit, scheduler, uplimit, counter, ipAddress, hostName;
-    private AtomicInteger cacheHit, cacheMiss;
+    private AtomicInteger cacheHit= new AtomicInteger(0), cacheMiss= new AtomicInteger(0);
 
     public DistributionDBRow(int id, String uuid, String pid, int cno, int vartype, String scheduler,
             long lstarttime, long lendtime, long lexctime, long nexecutiontime, long noh, long poh,

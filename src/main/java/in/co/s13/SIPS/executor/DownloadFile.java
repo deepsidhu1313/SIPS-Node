@@ -42,7 +42,7 @@ public class DownloadFile {
 
     public DownloadFile(String IP, String id, String cno, String projectname, String localFolder, ArrayList<String> FileList, String uuid) {
         SERVER = IP;
-        ExecutorService downloadFileExecutor = Executors.newFixedThreadPool(5);
+        ExecutorService downloadFileExecutor = Executors.newFixedThreadPool(GlobalValues.TASK_LIMIT);
         FileList.stream().forEach((_item) -> {
             if (_item.trim().length() > 0) {
 //                Thread rt = new Thread
@@ -99,10 +99,10 @@ public class DownloadFile {
                                             dIn.readFully(message, 0, message.length); // read the message
                                         }
                                         checksum = new String(message);
-//                                        System.out.println("CheckSum Recieved " + checksum);
+                                        System.out.println("CheckSum Recieved " + checksum);
                                         sock.close();
                                     } else {
-//                                        System.out.println("Couldn't find file");
+                                        System.out.println("Couldn't find file");
                                         logmsg.add("Couldn't Find File on Master, Plz check file exists in Frameworks data directory " + _item);
                                     }
                                 }
@@ -126,7 +126,7 @@ public class DownloadFile {
                             } else {
 
                                 try (Socket sock = new Socket("127.0.0.1", GlobalValues.FILE_DOWNLOAD_SERVER_PORT)) {
-                                    //System.OUT.println("Connecting...");
+                                    System.out.println("Connecting...");
                                     try (OutputStream os = sock.getOutputStream(); DataOutputStream outToServer = new DataOutputStream(os)) {
                                         JSONObject sendMsgJSON = new JSONObject();
                                         sendMsgJSON.put("Command", "downloadfile");

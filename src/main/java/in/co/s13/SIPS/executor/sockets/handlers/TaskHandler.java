@@ -142,7 +142,7 @@ public class TaskHandler implements Runnable {
                                 DistributionDBRow get = DistTable.get(uuid + "-" + cno.trim());
                                 if (get != null) {
                                     get.setStartinq(Long.parseLong(content));
-//                                    System.out.println("Set start in Q:\n" + get.toString(4));
+                                    System.out.println("Set start in Q:\n" + get.toString(4));
                                 }
                             }
                         });
@@ -170,7 +170,7 @@ public class TaskHandler implements Runnable {
 //                                System.out.println("\n\nRetriving DIST Table From:\n " + MASTER_DIST_DB.values());
                                 if (DistTable != null) {
                                     exist = true;
-//                                    System.out.println("Retriving DIST Row");
+                                    System.out.println("Retriving DIST Row");
 
                                     DistributionDBRow get = DistTable.get(uuid + "-" + cno.trim());
                                     if (get != null) {
@@ -213,7 +213,8 @@ public class TaskHandler implements Runnable {
                                 ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
                                 if (DistTable != null) {
                                     exist = true;
-                                    DistributionDBRow get = DistTable.get(uuid + "-" + cno.trim());
+                                    System.out.println("Retrived DIST Row");
+            DistributionDBRow get = DistTable.get(uuid + "-" + cno.trim());
                                     if (get != null) {
                                         get.setSleeptime(get.getSleeptime() + Long.parseLong(content));
                                     }
