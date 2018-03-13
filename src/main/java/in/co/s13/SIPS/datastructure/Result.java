@@ -39,7 +39,9 @@ public class Result {
     private boolean finished;
     private String scheduler;
     private String status;
-
+    private long avgDownloadData=0,avgUploadData=0,avgCachedData;
+    private double avgCacheHitMissRatio=0,avgUploadSpeed=0,avgDownloadSpeed=0;
+    private int avgReqRecieved=0,avgReqSent=0;
     public Result() {
     }
     
@@ -197,6 +199,70 @@ public class Result {
         this.status = status;
     }
 
+    public long getAvgDownloadData() {
+        return avgDownloadData;
+    }
+
+    public void setAvgDownloadData(long avgDownloadData) {
+        this.avgDownloadData = avgDownloadData;
+    }
+
+    public long getAvgUploadData() {
+        return avgUploadData;
+    }
+
+    public void setAvgUploadData(long avgUploadData) {
+        this.avgUploadData = avgUploadData;
+    }
+
+    public long getAvgCachedData() {
+        return avgCachedData;
+    }
+
+    public void setAvgCachedData(long avgCachedData) {
+        this.avgCachedData = avgCachedData;
+    }
+
+    public double getAvgCacheHitMissRatio() {
+        return avgCacheHitMissRatio;
+    }
+
+    public void setAvgCacheHitMissRatio(double avgCacheHitMissRatio) {
+        this.avgCacheHitMissRatio = avgCacheHitMissRatio;
+    }
+
+    public double getAvgUploadSpeed() {
+        return avgUploadSpeed;
+    }
+
+    public void setAvgUploadSpeed(double avgUploadSpeed) {
+        this.avgUploadSpeed = avgUploadSpeed;
+    }
+
+    public double getAvgDownloadSpeed() {
+        return avgDownloadSpeed;
+    }
+
+    public void setAvgDownloadSpeed(double avgDownloadSpeed) {
+        this.avgDownloadSpeed = avgDownloadSpeed;
+    }
+
+    public int getAvgReqRecieved() {
+        return avgReqRecieved;
+    }
+
+    public void setAvgReqRecieved(int avgReqRecieved) {
+        this.avgReqRecieved = avgReqRecieved;
+    }
+
+    public int getAvgReqSent() {
+        return avgReqSent;
+    }
+
+    public void setAvgReqSent(int avgReqSent) {
+        this.avgReqSent = avgReqSent;
+    }
+
    
     
     @Override
@@ -226,7 +292,14 @@ public class Result {
         result.put("avgSleeptime", avgSleeptime);
         result.put("finished", finished);
         result.put("scheduler", scheduler);
-        result.put("status", status);
+        result.put("avgDownloadData", avgDownloadData);
+        result.put("avgDownloadSpeed", avgDownloadSpeed);
+        result.put("avgReqSent", avgReqSent);
+        result.put("avgUploadData", avgUploadData);
+        result.put("avgUploadSpeed", avgUploadSpeed);
+        result.put("avgReqRecieved", avgReqRecieved);
+        result.put("avgCachedData", avgCachedData);
+        result.put("avgCacheHitMissRatio", avgCacheHitMissRatio);
         result.put("createdOn", createdOn);
         return result;
     }

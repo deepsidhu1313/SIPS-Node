@@ -16,8 +16,11 @@
  */
 package in.co.s13.SIPS.datastructure;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.OptionalDouble;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import org.json.JSONObject;
 
 /**
@@ -28,11 +31,13 @@ public class DistributionDBRow {
 
     private Integer id;
     private String uuid;
-    private Double prfm, avgLoad, avgUploadSpeed, avgDownloadSpeed;
+    private Double prfm, avgLoad;
     private Integer cno, vartype, exitcode;
     private Long lstarttime, lendtime, lexctime, nexecutiontime, noh, poh, entrinq, startinq, waitinq, sleeptime, uploadedDataInKB, downloadedDataInKB;
     private String pid, chunksize, lowlimit, scheduler, uplimit, counter, ipAddress, hostName;
-    private AtomicInteger cacheHit= new AtomicInteger(0), cacheMiss= new AtomicInteger(0);
+    private AtomicInteger cacheHit = new AtomicInteger(0), cacheMiss = new AtomicInteger(0), reqsSent = new AtomicInteger(0), reqsRecieved = new AtomicInteger(0);
+    private AtomicLong cachedData = new AtomicLong(0);
+    private ArrayList<Double> uploadSpeed = new ArrayList<>(), downloadSpeed = new ArrayList<>();
 
     public DistributionDBRow(int id, String uuid, String pid, int cno, int vartype, String scheduler,
             long lstarttime, long lendtime, long lexctime, long nexecutiontime, long noh, long poh,
@@ -266,19 +271,25 @@ public class DistributionDBRow {
     }
 
     public Double getAvgUploadSpeed() {
-        return avgUploadSpeed;
+        OptionalDouble avgUploadSpeed = uploadSpeed.parallelStream()
+                .mapToDouble(a -> a)
+                .average();
+        return avgUploadSpeed.isPresent() ? avgUploadSpeed.getAsDouble() : 0;
     }
 
-    public void setAvgUploadSpeed(Double avgUploadSpeed) {
-        this.avgUploadSpeed = avgUploadSpeed;
+    public void addUploadSpeed(Double uploadSpeed) {
+        this.uploadSpeed.add(uploadSpeed);
     }
 
     public Double getAvgDownloadSpeed() {
-        return avgDownloadSpeed;
+        OptionalDouble avgDownloadSpeed = downloadSpeed.parallelStream()
+                .mapToDouble(a -> a)
+                .average();
+        return avgDownloadSpeed.isPresent() ? avgDownloadSpeed.getAsDouble() : 0;
     }
 
-    public void setAvgDownloadSpeed(Double avgDownloadSpeed) {
-        this.avgDownloadSpeed = avgDownloadSpeed;
+    public void addDownloadSpeed(Double downloadSpeed) {
+        this.downloadSpeed.add(downloadSpeed);
     }
 
     public Long getUploadedDataInKB() {
@@ -305,6 +316,10 @@ public class DistributionDBRow {
         this.cacheHit = cacheHit;
     }
 
+    public int incrementCacheHit() {
+        return cacheHit.incrementAndGet();
+    }
+
     public AtomicInteger getCacheMiss() {
         return cacheMiss;
     }
@@ -313,8 +328,36 @@ public class DistributionDBRow {
         this.cacheMiss = cacheMiss;
     }
 
+    public int incrementCacheMiss() {
+        return cacheMiss.incrementAndGet();
+    }
+
     public double getCacheHitMissRatio() {
         return this.getCacheHit().get() / this.getCacheMiss().get();
+    }
+
+    public int getReqsSent() {
+        return reqsSent.get();
+    }
+
+    public void incrementReqsSent() {
+        this.reqsSent.incrementAndGet();
+    }
+
+    public int getReqsRecieved() {
+        return reqsRecieved.get();
+    }
+
+    public void incrementReqsRecieved() {
+        this.reqsRecieved.incrementAndGet();
+    }
+
+    public long getCachedData() {
+        return cachedData.get();
+    }
+
+    public long addCachedData(Long delta) {
+        return this.cachedData.addAndGet(delta);
     }
 
     @Override
@@ -353,12 +396,12 @@ public class DistributionDBRow {
         result.put("uplimit", uplimit);
         result.put("counter", counter);
         result.put("avgLoad", avgLoad);
-        result.put("avgDownloadSpeed", avgDownloadSpeed);
-        result.put("avgUploadSpeed", avgUploadSpeed);
+        result.put("avgDownloadSpeed", getAvgDownloadSpeed());
+        result.put("avgUploadSpeed", getAvgUploadSpeed());
         result.put("uploadDataInKB", uploadedDataInKB);
         result.put("downloadDataInKB", downloadedDataInKB);
-        result.put("cacheHit", cacheHit);
-        result.put("cacheMiss", cacheMiss);
+        result.put("cacheHit", cacheHit.get());
+        result.put("cacheMiss", cacheMiss.get());
         result.put("cacheHitMissRatio", this.getCacheHitMissRatio());
         return result;
     }

@@ -16,7 +16,9 @@
  */
 package in.co.s13.SIPS.executor.sockets.handlers;
 
+import in.co.s13.SIPS.datastructure.DistributionDBRow;
 import in.co.s13.SIPS.settings.GlobalValues;
+import static in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB;
 import in.co.s13.SIPS.tools.Util;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -29,6 +31,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONObject;
@@ -43,8 +46,6 @@ public class FileHandler implements Runnable {
     int pnum;
     String simsql = "";
     long pdelay = 10;
-    private FileInputStream fis;
-    private BufferedInputStream bis;
     private String FILE_TO_SEND;
 
     public FileHandler(Socket connection) {
@@ -85,7 +86,7 @@ public class FileHandler implements Runnable {
                         String nodeUUID = body.getString("UUID");
 //                        System.out.println("Accepted connection : " + submitter);
                         // send file
-                        File myFile = new File("data/" + pid  + "/" + fileToSend);
+                        File myFile = new File("data/" + pid + "/" + fileToSend);
 
                         if (myFile.getAbsolutePath().trim().contains("data/" + pid) && myFile.exists()) {
                             String sendmsg = "foundfile";
@@ -119,31 +120,74 @@ public class FileHandler implements Runnable {
                             s = new String(message);
                             msg = new JSONObject(s);
                             if (msg.getString("REPLY").trim().equalsIgnoreCase("foundLocal")) {
-
+                                GlobalValues.DIST_DB_EXECUTOR.execute(() -> {
+                                    int counter = 0;
+                                    boolean exist = false;
+                                    while (!exist && counter < 5) {
+                                        ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
+                                        if (DistTable != null) {
+                                            DistributionDBRow get = DistTable.get(nodeUUID + "-" + cno.trim());
+                                            if (get != null) {
+                                                get.addCachedData(myFile.length());
+                                                get.incrementCacheHit();
+                                            }
+                                        }
+                                        try {
+                                            Thread.currentThread().sleep(1000);
+                                        } catch (InterruptedException ex) {
+                                            Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
+                                        counter++;
+                                    }
+                                });
                             } else if (msg.getString("REPLY").trim().equalsIgnoreCase("sendNew")) {
                                 long flength = myFile.length();
                                 outToClient.writeLong(flength);
 
-                                // byte[] mybytearray = new byte[(int) myFile.length()];
-                                fis = new FileInputStream(myFile);
-                                bis = new BufferedInputStream(fis);
-                                int theByte = 0;
-                                Util.appendToFileServerLog(GlobalValues.LOG_LEVEL.OUTPUT, "Sending " + fileToSend + "(" + myFile.length() + " bytes)");
-                                /* while ((theByte = bis.read()) != -1) {
-                                outToClient.write(theByte);
-                                // bos.flush();
-                                }*/
+                                try ( // byte[] mybytearray = new byte[(int) myFile.length()];
+                                        FileInputStream fis = new FileInputStream(myFile); BufferedInputStream bis = new BufferedInputStream(fis)) {
+                                    int theByte = 0;
+                                    Util.appendToFileServerLog(GlobalValues.LOG_LEVEL.OUTPUT, "Sending " + fileToSend + "(" + myFile.length() + " bytes)");
+                                    /* while ((theByte = bis.read()) != -1) {
+                                    outToClient.write(theByte);
+                                    // bos.flush();
+                                    }*/
+                                    int count;
+                                    byte[] mybytearray = new byte[16 * 1024];
+                                    long start = System.currentTimeMillis();
+                                    try (BufferedOutputStream bos = new BufferedOutputStream(os)) {
+                                        while ((count = bis.read(mybytearray)) > -1) {
+                                            bos.write(mybytearray, 0, count);
+                                        }
+                                        bos.flush();
+                                    }
 
-                                int count;
-                                byte[] mybytearray = new byte[16 * 1024];
-                                BufferedOutputStream bos = new BufferedOutputStream(os);
-                                while ((count = bis.read(mybytearray)) > -1) {
-                                    bos.write(mybytearray, 0, count);
+                                    long end = System.currentTimeMillis();
+
+                                    GlobalValues.DIST_DB_EXECUTOR.execute(() -> {
+                                        int counter = 0;
+                                        boolean exist = false;
+                                        while (!exist && counter < 5) {
+                                            ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
+                                            if (DistTable != null) {
+
+                                                DistributionDBRow get = DistTable.get(nodeUUID + "-" + cno.trim());
+                                                if (get != null) {
+                                                    get.setDownloadedDataInKB(get.getDownloadedDataInKB() + flength);
+                                                    get.addDownloadSpeed((double) (flength) / ((double) (end - start)));
+                                                    get.incrementReqsRecieved();
+                                                    get.incrementCacheMiss();
+                                                }
+                                            }
+                                            try {
+                                                Thread.currentThread().sleep(1000);
+                                            } catch (InterruptedException ex) {
+                                                Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
+                                            }
+                                            counter++;
+                                        }
+                                    });
                                 }
-                                bos.flush();
-                                bos.close();
-                                bis.close();
-                                fis.close();
                             }
 
                         }
@@ -158,7 +202,7 @@ public class FileHandler implements Runnable {
                         String nodeUUID = body.getString("UUID");
 //                        System.out.println("Accepted connection : " + submitter);
                         // send file
-                        File myFile2 = new File("data/" + pid2 +  "/.simulated/" + classname + "/" + objToSend + "-instance-" + instance + ".obj");
+                        File myFile2 = new File("data/" + pid2 + "/.simulated/" + classname + "/" + objToSend + "-instance-" + instance + ".obj");
 
                         if (myFile2.getAbsolutePath().trim().contains("data/" + pid2) && myFile2.exists()) {
                             String sendmsg = "foundobj";
@@ -193,32 +237,76 @@ public class FileHandler implements Runnable {
                             s = new String(message);
                             msg = new JSONObject(s);
                             if (msg.getString("REPLY").trim().equalsIgnoreCase("foundLocal")) {
+                                GlobalValues.DIST_DB_EXECUTOR.execute(() -> {
+                                    int counter = 0;
+                                    boolean exist = false;
+                                    while (!exist && counter < 5) {
+                                        ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid2.trim()));
+                                        if (DistTable != null) {
 
+                                            DistributionDBRow get = DistTable.get(nodeUUID + "-" + cno2.trim());
+                                            if (get != null) {
+                                                get.addCachedData(myFile2.length());
+                                                get.incrementCacheHit();
+                                            }
+                                        }
+                                        try {
+                                            Thread.currentThread().sleep(1000);
+                                        } catch (InterruptedException ex) {
+                                            Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
+                                        counter++;
+                                    }
+                                });
                             } else if (msg.getString("REPLY").trim().equalsIgnoreCase("sendNew")) {
 
                                 long flength = myFile2.length();
                                 outToClient.writeLong(flength);
 
-                                // byte[] mybytearray = new byte[(int) myFile.length()];
-                                fis = new FileInputStream(myFile2);
-                                bis = new BufferedInputStream(fis);
-                                int theByte = 0;
-                                Util.appendToFileServerLog(GlobalValues.LOG_LEVEL.OUTPUT, "Sending " + objToSend + " (" + myFile2.length() + " bytes)");
-                                /* while ((theByte = bis.read()) != -1) {
-                                outToClient.write(theByte);
-                                // bos.flush();
-                                }*/
+                                try ( // byte[] mybytearray = new byte[(int) myFile.length()];
+                                        FileInputStream fis = new FileInputStream(myFile2); BufferedInputStream bis = new BufferedInputStream(fis)) {
+                                    int theByte = 0;
+                                    Util.appendToFileServerLog(GlobalValues.LOG_LEVEL.OUTPUT, "Sending " + objToSend + " (" + myFile2.length() + " bytes)");
+                                    /* while ((theByte = bis.read()) != -1) {
+                                    outToClient.write(theByte);
+                                    // bos.flush();
+                                    }*/
+                                    int count;
+                                    long start = System.currentTimeMillis();
+                                    byte[] mybytearray = new byte[16 * 1024];
 
-                                int count;
-                                byte[] mybytearray = new byte[16 * 1024];
-                                try (BufferedOutputStream bos = new BufferedOutputStream(os)) {
-                                    while ((count = bis.read(mybytearray)) > -1) {
-                                        bos.write(mybytearray, 0, count);
+                                    try (BufferedOutputStream bos = new BufferedOutputStream(os)) {
+                                        while ((count = bis.read(mybytearray)) > -1) {
+                                            bos.write(mybytearray, 0, count);
+                                        }
+                                        bos.flush();
                                     }
-                                    bos.flush();
+                                    long end = System.currentTimeMillis();
+
+                                    GlobalValues.DIST_DB_EXECUTOR.execute(() -> {
+                                        int counter = 0;
+                                        boolean exist = false;
+                                        while (!exist && counter < 5) {
+                                            ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid2.trim()));
+                                            if (DistTable != null) {
+
+                                                DistributionDBRow get = DistTable.get(nodeUUID + "-" + cno2.trim());
+                                                if (get != null) {
+                                                    get.setDownloadedDataInKB(get.getDownloadedDataInKB() + flength);
+                                                    get.addDownloadSpeed((double) (flength) / ((double) (end - start)));
+                                                    get.incrementReqsRecieved();
+                                                    get.incrementCacheMiss();
+                                                }
+                                            }
+                                            try {
+                                                Thread.currentThread().sleep(1000);
+                                            } catch (InterruptedException ex) {
+                                                Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
+                                            }
+                                            counter++;
+                                        }
+                                    });
                                 }
-                                bis.close();
-                                fis.close();
                             }
                         } else {
                             String sendmsg = "error";
@@ -239,7 +327,7 @@ public class FileHandler implements Runnable {
                         String projectName = body.getString("PROJECT");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
 
                         // send file
-                        File myFile2 = new File("data/" + pid2  + "/.simulated/" + classname + "/" + objToSend + "-instance-" + instance + ".obj");
+                        File myFile2 = new File("data/" + pid2 + "/.simulated/" + classname + "/" + objToSend + "-instance-" + instance + ".obj");
 
                         if (myFile2.getAbsolutePath().trim().contains("data/" + pid2) && myFile2.exists()) {
                             String sendmsg = "foundobj";
@@ -288,7 +376,7 @@ public class FileHandler implements Runnable {
 
                         System.out.println("Accepted connection : " + submitter);
                         // send file
-                        File myFile = new File("data/" + pid + "/" +  fileToSend);
+                        File myFile = new File("data/" + pid + "/" + fileToSend);
 
                         if (myFile.getAbsolutePath().trim().contains("data/" + pid) && myFile.exists()) {
                             String sendmsg = "foundfile";
@@ -322,7 +410,7 @@ public class FileHandler implements Runnable {
 
                             outToClient.write(bytes);
                             Util.appendToFileServerLog(GlobalValues.LOG_LEVEL.ERROR, "Sending " + sendmsg + " to " + ipAddress);
-                            Util.appendToFileServerLog(GlobalValues.LOG_LEVEL.ERROR, "File doesnot exist:"+myFile.getAbsolutePath());
+                            Util.appendToFileServerLog(GlobalValues.LOG_LEVEL.ERROR, "File doesnot exist:" + myFile.getAbsolutePath());
 
                         }
                     }

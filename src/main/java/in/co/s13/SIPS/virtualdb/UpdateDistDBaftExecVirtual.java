@@ -137,6 +137,14 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                         Double PRFM = 0.0;
                         Integer XTC = 0;
 
+                        double avgCacheHitMissRatio = 0;
+                        long avgDownloadData = 0;
+                        double avgDownloadSpeed = 0;
+                        int avgReqSent = 0;
+                        long avgUploadData = 0;
+                        double avgUploadSpeed = 0;
+                        int avgReqRecieved = 0;
+                        long avgCachedData = 0;
                         {
 //                    for ()
                             {
@@ -165,11 +173,26 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                                     SLEEP = (distRow.getSleeptime());
                                     PRFM = (distRow.getAvgLoad());
                                     XTC = (distRow.getExitcode());
+                                    avgCacheHitMissRatio = distRow.getCacheHitMissRatio();
+                                    avgDownloadData = distRow.getDownloadedDataInKB();
+                                    avgDownloadSpeed = distRow.getAvgDownloadSpeed();
+                                    avgReqSent = distRow.getReqsSent();
+                                    avgUploadData = distRow.getUploadedDataInKB();
+                                    avgUploadSpeed = distRow.getAvgUploadSpeed();
+                                    avgReqRecieved = distRow.getReqsRecieved();
+                                    avgCachedData = distRow.getCachedData();
 //                            break;
                                 }
                             }
                         }
-                        GlobalValues.DIST_WH_DB_EXECUTOR.submit(new InsertDistributionWareHouse(Node, PID, CNO, VARTYPE, SCHEDULER, LStart, Lend, Lexec, CS, LOWL, UPL, COUNTER, Nexec, CommOH, ParOH, ENTERINQ, STARTINQ, WAITINQ, SLEEP, PRFM, XTC, fname));
+                        GlobalValues.DIST_WH_DB_EXECUTOR.submit(new InsertDistributionWareHouse(Node, PID, CNO, VARTYPE, SCHEDULER, LStart, Lend, Lexec, CS, LOWL, UPL, COUNTER, Nexec, CommOH, ParOH, ENTERINQ, STARTINQ, WAITINQ, SLEEP, PRFM, XTC, fname, avgCacheHitMissRatio,
+                                avgDownloadData,
+                                avgDownloadSpeed,
+                                avgReqSent,
+                                avgUploadData,
+                                avgUploadSpeed,
+                                avgReqRecieved,
+                                avgCachedData));
 
                     }
 
@@ -238,6 +261,16 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                                 Long tempNOH = 0L;
                                 long tempavgWaitinQ = 0, tempavgSleeptime = 0;
                                 double tempload = 0.0;
+
+                                double avgCacheHitMissRatio = 0;
+                                long avgDownloadData = 0;
+                                double avgDownloadSpeed = 0;
+                                int avgReqSent = 0;
+                                long avgUploadData = 0;
+                                double avgUploadSpeed = 0;
+                                int avgReqRecieved = 0;
+                                long avgCachedData = 0;
+
                                 int c = 0;
                                 {
                                     for (DistributionDBRow distTableRow : DistTable.values()) {
@@ -246,6 +279,15 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                                         tempavgSleeptime += distTableRow.getSleeptime();
                                         tempavgWaitinQ += distTableRow.getWaitinq();
                                         tempload += d;
+
+                                        avgCacheHitMissRatio += distTableRow.getCacheHitMissRatio();
+                                        avgDownloadData += distTableRow.getDownloadedDataInKB();
+                                        avgDownloadSpeed += distTableRow.getAvgDownloadSpeed();
+                                        avgReqSent += distTableRow.getReqsSent();
+                                        avgUploadData += distTableRow.getUploadedDataInKB();
+                                        avgUploadSpeed += distTableRow.getAvgUploadSpeed();
+                                        avgReqRecieved += distTableRow.getReqsRecieved();
+                                        avgCachedData += distTableRow.getCachedData();
                                         c++;
                                     }
                                 }
@@ -253,7 +295,24 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                                 tempNOH /= c;
                                 tempavgSleeptime /= c;
                                 tempavgWaitinQ /= c;
-                                GlobalValues.RESULT_WH_DB_EXECUTOR.submit(new UpdateResultDBafterExecVirtual(pid, endtime, ttime, tempNOH, tempload, tempavgWaitinQ, tempavgSleeptime));
+
+                                avgCacheHitMissRatio /= c;
+                                avgDownloadData /= c;
+                                avgDownloadSpeed /= c;
+                                avgReqSent /= c;
+                                avgUploadData /= c;
+                                avgUploadSpeed /= c;
+                                avgReqRecieved /= c;
+                                avgCachedData /= c;
+
+                                GlobalValues.RESULT_WH_DB_EXECUTOR.submit(new UpdateResultDBafterExecVirtual(pid, endtime, ttime, tempNOH, tempload, tempavgWaitinQ, tempavgSleeptime, avgCacheHitMissRatio,
+                                        avgDownloadData,
+                                        avgDownloadSpeed,
+                                        avgReqSent,
+                                        avgUploadData,
+                                        avgUploadSpeed,
+                                        avgReqRecieved,
+                                        avgCachedData));
                                 //  controlpanel.Settings.distDWDBExecutor.execute(new InsDistWareHouse(Node, PID, CNO, VARTYPE, SCHEDULER, LStart, Lend, Lexec, CS, LOWL, UPL, COUNTER, Nexec, CommOH, ParOH, PRFM, XTC, fname));
                             });
                         });

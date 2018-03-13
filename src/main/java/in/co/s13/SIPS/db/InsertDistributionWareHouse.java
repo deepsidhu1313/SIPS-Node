@@ -16,6 +16,8 @@
  */
 package in.co.s13.SIPS.db;
 
+import in.co.s13.SIPS.tools.Util;
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -49,6 +51,14 @@ public class InsertDistributionWareHouse implements Runnable {
     Long SLEEP;
     String projectName;
     SQLiteJDBC distWH = new SQLiteJDBC();
+    double avgCacheHitMissRatio;
+    long avgDownloadData;
+    double avgDownloadSpeed;
+    int avgReqSent;
+    long avgUploadData;
+    double avgUploadSpeed;
+    int avgReqRecieved;
+    long avgCachedData;
 
     public InsertDistributionWareHouse(String Node,
             String PID,
@@ -70,7 +80,15 @@ public class InsertDistributionWareHouse implements Runnable {
             Long WAITINQ,
             Long SLEEP,
             Double PRFM,
-            Integer XTC, String Project) {
+            Integer XTC, String Project,
+            double avgCacheHitMissRatio,
+            long avgDownloadData,
+            double avgDownloadSpeed,
+            int avgReqSent,
+            long avgUploadData,
+            double avgUploadSpeed,
+            int avgReqRecieved,
+            long avgCachedData) {
 
         this.Node = Node;
         this.PID = PID;
@@ -95,6 +113,15 @@ public class InsertDistributionWareHouse implements Runnable {
         this.WAITINQ = WAITINQ;
         this.SLEEP = SLEEP;
 
+        this.avgCacheHitMissRatio = avgCacheHitMissRatio;
+        this.avgDownloadData = avgDownloadData;
+        this.avgDownloadSpeed = avgDownloadSpeed;
+        this.avgReqSent = avgReqSent;
+        this.avgUploadData = avgUploadData;
+        this.avgUploadSpeed = avgUploadSpeed;
+        this.avgReqRecieved = avgReqRecieved;
+        this.avgCachedData = avgCachedData;
+
     }
 
     @Override
@@ -102,34 +129,7 @@ public class InsertDistributionWareHouse implements Runnable {
         Thread.currentThread().setName("InsertDistDBWHThread");
         String sql = "";
         if (!created) {
-            sql = "CREATE TABLE DISTWH"
-                    + "(ID INTEGER PRIMARY KEY  AUTOINCREMENT   NOT NULL,"
-                    + " IP TEXT Not Null,"
-                    + "PROJECT TEXT ,"
-                    + "PID INT,"
-                    + "CNO INT,"
-                    + "VARTYPE INT,"
-                    + "SCHEDULER INT,"
-                    + "LStartTime LONG,"
-                    + "LEndTime LONG,"
-                    + "LExcTime LONG,"
-                    + "CHUNKSIZE DECIMAL,"
-                    + "LOWLIMIT DECIMAL,"
-                    + "UPLIMIT DECIMAL,"
-                    + "COUNTER DECIMAL,"
-                    + "NExecutionTime LONG,"
-                    + "NOH LONG,"
-                    + "POH LONG,"
-                    + "ENTERINQ LONG,"
-                    + "STARTINQ LONG,"
-                    + "WAITINQ LONG,"
-                    + "SLEEPTIME LONG,"
-                    + "PRFM DOUBLE,"
-                    + "EXITCODE INT,"
-                    + "TIMESTAMP DATE);";
-            distWH.createtable("log/dw-dist.db", sql);
-            distWH.closeConnection();
-            created = true;
+            created = createTable();
         }
         //for (int i = 0; i < Node.size(); i++)
         {
@@ -157,7 +157,16 @@ public class InsertDistributionWareHouse implements Runnable {
                     + "WAITINQ,"
                     + "SLEEPTIME,"
                     + "PRFM,"
-                    + "EXITCODE,TIMESTAMP"
+                    + "avgCacheHitMissRatio,"
+                    + "avgDownloadData,"
+                    + "avgDownloadSpeed,"
+                    + "avgReqSent,"
+                    + "avgUploadData,"
+                    + "avgUploadSpeed,"
+                    + "avgReqRecieved,"
+                    + "avgCachedData,"
+                    + "EXITCODE,"
+                    + "TIMESTAMP"
                     + ") VALUES ("
                     + "'" + Node
                     + "','" + projectName
@@ -180,12 +189,69 @@ public class InsertDistributionWareHouse implements Runnable {
                     + "','" + WAITINQ
                     + "','" + SLEEP
                     + "','" + PRFM
+                    + "','" + avgCacheHitMissRatio
+                    + "','" + avgDownloadData
+                    + "','" + avgDownloadSpeed
+                    + "','" + avgReqSent
+                    + "','" + avgUploadData
+                    + "','" + avgUploadSpeed
+                    + "','" + avgReqRecieved
+                    + "','" + avgCachedData
                     + "','" + EXITCODE
                     + "','" + dateFormat.format(date) + "');";
             distWH.insert("log/dw-dist.db", sql);
         }
         distWH.closeConnection();
 
+    }
+
+    private boolean createTable() {
+        String sql = "CREATE TABLE DISTWH"
+                + "(ID INTEGER PRIMARY KEY  AUTOINCREMENT   NOT NULL,"
+                + " IP TEXT Not Null,"
+                + "PROJECT TEXT ,"
+                + "PID INT,"
+                + "CNO INT,"
+                + "VARTYPE INT,"
+                + "SCHEDULER INT,"
+                + "LStartTime LONG,"
+                + "LEndTime LONG,"
+                + "LExcTime LONG,"
+                + "CHUNKSIZE DECIMAL,"
+                + "LOWLIMIT DECIMAL,"
+                + "UPLIMIT DECIMAL,"
+                + "COUNTER DECIMAL,"
+                + "NExecutionTime LONG,"
+                + "NOH LONG,"
+                + "POH LONG,"
+                + "ENTERINQ LONG,"
+                + "STARTINQ LONG,"
+                + "WAITINQ LONG,"
+                + "SLEEPTIME LONG,"
+                + "PRFM DOUBLE,"
+                + "EXITCODE INT,"
+                + "avgCacheHitMissRatio DOUBLE,"
+                + "avgDownloadData LONG,"
+                + "avgDownloadSpeed DOUBLE,"
+                + "avgReqSent INT,"
+                + "avgUploadData LONG,"
+                + "avgUploadSpeed DOUBLE,"
+                + "avgReqRecieved INT,"
+                + "avgCachedData LONG,"
+                + "TIMESTAMP DATE);";
+        boolean created = distWH.createtable("log/dw-dist.db", sql);
+        distWH.closeConnection();
+        if (!created) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.sss");
+            Date date = new Date();
+            File existing = new File("log/dw-dist.db");
+            if (existing.exists()) {
+                existing.renameTo(new File("log/dw-dist-" + dateFormat.format(date) + ".db"));
+            }
+        }
+        created = distWH.createtable("log/dw-dist.db", sql);
+        distWH.closeConnection();
+        return created;
     }
 
 }

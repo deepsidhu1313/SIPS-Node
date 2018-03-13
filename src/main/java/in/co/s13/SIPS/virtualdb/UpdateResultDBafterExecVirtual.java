@@ -31,21 +31,47 @@ public class UpdateResultDBafterExecVirtual implements Runnable {
     long stoptime, totaltime, NOH;
     long avgWaitInQ;
     long avgSleepTime;
-double avgload;
-    public UpdateResultDBafterExecVirtual(String jobToken, long STOPTIME, long TOTALTIME, long NetOH, double avgload, long avgWaitInQ, long avgSleepTime) {
+    double avgload;
+    double avgCacheHitMissRatio = 0;
+    long avgDownloadData = 0;
+    double avgDownloadSpeed = 0;
+    int avgReqSent = 0;
+    long avgUploadData = 0;
+    double avgUploadSpeed = 0;
+    int avgReqRecieved = 0;
+    long avgCachedData = 0;
+
+    public UpdateResultDBafterExecVirtual(String jobToken, long STOPTIME, long TOTALTIME, long NetOH, double avgload, long avgWaitInQ, long avgSleepTime, double avgCacheHitMissRatio,
+            long avgDownloadData,
+            double avgDownloadSpeed,
+            int avgReqSent,
+            long avgUploadData,
+            double avgUploadSpeed,
+            int avgReqRecieved,
+            long avgCachedData) {
         dbloc = "appdb/results.db";
         this.jobToken = jobToken;
         stoptime = STOPTIME;
         totaltime = TOTALTIME;
         NOH = NetOH;
-        avgload = avgload;
+        this.avgload = avgload;
         this.avgSleepTime = avgSleepTime;
         this.avgWaitInQ = avgWaitInQ;
+
+        this.avgCacheHitMissRatio = avgCacheHitMissRatio;
+        this.avgDownloadData = avgDownloadData;
+        this.avgDownloadSpeed = avgDownloadSpeed;
+        this.avgReqSent = avgReqSent;
+        this.avgUploadData = avgUploadData;
+        this.avgUploadSpeed = avgUploadSpeed;
+        this.avgReqRecieved = avgReqRecieved;
+        this.avgCachedData = avgCachedData;
     }
 
     @Override
     public void run() {
-        {        Thread.currentThread().setName("UpdateResultDBaftExecVirtual Started For "+jobToken);
+        {
+            Thread.currentThread().setName("UpdateResultDBaftExecVirtual Started For " + jobToken);
 
             Result resultDBEntry = RESULT_DB.get(jobToken.trim());
             {
@@ -58,6 +84,14 @@ double avgload;
                 resultDBEntry.setAvgWaitinq(avgWaitInQ);
                 resultDBEntry.setFinished(true);
                 resultDBEntry.setStatus("Job Finished");
+                resultDBEntry.setAvgCacheHitMissRatio(avgCacheHitMissRatio);
+                resultDBEntry.setAvgDownloadData(avgDownloadData);
+                resultDBEntry.setAvgDownloadSpeed(avgDownloadSpeed);
+                resultDBEntry.setAvgReqSent(avgReqSent);
+                resultDBEntry.setAvgUploadData(avgUploadData);
+                resultDBEntry.setAvgUploadSpeed(avgUploadSpeed);
+                resultDBEntry.setAvgReqRecieved(avgReqRecieved);
+                resultDBEntry.setAvgCachedData(avgCachedData);
                 {
                     GlobalValues.RESULT_DB_EXECUTOR.submit(new InsertResultWareHouse((resultDBEntry.getJobToken()), resultDBEntry.getJobName(),
                             resultDBEntry.getScheduler(),
@@ -70,7 +104,17 @@ double avgload;
                             "" + resultDBEntry.getTotalChunks(),
                             "" + resultDBEntry.getTotalNodes(),
                             (resultDBEntry.getAvgLoad()),
-                            "" + resultDBEntry.isFinished(), "" + resultDBEntry.getAvgWaitinq(), "" + resultDBEntry.getAvgSleeptime()));
+                            "" + resultDBEntry.isFinished(),
+                            "" + resultDBEntry.getAvgWaitinq(),
+                            "" + resultDBEntry.getAvgSleeptime(),
+                            avgCacheHitMissRatio,
+                            avgDownloadData,
+                            avgDownloadSpeed,
+                            avgReqSent,
+                            avgUploadData,
+                            avgUploadSpeed,
+                            avgReqRecieved,
+                            avgCachedData));
                 }
             }
 

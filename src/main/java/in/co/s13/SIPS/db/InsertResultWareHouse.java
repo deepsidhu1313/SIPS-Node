@@ -16,6 +16,7 @@
  */
 package in.co.s13.SIPS.db;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -25,14 +26,30 @@ import java.util.Date;
  */
 public class InsertResultWareHouse implements Runnable {
 
-    public static int counter = 1;
+    public static boolean created = false;
     String projectName;
     SQLiteJDBC resWH = new SQLiteJDBC();
     String SCHEDULER, PID;
     String STARTTIME, ENDTIME, TOTALTIME, NOH, POH, CHUNKSIZE, TCHUNKS, TNODES, FINISHED, AVGWAITINQ, AVGSLEEP;
     double PRFM;
+    double avgCacheHitMissRatio = 0;
+    long avgDownloadData = 0;
+    double avgDownloadSpeed = 0;
+    int avgReqSent = 0;
+    long avgUploadData = 0;
+    double avgUploadSpeed = 0;
+    int avgReqRecieved = 0;
+    long avgCachedData = 0;
 
-    public InsertResultWareHouse(String PID, String Project, String SCHEDULER, String STARTTIME, String ENDTIME, String TOTALTIME, String NOH, String POH, String CHUNKSIZE, String TCHUNKS, String TNODES, double PRFM, String FINISHED, String AVGWAITINQ, String AVGSLEEP) {
+    public InsertResultWareHouse(String PID, String Project, String SCHEDULER, String STARTTIME, String ENDTIME, String TOTALTIME, String NOH, String POH, String CHUNKSIZE, String TCHUNKS, String TNODES, double PRFM, String FINISHED, String AVGWAITINQ, String AVGSLEEP,
+            double avgCacheHitMissRatio,
+            long avgDownloadData,
+            double avgDownloadSpeed,
+            int avgReqSent,
+            long avgUploadData,
+            double avgUploadSpeed,
+            int avgReqRecieved,
+            long avgCachedData) {
 
         this.projectName = Project;
         this.STARTTIME = STARTTIME;
@@ -49,6 +66,15 @@ public class InsertResultWareHouse implements Runnable {
         this.PID = PID;
         this.AVGSLEEP = AVGSLEEP;
         this.AVGWAITINQ = AVGWAITINQ;
+
+        this.avgCacheHitMissRatio = avgCacheHitMissRatio;
+        this.avgDownloadData = avgDownloadData;
+        this.avgDownloadSpeed = avgDownloadSpeed;
+        this.avgReqSent = avgReqSent;
+        this.avgUploadData = avgUploadData;
+        this.avgUploadSpeed = avgUploadSpeed;
+        this.avgReqRecieved = avgReqRecieved;
+        this.avgCachedData = avgCachedData;
     }
 
     @Override
@@ -56,27 +82,8 @@ public class InsertResultWareHouse implements Runnable {
         Thread.currentThread().setName("InsertResDBWHThread");
 
         String sql = "";
-        if (counter == 1) {
-            sql = "CREATE TABLE RESULTWH"
-                    + "(ID INTEGER PRIMARY KEY   AUTOINCREMENT  NOT NULL ,"
-                    + "PID TEXT,"
-                    + "PROJECT TEXT ,"
-                    + "SCHEDULER TEXT,"
-                    + "STARTTIME TEXT,"
-                    + "ENDTIME TEXT,"
-                    + "TOTALTIME TEXT,"
-                    + "NOH TEXT,"
-                    + "POH TEXT,"
-                    + "CHUNKSIZE TEXT,"
-                    + "TCHUNKS TEXT,"
-                    + "TNODES TEXT,"
-                    + "PRFM DOUBLE,"
-                    + "FINISHED TEXT,"
-                    + "AVGWAITINQ TEXT,"
-                    + "AVGSLEEP TEXT,"
-                    + "TIMESTAMP DATE);";
-            resWH.createtable("log/dw-result.db", sql);
-            resWH.closeConnection();
+        if (!created) {
+            created = createTable();
         }
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.sss");
         Date date = new Date();
@@ -93,8 +100,19 @@ public class InsertResultWareHouse implements Runnable {
                 + " TCHUNKS,"
                 + " TNODES,"
                 + " PRFM ,"
-                + " FINISHED ,AVGWAITINQ,AVGSLEEP,"
-                + " TIMESTAMP)" + " VALUES("
+                + " FINISHED ,"
+                + " AVGWAITINQ,"
+                + " AVGSLEEP,"
+                + "avgCacheHitMissRatio,"
+                + "avgDownloadData,"
+                + "avgDownloadSpeed,"
+                + "avgReqSent,"
+                + "avgUploadData,"
+                + "avgUploadSpeed,"
+                + "avgReqRecieved,"
+                + "avgCachedData,"
+                + " TIMESTAMP)"
+                + " VALUES("
                 + "'" + PID
                 + "','" + projectName
                 + "','" + SCHEDULER
@@ -110,10 +128,59 @@ public class InsertResultWareHouse implements Runnable {
                 + "','" + FINISHED
                 + "','" + AVGWAITINQ
                 + "','" + AVGSLEEP
+                + "','" + avgCacheHitMissRatio
+                + "','" + avgDownloadData
+                + "','" + avgDownloadSpeed
+                + "','" + avgReqSent
+                + "','" + avgUploadData
+                + "','" + avgUploadSpeed
+                + "','" + avgReqRecieved
+                + "','" + avgCachedData
                 + "','" + dateFormat.format(date) + "');";
         resWH.insert("log/dw-result.db", sql);
         resWH.closeConnection();
-        counter++;
     }
 
+    private boolean createTable() {
+
+        String sql = "CREATE TABLE RESULTWH"
+                + "(ID INTEGER PRIMARY KEY   AUTOINCREMENT  NOT NULL ,"
+                + "PID TEXT,"
+                + "PROJECT TEXT ,"
+                + "SCHEDULER TEXT,"
+                + "STARTTIME TEXT,"
+                + "ENDTIME TEXT,"
+                + "TOTALTIME TEXT,"
+                + "NOH TEXT,"
+                + "POH TEXT,"
+                + "CHUNKSIZE TEXT,"
+                + "TCHUNKS TEXT,"
+                + "TNODES TEXT,"
+                + "PRFM DOUBLE,"
+                + "FINISHED TEXT,"
+                + "AVGWAITINQ TEXT,"
+                + "AVGSLEEP TEXT,"
+                + "avgCacheHitMissRatio DOUBLE,"
+                + "avgDownloadData LONG,"
+                + "avgDownloadSpeed DOUBLE,"
+                + "avgReqSent INT,"
+                + "avgUploadData LONG,"
+                + "avgUploadSpeed DOUBLE,"
+                + "avgReqRecieved INT,"
+                + "avgCachedData LONG,"
+                + "TIMESTAMP DATE);";
+        boolean created = resWH.createtable("log/dw-result.db", sql);
+        resWH.closeConnection();
+        if (!created) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.sss");
+            Date date = new Date();
+            File existing = new File("log/dw-result.db");
+            if (existing.exists()) {
+                existing.renameTo(new File("log/dw-result-" + dateFormat.format(date) + ".db"));
+            }
+            created = resWH.createtable("log/dw-result.db", sql);
+            resWH.closeConnection();
+        }
+        return created;
+    }
 }
