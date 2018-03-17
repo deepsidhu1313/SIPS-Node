@@ -160,7 +160,7 @@ public class SIPSNode {
             }
 
             if (arguments.contains("--generate-app-uuid")) {
-                GlobalValues.NODE_UUID = Util.generateNodeUUID();
+                in.co.s13.sips.lib.node.settings.GlobalValues.NODE_UUID = Util.generateNodeUUID();
                 Settings.saveSettings();
             }
 

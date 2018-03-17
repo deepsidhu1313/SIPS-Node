@@ -236,10 +236,10 @@ public class Settings {
         VERBOSE = settings.getBoolean("VERBOSE", true);
 
         JSONObject serviceSettings = Util.readJSONFile(dir_etc + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "service_settings.json");
-        NODE_UUID = serviceSettings.getString("UUID", "");
+        in.co.s13.sips.lib.node.settings.GlobalValues.NODE_UUID = serviceSettings.getString("UUID", "");
 
-        if (NODE_UUID.length() < 1) {
-            NODE_UUID = Util.generateNodeUUID();
+        if (in.co.s13.sips.lib.node.settings.GlobalValues.NODE_UUID.length() < 1) {
+            in.co.s13.sips.lib.node.settings.GlobalValues.NODE_UUID = Util.generateNodeUUID();
         }
         TASK_LIMIT = serviceSettings.getInt("MAX_TASK_ALLOWED_IN_PARALLEL", TASK_LIMIT);
         JOB_LIMIT = serviceSettings.getInt("MAX_JOB_ALLOWED_IN_PARALLEL", JOB_LIMIT);
@@ -292,10 +292,10 @@ public class Settings {
 
         JSONObject serviceSettings = new JSONObject();
 
-        if (NODE_UUID.length() < 1) {
-            NODE_UUID = Util.generateNodeUUID();
+        if (in.co.s13.sips.lib.node.settings.GlobalValues.NODE_UUID.length() < 1) {
+            in.co.s13.sips.lib.node.settings.GlobalValues.NODE_UUID = Util.generateNodeUUID();
         }
-        serviceSettings.put("UUID", NODE_UUID);
+        serviceSettings.put("UUID", in.co.s13.sips.lib.node.settings.GlobalValues.NODE_UUID);
         serviceSettings.put("MAX_TASK_ALLOWED_IN_PARALLEL", TASK_LIMIT);
         serviceSettings.put("MAX_JOB_ALLOWED_IN_PARALLEL", JOB_LIMIT);
         serviceSettings.put("MAX_FILE_RESOLVE_IN_PARALLEL", FILES_RESOLVER_LIMIT);

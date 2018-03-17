@@ -17,6 +17,7 @@
 package in.co.s13.SIPS.executor.sockets.handlers;
 
 import in.co.s13.SIPS.datastructure.DistributionDBRow;
+import in.co.s13.SIPS.datastructure.TaskDBRow;
 import in.co.s13.SIPS.executor.ParallelProcess;
 import in.co.s13.SIPS.executor.PrintToFile;
 import in.co.s13.SIPS.settings.GlobalValues;
@@ -68,8 +69,9 @@ public class TaskHandler implements Runnable {
                     String command = messageJson.getString("Command");//messageString.substring(messageString.indexOf("<Command>") + 9, messageString.indexOf("</Command>"));
                     JSONObject body = messageJson.getJSONObject("Body");//messageString.substring(messageString.indexOf("<Body>") + 6, messageString.indexOf("</Body>"));
 //                    System.out.println(messageString);
-                    if (command.contains("createprocess")) {
+                    if (command.equalsIgnoreCase("createprocess")) {
                         GlobalValues.TASK_WAITING.incrementAndGet();
+
                         GlobalValues.TASK_EXECUTOR.submit(new ParallelProcess(body, ipAddress));
                         System.out.println("created process");
 
@@ -82,7 +84,8 @@ public class TaskHandler implements Runnable {
 
                         }
                         submitter.close();
-                    } else if (command.contains("ComOH")) {
+//                        System.out.println("" + messageJson.toString(4));
+                    } else if (command.equalsIgnoreCase("ComOH")) {
                         String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
                         String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
                         String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
@@ -97,27 +100,56 @@ public class TaskHandler implements Runnable {
 
                         }
                         submitter.close();
-                        int counter = 0;
-                        boolean exist = false;
-                        while (!exist && counter < 5) {
-                            ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
-                            if (DistTable != null) {
-                                exist = true;
-                                DistributionDBRow get = DistTable.get(uuid + "-" + cno.trim());
-                                if (get != null) {
-                                    get.setNoh(get.getNoh() + Long.parseLong(content));
+                        GlobalValues.DIST_DB_EXECUTOR.execute(() -> {
+                            int counter = 0;
+                            boolean exist = false;
+                            while (!exist && counter < 5) {
+                                ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
+                                if (DistTable != null) {
+                                    exist = true;
+                                    DistributionDBRow get = DistTable.get(uuid + "-" + cno.trim());
+                                    if (get != null) {
+                                        get.setNoh(get.getNoh() + Long.parseLong(content));
 //                                System.out.println("Set Network OH in Q:\n" + get.toString(4));
+                                    }
                                 }
+                                try {
+                                    Thread.currentThread().sleep(1000);
+                                } catch (InterruptedException ex) {
+                                    Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                                counter++;
                             }
-                            try {
-                                Thread.currentThread().sleep(1000);
-                            } catch (InterruptedException ex) {
-                                Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                            counter++;
-                        }
+                        });
 
-                    } else if (command.contains("startinque")) {
+                    } else if (command.equalsIgnoreCase("CACHEHIT")) {
+                        String pid = body.getString("PID");
+                        String cno = body.getString("CNO");
+                        String senderUuid = body.getString("SENDER_UUID");
+                        long size = body.getLong("SIZE");
+                        double speed = body.getDouble("SPEED");
+                        String uuid = body.getString("UUID");
+                        submitter.close();
+//                        System.out.println("" + messageJson.toString(4));
+                        TaskDBRow taskDBRow = GlobalValues.TASK_DB.get("" + senderUuid + "-ID-" + pid + "-CN-" + cno);
+                        taskDBRow.incrementCacheHit();
+                        taskDBRow.setCachedData(taskDBRow.getCachedData() + size);
+
+                    } else if (command.equalsIgnoreCase("CACHEMISS")) {
+                        String pid = body.getString("PID");
+                        String cno = body.getString("CNO");
+                        String senderUuid = body.getString("SENDER_UUID");
+                        long size = body.getLong("SIZE");
+                        double speed = body.getDouble("SPEED");
+                        String uuid = body.getString("UUID");
+                        submitter.close();
+                        System.out.println("" + messageJson.toString(4));
+                        TaskDBRow taskDBRow = GlobalValues.TASK_DB.get("" + senderUuid + "-ID-" + pid + "-CN-" + cno);
+                        taskDBRow.incrementCacheMiss();
+                        taskDBRow.setDownloadData(taskDBRow.getDownloadData() + size);
+                        taskDBRow.addDownloadSpeed(speed);
+                        taskDBRow.incrementReqRecieved();
+                    } else if (command.equalsIgnoreCase("startinque")) {
                         String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
                         String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
                         String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
@@ -142,12 +174,12 @@ public class TaskHandler implements Runnable {
                                 DistributionDBRow get = DistTable.get(uuid + "-" + cno.trim());
                                 if (get != null) {
                                     get.setStartinq(Long.parseLong(content));
-                                    System.out.println("Set start in Q:\n" + get.toString(4));
+//                                    System.out.println("Set start in Q:\n" + get.toString(4));
                                 }
                             }
                         });
 
-                    } else if (command.contains("enterinq")) {
+                    } else if (command.equalsIgnoreCase("enterinq")) {
                         String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
                         String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
                         String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
@@ -188,23 +220,12 @@ public class TaskHandler implements Runnable {
                             }
                         });
 
-                    } else if (command.contains("sleeptime")) {
+                    } else if (command.equalsIgnoreCase("sleeptime")) {
                         String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
                         String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
                         String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
                         String content = body.getString("OUTPUT");
                         String uuid = body.getString("UUID");
-//                        System.out.println("TaskHandler: " + messageJson.toString());
-//                        int p = Integer.parseInt(pid);
-
-//                        try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
-//                            String sendmsg = "OK";
-//
-//                            byte[] bytes = sendmsg.getBytes("UTF-8");
-//                            outToClient.writeInt(bytes.length);
-//                            outToClient.write(bytes);
-//
-//                        }
                         submitter.close();
                         GlobalValues.DIST_DB_EXECUTOR.execute(() -> {
                             int counter = 0;
@@ -214,7 +235,7 @@ public class TaskHandler implements Runnable {
                                 if (DistTable != null) {
                                     exist = true;
                                     System.out.println("Retrived DIST Row");
-            DistributionDBRow get = DistTable.get(uuid + "-" + cno.trim());
+                                    DistributionDBRow get = DistTable.get(uuid + "-" + cno.trim());
                                     if (get != null) {
                                         get.setSleeptime(get.getSleeptime() + Long.parseLong(content));
                                     }
@@ -228,7 +249,7 @@ public class TaskHandler implements Runnable {
                             }
                         });
 
-                    } else if (command.contains("kill")) {
+                    } else if (command.equalsIgnoreCase("kill")) {
                         String pid = body.getString("PID");//body.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
                         String cno = body.getString("CNO");//body.substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
                         String uuid = body.getString("UUID");
@@ -250,7 +271,7 @@ public class TaskHandler implements Runnable {
                         }
                         submitter.close();
 
-                    } else if (command.contains("printoutput")) {
+                    } else if (command.equalsIgnoreCase("printoutput")) {
                         String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
                         String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
                         String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));

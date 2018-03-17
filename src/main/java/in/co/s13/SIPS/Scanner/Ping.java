@@ -18,8 +18,9 @@ package in.co.s13.SIPS.Scanner;
 
 import in.co.s13.sips.lib.common.datastructure.Hop;
 import in.co.s13.sips.lib.common.datastructure.UniqueElementList;
-import in.co.s13.SIPS.settings.GlobalValues;
+
 import in.co.s13.SIPS.datastructure.LiveDBRow;
+import in.co.s13.SIPS.settings.GlobalValues;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -94,7 +95,7 @@ class Ping implements Runnable {
                 JSONObject pingRequest = new JSONObject();
                 pingRequest.put("Command", "ping");
                 JSONObject pingRequestBody = new JSONObject();
-                pingRequestBody.put("UUID", GlobalValues.NODE_UUID);
+                pingRequestBody.put("UUID",in.co.s13.sips.lib.node.settings.GlobalValues.NODE_UUID);
                 pingRequest.put("Body", pingRequestBody);
                 String sendmsg = pingRequest.toString(4);
                 byte[] bytes = sendmsg.getBytes("UTF-8");

@@ -26,8 +26,8 @@ public class FileDownQueReq {
 
     private String id, ip, checksum, filename, reqmsg, nodeUUID, projectName;
     private boolean finished;
-    private long starttime, remainingTime;
-    private double size, remainingsize;
+    private long starttime, remainingTime, totalTime = 0;
+    private double size, remainingsize, downloadSpeed = 00.0;
 
     public FileDownQueReq(String ip, String id, String checksum, String filename, long starttime, long remainingTime, double size, double remainingsize, boolean finished, String reqmsg, String nodeUUID, String projectName) {
         this.ip = ip;
@@ -145,6 +145,22 @@ public class FileDownQueReq {
         this.projectName = projectName;
     }
 
+    public long getTotalTime() {
+        return totalTime;
+    }
+
+    public void setTotalTime(long totalTime) {
+        this.totalTime = totalTime;
+    }
+
+    public double getDownloadSpeed() {
+        return downloadSpeed;
+    }
+
+    public void setDownloadSpeed(double downloadSpeed) {
+        this.downloadSpeed = downloadSpeed;
+    }
+
     @Override
     public String toString() {
         return this.toJSON().toString();
@@ -159,10 +175,12 @@ public class FileDownQueReq {
         request.put("finished", finished);
         request.put("starttime", starttime);
         request.put("remainingTime", remainingTime);
+        request.put("totalTime", totalTime);
         request.put("size", size);
         request.put("remainingsize", remainingsize);
         request.put("reqmsg", reqmsg);
         request.put("nodeUUID", nodeUUID);
+        request.put("downloadSpeed", downloadSpeed);
         request.put("projectName", projectName);
         return request;
     }

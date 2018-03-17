@@ -85,7 +85,7 @@ public class Distributor {
             JSONObject body = new JSONObject();
             body.put("PID", jobToken);
             body.put("CNO", chunkNumber);
-            body.put("UUID", GlobalValues.NODE_UUID);
+            body.put("UUID", in.co.s13.sips.lib.node.settings.GlobalValues.NODE_UUID);
             JSONArray files = new JSONArray();
             CollectFiles collectFiles = new CollectFiles();
             ArrayList<String> toSend = collectFiles.getFiles("data/" + jobToken + "/dist/" + nodeUUID + ":CN:" + chunkNumber + "/src");
@@ -106,7 +106,7 @@ public class Distributor {
 
             for (int i = 0; i < ips.size(); i++) {
                 String get = ips.get(i).getIp();
-                if (get.startsWith("127") && (!GlobalValues.NODE_UUID.equals(nodeUUID))) {
+                if (get.startsWith("127") && (!in.co.s13.sips.lib.node.settings.GlobalValues.NODE_UUID.equals(nodeUUID))) {
                     continue;
                 }
                 if (sendTask(get, body)) {

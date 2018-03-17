@@ -102,11 +102,7 @@ public class GlobalValues {
      * Variable to hold Hostname of the node
      */
     public static String HOST_NAME = "SIPS-Node";
-    /**
-     * UUID of current Node which is required to identify machine on the SIPS
-     * system.
-     */
-    public static String NODE_UUID = "";
+
     /**
      * Total Memory Size
      */
@@ -220,14 +216,14 @@ public class GlobalValues {
     /**
      * Executor Limits
      */
-    public static int FILES_RESOLVER_LIMIT = 10;
+    public static int TASK_LIMIT = (Runtime.getRuntime().availableProcessors() - 2) < 1 ? 1 : (Runtime.getRuntime().availableProcessors() - 2);
+    public static int FILES_RESOLVER_LIMIT = TASK_LIMIT;
     public static int FILE_HANDLER_LIMIT = 10;
     public static int PING_HANDLER_LIMIT = 2;
-    public static int API_HANDLER_LIMIT = 10;
+    public static int API_HANDLER_LIMIT = TASK_LIMIT;
     public static int TASK_HANDLER_LIMIT = 10;
-    public static int JOB_HANDLER_LIMIT = 10;
-    public static int TASK_FINISH_LISTENER_HANDLER_LIMIT = 10;
-    public static int TASK_LIMIT = (Runtime.getRuntime().availableProcessors() - 2) < 1 ? 1 : (Runtime.getRuntime().availableProcessors() - 2);
+    public static int JOB_HANDLER_LIMIT = TASK_LIMIT;
+    public static int TASK_FINISH_LISTENER_HANDLER_LIMIT = 40;
     public static int JOB_LIMIT = TASK_LIMIT;
     public static int TOTAL_IP_SCANNING_THREADS = TASK_LIMIT;
     public static int PING_REQUEST_LIMIT = TASK_LIMIT;
@@ -250,14 +246,14 @@ public class GlobalValues {
     public static ExecutorService TASK_DB_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService JOB_DB_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService LIVE_DB_EXECUTOR = Executors.newFixedThreadPool(1);
-    public static ExecutorService DIST_DB_EXECUTOR = Executors.newFixedThreadPool(TASK_LIMIT);
+    public static ExecutorService DIST_DB_EXECUTOR = Executors.newFixedThreadPool(TASK_LIMIT*2);
     public static ExecutorService DIST_WH_DB_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService RESULT_DB_EXECUTOR = Executors.newFixedThreadPool(TASK_LIMIT);
     public static ExecutorService RESULT_WH_DB_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService LOG_IO_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService SEND_SLEEPTIME_EXECUTOR_SERVICE = Executors.newFixedThreadPool(1);
     public static ExecutorService SEND_OUTPUT_EXECUTOR_SERVICE = Executors.newFixedThreadPool(TASK_LIMIT);
-    public static ExecutorService SEND_FINISH_EXECUTOR_SERVICE = Executors.newFixedThreadPool(TASK_LIMIT);
+    public static ExecutorService SEND_FINISH_EXECUTOR_SERVICE = Executors.newFixedThreadPool(TASK_LIMIT*2);
     public static ExecutorService SEND_START_IN_QUEUE_EXECUTOR_SERVICE = Executors.newFixedThreadPool(TASK_LIMIT);
     public static ExecutorService SEND_ENTER_IN_QUEUE_EXECUTOR_SERVICE = Executors.newFixedThreadPool(TASK_LIMIT);
     public static ExecutorService SEND_COMMOH_EXECUTOR_SERVICE = Executors.newFixedThreadPool(TASK_LIMIT);

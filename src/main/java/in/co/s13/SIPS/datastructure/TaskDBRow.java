@@ -16,6 +16,8 @@
  */
 package in.co.s13.SIPS.datastructure;
 
+import java.util.ArrayList;
+import java.util.OptionalDouble;
 import org.json.JSONObject;
 
 /**
@@ -25,15 +27,20 @@ import org.json.JSONObject;
 public class TaskDBRow {
 
     private String taskID, projectName, submitterUUID;
-    private int chunkNo;
-    private Process process;
+    private int chunkNo = Integer.MIN_VALUE;
+    private Process process = null;
+    private long downloadData = 0;
+    private int reqSent = 0;
+    private long uploadData = 0;
+    private int reqRecieved = 0, cacheHit = 0, cacheMiss = 0;
+    private long cachedData = 0;
+    private ArrayList<Double> uploadSpeed = new ArrayList<>(), downloadSpeed = new ArrayList<>();
 
-    public TaskDBRow(String taskID, String projectName, String submitterUUID, int chunkNo, Process process) {
+    public TaskDBRow(String taskID, String projectName, String submitterUUID, int chunkNo) {
         this.taskID = taskID;
         this.projectName = projectName;
         this.submitterUUID = submitterUUID;
         this.chunkNo = chunkNo;
-        this.process = process;
     }
 
     public String getTaskID() {
@@ -76,6 +83,88 @@ public class TaskDBRow {
         this.process = process;
     }
 
+    public double getCacheHitMissRatio() {
+        return (double) cacheHit / (double) (cacheMiss < 1 ? 1 : cacheMiss);
+    }
+
+    public long getDownloadData() {
+        return downloadData;
+    }
+
+    public void setDownloadData(long downloadData) {
+        this.downloadData = downloadData;
+    }
+
+    public int incrementCacheHit() {
+        return cacheHit++;
+    }
+
+    public int incrementCacheMiss() {
+        return cacheMiss++;
+    }
+
+    public Double getAvgUploadSpeed() {
+        OptionalDouble avgUploadSpeed = uploadSpeed.parallelStream()
+                .mapToDouble(a -> a)
+                .average();
+        return avgUploadSpeed.isPresent() ? avgUploadSpeed.getAsDouble() : 0;
+    }
+
+    public void addUploadSpeed(Double uploadSpeed) {
+        this.uploadSpeed.add(uploadSpeed);
+    }
+
+    public Double getAvgDownloadSpeed() {
+        OptionalDouble avgDownloadSpeed = downloadSpeed.parallelStream()
+                .mapToDouble(a -> a)
+                .average();
+        return avgDownloadSpeed.isPresent() ? avgDownloadSpeed.getAsDouble() : 0;
+    }
+
+    public void addDownloadSpeed(Double downloadSpeed) {
+        this.downloadSpeed.add(downloadSpeed);
+    }
+
+    public int getReqSent() {
+        return reqSent;
+    }
+
+    public int incrementReqSent() {
+        return reqSent++;
+    }
+
+    public void setReqSent(int reqSent) {
+        this.reqSent = reqSent;
+    }
+
+    public long getUploadData() {
+        return uploadData;
+    }
+
+    public void setUploadData(long uploadData) {
+        this.uploadData = uploadData;
+    }
+
+    public int getReqRecieved() {
+        return reqRecieved;
+    }
+
+    public int incrementReqRecieved() {
+        return reqRecieved++;
+    }
+
+    public void setReqRecieved(int reqRecieved) {
+        this.reqRecieved = reqRecieved;
+    }
+
+    public long getCachedData() {
+        return cachedData;
+    }
+
+    public void setCachedData(long cachedData) {
+        this.cachedData = cachedData;
+    }
+
     @Override
     public String toString() {
         return this.toJSON().toString(4);
@@ -83,11 +172,20 @@ public class TaskDBRow {
 
     public JSONObject toJSON() {
         JSONObject taskDBRow = new JSONObject();
-        taskDBRow.put("taskID", taskID);
-        taskDBRow.put("projectName", projectName);
+        taskDBRow.put("TaskID", taskID);
+        taskDBRow.put("ProjectName", projectName);
         taskDBRow.put("SubmitterUUID", submitterUUID);
-        taskDBRow.put("chunkNo", chunkNo);
-        taskDBRow.put("taskIsAlive", process.isAlive());
+        taskDBRow.put("ChunkNo", chunkNo);
+        taskDBRow.put("CacheHitMissRatio", getCacheHitMissRatio());
+        taskDBRow.put("DownloadData", downloadData);
+        taskDBRow.put("AvgDownloadSpeed", getAvgDownloadSpeed());
+        taskDBRow.put("ReqSent", reqSent);
+        taskDBRow.put("UploadData", uploadData);
+        taskDBRow.put("AvgUploadSpeed", getAvgUploadSpeed());
+        taskDBRow.put("ReqRecieved", reqRecieved);
+        taskDBRow.put("CachedData", cachedData);
+        taskDBRow.put("CacheHit", cacheHit);
+        taskDBRow.put("CacheMiss", cacheMiss);
         return taskDBRow;
     }
 

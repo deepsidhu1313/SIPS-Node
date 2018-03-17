@@ -31,12 +31,12 @@ public class DistributionDBRow {
 
     private Integer id;
     private String uuid;
-    private Double prfm, avgLoad;
+    private Double prfm = 0.0, avgLoad = 0.0;
     private Integer cno, vartype, exitcode;
-    private Long lstarttime, lendtime, lexctime, nexecutiontime, noh, poh, entrinq, startinq, waitinq, sleeptime, uploadedDataInKB, downloadedDataInKB;
+    private Long lstarttime = 0l, lendtime = 0l, lexctime = 0l, nexecutiontime = 0l, noh = 0l, poh = 0l, entrinq = 0l, startinq = 0l, waitinq = 0l, sleeptime = 0l, uploadedData = 0l, downloadedData = 0l;
     private String pid, chunksize, lowlimit, scheduler, uplimit, counter, ipAddress, hostName;
-    private AtomicInteger cacheHit = new AtomicInteger(0), cacheMiss = new AtomicInteger(0), reqsSent = new AtomicInteger(0), reqsRecieved = new AtomicInteger(0);
-    private AtomicLong cachedData = new AtomicLong(0);
+    private Integer cacheHit = 0, cacheMiss = 0, reqsSent = 0, reqsRecieved = 0;
+    private Long cachedData = 0l;
     private ArrayList<Double> uploadSpeed = new ArrayList<>(), downloadSpeed = new ArrayList<>();
 
     public DistributionDBRow(int id, String uuid, String pid, int cno, int vartype, String scheduler,
@@ -292,72 +292,80 @@ public class DistributionDBRow {
         this.downloadSpeed.add(downloadSpeed);
     }
 
-    public Long getUploadedDataInKB() {
-        return uploadedDataInKB;
+    public Long getUploadedData() {
+        return uploadedData;
     }
 
-    public void setUploadedDataInKB(Long uploadedDataInKB) {
-        this.uploadedDataInKB = uploadedDataInKB;
+    public void setUploadedData(Long uploadedData) {
+        this.uploadedData = uploadedData;
     }
 
-    public Long getDownloadedDataInKB() {
-        return downloadedDataInKB;
+    public Long getDownloadedData() {
+        return downloadedData;
     }
 
-    public void setDownloadedDataInKB(Long downloadedDataInKB) {
-        this.downloadedDataInKB = downloadedDataInKB;
+    public void setDownloadedData(Long downloadedData) {
+        this.downloadedData = downloadedData;
     }
 
-    public AtomicInteger getCacheHit() {
+    public Integer getCacheHit() {
         return cacheHit;
     }
 
-    public void setCacheHit(AtomicInteger cacheHit) {
+    public void setCacheHit(Integer cacheHit) {
         this.cacheHit = cacheHit;
     }
 
-    public int incrementCacheHit() {
-        return cacheHit.incrementAndGet();
+    public int addCacheHit(int cacheHit) {
+        return this.cacheHit += (cacheHit);
     }
 
-    public AtomicInteger getCacheMiss() {
+    public int incrementCacheHit() {
+        return cacheHit++;
+    }
+
+    public Integer getCacheMiss() {
         return cacheMiss;
     }
 
-    public void setCacheMiss(AtomicInteger cacheMiss) {
+    public void setCacheMiss(Integer cacheMiss) {
         this.cacheMiss = cacheMiss;
     }
 
+    public int addCacheMiss(int cacheMiss) {
+        return this.cacheMiss += (cacheMiss);
+    }
+
     public int incrementCacheMiss() {
-        return cacheMiss.incrementAndGet();
+        return cacheMiss++;
     }
 
     public double getCacheHitMissRatio() {
-        return this.getCacheHit().get() / this.getCacheMiss().get();
+        return (double) cacheHit / (double) (cacheMiss < 1 ? 1 : cacheMiss);
     }
 
     public int getReqsSent() {
-        return reqsSent.get();
+        return reqsSent;
     }
 
     public void incrementReqsSent() {
-        this.reqsSent.incrementAndGet();
+        this.reqsSent++;
     }
 
     public int getReqsRecieved() {
-        return reqsRecieved.get();
+        return reqsRecieved;
     }
 
     public void incrementReqsRecieved() {
-        this.reqsRecieved.incrementAndGet();
+        this.reqsRecieved++;
     }
 
     public long getCachedData() {
-        return cachedData.get();
+        return cachedData;
     }
 
     public long addCachedData(Long delta) {
-        return this.cachedData.addAndGet(delta);
+        return this.cachedData += (delta);
     }
 
     @Override
@@ -398,11 +406,12 @@ public class DistributionDBRow {
         result.put("avgLoad", avgLoad);
         result.put("avgDownloadSpeed", getAvgDownloadSpeed());
         result.put("avgUploadSpeed", getAvgUploadSpeed());
-        result.put("uploadDataInKB", uploadedDataInKB);
-        result.put("downloadDataInKB", downloadedDataInKB);
-        result.put("cacheHit", cacheHit.get());
-        result.put("cacheMiss", cacheMiss.get());
-        result.put("cacheHitMissRatio", this.getCacheHitMissRatio());
+        result.put("uploadData", uploadedData);
+        result.put("downloadData", downloadedData);
+        result.put("cacheHit", cacheHit);
+        result.put("cacheMiss", cacheMiss);
+        result.put("cachedData", cachedData);
+        result.put("cacheHitMissRatio", getCacheHitMissRatio());
         return result;
     }
 

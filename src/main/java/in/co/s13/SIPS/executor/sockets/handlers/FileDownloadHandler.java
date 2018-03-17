@@ -92,12 +92,12 @@ public class FileDownloadHandler implements Runnable {
                             boolean b2 = (downQue.getId() == null ? (pid.trim()) == null : downQue.getId().equals(pid.trim()));
                             boolean b3 = downQue.getChecksum().trim().equalsIgnoreCase(checksum.trim());
                             boolean b4 = downQue.getIp().trim().equalsIgnoreCase(ip.trim());
-                            System.out.println("Compairing  :\nFilename:" + downQue.getFilename().trim()
-                                    + " with " + fileToSend.trim() + "\t" + b1
-                                    + "\nPID:" + downQue.getId() + " with " + pid + "\t" + b2
-                                    + "\nChecksum:" + downQue.getChecksum().trim() + " with " + checksum
-                                    + "\t" + b3
-                                    + "\nIP: " + downQue.getIp().trim() + " with " + ip + "\t" + b4);
+//                            System.out.println("Compairing  :\nFilename:" + downQue.getFilename().trim()
+//                                    + " with " + fileToSend.trim() + "\t" + b1
+//                                    + "\nPID:" + downQue.getId() + " with " + pid + "\t" + b2
+//                                    + "\nChecksum:" + downQue.getChecksum().trim() + " with " + checksum
+//                                    + "\t" + b3
+//                                    + "\nIP: " + downQue.getIp().trim() + " with " + ip + "\t" + b4);
 
                             if (((b1) && (b2) && (b3) && (b4))) {
                                 notinQ = false;
@@ -144,8 +144,7 @@ public class FileDownloadHandler implements Runnable {
                                 new FileDownQueReq(ip, (pid),
                                         checksum, fileToSend, System.currentTimeMillis(), 100, 0, 0, false, body.toString(), nodeUUID, projectName));
 
-                        System.out.println("REQUEST Added IN QUE");
-
+//                        System.out.println("REQUEST Added IN QUE");
                         String sendmsg = new JSONObject().put("MSG", "addedinq").toString(4);//"<MSG>addedinq</MSG>";
 
                         byte[] bytes = sendmsg.getBytes("UTF-8");
@@ -269,13 +268,15 @@ public class FileDownloadHandler implements Runnable {
                                                                 Long allTimeForDownloading = (elapsedTime * (downData / (downData - fileLen)));
                                                                 Long remainingTime = allTimeForDownloading - elapsedTime;
                                                                 downQue.setRemainingTime(remainingTime);
-                                                                System.out.println("Remaining " + fileLen);
+//                                                                System.out.println("Remaining " + fileLen);
                                                             }
                                                             bos.flush();
                                                         }
                                                         downQue.setFinished(true);
                                                         downQue.setChecksum(checksum2);
                                                         long endtime = System.currentTimeMillis();
+                                                        downQue.setTotalTime(endtime - starttime);
+                                                        downQue.setDownloadSpeed((double) ((double) endtime - starttime / (double) 1000));
                                                         System.out.println("File " + fileToSend + " downloaded (" + downData + " bytes read) in " + (endtime - starttime) + " ms");
                                                         Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "File " + fileToSend
                                                                 + " downloaded (" + downData + " bytes read) in " + (endtime - starttime) + " ms " + downQue.toString() + " sending Message " + sendmsg);
@@ -326,12 +327,12 @@ public class FileDownloadHandler implements Runnable {
                         boolean b2 = (downQue.getId() == null ? (pid2.trim()) == null : downQue.getId().equals(pid2.trim()));
                         boolean b3 = downQue.getChecksum().trim().equalsIgnoreCase(checksum.trim());
                         boolean b4 = downQue.getIp().trim().equalsIgnoreCase(ip.trim());
-                        System.out.println("Compairing For Download :\nFilename:" + downQue.getFilename().trim()
-                                + " with " + pathtoFile.trim() + "\t" + b1
-                                + "\nPID:" + downQue.getId() + " with " + pid2 + "\t" + b2
-                                + "\nChecksum:" + downQue.getChecksum().trim() + " with " + checksum
-                                + "\t" + b3
-                                + "\nIP: " + downQue.getIp().trim() + " with " + ip + "\t" + b4);
+//                        System.out.println("Compairing For Download :\nFilename:" + downQue.getFilename().trim()
+//                                + " with " + pathtoFile.trim() + "\t" + b1
+//                                + "\nPID:" + downQue.getId() + " with " + pid2 + "\t" + b2
+//                                + "\nChecksum:" + downQue.getChecksum().trim() + " with " + checksum
+//                                + "\t" + b3
+//                                + "\nIP: " + downQue.getIp().trim() + " with " + ip + "\t" + b4);
 
                         if (((b1) && (b2) && (b3) && (b4))) {
                             notinQ = false;
@@ -446,8 +447,6 @@ public class FileDownloadHandler implements Runnable {
 //                                                System.out.println("CheckSum Recieved " + checksum2);
                                                 Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "CheckSum Recieved " + checksum2 + " for REQUEST : " + downQue2.toString());
 
-                                                //InputStream is = sock.getInputStream();
-                                                //if (lchecksum.trim().length() > 0)
                                                 {
                                                     String nmsg = "";
                                                     if (lchecksum.trim().equalsIgnoreCase(checksum2.trim())) {
@@ -475,10 +474,6 @@ public class FileDownloadHandler implements Runnable {
                                                         long starttime = System.currentTimeMillis();
                                                         try (FileOutputStream fos = new FileOutputStream(ip2Dir); BufferedOutputStream bos = new BufferedOutputStream(fos)) {
                                                             fileLen = sockdin.readLong();
-                                                            /*for (long j = 0; j <= fileLen; j++) {
-                                                             int tempint = is.read();
-                                                             bos.write(tempint);
-                                                             }*/
                                                             downData = fileLen;
                                                             int n = 0;
                                                             byte[] buf = new byte[8192];
@@ -490,13 +485,15 @@ public class FileDownloadHandler implements Runnable {
                                                                 Long allTimeForDownloading = (elapsedTime * (downData / (downData - fileLen)));
                                                                 Long remainingTime = allTimeForDownloading - elapsedTime;
                                                                 downQue2.setRemainingTime(remainingTime);
-                                                                System.out.println("Remaining " + fileLen);
+//                                                                System.out.println("Remaining " + fileLen);
                                                             }
                                                             bos.flush();
                                                         }
                                                         downQue2.setFinished(true);
                                                         downQue2.setChecksum(checksum2);
                                                         long endtime = System.currentTimeMillis();
+                                                        downQue2.setTotalTime(endtime - starttime);
+                                                        downQue2.setDownloadSpeed((double) ((double) endtime - starttime / (double) 1000));
                                                         Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "File " + pathtoFile + " downloaded (" + downData + " bytes read) in " + (endtime - starttime) + " ms" + downQue2.toString() + " sending Message " + sendmsg);
                                                         Util.saveCheckSum(ip2Dir.getAbsolutePath() + ".sha", checksum2);
                                                     }

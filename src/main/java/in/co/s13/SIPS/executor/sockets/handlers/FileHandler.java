@@ -120,26 +120,26 @@ public class FileHandler implements Runnable {
                             s = new String(message);
                             msg = new JSONObject(s);
                             if (msg.getString("REPLY").trim().equalsIgnoreCase("foundLocal")) {
-                                GlobalValues.DIST_DB_EXECUTOR.execute(() -> {
-                                    int counter = 0;
-                                    boolean exist = false;
-                                    while (!exist && counter < 5) {
-                                        ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
-                                        if (DistTable != null) {
-                                            DistributionDBRow get = DistTable.get(nodeUUID + "-" + cno.trim());
-                                            if (get != null) {
-                                                get.addCachedData(myFile.length());
-                                                get.incrementCacheHit();
-                                            }
-                                        }
-                                        try {
-                                            Thread.currentThread().sleep(1000);
-                                        } catch (InterruptedException ex) {
-                                            Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
-                                        }
-                                        counter++;
-                                    }
-                                });
+//                                GlobalValues.DIST_DB_EXECUTOR.execute(() -> {
+//                                    int counter = 0;
+//                                    boolean exist = false;
+//                                    while (!exist && counter < 5) {
+//                                        ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
+//                                        if (DistTable != null) {
+//                                            DistributionDBRow get = DistTable.get(nodeUUID + "-" + cno.trim());
+//                                            if (get != null) {
+//                                                get.addCachedData(myFile.length());
+//                                                get.incrementCacheHit();
+//                                            }
+//                                        }
+//                                        try {
+//                                            Thread.currentThread().sleep(1000);
+//                                        } catch (InterruptedException ex) {
+//                                            Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
+//                                        }
+//                                        counter++;
+//                                    }
+//                                });
                             } else if (msg.getString("REPLY").trim().equalsIgnoreCase("sendNew")) {
                                 long flength = myFile.length();
                                 outToClient.writeLong(flength);
@@ -164,29 +164,29 @@ public class FileHandler implements Runnable {
 
                                     long end = System.currentTimeMillis();
 
-                                    GlobalValues.DIST_DB_EXECUTOR.execute(() -> {
-                                        int counter = 0;
-                                        boolean exist = false;
-                                        while (!exist && counter < 5) {
-                                            ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
-                                            if (DistTable != null) {
-
-                                                DistributionDBRow get = DistTable.get(nodeUUID + "-" + cno.trim());
-                                                if (get != null) {
-                                                    get.setDownloadedDataInKB(get.getDownloadedDataInKB() + flength);
-                                                    get.addDownloadSpeed((double) (flength) / ((double) (end - start)));
-                                                    get.incrementReqsRecieved();
-                                                    get.incrementCacheMiss();
-                                                }
-                                            }
-                                            try {
-                                                Thread.currentThread().sleep(1000);
-                                            } catch (InterruptedException ex) {
-                                                Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
-                                            }
-                                            counter++;
-                                        }
-                                    });
+//                                    GlobalValues.DIST_DB_EXECUTOR.execute(() -> {
+//                                        int counter = 0;
+//                                        boolean exist = false;
+//                                        while (!exist && counter < 5) {
+//                                            ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
+//                                            if (DistTable != null) {
+//
+//                                                DistributionDBRow get = DistTable.get(nodeUUID + "-" + cno.trim());
+//                                                if (get != null) {
+//                                                    get.setDownloadedData(get.getDownloadedData() + flength);
+//                                                    get.addDownloadSpeed((double) (flength) / ((double) (end - start)));
+//                                                    get.incrementReqsRecieved();
+//                                                    get.incrementCacheMiss();
+//                                                }
+//                                            }
+//                                            try {
+//                                                Thread.currentThread().sleep(1000);
+//                                            } catch (InterruptedException ex) {
+//                                                Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
+//                                            }
+//                                            counter++;
+//                                        }
+//                                    });
                                 }
                             }
 
@@ -237,27 +237,27 @@ public class FileHandler implements Runnable {
                             s = new String(message);
                             msg = new JSONObject(s);
                             if (msg.getString("REPLY").trim().equalsIgnoreCase("foundLocal")) {
-                                GlobalValues.DIST_DB_EXECUTOR.execute(() -> {
-                                    int counter = 0;
-                                    boolean exist = false;
-                                    while (!exist && counter < 5) {
-                                        ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid2.trim()));
-                                        if (DistTable != null) {
-
-                                            DistributionDBRow get = DistTable.get(nodeUUID + "-" + cno2.trim());
-                                            if (get != null) {
-                                                get.addCachedData(myFile2.length());
-                                                get.incrementCacheHit();
-                                            }
-                                        }
-                                        try {
-                                            Thread.currentThread().sleep(1000);
-                                        } catch (InterruptedException ex) {
-                                            Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
-                                        }
-                                        counter++;
-                                    }
-                                });
+//                                GlobalValues.DIST_DB_EXECUTOR.execute(() -> {
+//                                    int counter = 0;
+//                                    boolean exist = false;
+//                                    while (!exist && counter < 5) {
+//                                        ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid2.trim()));
+//                                        if (DistTable != null) {
+//
+//                                            DistributionDBRow get = DistTable.get(nodeUUID + "-" + cno2.trim());
+//                                            if (get != null) {
+//                                                get.addCachedData(myFile2.length());
+//                                                get.incrementCacheHit();
+//                                            }
+//                                        }
+//                                        try {
+//                                            Thread.currentThread().sleep(1000);
+//                                        } catch (InterruptedException ex) {
+//                                            Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
+//                                        }
+//                                        counter++;
+//                                    }
+//                                });
                             } else if (msg.getString("REPLY").trim().equalsIgnoreCase("sendNew")) {
 
                                 long flength = myFile2.length();
@@ -283,29 +283,29 @@ public class FileHandler implements Runnable {
                                     }
                                     long end = System.currentTimeMillis();
 
-                                    GlobalValues.DIST_DB_EXECUTOR.execute(() -> {
-                                        int counter = 0;
-                                        boolean exist = false;
-                                        while (!exist && counter < 5) {
-                                            ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid2.trim()));
-                                            if (DistTable != null) {
-
-                                                DistributionDBRow get = DistTable.get(nodeUUID + "-" + cno2.trim());
-                                                if (get != null) {
-                                                    get.setDownloadedDataInKB(get.getDownloadedDataInKB() + flength);
-                                                    get.addDownloadSpeed((double) (flength) / ((double) (end - start)));
-                                                    get.incrementReqsRecieved();
-                                                    get.incrementCacheMiss();
-                                                }
-                                            }
-                                            try {
-                                                Thread.currentThread().sleep(1000);
-                                            } catch (InterruptedException ex) {
-                                                Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
-                                            }
-                                            counter++;
-                                        }
-                                    });
+//                                    GlobalValues.DIST_DB_EXECUTOR.execute(() -> {
+//                                        int counter = 0;
+//                                        boolean exist = false;
+//                                        while (!exist && counter < 5) {
+//                                            ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid2.trim()));
+//                                            if (DistTable != null) {
+//
+//                                                DistributionDBRow get = DistTable.get(nodeUUID + "-" + cno2.trim());
+//                                                if (get != null) {
+//                                                    get.setDownloadedData(get.getDownloadedData() + flength);
+//                                                    get.addDownloadSpeed((double) (flength) / ((double) (end - start)));
+//                                                    get.incrementReqsRecieved();
+//                                                    get.incrementCacheMiss();
+//                                                }
+//                                            }
+//                                            try {
+//                                                Thread.currentThread().sleep(1000);
+//                                            } catch (InterruptedException ex) {
+//                                                Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
+//                                            }
+//                                            counter++;
+//                                        }
+//                                    });
                                 }
                             }
                         } else {

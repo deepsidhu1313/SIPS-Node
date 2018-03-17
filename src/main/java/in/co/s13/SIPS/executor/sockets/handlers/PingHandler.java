@@ -74,7 +74,7 @@ public class PingHandler implements Runnable {
                         // bad node no cookie for u
                         try (OutputStream os2 = submitter.getOutputStream(); DataOutputStream outToClient2 = new DataOutputStream(os2)) {
                             JSONObject sendmsg2Json = new JSONObject();
-                            sendmsg2Json.put("UUID", GlobalValues.NODE_UUID);
+                            sendmsg2Json.put("UUID", in.co.s13.sips.lib.node.settings.GlobalValues.NODE_UUID);
                             JSONObject body = new JSONObject();
                             JSONObject response = new JSONObject();
                             response.put("Message", "Error!!\n \tYou are not allowed.");
@@ -94,7 +94,7 @@ public class PingHandler implements Runnable {
 
                         try (OutputStream os2 = submitter.getOutputStream(); DataOutputStream outToClient2 = new DataOutputStream(os2)) {
                             JSONObject sendmsg2Json = new JSONObject();
-                            sendmsg2Json.put("UUID", GlobalValues.NODE_UUID);
+                            sendmsg2Json.put("UUID", in.co.s13.sips.lib.node.settings.GlobalValues.NODE_UUID);
                             sendmsg2Json.put("OS", GlobalValues.OS);
                             sendmsg2Json.put("HOSTNAME", GlobalValues.HOST_NAME);
                             sendmsg2Json.put("TASK_LIMIT", GlobalValues.TASK_LIMIT);

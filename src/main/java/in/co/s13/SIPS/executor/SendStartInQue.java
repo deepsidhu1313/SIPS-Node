@@ -55,7 +55,7 @@ public class SendStartInQue implements Runnable {
                     JSONObject msg = new JSONObject();
                     JSONObject msgBody = new JSONObject();
                     msgBody.put("PID", ID);
-                    msgBody.put("UUID", GlobalValues.NODE_UUID);
+                    msgBody.put("UUID", in.co.s13.sips.lib.node.settings.GlobalValues.NODE_UUID);
                     msgBody.put("CNO", chunkno);
                     msgBody.put("FILENAME", filename);
                     msgBody.put("OUTPUT", value);

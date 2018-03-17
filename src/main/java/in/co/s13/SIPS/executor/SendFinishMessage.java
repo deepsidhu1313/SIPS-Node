@@ -16,6 +16,7 @@
  */
 package in.co.s13.SIPS.executor;
 
+import in.co.s13.SIPS.datastructure.TaskDBRow;
 import in.co.s13.SIPS.settings.GlobalValues;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -31,44 +32,49 @@ import org.json.JSONObject;
  *
  * @author Nika
  */
-public class SendOverHead implements Runnable {
+public class SendFinishMessage implements Runnable {
 
-    String ipadd = "", ID = "", outPut = "", filename = "", value = "", cmd, chunkno, exitCode;
+    String ipadd = "", pid = "", outPut = "", filename = "", value = "", cmd, chunkno, exitCode;
     double avgLoad = Double.MAX_VALUE;
+    String uuid;
 
-    public SendOverHead(String overheadName, String ip, String PID, String chunknumber, String Filename, String value, String ExitCode, double avgLoad) {
+    public SendFinishMessage(String overheadName, String ip, String PID, String chunknumber, String Filename, String value, String ExitCode, double avgLoad, String uuid) {
         ipadd = ip;
-        ID = PID;
+        pid = PID;
         filename = Filename;
         this.value = value;
         cmd = overheadName;
         chunkno = chunknumber;
         exitCode = ExitCode;
-        this.avgLoad=avgLoad;
+        this.avgLoad = avgLoad;
+        this.uuid = uuid;
     }
 
     @Override
     public void run() {
         try {
-            Socket s = new Socket();
-            s.connect(new InetSocketAddress(ipadd, GlobalValues.TASK_FINISH_LISTENER_SERVER_PORT));
-            OutputStream os = s.getOutputStream();
+            Socket s = new Socket(ipadd, GlobalValues.TASK_FINISH_LISTENER_SERVER_PORT);
             try (DataInputStream dIn = new DataInputStream(s.getInputStream());
+                    OutputStream os = s.getOutputStream();
                     DataOutputStream outToServer = new DataOutputStream(os)) {
                 JSONObject sendmsgJsonObj = new JSONObject();
                 sendmsgJsonObj.put("Command", cmd);
                 JSONObject sendmsgBodyJsonObj = new JSONObject();
-                sendmsgBodyJsonObj.put("PID", ID);
-                sendmsgBodyJsonObj.put("UUID", GlobalValues.NODE_UUID);
+                sendmsgBodyJsonObj.put("PID", pid);
+                sendmsgBodyJsonObj.put("UUID", in.co.s13.sips.lib.node.settings.GlobalValues.NODE_UUID);
                 sendmsgBodyJsonObj.put("CNO", chunkno);
                 sendmsgBodyJsonObj.put("FILENAME", filename);
                 sendmsgBodyJsonObj.put("OUTPUT", value);
                 sendmsgBodyJsonObj.put("EXTCODE", exitCode);
                 sendmsgBodyJsonObj.put("AVGLOAD", avgLoad);
+                TaskDBRow task = GlobalValues.TASK_DB.get("" + uuid + "-ID-" + pid + "-CN-" + chunkno);
+                if (task != null) {
+                    sendmsgBodyJsonObj.put("TASK", task.toJSON());
+                }
                 sendmsgJsonObj.put("Body", sendmsgBodyJsonObj);
 
                 String sendmsg = sendmsgJsonObj.toString();
-//                System.out.println("Send Overhead Message :"+sendmsgJsonObj.toString(4)+" to "+ipadd);
+                System.out.println("Send Overhead Message :" + sendmsgJsonObj.toString(4) + " to " + ipadd);
                 byte[] bytes = sendmsg.getBytes("UTF-8");
                 outToServer.writeInt(bytes.length);
                 outToServer.write(bytes);

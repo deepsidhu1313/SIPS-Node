@@ -56,7 +56,7 @@ public class SendCommOverHead implements Runnable {
                 sendmsgJsonObj.put("Command", cmd);
                 JSONObject sendmsgBodyJsonObj = new JSONObject();
                 sendmsgBodyJsonObj.put("PID", ID);
-                sendmsgBodyJsonObj.put("UUID", GlobalValues.NODE_UUID);
+                sendmsgBodyJsonObj.put("UUID", in.co.s13.sips.lib.node.settings.GlobalValues.NODE_UUID);
                 sendmsgBodyJsonObj.put("CNO", chunkno);
                 sendmsgBodyJsonObj.put("FILENAME", filename);
                 sendmsgBodyJsonObj.put("OUTPUT", value);

@@ -57,18 +57,22 @@ public class ParallelProcess implements Runnable {
     int opfrequecy = 250000;
     private Process process;
     double loadAvg = 0;
+    String uuid;
+    TaskDBRow taskDBRow;
 
     public ParallelProcess(JSONObject body, String ipadd) throws FileNotFoundException {
         ip = ipadd;
         pid = body.getString("PID");//substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
         cno = body.getString("CNO");//body.substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
-        String uuid = body.getString("UUID");
+        uuid = body.getString("UUID");
         files = body.getJSONArray("FILES");//body.substring(body.indexOf("<FILES>") + 7, body.indexOf("</FILES>"));
         for (int i = 0; i < files.length(); i++) {
             JSONObject filesList1 = files.getJSONObject(i);
             fname.add(filesList1.getString("FILENAME"));
             content.add(filesList1.getString("CONTENT"));
         }
+        GlobalValues.TASK_ID.incrementAndGet();
+        GlobalValues.TASK_DB.put("" + uuid + "-ID-" + pid + "-CN-" + cno, new TaskDBRow(pid, projectName, uuid, Integer.parseInt(cno)));
 
         manifest = body.getJSONObject("MANIFEST");//substring(body.indexOf("<MANIFEST>") + 10, body.indexOf("</MANIFEST>"));
         counter = GlobalValues.TASK_ID.get();
@@ -150,8 +154,6 @@ public class ParallelProcess implements Runnable {
             opfrequecy = manifest.getInt("OUTPUTFREQUENCY", opfrequecy);//Integer.parseInt(tmp.trim());
 
         }
-        GlobalValues.TASK_ID.incrementAndGet();
-        GlobalValues.TASK_DB.put("" + ip + "-ID-" + pid + "-CN-" + cno, new TaskDBRow(pid, projectName, ipadd, (int) counter, process));
 
         createProcess(ip, pid, fname, content, uuid);
 
@@ -176,7 +178,7 @@ public class ParallelProcess implements Runnable {
         meta.put("SENDER_IP", ip);
         meta.put("CHUNK_NO", cno);
         meta.put("SENDER_UUID", uuid);
-        meta.put("UUID", GlobalValues.NODE_UUID);
+        meta.put("UUID", in.co.s13.sips.lib.node.settings.GlobalValues.NODE_UUID);
         meta.put("PROJECT", projectName);
         ArrayList<String> temp = new ArrayList<>();
         temp.addAll(libList);
@@ -292,94 +294,93 @@ public class ParallelProcess implements Runnable {
                 pb.directory(new File(GlobalValues.PWD));
             }
 
-            process = null;
             try {
                 process = pb.start();
+                taskDBRow = GlobalValues.TASK_DB.get("" + uuid + "-ID-" + pid + "-CN-" + cno);
+//                System.out.println("ROW "+taskDBRow.toString());
+                taskDBRow.setProcess(process);
             } catch (IOException ex) {
                 Logger.getLogger(ParallelProcess.class.getName()).log(Level.SEVERE, null, ex);
             }
 
-            BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            try (BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream())); BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
 
-            BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+                // read the output from the command
+                Util.outPrintln("Here is the standard output of the command:\n");
 
-            // read the output from the command
-            Util.outPrintln("Here is the standard output of the command:\n");
+                String s = null;
+                String output = "";
+                OperatingSystemMXBean osBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+                Runtime runtime = Runtime.getRuntime();
+                int noOfCores = runtime.availableProcessors();
+                output = fileLog.stream().map((fileLog1) -> "\n" + fileLog1).reduce(output, String::concat);
+                int ocounter = 0;
+                long loadCounter = 0;
+                while ((s = stdInput.readLine()) != null) {
+                    ocounter++;
+                    loadAvg += osBean.getSystemLoadAverage();
+                    loadCounter++;
+                    Util.outPrintln(s);
+                    if (ocounter == opfrequecy) {
 
-            String s = null;
-            String output = "";
-            OperatingSystemMXBean osBean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
-            Runtime runtime = Runtime.getRuntime();
-            int noOfCores = runtime.availableProcessors();
-            output = fileLog.stream().map((fileLog1) -> "\n" + fileLog1).reduce(output, String::concat);
-            int ocounter = 0;
-            long loadCounter = 0;
-            while ((s = stdInput.readLine()) != null) {
-                ocounter++;
-                loadAvg += osBean.getSystemLoadAverage();
-                loadCounter++;
-                Util.outPrintln(s);
-                if (ocounter == opfrequecy) {
+                        output += "\n" + s;
+                        SendOutput outputThread = (new SendOutput(ip, pid, cno, projectName, output));
+                        GlobalValues.SEND_OUTPUT_EXECUTOR_SERVICE.submit(outputThread);
+                        ocounter = 0;
+                        output = "";
+                    } else {
 
-                    output += "\n" + s;
-                    SendOutput outputThread = (new SendOutput(ip, pid, cno, projectName, output));
-                    GlobalValues.SEND_OUTPUT_EXECUTOR_SERVICE.submit(outputThread);
-                    ocounter = 0;
-                    output = "";
-                } else {
-
-                    output += "\n" + s;
+                        output += "\n" + s;
+                    }
                 }
-            }
-            SendOutput outputThread = (new SendOutput(ip, pid, cno, projectName, output));
-            GlobalValues.SEND_OUTPUT_EXECUTOR_SERVICE.submit(outputThread);
-            output = "\n";
+                SendOutput outputThread = (new SendOutput(ip, pid, cno, projectName, output));
+                GlobalValues.SEND_OUTPUT_EXECUTOR_SERVICE.submit(outputThread);
+                output = "\n";
 
-            ocounter = 0;
-            // read any errors from the attempted command
-            Util.outPrintln("Here is the standard error of the command (if any):\n");
-            while ((s = stdError.readLine()) != null) {
-                ocounter++;
-                loadAvg += osBean.getSystemLoadAverage();
-                loadCounter++;
-                Util.outPrintln(s);
-                success = false;
-                if (ocounter == opfrequecy) {
+                ocounter = 0;
+                // read any errors from the attempted command
+                Util.outPrintln("Here is the standard error of the command (if any):\n");
+                while ((s = stdError.readLine()) != null) {
+                    ocounter++;
+                    loadAvg += osBean.getSystemLoadAverage();
+                    loadCounter++;
+                    Util.outPrintln(s);
+                    success = false;
+                    if (ocounter == opfrequecy) {
 
-                    output += "\n" + s;
-                    SendOutput outputThread2 = (new SendOutput(ip, pid, cno, projectName, output));
-                    GlobalValues.SEND_OUTPUT_EXECUTOR_SERVICE.submit(outputThread2);
-                    ocounter = 0;
-                    output = "\n";
-                } else {
-                    output += "\n" + s;
+                        output += "\n" + s;
+                        SendOutput outputThread2 = (new SendOutput(ip, pid, cno, projectName, output));
+                        GlobalValues.SEND_OUTPUT_EXECUTOR_SERVICE.submit(outputThread2);
+                        ocounter = 0;
+                        output = "\n";
+                    } else {
+                        output += "\n" + s;
+                    }
                 }
-            }
-            SendOutput outputThread3 = (new SendOutput(ip, pid, cno, projectName, output));
-            GlobalValues.SEND_OUTPUT_EXECUTOR_SERVICE.submit(outputThread3);
-            loadAvg /= loadCounter;
+                SendOutput outputThread3 = (new SendOutput(ip, pid, cno, projectName, output));
+                GlobalValues.SEND_OUTPUT_EXECUTOR_SERVICE.submit(outputThread3);
+                loadAvg /= loadCounter;
 
-            ////settings.outPrintln("Process executed");
-            int exitValue = process.waitFor();
-            Util.outPrintln("\n\nExit Value is " + exitValue);
-            Long stopTime = System.currentTimeMillis();
-            totalTime = stopTime - startTime;
-            stdError.close();
-            stdInput.close();
-            process.destroy();
+                ////settings.outPrintln("Process executed");
+                int exitValue = process.waitFor();
+                Util.outPrintln("\n\nExit Value is " + exitValue);
+                Long stopTime = System.currentTimeMillis();
+                totalTime = stopTime - startTime;
+            }
+            //process.destroy();
 
         } catch (IOException | InterruptedException ex) {
             Logger.getLogger(ParallelProcess.class.getName()).log(Level.SEVERE, null, ex);
         }
         if (success) {
-            SendOverHead t2 = (new SendOverHead("Finished", ip, pid, cno, projectName, "" + totalTime, "0", loadAvg));
+            SendFinishMessage t2 = (new SendFinishMessage("Finished", ip, pid, cno, projectName, "" + totalTime, "0", loadAvg, uuid));
             GlobalValues.SEND_FINISH_EXECUTOR_SERVICE.submit(t2);
         } else {
-            SendOverHead t2 = (new SendOverHead("Error", ip, pid, cno, projectName, "" + totalTime, "1", loadAvg));
+            SendFinishMessage t2 = (new SendFinishMessage("Error", ip, pid, cno, projectName, "" + totalTime, "1", loadAvg, uuid));
             GlobalValues.SEND_FINISH_EXECUTOR_SERVICE.submit(t2);
 
         }
-
+//        System.out.println("Task DB " + GlobalValues.TASK_DB);
     }
 
 }

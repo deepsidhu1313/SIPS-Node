@@ -16,6 +16,8 @@
  */
 package in.co.s13.SIPS.executor;
 
+import in.co.s13.SIPS.datastructure.FileDownQueReq;
+import in.co.s13.SIPS.datastructure.TaskDBRow;
 import in.co.s13.SIPS.settings.GlobalValues;
 import in.co.s13.SIPS.tools.Util;
 import java.io.DataInputStream;
@@ -40,19 +42,15 @@ public class DownloadFile {
     ArrayList<String> logmsg = new ArrayList<>();
     int MAX_THREADSLEEP = 100000, sleepcounter = 0;
 
-    public DownloadFile(String IP, String id, String cno, String projectname, String localFolder, ArrayList<String> FileList, String uuid) {
+    public DownloadFile(String IP, String pid, String cno, String projectname, String localFolder, ArrayList<String> FileList, String uuid) {
         SERVER = IP;
         ExecutorService downloadFileExecutor = Executors.newFixedThreadPool(GlobalValues.TASK_LIMIT);
         FileList.stream().forEach((_item) -> {
             if (_item.trim().length() > 0) {
-//                Thread rt = new Thread
-        downloadFileExecutor.submit(() -> {
+                downloadFileExecutor.submit(() -> {
 
                     int bytesRead;
                     int current = 0;
-                    // fos = null;
-                    // bos = null;
-                    // sock = null;
                     File ipDir, ip2Dir = null;
                     String lchecksum = "";
                     String checksum = "";
@@ -64,7 +62,7 @@ public class DownloadFile {
                                 sendMsgJSON.put("Command", "sendfileChecksum");
                                 JSONObject sendMsgJSONBody = new JSONObject();
 
-                                sendMsgJSONBody.put("PID", id);
+                                sendMsgJSONBody.put("PID", pid);
                                 sendMsgJSONBody.put("CNO", cno);
                                 sendMsgJSONBody.put("PROJECT", projectname);
                                 sendMsgJSONBody.put("FILE", _item);
@@ -81,7 +79,7 @@ public class DownloadFile {
                                         dIn.readFully(message, 0, message.length); // read the message
                                     }
                                     String reply = new String(message);
-                                    ipDir = new File("cache/" + uuid+"/"+projectname);
+                                    ipDir = new File("cache/" + uuid + "/" + projectname);
                                     if (!ipDir.exists()) {
                                         ipDir.mkdirs();
                                     }
@@ -114,12 +112,25 @@ public class DownloadFile {
                         //if (lchecksum.trim().length() > 0)
                         boolean Ndownloaded = true;
                         long starttime = System.currentTimeMillis();
+                        boolean iRequestedFile = false;
+                        boolean alreadyInQueue = false;
+                        if (new File(ip2Dir.getAbsolutePath() + ".sha").exists()) {
+                            lchecksum = Util.LoadCheckSum(ip2Dir.getAbsolutePath() + ".sha");
+                        }
+                        TaskDBRow task = GlobalValues.TASK_DB.get("" + uuid + "-ID-" + pid + "-CN-" + cno);
 
+                        if (lchecksum.trim().equalsIgnoreCase(checksum.trim())) {
+                            Util.copyFileUsingStream(ip2Dir.getAbsolutePath(), localFolder + "/" + _item);
+                            task.setCachedData(task.getCachedData() + ip2Dir.length());
+                            task.incrementCacheHit();
+                            Ndownloaded = false;
+                        }
                         while (Ndownloaded) {
                             String nmsg = "";
                             if (new File(ip2Dir.getAbsolutePath() + ".sha").exists()) {
                                 lchecksum = Util.LoadCheckSum(ip2Dir.getAbsolutePath() + ".sha");
                             }
+
                             if (lchecksum.trim().equalsIgnoreCase(checksum.trim())) {
                                 Util.copyFileUsingStream(ip2Dir.getAbsolutePath(), localFolder + "/" + _item);
                                 Ndownloaded = false;
@@ -132,7 +143,7 @@ public class DownloadFile {
                                         sendMsgJSON.put("Command", "downloadfile");
                                         JSONObject sendMsgJSONBody = new JSONObject();
 
-                                        sendMsgJSONBody.put("PID", id);
+                                        sendMsgJSONBody.put("PID", pid);
                                         sendMsgJSONBody.put("CNO", cno);
                                         sendMsgJSONBody.put("PROJECT", projectname);
                                         sendMsgJSONBody.put("FILE", _item);
@@ -179,17 +190,20 @@ public class DownloadFile {
                                                 long end = System.currentTimeMillis();
 //                                                Thread sendSleepTimeThread = new Thread(new SendSleeptime("sleeptime", IP, id, cno, projectname, "" + (end - start)));
 //                                                sendSleepTimeThread.setPriority(Thread.NORM_PRIORITY + 1);
-                                                GlobalValues.SEND_SLEEPTIME_EXECUTOR_SERVICE.submit(new SendSleeptime("sleeptime", IP, id, cno, projectname, "" + (end - start)));
-
+                                                GlobalValues.SEND_SLEEPTIME_EXECUTOR_SERVICE.submit(new SendSleeptime("sleeptime", IP, pid, cno, projectname, "" + (end - start)));
+                                                if (!iRequestedFile) {
+                                                    alreadyInQueue = true;
+                                                }
                                             } else if (rpl.equalsIgnoreCase("addedinq")) {
                                                 sock.close();
+                                                iRequestedFile = true;
                                                 long start = System.currentTimeMillis();
 
                                                 Thread.currentThread().sleep(500);
                                                 long end = System.currentTimeMillis();
 //                                                Thread sendSleepTimeThread = new Thread(new SendSleeptime("sleeptime", IP, id, cno, projectname, "" + (end - start)));
 //                                                sendSleepTimeThread.setPriority(Thread.NORM_PRIORITY + 1);
-                                                GlobalValues.SEND_SLEEPTIME_EXECUTOR_SERVICE.submit(new SendSleeptime("sleeptime", IP, id, cno, projectname, "" + (end - start)));
+                                                GlobalValues.SEND_SLEEPTIME_EXECUTOR_SERVICE.submit(new SendSleeptime("sleeptime", IP, pid, cno, projectname, "" + (end - start)));
 
                                             } else {
                                                 System.out.println("Couldn't find file");
@@ -213,12 +227,22 @@ public class DownloadFile {
                         long endtime = System.currentTimeMillis();
 //                        Thread t2 = new Thread(new SendCommOverHead("ComOH", IP, id, cno, projectname, "" + (endtime - starttime)));
 //                        t2.start();
-                        GlobalValues.SEND_COMMOH_EXECUTOR_SERVICE.submit(new SendCommOverHead("ComOH", IP, id, cno, projectname, "" + (endtime - starttime)));
+                        GlobalValues.SEND_COMMOH_EXECUTOR_SERVICE.submit(new SendCommOverHead("ComOH", IP, pid, cno, projectname, "" + (endtime - starttime)));
+                        if (iRequestedFile && !alreadyInQueue) {
+                            task.incrementCacheMiss();
+                            FileDownQueReq downQue = GlobalValues.DOWNLOAD_QUEUE.get(_item.trim() + "-" + pid.trim() + "-" + checksum.trim() + "-" + SERVER.trim());
+                            System.out.println("Downloading Finished");
+                            task.addDownloadSpeed(downQue.getDownloadSpeed());
+                            task.setDownloadData((long) (task.getDownloadData() + downQue.getSize()));
 
+                        }
+                        if (alreadyInQueue) {
+                            task.setCachedData(task.getCachedData() + ip2Dir.length());
+                            task.incrementCacheHit();
+
+                        }
                     }
-                }
-                );
-//                downloadFileExecutor.submit(rt);
+                });
             }
         });
 

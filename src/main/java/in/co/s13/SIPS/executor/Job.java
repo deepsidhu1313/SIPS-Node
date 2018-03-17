@@ -17,6 +17,7 @@ import static in.co.s13.SIPS.settings.GlobalValues.RESULT_DB;
 import in.co.s13.SIPS.tools.GetDBFiles;
 import in.co.s13.SIPS.tools.Util;
 import in.co.s13.sips.lib.ParallelForSENP;
+import in.co.s13.sips.lib.common.datastructure.Node;
 import in.co.s13.sips.lib.common.datastructure.ParallelForLoop;
 import in.co.s13.sips.scheduler.LoadScheduler;
 import in.co.s13.sips.schedulers.Chunk;
@@ -491,6 +492,7 @@ public class Job implements Runnable {
                         datatype = 5;
                     }
                     ParallelForLoop parallelForLoop = new ParallelForLoop(min, max, diff, datatype, reverseLoop);
+ 
                     ArrayList<ParallelForSENP> al = loadScheduler.scheduleParallelFor(Util.getAllLiveNodes(), parallelForLoop, schedulerJSON);
                     System.out.println("Parallel For Loop Chunks: " + al.toString());
                     sql = "SELECT * FROM META;";

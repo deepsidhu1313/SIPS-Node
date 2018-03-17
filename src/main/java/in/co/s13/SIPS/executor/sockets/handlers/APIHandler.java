@@ -112,7 +112,7 @@ public class APIHandler implements Runnable {
                     // bad node no cookie for u
 
                     JSONObject sendmsg2Json = new JSONObject();
-                    sendmsg2Json.put("UUID", GlobalValues.NODE_UUID);
+                    sendmsg2Json.put("UUID", in.co.s13.sips.lib.node.settings.GlobalValues.NODE_UUID);
                     JSONObject body = new JSONObject();
                     JSONObject response = new JSONObject();
                     response.put("Message", "Error!!\n \tYou are not allowed.");
@@ -141,7 +141,7 @@ public class APIHandler implements Runnable {
 
                     } else {
                         JSONObject sendmsg2Json = new JSONObject();
-                        sendmsg2Json.put("UUID", GlobalValues.NODE_UUID);
+                        sendmsg2Json.put("UUID", in.co.s13.sips.lib.node.settings.GlobalValues.NODE_UUID);
                         JSONObject body = new JSONObject();
                         JSONObject response = new JSONObject();
                         response.put("Message", "Error!!\n \tYou are not allowed.");
@@ -159,7 +159,7 @@ public class APIHandler implements Runnable {
                     key_permissions = keyInfo.getInt("permissions");;
                     if (!key.trim().equalsIgnoreCase(apiKey.trim())) {
                         JSONObject sendmsg2Json = new JSONObject();
-                        sendmsg2Json.put("UUID", GlobalValues.NODE_UUID);
+                        sendmsg2Json.put("UUID", in.co.s13.sips.lib.node.settings.GlobalValues.NODE_UUID);
                         JSONObject body = new JSONObject();
                         JSONObject response = new JSONObject();
                         response.put("Message", "Error!!\n \tIncorrect API key.");
@@ -175,7 +175,7 @@ public class APIHandler implements Runnable {
                     }
                 }
                 JSONObject sendmsg2Json = new JSONObject();
-                sendmsg2Json.put("UUID", GlobalValues.NODE_UUID);
+                sendmsg2Json.put("UUID", in.co.s13.sips.lib.node.settings.GlobalValues.NODE_UUID);
                 JSONObject body = new JSONObject();
                 JSONObject response = new JSONObject();
                 if (command.equalsIgnoreCase("TestConnection")) {
@@ -482,7 +482,7 @@ public class APIHandler implements Runnable {
                 } else if (command.equalsIgnoreCase("help")) {
                     StringBuilder helpMessage = new StringBuilder();
                     helpMessage.append("Manual of SIPS-Node API on UUID:")
-                            .append(GlobalValues.NODE_UUID)
+                            .append(in.co.s13.sips.lib.node.settings.GlobalValues.NODE_UUID)
                             .append("\n\nCommands Supported:\n"
                                     + "\tnodes:\n"
                                     + "\tformat: nodes <option1> <option2> <option3> <option4> <option5>\n"
