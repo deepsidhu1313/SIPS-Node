@@ -31,7 +31,6 @@ import static in.co.s13.SIPS.settings.GlobalValues.JOB_LIMIT;
 import static in.co.s13.SIPS.settings.GlobalValues.PING_REQUEST_LIMIT;
 import static in.co.s13.SIPS.settings.GlobalValues.PING_REQUEST_LIMIT_FOR_LIVE_NODES;
 import static in.co.s13.SIPS.settings.GlobalValues.TASK_LIMIT;
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -116,7 +115,7 @@ public class ServiceOperations {
         GlobalValues.TASK_SERVER_IS_RUNNING = true;
         if ((GlobalValues.TASK_SERVER_SOCKET == null || GlobalValues.TASK_SERVER_SOCKET.isClosed()) && (GlobalValues.TASK_SERVER_THREAD == null || !GlobalValues.TASK_SERVER_THREAD.isAlive())) {
             GlobalValues.TASK_SERVER_THREAD = new Thread(new TaskServer());
-            GlobalValues.TASK_SERVER_THREAD.setPriority(Thread.MAX_PRIORITY - 1);
+            GlobalValues.TASK_SERVER_THREAD.setPriority(Thread.NORM_PRIORITY + 1);
             GlobalValues.TASK_SERVER_THREAD.start();
         }
     }

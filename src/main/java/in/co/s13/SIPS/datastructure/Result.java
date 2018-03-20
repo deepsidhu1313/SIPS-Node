@@ -16,6 +16,7 @@
  */
 package in.co.s13.SIPS.datastructure;
 
+import java.text.DecimalFormat;
 import java.util.Comparator;
 import org.json.JSONObject;
 
@@ -39,20 +40,21 @@ public class Result {
     private boolean finished;
     private String scheduler;
     private String status;
-    private long avgDownloadData=0,avgUploadData=0,avgCachedData;
-    private double avgCacheHitMissRatio=0,avgUploadSpeed=0,avgDownloadSpeed=0;
-    private int avgReqRecieved=0,avgReqSent=0;
+    private long avgDownloadData = 0, avgUploadData = 0, avgCachedData;
+    private double avgCacheHitMissRatio = 0, avgUploadSpeed = 0, avgDownloadSpeed = 0;
+    private int avgReqRecieved = 0, avgReqSent = 0;
+    private DecimalFormat df = new DecimalFormat("##.##");
+
     public Result() {
     }
-    
-    
+
     public Result(String jobName, String jobToken, String submitterUUID) {
         this.jobName = jobName;
         this.jobToken = jobToken;
         this.submitterUUID = submitterUUID;
-        this.status="Created";
+        this.status = "Created";
         createdOn = System.currentTimeMillis();
-        
+
     }
 
     public String getJobName() {
@@ -232,7 +234,7 @@ public class Result {
     }
 
     public double getAvgUploadSpeed() {
-        return avgUploadSpeed;
+        return Double.parseDouble(df.format(avgUploadSpeed));
     }
 
     public void setAvgUploadSpeed(double avgUploadSpeed) {
@@ -240,7 +242,7 @@ public class Result {
     }
 
     public double getAvgDownloadSpeed() {
-        return avgDownloadSpeed;
+        return Double.parseDouble(df.format(avgDownloadSpeed));
     }
 
     public void setAvgDownloadSpeed(double avgDownloadSpeed) {
@@ -263,8 +265,6 @@ public class Result {
         this.avgReqSent = avgReqSent;
     }
 
-   
-    
     @Override
     public String toString() {
         return toString(0);
@@ -293,10 +293,10 @@ public class Result {
         result.put("finished", finished);
         result.put("scheduler", scheduler);
         result.put("avgDownloadData", avgDownloadData);
-        result.put("avgDownloadSpeed", avgDownloadSpeed);
+        result.put("avgDownloadSpeed", getAvgDownloadSpeed());
         result.put("avgReqSent", avgReqSent);
         result.put("avgUploadData", avgUploadData);
-        result.put("avgUploadSpeed", avgUploadSpeed);
+        result.put("avgUploadSpeed", getAvgUploadSpeed());
         result.put("avgReqRecieved", avgReqRecieved);
         result.put("avgCachedData", avgCachedData);
         result.put("avgCacheHitMissRatio", avgCacheHitMissRatio);

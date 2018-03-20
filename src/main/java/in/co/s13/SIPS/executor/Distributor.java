@@ -17,6 +17,9 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONArray;
@@ -110,10 +113,10 @@ public class Distributor {
                     continue;
                 }
                 if (sendTask(get, body)) {
-                    Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.OUTPUT, "Sent " + body.toString(0) + " to " + get);
+                    Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.OUTPUT, "Sent " + this.jobToken + " " + this.chunkNumber + " to " + get + " UUID" + nodeUUID);
                     return true;
                 } else {
-                    Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.ERROR, "Failed to Sent " + body.toString(0) + " to " + get);
+                    Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.ERROR, "Failed to Sent " + this.jobToken + " " + this.chunkNumber + " to " + get + " UUID" + nodeUUID);
                 }
             }
         }

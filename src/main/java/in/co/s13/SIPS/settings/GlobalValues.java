@@ -250,7 +250,7 @@ public class GlobalValues {
     public static ExecutorService TASK_DB_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService JOB_DB_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService LIVE_DB_EXECUTOR = Executors.newFixedThreadPool(1);
-    public static ExecutorService DIST_DB_EXECUTOR = Executors.newFixedThreadPool(1000);
+    public static ExecutorService DIST_DB_EXECUTOR = Executors.newFixedThreadPool(4);
     public static ExecutorService DIST_WH_DB_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService RESULT_DB_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService RESULT_WH_DB_EXECUTOR = Executors.newFixedThreadPool(1);

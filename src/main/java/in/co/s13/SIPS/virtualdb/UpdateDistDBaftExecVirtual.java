@@ -66,7 +66,7 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
         System.out.println("size of master dist db " + MASTER_DIST_DB.size());
         this.uuid = nodeUUID;
         this.taskRow = taskRow;
-        DistTable = MASTER_DIST_DB.get((PID.trim()));
+
         System.out.println("UpdateDistDBaftExecVirtual Created For " + pid + " CNO" + cno);
         Util.appendToTasksLog(GlobalValues.LOG_LEVEL.OUTPUT, "UpdateDistDBaftExecVirtual Created For " + pid + " CNO" + cno);
     }
@@ -74,17 +74,18 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
     @Override
     public void run() {
         System.out.println("UpdateDistDBaftExecVirtual Started For " + pid + " CNO" + cno);
-
+        DistTable = MASTER_DIST_DB.get((pid.trim()));
         Thread.currentThread().setName("UpdateDistDBaftExecVirtual For " + pid + " CNO" + cno);
         int tries = 0;
         while (DistTable == null) {
             DistTable = MASTER_DIST_DB.get((pid.trim()));
 
-            if (tries == 5) {
+            if (tries == 50) {
                 break;
             }
             tries++;
             try {
+                System.out.println("UpdateDistDBaftExecVirtual Sleep to get Table " + pid + " CNO" + cno);
                 Thread.sleep(10000);
             } catch (InterruptedException ex) {
                 Logger.getLogger(UpdateDistDBaftExecVirtual.class.getName()).log(Level.SEVERE, null, ex);
@@ -96,13 +97,15 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                 DistributionDBRow get = DistTable.get(uuid + "-" + cno.trim());
                 tries = 0;
                 while (get == null) {
-                    if (tries == 5) {
+                    if (tries == 50) {
                         break;
                     }
+                    DistTable = MASTER_DIST_DB.get((pid.trim()));
                     get = DistTable.get(uuid + "-" + cno.trim());
 
                     tries++;
                     try {
+                        System.out.println("UpdateDistDBaftExecVirtual Sleep to get Row " + pid + " CNO" + cno);
                         Thread.sleep(10000);
                     } catch (InterruptedException ex) {
                         Logger.getLogger(UpdateDistDBaftExecVirtual.class.getName()).log(Level.SEVERE, null, ex);
@@ -151,6 +154,8 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                             CNOs.add(" " + get3.getCno());
                             counter++;
                         }
+
+                        isFinished = (tempDist.size() == get.getTotalChunks());
 
                     }
 
@@ -314,7 +319,7 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                             double avgUploadSpeed = 0;
                             int avgReqRecieved = 0;
                             long avgCachedData = 0;
-                            System.out.println("Here in here");
+                            System.out.println("Here in here " + pid + " CNO" + cno);
                             int c = 0;
                             {
                                 for (DistributionDBRow distTableRow : DistTable.values()) {
@@ -348,7 +353,7 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                             avgUploadSpeed /= c;
                             avgReqRecieved /= c;
                             avgCachedData /= c;
-                            System.out.println("Here in here 2");
+                            System.out.println("Here in here 2 " + pid + " CNO" + cno);
 
                             GlobalValues.RESULT_WH_DB_EXECUTOR.submit(new UpdateResultDBafterExecVirtual(pid, endtime, ttime, tempNOH, tempload, tempavgWaitinQ, tempavgSleeptime, avgCacheHitMissRatio,
                                     avgDownloadData,

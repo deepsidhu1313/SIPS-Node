@@ -16,6 +16,7 @@
  */
 package in.co.s13.SIPS.datastructure;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.OptionalDouble;
@@ -29,20 +30,19 @@ import org.json.JSONObject;
  */
 public class DistributionDBRow {
 
-    private Integer id;
     private String uuid;
     private Double prfm = 0.0, avgLoad = 0.0;
-    private Integer cno, vartype, exitcode;
+    private Integer  id, cno, vartype, exitcode,cacheHit = 0, cacheMiss = 0, reqsSent = 0, reqsRecieved = 0,totalChunks=0;
     private Long lstarttime = 0l, lendtime = 0l, lexctime = 0l, nexecutiontime = 0l, noh = 0l, poh = 0l, entrinq = 0l, startinq = 0l, waitinq = 0l, sleeptime = 0l, uploadedData = 0l, downloadedData = 0l;
     private String pid, chunksize, lowlimit, scheduler, uplimit, counter, ipAddress, hostName;
-    private Integer cacheHit = 0, cacheMiss = 0, reqsSent = 0, reqsRecieved = 0;
     private Long cachedData = 0l;
+    private DecimalFormat df = new DecimalFormat("##.##");
     private ArrayList<Double> uploadSpeed = new ArrayList<>(), downloadSpeed = new ArrayList<>();
 
     public DistributionDBRow(int id, String uuid, String pid, int cno, int vartype, String scheduler,
             long lstarttime, long lendtime, long lexctime, long nexecutiontime, long noh, long poh,
             long entrinq, long startinq, long waitinq, long sleeptime,
-            String chunksize, String lowlimit, String uplimit, String counter, double prfm, int exitcode, String ipAddress, String hostname, double avgLoad) {
+            String chunksize, String lowlimit, String uplimit, String counter, double prfm, int exitcode, String ipAddress, String hostname, double avgLoad,int totalChunks) {
         this.id = (id);
         this.uuid = (uuid);
         this.pid = (pid);
@@ -68,6 +68,7 @@ public class DistributionDBRow {
         this.ipAddress = ipAddress;
         this.hostName = hostname;
         this.avgLoad = avgLoad;
+        this.totalChunks=totalChunks;
     }
 
     public Integer getId() {
@@ -274,7 +275,7 @@ public class DistributionDBRow {
         OptionalDouble avgUploadSpeed = uploadSpeed.parallelStream()
                 .mapToDouble(a -> a)
                 .average();
-        return avgUploadSpeed.isPresent() ? avgUploadSpeed.getAsDouble() : 0;
+        return avgUploadSpeed.isPresent() ? Double.parseDouble(df.format(avgUploadSpeed.getAsDouble())) : 0;
     }
 
     public void addUploadSpeed(Double uploadSpeed) {
@@ -285,7 +286,7 @@ public class DistributionDBRow {
         OptionalDouble avgDownloadSpeed = downloadSpeed.parallelStream()
                 .mapToDouble(a -> a)
                 .average();
-        return avgDownloadSpeed.isPresent() ? avgDownloadSpeed.getAsDouble() : 0;
+        return avgDownloadSpeed.isPresent() ? Double.parseDouble(df.format(avgDownloadSpeed.getAsDouble())) : 0;
     }
 
     public void addDownloadSpeed(Double downloadSpeed) {
@@ -368,6 +369,16 @@ public class DistributionDBRow {
         return this.cachedData += (delta);
     }
 
+    public Integer getTotalChunks() {
+        return totalChunks;
+    }
+
+    public void setTotalChunks(Integer totalChunks) {
+        this.totalChunks = totalChunks;
+    }
+    
+    
+
     @Override
     public String toString() {
         return toString(0);
@@ -399,6 +410,7 @@ public class DistributionDBRow {
         result.put("sleeptime", sleeptime);
         result.put("pid", pid);
         result.put("chunksize", chunksize);
+        result.put("totalChunks", totalChunks);
         result.put("lowlimit", lowlimit);
         result.put("scheduler", scheduler);
         result.put("uplimit", uplimit);
