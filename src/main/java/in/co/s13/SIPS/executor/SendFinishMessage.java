@@ -52,9 +52,10 @@ public class SendFinishMessage implements Runnable {
 
     @Override
     public void run() {
-        try {
-            Socket s = new Socket(ipadd, GlobalValues.TASK_FINISH_LISTENER_SERVER_PORT);
-            try (DataInputStream dIn = new DataInputStream(s.getInputStream());
+        int i = 0;
+        boolean sent = false;
+        while (!sent) {
+            try (Socket s = new Socket(ipadd, GlobalValues.TASK_FINISH_LISTENER_SERVER_PORT); DataInputStream dIn = new DataInputStream(s.getInputStream());
                     OutputStream os = s.getOutputStream();
                     DataOutputStream outToServer = new DataOutputStream(os)) {
                 JSONObject sendmsgJsonObj = new JSONObject();
@@ -84,16 +85,27 @@ public class SendFinishMessage implements Runnable {
                 if (length > 0) {
                     dIn.readFully(message, 0, message.length); // read the message
                 }
-//                String reply = new String(message);
-//                if (reply.contains("OK")) {
-//                } else {
-//                }
-                s.close();
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(SendOutput.class.getName()).log(Level.SEVERE, null, ex);
-        }
+                String reply = new String(message);
+                if (reply.contains("OK")) {
+                    System.out.println("Received Reply For Finish Message: " + reply);
+                    sent = true;
+                } else {
 
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(SendOutput.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            i++;
+            if (i == 5) {
+                // failed in 5 tries
+                sent = true;
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(SendFinishMessage.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 
 }

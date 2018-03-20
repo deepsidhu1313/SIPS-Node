@@ -141,6 +141,14 @@ public class PingHandler implements Runnable {
             }
         }
 
+        try {
+            if (submitter != null && !submitter.isClosed()) {
+                submitter.close();
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(FileHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
 
 }

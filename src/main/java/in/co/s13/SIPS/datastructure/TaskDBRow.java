@@ -31,7 +31,7 @@ public class TaskDBRow {
     private Process process = null;
     private long downloadData = 0;
     private int reqSent = 0;
-    private long uploadData = 0;
+    private long uploadData = 0, commOH = 0, sleepTime=0,startedInQueue=0,enteredInQueue=0;
     private int reqRecieved = 0, cacheHit = 0, cacheMiss = 0;
     private long cachedData = 0;
     private ArrayList<Double> uploadSpeed = new ArrayList<>(), downloadSpeed = new ArrayList<>();
@@ -47,7 +47,7 @@ public class TaskDBRow {
         return taskID;
     }
 
-    public void setTaskID(String taskID) {
+    public synchronized void setTaskID(String taskID) {
         this.taskID = taskID;
     }
 
@@ -55,7 +55,7 @@ public class TaskDBRow {
         return projectName;
     }
 
-    public void setProjectName(String projectName) {
+    public synchronized void setProjectName(String projectName) {
         this.projectName = projectName;
     }
 
@@ -63,7 +63,7 @@ public class TaskDBRow {
         return submitterUUID;
     }
 
-    public void setSubmitterUUID(String SubmitterUUID) {
+    public synchronized void setSubmitterUUID(String SubmitterUUID) {
         this.submitterUUID = SubmitterUUID;
     }
 
@@ -71,7 +71,7 @@ public class TaskDBRow {
         return chunkNo;
     }
 
-    public void setChunkNo(int chunkNo) {
+    public synchronized void setChunkNo(int chunkNo) {
         this.chunkNo = chunkNo;
     }
 
@@ -79,7 +79,7 @@ public class TaskDBRow {
         return process;
     }
 
-    public void setProcess(Process process) {
+    public synchronized void setProcess(Process process) {
         this.process = process;
     }
 
@@ -87,19 +87,19 @@ public class TaskDBRow {
         return (double) cacheHit / (double) (cacheMiss < 1 ? 1 : cacheMiss);
     }
 
-    public long getDownloadData() {
+    public  long getDownloadData() {
         return downloadData;
     }
 
-    public void setDownloadData(long downloadData) {
+    public synchronized void setDownloadData(long downloadData) {
         this.downloadData = downloadData;
     }
 
-    public int incrementCacheHit() {
+    public synchronized int incrementCacheHit() {
         return cacheHit++;
     }
 
-    public int incrementCacheMiss() {
+    public synchronized int incrementCacheMiss() {
         return cacheMiss++;
     }
 
@@ -110,7 +110,7 @@ public class TaskDBRow {
         return avgUploadSpeed.isPresent() ? avgUploadSpeed.getAsDouble() : 0;
     }
 
-    public void addUploadSpeed(Double uploadSpeed) {
+    public synchronized void addUploadSpeed(Double uploadSpeed) {
         this.uploadSpeed.add(uploadSpeed);
     }
 
@@ -121,7 +121,7 @@ public class TaskDBRow {
         return avgDownloadSpeed.isPresent() ? avgDownloadSpeed.getAsDouble() : 0;
     }
 
-    public void addDownloadSpeed(Double downloadSpeed) {
+    public synchronized void addDownloadSpeed(Double downloadSpeed) {
         this.downloadSpeed.add(downloadSpeed);
     }
 
@@ -129,11 +129,11 @@ public class TaskDBRow {
         return reqSent;
     }
 
-    public int incrementReqSent() {
+    public synchronized int incrementReqSent() {
         return reqSent++;
     }
 
-    public void setReqSent(int reqSent) {
+    public synchronized void setReqSent(int reqSent) {
         this.reqSent = reqSent;
     }
 
@@ -141,7 +141,7 @@ public class TaskDBRow {
         return uploadData;
     }
 
-    public void setUploadData(long uploadData) {
+    public synchronized void setUploadData(long uploadData) {
         this.uploadData = uploadData;
     }
 
@@ -149,11 +149,11 @@ public class TaskDBRow {
         return reqRecieved;
     }
 
-    public int incrementReqRecieved() {
+    public synchronized int incrementReqRecieved() {
         return reqRecieved++;
     }
 
-    public void setReqRecieved(int reqRecieved) {
+    public synchronized void setReqRecieved(int reqRecieved) {
         this.reqRecieved = reqRecieved;
     }
 
@@ -161,9 +161,52 @@ public class TaskDBRow {
         return cachedData;
     }
 
-    public void setCachedData(long cachedData) {
+    public synchronized void setCachedData(long cachedData) {
         this.cachedData = cachedData;
     }
+
+    public long getCommOH() {
+        return commOH;
+    }
+
+    public synchronized void setCommOH(long commOH) {
+        this.commOH = commOH;
+    }
+
+    public synchronized long addCommOH(long commOH) {
+        return this.commOH += commOH;
+    }
+
+    public long getSleepTime() {
+        return sleepTime;
+    }
+
+    public void setSleepTime(long sleepTime) {
+        this.sleepTime = sleepTime;
+    }
+
+    public synchronized long addSleepTime(long sleepTime) {
+       return this.sleepTime += sleepTime;
+    }
+
+    
+    public long getStartedInQueue() {
+        return startedInQueue;
+    }
+
+    public synchronized void setStartedInQueue(long startedInQueue) {
+        this.startedInQueue = startedInQueue;
+    }
+
+    public long getEnteredInQueue() {
+        return enteredInQueue;
+    }
+
+    public synchronized void setEnteredInQueue(long enteredInQueue) {
+        this.enteredInQueue = enteredInQueue;
+    }
+    
+    
 
     @Override
     public String toString() {
@@ -186,6 +229,10 @@ public class TaskDBRow {
         taskDBRow.put("CachedData", cachedData);
         taskDBRow.put("CacheHit", cacheHit);
         taskDBRow.put("CacheMiss", cacheMiss);
+        taskDBRow.put("COMM_OH", commOH);
+        taskDBRow.put("SleepTime", sleepTime);
+        taskDBRow.put("EnteredInQueue", enteredInQueue);
+        taskDBRow.put("StartedInQueue", startedInQueue);
         return taskDBRow;
     }
 

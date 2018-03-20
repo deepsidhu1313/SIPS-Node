@@ -65,6 +65,7 @@ import org.json.JSONObject;
 import static in.co.s13.SIPS.settings.GlobalValues.OUT;
 import static in.co.s13.SIPS.settings.GlobalValues.ERR;
 import static in.co.s13.SIPS.settings.GlobalValues.LOG;
+import static in.co.s13.SIPS.settings.GlobalValues.random;
 import in.co.s13.sips.lib.common.datastructure.Node;
 import static in.co.s13.sips.lib.common.settings.GlobalValues.ADJACENT_NODES_TABLE;
 import static in.co.s13.sips.lib.common.settings.GlobalValues.NON_ADJACENT_NODES_TABLE;
@@ -886,6 +887,18 @@ public class Util {
         });
     }
 
+    public static void appendToJobDistributorLog(GlobalValues.LOG_LEVEL logLevel, String sout) {
+        GlobalValues.LOG_IO_EXECUTOR.submit(() -> {
+            String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
+            if (logLevel == GlobalValues.LOG_LEVEL.ERROR) {
+                errPrintln(sout);
+            } else if (logLevel == GlobalValues.LOG_LEVEL.OUTPUT) {
+                outPrintln(sout);
+            }
+            GlobalValues.JOB_DISTRIBUTOR_LOG_PRINTER.append("\n" + "[" + timestamp + "] [" + logLevel + "] [" + sout + "]");
+        });
+    }
+
     public static void appendToPingLog(GlobalValues.LOG_LEVEL logLevel, String sout) {
         GlobalValues.LOG_IO_EXECUTOR.submit(() -> {
             String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
@@ -1167,6 +1180,11 @@ public class Util {
             json.put(key, value.toJSON());
         }
         return json;
+    }
+
+    public static int getRandomNumberInRange(int min, int max) {
+        int randomNum = random.nextInt((max - min) + 1) + min;
+        return randomNum;
     }
 
     public static JSONObject traceroute(String host) {

@@ -110,7 +110,10 @@ public class Distributor {
                     continue;
                 }
                 if (sendTask(get, body)) {
+                    Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.OUTPUT, "Sent " + body.toString(0) + " to " + get);
                     return true;
+                } else {
+                    Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.ERROR, "Failed to Sent " + body.toString(0) + " to " + get);
                 }
             }
         }

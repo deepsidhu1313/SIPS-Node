@@ -748,18 +748,21 @@ public class APIHandler implements Runnable {
             Logger.getLogger(APIHandler.class.getName()).log(Level.SEVERE, null, ex);
             Util.appendToApiLog(GlobalValues.LOG_LEVEL.ERROR, ex.toString());
             try {
-                if (!submitter.isClosed()) {
+                if (submitter != null &&!submitter.isClosed()) {
                     submitter.close();
                 }
             } catch (IOException ex1) {
                 Logger.getLogger(APIHandler.class.getName()).log(Level.SEVERE, null, ex1);
             }
-        } catch (InterruptedException ex) {
+        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
             Logger.getLogger(APIHandler.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ExecutionException ex) {
-            Logger.getLogger(APIHandler.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (TimeoutException ex) {
-            Logger.getLogger(APIHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        try {
+            if (submitter != null && !submitter.isClosed()) {
+                submitter.close();
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(FileHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

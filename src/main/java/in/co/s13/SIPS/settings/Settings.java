@@ -151,6 +151,7 @@ public class Settings {
             PING_SERVER_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "ping_server.log";
             TASK_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "tasks.log";
             JOB_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "jobs.log";
+            JOB_DISTRIBUTOR_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "distributor.log";
             PING_REQ_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "ping.log";
 
             String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
@@ -206,6 +207,12 @@ public class Settings {
             GlobalValues.JOB_LOG_PRINTER = new PrintStream(JOB_LOG_FILE);
             GlobalValues.JOB_LOG_PRINTER.println(prevContent);
             GlobalValues.JOB_LOG_PRINTER.println("\n\n****************************************************************"
+                    + "\n**************** " + timestamp + " ***********************"
+                    + "\n****************************************************************\n");
+            prevContent = Util.readFile(JOB_DISTRIBUTOR_LOG_FILE);
+            GlobalValues.JOB_DISTRIBUTOR_LOG_PRINTER = new PrintStream(JOB_DISTRIBUTOR_LOG_FILE);
+            GlobalValues.JOB_DISTRIBUTOR_LOG_PRINTER.println(prevContent);
+            GlobalValues.JOB_DISTRIBUTOR_LOG_PRINTER.println("\n\n****************************************************************"
                     + "\n**************** " + timestamp + " ***********************"
                     + "\n****************************************************************\n");
             prevContent = Util.readFile(PING_REQ_LOG_FILE);

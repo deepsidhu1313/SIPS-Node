@@ -64,6 +64,7 @@ public class SIPSNode {
                         + "\t\t\t MODE:\n"
                         + "\t\t\t\t 0:Run with Ping Server (Default Mode if no mode is pecified)\n"
                         + "\t\t\t\t 1:Run Without Ping Server (Private Mode)\n"
+                        + "\t\t\t\t 2:Run Without Ping Server And Task Server (Master Only Mode)\n"
                         + "\n\t\t--generate-app-uuid:\n"
                         + "\t\t\tGenerates an unique id(UUID) for this node and replace the existing one.\n"
                         + "\n\t\t--benchmark:\n"
@@ -364,6 +365,22 @@ public class SIPSNode {
                         ServiceOperations.initApiServerAtStartUp();
                         ServiceOperations.initFileServerAtStartUp();
                         ServiceOperations.initTaskServerAtStartUp();
+                        ServiceOperations.initTaskFinishListenerServerAtStartUp();
+                        ServiceOperations.initFileDownloadServerAtStartUp();
+                        ServiceOperations.initLogRotateAtStartUp();
+                        ServiceOperations.initJobServerAtStartUp();
+                        ServiceOperations.initCleanResultDBAtStartUp();
+                        break;
+                    /**
+                     * *
+                     * Private Mode
+                     */
+                    case 2:
+
+                        new HardwareStatThreads();
+                        new NetworkThreads();
+                        ServiceOperations.initApiServerAtStartUp();
+                        ServiceOperations.initFileServerAtStartUp();
                         ServiceOperations.initTaskFinishListenerServerAtStartUp();
                         ServiceOperations.initFileDownloadServerAtStartUp();
                         ServiceOperations.initLogRotateAtStartUp();

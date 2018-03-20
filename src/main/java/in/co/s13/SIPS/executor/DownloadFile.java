@@ -190,7 +190,8 @@ public class DownloadFile {
                                                 long end = System.currentTimeMillis();
 //                                                Thread sendSleepTimeThread = new Thread(new SendSleeptime("sleeptime", IP, id, cno, projectname, "" + (end - start)));
 //                                                sendSleepTimeThread.setPriority(Thread.NORM_PRIORITY + 1);
-                                                GlobalValues.SEND_SLEEPTIME_EXECUTOR_SERVICE.submit(new SendSleeptime("sleeptime", IP, pid, cno, projectname, "" + (end - start)));
+//                                                GlobalValues.SEND_SLEEPTIME_EXECUTOR_SERVICE.submit(new SendSleeptime("sleeptime", IP, pid, cno, projectname, "" + (end - start)));
+                                                task.addSleepTime(stime);
                                                 if (!iRequestedFile) {
                                                     alreadyInQueue = true;
                                                 }
@@ -203,7 +204,8 @@ public class DownloadFile {
                                                 long end = System.currentTimeMillis();
 //                                                Thread sendSleepTimeThread = new Thread(new SendSleeptime("sleeptime", IP, id, cno, projectname, "" + (end - start)));
 //                                                sendSleepTimeThread.setPriority(Thread.NORM_PRIORITY + 1);
-                                                GlobalValues.SEND_SLEEPTIME_EXECUTOR_SERVICE.submit(new SendSleeptime("sleeptime", IP, pid, cno, projectname, "" + (end - start)));
+//                                                GlobalValues.SEND_SLEEPTIME_EXECUTOR_SERVICE.submit(new SendSleeptime("sleeptime", IP, pid, cno, projectname, "" + (end - start)));
+                                                task.addSleepTime(end - start);
 
                                             } else {
                                                 System.out.println("Couldn't find file");
@@ -227,19 +229,19 @@ public class DownloadFile {
                         long endtime = System.currentTimeMillis();
 //                        Thread t2 = new Thread(new SendCommOverHead("ComOH", IP, id, cno, projectname, "" + (endtime - starttime)));
 //                        t2.start();
-                        GlobalValues.SEND_COMMOH_EXECUTOR_SERVICE.submit(new SendCommOverHead("ComOH", IP, pid, cno, projectname, "" + (endtime - starttime)));
+//                        GlobalValues.SEND_COMMOH_EXECUTOR_SERVICE.submit(new SendCommOverHead("ComOH", IP, pid, cno, projectname, "" + (endtime - starttime)));
                         if (iRequestedFile && !alreadyInQueue) {
                             task.incrementCacheMiss();
                             FileDownQueReq downQue = GlobalValues.DOWNLOAD_QUEUE.get(_item.trim() + "-" + pid.trim() + "-" + checksum.trim() + "-" + SERVER.trim());
                             System.out.println("Downloading Finished");
                             task.addDownloadSpeed(downQue.getDownloadSpeed());
                             task.setDownloadData((long) (task.getDownloadData() + downQue.getSize()));
-
+                            task.addCommOH((endtime - starttime));
                         }
                         if (alreadyInQueue) {
                             task.setCachedData(task.getCachedData() + ip2Dir.length());
                             task.incrementCacheHit();
-
+                            task.addCommOH((endtime - starttime));
                         }
                     }
                 });

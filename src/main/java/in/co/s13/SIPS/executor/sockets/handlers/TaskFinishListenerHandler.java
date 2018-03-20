@@ -27,7 +27,6 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB;
 import org.json.JSONObject;
 
 /**
@@ -48,74 +47,78 @@ public class TaskFinishListenerHandler implements Runnable {
     @Override
     public void run() {
 
-        try {
-            try (DataInputStream dIn = new DataInputStream(submitter.getInputStream()); OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
-                int length = dIn.readInt();                    // read length of incoming message
-                byte[] message = new byte[length];
+        try (DataInputStream dIn = new DataInputStream(submitter.getInputStream()); OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
+            int length = dIn.readInt();                    // read length of incoming message
+            byte[] message = new byte[length];
 
-                if (length > 0) {
-                    dIn.readFully(message, 0, message.length); // read the message
-                }
-                String s = new String(message);
-                JSONObject msg = new JSONObject(s);
+            if (length > 0) {
+                dIn.readFully(message, 0, message.length); // read the message
+            }
+            String s = new String(message);
+            JSONObject msg = new JSONObject(s);
 
-                InetAddress inetAddress = submitter.getInetAddress();
-                String ipAddress = inetAddress.getHostAddress();
-                if (msg.toString().length() > 1) {
-                    //                    Util.outPrintln("IP adress of sender is " + ipAddress);
+            InetAddress inetAddress = submitter.getInetAddress();
+            String ipAddress = inetAddress.getHostAddress();
 
-                    Util.appendToTasksLog(GlobalValues.LOG_LEVEL.OUTPUT, "Recieved " + msg);
-                    System.out.println("Task Finish Handler Recieved:" + msg);
-                    String command = msg.getString("Command");
-                    JSONObject body = msg.getJSONObject("Body");;
-                    //     Settings.outPrintln(msg);
-                    if (command.equalsIgnoreCase("Finished")) {
-                        String pid = body.getString("PID");
-                        String cno = body.getString("CNO");
-                        String fname = body.getString("FILENAME");
-                        String content = body.getString("OUTPUT");
-                        String ExitCode = body.getString("EXTCODE");
-                        String uuid = body.getString("UUID");
-                        JSONObject task = body.getJSONObject("TASK");
-                        double avgLoad = body.getDouble("AVGLOAD", Double.MAX_VALUE);
-                        {
-                            String sendmsg = "OK";
+            if (msg.toString().length() > 1) {
+                //                    Util.outPrintln("IP adress of sender is " + ipAddress);
 
-                            byte[] bytes = sendmsg.getBytes("UTF-8");
-                            outToClient.writeInt(bytes.length);
-                            outToClient.write(bytes);
+                Util.appendToTasksLog(GlobalValues.LOG_LEVEL.OUTPUT, "Recieved " + msg);
+                String command = msg.getString("Command");
+                JSONObject body = msg.getJSONObject("Body");;
+                //     Settings.outPrintln(msg);
+                if (command.equalsIgnoreCase("Finished")) {
+                    String pid = body.getString("PID");
+                    String cno = body.getString("CNO");
+                    String fname = body.getString("FILENAME");
+                    String content = body.getString("OUTPUT");
+                    String ExitCode = body.getString("EXTCODE");
+                    String uuid = body.getString("UUID");
+                    JSONObject task = body.getJSONObject("TASK");
+                    double avgLoad = body.getDouble("AVGLOAD", Double.MAX_VALUE);
+                    {
+                        String sendmsg = "OK";
 
-                        }
-                        submitter.close();
-                        Thread t = new Thread(new UpdateDistDBaftExecVirtual(System.currentTimeMillis(), Long.parseLong(content), fname, ipAddress, pid, cno, ExitCode, uuid, avgLoad, task));
-                        GlobalValues.DIST_DB_EXECUTOR.submit(t);
-//                        Util.appendToTasksLog(GlobalValues.LOG_LEVEL.OUTPUT, "size of master dist db " + MASTER_DIST_DB.size());
-
-                    } else if (command.contains("Error")) {
-                        String pid = body.getString("PID");
-                        String cno = body.getString("CNO");
-                        String fname = body.getString("FILENAME");
-                        String content = body.getString("OUTPUT");
-                        String ExitCode = body.getString("EXTCODE");
-                        String uuid = body.getString("UUID");
-                        JSONObject task = body.getJSONObject("TASK");
-                        double avgLoad = body.getDouble("AVGLOAD", Double.MAX_VALUE);
-                        {
-                            String sendmsg = "OK";
-
-                            byte[] bytes = sendmsg.getBytes("UTF-8");
-                            outToClient.writeInt(bytes.length);
-                            outToClient.write(bytes);
-                        }
-                        submitter.close();
-                        Thread t = new Thread(new UpdateDistDBaftExecVirtual(System.currentTimeMillis(), Long.parseLong(content), fname, ipAddress, pid, cno, ExitCode, uuid, avgLoad, task));
-                        GlobalValues.DIST_DB_EXECUTOR.submit(t);
-                    } else {
-                        submitter.close();
+                        byte[] bytes = sendmsg.getBytes("UTF-8");
+                        outToClient.writeInt(bytes.length);
+                        outToClient.write(bytes);
 
                     }
+                    System.out.println("Task Finish Handler Recieved:" + msg);
+
+                    submitter.close();
+                    GlobalValues.DIST_DB_EXECUTOR.submit(new UpdateDistDBaftExecVirtual(System.currentTimeMillis(), Long.parseLong(content), fname, ipAddress, pid, cno, ExitCode, uuid, avgLoad, task));
+//                        Thread t = new Thread(new UpdateDistDBaftExecVirtual(System.currentTimeMillis(), Long.parseLong(content), fname, ipAddress, pid, cno, ExitCode, uuid, avgLoad, task));
+//                        GlobalValues.DIST_DB_EXECUTOR.submit(t);
+//                        Util.appendToTasksLog(GlobalValues.LOG_LEVEL.OUTPUT, "size of master dist db " + MASTER_DIST_DB.size());
+
+                } else if (command.contains("Error")) {
+                    String pid = body.getString("PID");
+                    String cno = body.getString("CNO");
+                    String fname = body.getString("FILENAME");
+                    String content = body.getString("OUTPUT");
+                    String ExitCode = body.getString("EXTCODE");
+                    String uuid = body.getString("UUID");
+                    JSONObject task = body.getJSONObject("TASK");
+                    double avgLoad = body.getDouble("AVGLOAD", Double.MAX_VALUE);
+                    {
+                        String sendmsg = "OK";
+
+                        byte[] bytes = sendmsg.getBytes("UTF-8");
+                        outToClient.writeInt(bytes.length);
+                        outToClient.write(bytes);
+                    }
+                    submitter.close();
+                    System.out.println("Task Finish Handler Recieved:" + msg);
+                    GlobalValues.DIST_DB_EXECUTOR.submit(new UpdateDistDBaftExecVirtual(System.currentTimeMillis(), Long.parseLong(content), fname, ipAddress, pid, cno, ExitCode, uuid, avgLoad, task));
+//                        Thread t = new Thread(new UpdateDistDBaftExecVirtual(System.currentTimeMillis(), Long.parseLong(content), fname, ipAddress, pid, cno, ExitCode, uuid, avgLoad, task));
+//                        GlobalValues.DIST_DB_EXECUTOR.submit(t);
+                } else {
+                    submitter.close();
+
                 }
             }
+
         } catch (IOException ex) {
             Logger.getLogger(TaskFinishListenerHandler.class.getName()).log(Level.SEVERE, null, ex);
             try {
@@ -125,6 +128,14 @@ public class TaskFinishListenerHandler implements Runnable {
             } catch (IOException ex1) {
                 Logger.getLogger(TaskFinishListenerHandler.class.getName()).log(Level.SEVERE, null, ex1);
             }
+        }
+
+        try {
+            if (submitter != null && !submitter.isClosed()) {
+                submitter.close();
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(FileHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }

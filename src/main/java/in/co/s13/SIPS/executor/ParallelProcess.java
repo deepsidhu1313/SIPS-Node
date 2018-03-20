@@ -61,6 +61,7 @@ public class ParallelProcess implements Runnable {
     TaskDBRow taskDBRow;
 
     public ParallelProcess(JSONObject body, String ipadd) throws FileNotFoundException {
+
         ip = ipadd;
         pid = body.getString("PID");//substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
         cno = body.getString("CNO");//body.substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
@@ -71,15 +72,18 @@ public class ParallelProcess implements Runnable {
             fname.add(filesList1.getString("FILENAME"));
             content.add(filesList1.getString("CONTENT"));
         }
-        GlobalValues.TASK_ID.incrementAndGet();
-        GlobalValues.TASK_DB.put("" + uuid + "-ID-" + pid + "-CN-" + cno, new TaskDBRow(pid, projectName, uuid, Integer.parseInt(cno)));
-
         manifest = body.getJSONObject("MANIFEST");//substring(body.indexOf("<MANIFEST>") + 10, body.indexOf("</MANIFEST>"));
         counter = GlobalValues.TASK_ID.get();
         main = manifest.getString("MAIN");//substring(manifest.indexOf("<MAIN>") + 6, manifest.indexOf("</MAIN>"));
         projectName = manifest.getString("PROJECT");//substring(manifest.indexOf("<PROJECT>") + 9, manifest.indexOf("</PROJECT>"));
-        SendStartInQue sendEnteredInQueue = (new SendStartInQue("enterinq", ip, pid, cno, projectName, "" + System.currentTimeMillis()));
-        GlobalValues.SEND_ENTER_IN_QUEUE_EXECUTOR_SERVICE.submit(sendEnteredInQueue);
+        
+        GlobalValues.TASK_ID.incrementAndGet();
+        GlobalValues.TASK_DB.put("" + uuid + "-ID-" + pid + "-CN-" + cno, new TaskDBRow(pid, projectName, uuid, Integer.parseInt(cno)));
+        taskDBRow = GlobalValues.TASK_DB.get("" + uuid + "-ID-" + pid + "-CN-" + cno);
+
+        taskDBRow.setEnteredInQueue(System.currentTimeMillis());
+//        SendStartInQue sendEnteredInQueue = (new SendStartInQue("enterinq", ip, pid, cno, projectName, "" + System.currentTimeMillis()));
+//        GlobalValues.SEND_ENTER_IN_QUEUE_EXECUTOR_SERVICE.submit(sendEnteredInQueue);
 
         {
             if (manifest.has("LIB")) {
@@ -263,9 +267,10 @@ public class ParallelProcess implements Runnable {
 
     @Override
     public void run() {
+        taskDBRow.setStartedInQueue(System.currentTimeMillis());
         Thread.currentThread().setName("ParallelProcessThread" + ip + "-" + pid);
-        SendStartInQue sendStartInQueue = (new SendStartInQue("startinque", ip, pid, cno, projectName, "" + System.currentTimeMillis()));
-        GlobalValues.SEND_START_IN_QUEUE_EXECUTOR_SERVICE.submit(sendStartInQueue);
+//        SendStartInQue sendStartInQueue = (new SendStartInQue("startinque", ip, pid, cno, projectName, "" + System.currentTimeMillis()));
+//        GlobalValues.SEND_START_IN_QUEUE_EXECUTOR_SERVICE.submit(sendStartInQueue);
         try {
             GlobalValues.TASK_WAITING.decrementAndGet();
             ProcessBuilder pb = null;
@@ -296,7 +301,6 @@ public class ParallelProcess implements Runnable {
 
             try {
                 process = pb.start();
-                taskDBRow = GlobalValues.TASK_DB.get("" + uuid + "-ID-" + pid + "-CN-" + cno);
 //                System.out.println("ROW "+taskDBRow.toString());
                 taskDBRow.setProcess(process);
             } catch (IOException ex) {

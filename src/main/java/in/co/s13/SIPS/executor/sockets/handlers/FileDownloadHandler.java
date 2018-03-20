@@ -519,6 +519,8 @@ public class FileDownloadHandler implements Runnable {
                     }
                     submitter.close();
 //                    System.out.println("Done.");
+                } else {
+                    submitter.close();
                 }
 
             }
@@ -529,9 +531,11 @@ public class FileDownloadHandler implements Runnable {
         }
         {
             try {
-                submitter.close();
+                if (submitter != null && !submitter.isClosed()) {
+                    submitter.close();
+                }
             } catch (IOException ex) {
-                Logger.getLogger(FileDownloadHandler.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(FileHandler.class.getName()).log(Level.SEVERE, null, ex);
             }
 
         }

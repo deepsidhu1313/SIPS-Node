@@ -492,7 +492,7 @@ public class Job implements Runnable {
                         datatype = 5;
                     }
                     ParallelForLoop parallelForLoop = new ParallelForLoop(min, max, diff, datatype, reverseLoop);
- 
+
                     ArrayList<ParallelForSENP> al = loadScheduler.scheduleParallelFor(Util.getAllLiveNodes(), parallelForLoop, schedulerJSON);
                     System.out.println("Parallel For Loop Chunks: " + al.toString());
                     sql = "SELECT * FROM META;";
@@ -503,6 +503,7 @@ public class Job implements Runnable {
                         file = rs99.getString("FILE");
                     }
                     ConcurrentHashMap<String, DistributionDBRow> DistTable = new ConcurrentHashMap<>();
+                    ArrayList<Node> backupNodes = loadScheduler.getBackupNodes();
                     for (int k = 0; k < al.size(); k++) {
                         ParallelForSENP get = al.get(k);
                         Util.copyFolder(new File("data/" + jobToken + "/src/"), new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + k + "/src/"));
@@ -514,12 +515,34 @@ public class Job implements Runnable {
 //                        System.out.println("Modified AST: " + cu.toString());
                         Util.write("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + k + "/src/" + parent + "/" + file, cu.toString());
                         Distributor dist = new Distributor(get.getNodeUUID(), "" + k, jobToken);
-                        dist.upload();
-
+                        boolean uploaded = dist.upload();
+                        int maxTries = 3;
+                        int tries = 0;
+                        int triedBackUpNodes = 0;
+                        while (!uploaded && triedBackUpNodes < 3) {
+                            uploaded = dist.upload();
+                            tries++;
+                            if (tries == maxTries) {
+                                if (!backupNodes.isEmpty()) {
+                                    get.setNodeUUID(backupNodes.get(Util.getRandomNumberInRange(0, backupNodes.size())).getUuid());
+                                    dist = new Distributor(get.getNodeUUID(), "" + k, jobToken);
+                                    tries = 0;
+                                    triedBackUpNodes++;
+                                } else {
+                                    triedBackUpNodes = 3;
+                                    Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.ERROR, "Failed To Distribute Job " + jobToken);
+                                    break;
+                                }
+                            }
+                        }
                         DistTable.put(get.getNodeUUID() + "-" + k, new DistributionDBRow(i, get.getNodeUUID(), jobToken, k, datatype, schedulerName, System.currentTimeMillis(), 0, 0, 0, 0, 0, 0, 0, 0, 0, get.getDiff(), get.getStart(), get.getEnd(), "0", 0, 9999, dist.getToIPAddress(), dist.getHostName(), 0));
-
+                        if (k != 0) {
+                            MASTER_DIST_DB.replace(jobToken.trim(), DistTable);
+                        } else {
+                            MASTER_DIST_DB.put(jobToken.trim(), DistTable);
+                        }
                     }
-                    MASTER_DIST_DB.put(jobToken.trim(), DistTable);
+                    MASTER_DIST_DB.replace(jobToken.trim(), DistTable);
 
                 }
             }

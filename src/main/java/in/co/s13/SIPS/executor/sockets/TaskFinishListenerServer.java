@@ -56,9 +56,10 @@ public class TaskFinishListenerServer implements Runnable {
         while (GlobalValues.TASK_FINISH_SERVER_IS_RUNNING) {
             try {
                 Socket s = GlobalValues.TASK_FINISH_LISTENER_SERVER_SOCKET.accept();
-//                Thread t = new Thread(new TaskFinishListenerHandler(s));
-                //t.setPriority(Thread.NORM_PRIORITY);
+//                Thread thread = new Thread(new TaskFinishListenerHandler(s));
+//                thread.setPriority(Thread.MAX_PRIORITY);
 //                t.setName("FinishServerThread");
+//                GlobalValues.TASK_FINISH_LISTENER_HANDLER_EXECUTOR_SERVICE.submit(thread);
                 GlobalValues.TASK_FINISH_LISTENER_HANDLER_EXECUTOR_SERVICE.submit(new TaskFinishListenerHandler(s));
 
             } catch (IOException ex) {

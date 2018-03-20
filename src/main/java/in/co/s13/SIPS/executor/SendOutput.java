@@ -47,7 +47,7 @@ public class SendOutput implements Runnable {
     public void run() {
         try {
             try (Socket s = new Socket()) {
-                s.connect(new InetSocketAddress(ipadd, GlobalValues.TASK_SERVER_PORT));
+                s.connect(new InetSocketAddress(ipadd, GlobalValues.JOB_SERVER_PORT));
                 try (OutputStream os = s.getOutputStream(); DataOutputStream outToServer = new DataOutputStream(os); DataInputStream dIn = new DataInputStream(s.getInputStream())) {
                     JSONObject sendmsgJsonObj = new JSONObject();
                     sendmsgJsonObj.put("Command", "printoutput");

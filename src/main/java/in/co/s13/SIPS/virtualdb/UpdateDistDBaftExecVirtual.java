@@ -17,7 +17,6 @@
 package in.co.s13.SIPS.virtualdb;
 
 import in.co.s13.SIPS.datastructure.DistributionDBRow;
-import static in.co.s13.SIPS.datastructure.DistributionDBRow.DistributionDBRowComparator.LEXCTIME_SORT;
 import static in.co.s13.SIPS.datastructure.DistributionDBRow.DistributionDBRowComparator.getComparator;
 import in.co.s13.SIPS.datastructure.Result;
 import in.co.s13.SIPS.db.InsertDistributionWareHouse;
@@ -27,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import static in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.json.JSONObject;
 
 /**
@@ -67,20 +68,55 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
         this.taskRow = taskRow;
         DistTable = MASTER_DIST_DB.get((PID.trim()));
         System.out.println("UpdateDistDBaftExecVirtual Created For " + pid + " CNO" + cno);
+        Util.appendToTasksLog(GlobalValues.LOG_LEVEL.OUTPUT, "UpdateDistDBaftExecVirtual Created For " + pid + " CNO" + cno);
     }
 
     @Override
     public void run() {
         System.out.println("UpdateDistDBaftExecVirtual Started For " + pid + " CNO" + cno);
 
-        Thread.currentThread().setName("UpdateDistDBaftExecVirtual Started For " + pid + " CNO" + cno);
+        Thread.currentThread().setName("UpdateDistDBaftExecVirtual For " + pid + " CNO" + cno);
+        int tries = 0;
+        while (DistTable == null) {
+            DistTable = MASTER_DIST_DB.get((pid.trim()));
+
+            if (tries == 5) {
+                break;
+            }
+            tries++;
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(UpdateDistDBaftExecVirtual.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
         {
             if (DistTable != null) {
                 DistributionDBRow get = DistTable.get(uuid + "-" + cno.trim());
+                tries = 0;
+                while (get == null) {
+                    if (tries == 5) {
+                        break;
+                    }
+                    get = DistTable.get(uuid + "-" + cno.trim());
+
+                    tries++;
+                    try {
+                        Thread.sleep(10000);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(UpdateDistDBaftExecVirtual.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+
                 if (get != null) {
                     startTime = get.getLstarttime();
                     vartype = get.getVartype();
-                    Util.outPrintln("StartTime is " + startTime + " for ip " + IP + " with chunkno " + cno);
+                    get.setEntrinq(taskRow.getLong("EnteredInQueue"));
+                    get.setStartinq(taskRow.getLong("StartedInQueue"));
+                    get.setSleeptime(taskRow.getLong("SleepTime"));
+                    get.setNoh(taskRow.getLong("COMM_OH"));
+//                    Util.outPrintln("StartTime is " + startTime + " for ip " + IP + " with chunkno " + cno);
                     NOH = (endtime - startTime) - exectime;
                     lexecTime = endtime - startTime;
                     get.setLendtime(endtime);

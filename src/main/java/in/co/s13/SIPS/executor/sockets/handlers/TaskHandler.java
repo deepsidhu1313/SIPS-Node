@@ -129,12 +129,15 @@ public class TaskHandler implements Runnable {
                         long size = body.getLong("SIZE");
                         double speed = body.getDouble("SPEED");
                         String uuid = body.getString("UUID");
+                        long commOH = body.getLong("COMM_OH");
+                        long sleepTime = body.getLong("SLEEP_TIME");
                         submitter.close();
 //                        System.out.println("" + messageJson.toString(4));
                         TaskDBRow taskDBRow = GlobalValues.TASK_DB.get("" + senderUuid + "-ID-" + pid + "-CN-" + cno);
                         taskDBRow.incrementCacheHit();
                         taskDBRow.setCachedData(taskDBRow.getCachedData() + size);
-
+                        taskDBRow.addCommOH(commOH);
+                        taskDBRow.addSleepTime(sleepTime);
                     } else if (command.equalsIgnoreCase("CACHEMISS")) {
                         String pid = body.getString("PID");
                         String cno = body.getString("CNO");
@@ -142,12 +145,16 @@ public class TaskHandler implements Runnable {
                         long size = body.getLong("SIZE");
                         double speed = body.getDouble("SPEED");
                         String uuid = body.getString("UUID");
+                        long commOH = body.getLong("COMM_OH");
+                        long sleepTime = body.getLong("SLEEP_TIME");
                         submitter.close();
                         System.out.println("" + messageJson.toString(4));
                         TaskDBRow taskDBRow = GlobalValues.TASK_DB.get("" + senderUuid + "-ID-" + pid + "-CN-" + cno);
                         taskDBRow.incrementCacheMiss();
                         taskDBRow.setDownloadData(taskDBRow.getDownloadData() + size);
                         taskDBRow.addDownloadSpeed(speed);
+                        taskDBRow.addCommOH(commOH);
+                        taskDBRow.addSleepTime(sleepTime);
                         taskDBRow.incrementReqRecieved();
                     } else if (command.equalsIgnoreCase("startinque")) {
                         String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));

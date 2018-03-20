@@ -28,6 +28,7 @@ import in.co.s13.sips.lib.common.datastructure.Node;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -182,6 +183,7 @@ public class GlobalValues {
      * Flag to Dump Log
      */
     public static boolean DUMP_LOG = false;
+    public static Random random = new Random(13);
 
     public static String OUT_FILE,
             ERR_FILE,
@@ -192,6 +194,7 @@ public class GlobalValues {
             PING_SERVER_LOG_FILE,
             TASK_LOG_FILE,
             JOB_LOG_FILE,
+            JOB_DISTRIBUTOR_LOG_FILE,
             PING_REQ_LOG_FILE;
     public static PrintStream OUT,
             ERR,
@@ -202,6 +205,7 @@ public class GlobalValues {
             PING_SERVER_LOG_PRINTER,
             TASK_LOG_PRINTER,
             JOB_LOG_PRINTER,
+            JOB_DISTRIBUTOR_LOG_PRINTER,
             PING_LOG_PRINTER;
 
     /**
@@ -218,12 +222,12 @@ public class GlobalValues {
      */
     public static int TASK_LIMIT = (Runtime.getRuntime().availableProcessors() - 2) < 1 ? 1 : (Runtime.getRuntime().availableProcessors() - 2);
     public static int FILES_RESOLVER_LIMIT = TASK_LIMIT;
-    public static int FILE_HANDLER_LIMIT = 10;
+    public static int FILE_HANDLER_LIMIT = 30;
     public static int PING_HANDLER_LIMIT = 2;
-    public static int API_HANDLER_LIMIT = TASK_LIMIT;
-    public static int TASK_HANDLER_LIMIT = 10;
+    public static int API_HANDLER_LIMIT = 2;
+    public static int TASK_HANDLER_LIMIT = TASK_LIMIT;
     public static int JOB_HANDLER_LIMIT = TASK_LIMIT;
-    public static int TASK_FINISH_LISTENER_HANDLER_LIMIT = 40;
+    public static int TASK_FINISH_LISTENER_HANDLER_LIMIT = 1000;
     public static int JOB_LIMIT = TASK_LIMIT;
     public static int TOTAL_IP_SCANNING_THREADS = TASK_LIMIT;
     public static int PING_REQUEST_LIMIT = TASK_LIMIT;
@@ -246,17 +250,17 @@ public class GlobalValues {
     public static ExecutorService TASK_DB_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService JOB_DB_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService LIVE_DB_EXECUTOR = Executors.newFixedThreadPool(1);
-    public static ExecutorService DIST_DB_EXECUTOR = Executors.newFixedThreadPool(TASK_LIMIT*2);
+    public static ExecutorService DIST_DB_EXECUTOR = Executors.newFixedThreadPool(1000);
     public static ExecutorService DIST_WH_DB_EXECUTOR = Executors.newFixedThreadPool(1);
-    public static ExecutorService RESULT_DB_EXECUTOR = Executors.newFixedThreadPool(TASK_LIMIT);
+    public static ExecutorService RESULT_DB_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService RESULT_WH_DB_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService LOG_IO_EXECUTOR = Executors.newFixedThreadPool(1);
     public static ExecutorService SEND_SLEEPTIME_EXECUTOR_SERVICE = Executors.newFixedThreadPool(1);
-    public static ExecutorService SEND_OUTPUT_EXECUTOR_SERVICE = Executors.newFixedThreadPool(TASK_LIMIT);
-    public static ExecutorService SEND_FINISH_EXECUTOR_SERVICE = Executors.newFixedThreadPool(TASK_LIMIT*2);
-    public static ExecutorService SEND_START_IN_QUEUE_EXECUTOR_SERVICE = Executors.newFixedThreadPool(TASK_LIMIT);
-    public static ExecutorService SEND_ENTER_IN_QUEUE_EXECUTOR_SERVICE = Executors.newFixedThreadPool(TASK_LIMIT);
-    public static ExecutorService SEND_COMMOH_EXECUTOR_SERVICE = Executors.newFixedThreadPool(TASK_LIMIT);
+    public static ExecutorService SEND_OUTPUT_EXECUTOR_SERVICE = Executors.newFixedThreadPool(1);
+    public static ExecutorService SEND_FINISH_EXECUTOR_SERVICE = Executors.newFixedThreadPool(1);
+//    public static ExecutorService SEND_START_IN_QUEUE_EXECUTOR_SERVICE = Executors.newFixedThreadPool(TASK_LIMIT);
+//    public static ExecutorService SEND_ENTER_IN_QUEUE_EXECUTOR_SERVICE = Executors.newFixedThreadPool(TASK_LIMIT);
+//    public static ExecutorService SEND_COMMOH_EXECUTOR_SERVICE = Executors.newFixedThreadPool(1);
     public static ExecutorService OUTPUT_WRITER_EXECUTOR = Executors.newFixedThreadPool(TASK_LIMIT);
 
     /**

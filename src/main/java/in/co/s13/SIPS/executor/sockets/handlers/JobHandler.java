@@ -19,6 +19,7 @@ package in.co.s13.SIPS.executor.sockets.handlers;
 import in.co.s13.SIPS.datastructure.Result;
 import in.co.s13.SIPS.db.SQLiteJDBC;
 import in.co.s13.SIPS.executor.Job;
+import in.co.s13.SIPS.executor.PrintToFile;
 import in.co.s13.SIPS.settings.GlobalValues;
 import in.co.s13.SIPS.tools.Util;
 import in.co.s13.SIPS.virtualdb.UpdateResultDBbefExecVirtual;
@@ -76,7 +77,6 @@ public class JobHandler implements Runnable {
 //                    System.OUT.println("" + messageString);
                     String command = messageJson.getString("Command");//messageString.substring(messageString.indexOf("<Command>") + 9, messageString.indexOf("</Command>"));
                     JSONObject body = messageJson.getJSONObject("Body");//messageString.substring(messageString.indexOf("<Body>") + 6, messageString.indexOf("</Body>"));
-                    System.out.println(messageString);
                     if (command.equals("START_JOB")) {
                         GlobalValues.JOB_WAITING.incrementAndGet();
                         String jobToken = body.getString("JOB_TOKEN");
@@ -97,6 +97,7 @@ public class JobHandler implements Runnable {
 
                         }
                         submitter.close();
+                        System.out.println(messageString);
                     } else if (command.equals("GET_JOB_STATUS")) {
                         String jobToken = body.getString("JOB_TOKEN");
 
@@ -153,6 +154,7 @@ public class JobHandler implements Runnable {
                             Logger.getLogger(JobHandler.class.getName()).log(Level.SEVERE, null, ex);
                         }
                         submitter.close();
+                        System.out.println(messageString);
                     } else if (command.equals("CREATE_JOB_TOKEN")) {
                         String submitterUUID = body.getString("UUID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
                         String jobname = body.getString("JOB_NAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
@@ -173,6 +175,7 @@ public class JobHandler implements Runnable {
 
                         }
                         submitter.close();
+                        System.out.println(messageString);
 
                     } else if (command.equals("UPLOAD_FILE")) {
                         String submitterUUID = body.getString("UUID");
@@ -232,6 +235,27 @@ public class JobHandler implements Runnable {
                             }
                         }
                         submitter.close();
+                        System.out.println(messageString);
+                    } else if (command.equalsIgnoreCase("printoutput")) {
+                        String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
+                        String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
+                        String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
+                        String content = body.getString("OUTPUT");//.substring(body.indexOf("<OUTPUT>") + 8, body.indexOf("</OUTPUT>"));
+//                        int p = Integer.parseInt(pid);
+                        String output = content;
+                        try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
+                            String sendmsg = "OK";
+
+                            byte[] bytes = sendmsg.getBytes("UTF-8");
+                            outToClient.writeInt(bytes.length);
+                            outToClient.write(bytes);
+                        }
+
+                        submitter.close();
+                        PrintToFile outToFile = (new PrintToFile(fname, pid, cno, content));
+                        GlobalValues.OUTPUT_WRITER_EXECUTOR.submit(outToFile);
+                    } else {
+                        submitter.close();
                     }
                 }
             }
@@ -244,6 +268,13 @@ public class JobHandler implements Runnable {
             } catch (IOException ex1) {
                 Logger.getLogger(JobHandler.class.getName()).log(Level.SEVERE, null, ex1);
             }
+        }
+        try {
+            if (submitter != null && !submitter.isClosed()) {
+                submitter.close();
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(FileHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
