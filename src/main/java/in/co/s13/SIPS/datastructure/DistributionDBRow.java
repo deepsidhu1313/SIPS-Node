@@ -32,7 +32,7 @@ public class DistributionDBRow {
 
     private String uuid;
     private Double prfm = 0.0, avgLoad = 0.0;
-    private Integer  id, cno, vartype, exitcode,cacheHit = 0, cacheMiss = 0, reqsSent = 0, reqsRecieved = 0,totalChunks=0;
+    private Integer id, cno, vartype, exitcode, cacheHit = 0, cacheMiss = 0, reqsSent = 0, reqsRecieved = 0, totalChunks = 0;
     private Long lstarttime = 0l, lendtime = 0l, lexctime = 0l, nexecutiontime = 0l, noh = 0l, poh = 0l, entrinq = 0l, startinq = 0l, waitinq = 0l, sleeptime = 0l, uploadedData = 0l, downloadedData = 0l;
     private String pid, chunksize, lowlimit, scheduler, uplimit, counter, ipAddress, hostName;
     private Long cachedData = 0l;
@@ -42,7 +42,7 @@ public class DistributionDBRow {
     public DistributionDBRow(int id, String uuid, String pid, int cno, int vartype, String scheduler,
             long lstarttime, long lendtime, long lexctime, long nexecutiontime, long noh, long poh,
             long entrinq, long startinq, long waitinq, long sleeptime,
-            String chunksize, String lowlimit, String uplimit, String counter, double prfm, int exitcode, String ipAddress, String hostname, double avgLoad,int totalChunks) {
+            String chunksize, String lowlimit, String uplimit, String counter, double prfm, int exitcode, String ipAddress, String hostname, double avgLoad, int totalChunks) {
         this.id = (id);
         this.uuid = (uuid);
         this.pid = (pid);
@@ -68,7 +68,7 @@ public class DistributionDBRow {
         this.ipAddress = ipAddress;
         this.hostName = hostname;
         this.avgLoad = avgLoad;
-        this.totalChunks=totalChunks;
+        this.totalChunks = totalChunks;
     }
 
     public Integer getId() {
@@ -361,6 +361,22 @@ public class DistributionDBRow {
         this.reqsRecieved++;
     }
 
+    public void setReqsSent(Integer reqsSent) {
+        this.reqsSent = reqsSent;
+    }
+
+    public void setReqsRecieved(Integer reqsRecieved) {
+        this.reqsRecieved = reqsRecieved;
+    }
+
+    public int addReqsSent(Integer reqsSent) {
+        return this.reqsSent += reqsSent;
+    }
+
+    public int addReqsRecieved(Integer reqsRecieved) {
+        return this.reqsRecieved += reqsRecieved;
+    }
+
     public long getCachedData() {
         return cachedData;
     }
@@ -376,8 +392,6 @@ public class DistributionDBRow {
     public void setTotalChunks(Integer totalChunks) {
         this.totalChunks = totalChunks;
     }
-    
-    
 
     @Override
     public String toString() {

@@ -132,6 +132,8 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                     get.setUploadedData(get.getUploadedData() + taskRow.getLong("DownloadData"));
                     get.addCacheHit(taskRow.getInt("CacheHit"));
                     get.addCacheMiss(taskRow.getInt("CacheMiss"));
+                    get.addReqsRecieved(taskRow.getInt("ReqSent"));
+                    get.addReqsSent(taskRow.getInt("ReqRecieved"));
                     get.setExitcode(Integer.parseInt(exitCode.trim()));
                     ArrayList<DistributionDBRow> tempDist = new ArrayList<>();
                     tempDist.addAll(DistTable.values());

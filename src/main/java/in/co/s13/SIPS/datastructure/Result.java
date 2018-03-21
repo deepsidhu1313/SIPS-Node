@@ -283,7 +283,7 @@ public class Result {
         result.put("endTime", endTime);
         result.put("totalTime", totalTime);
         result.put("parsingOH", parsingOH);
-        result.put("networkOH", networkOH);
+        result.put("avgNetworkOH", networkOH);
         result.put("chunkSize", chunkSize);
         result.put("totalChunks", totalChunks);
         result.put("totalNodes", totalNodes);
