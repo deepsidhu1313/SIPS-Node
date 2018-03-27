@@ -20,8 +20,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.OptionalDouble;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import org.json.JSONObject;
 
 /**
@@ -38,6 +36,8 @@ public class DistributionDBRow {
     private Long cachedData = 0l;
     private DecimalFormat df = new DecimalFormat("##.##");
     private ArrayList<Double> uploadSpeed = new ArrayList<>(), downloadSpeed = new ArrayList<>();
+    private String duplicateOf = "";
+    private ArrayList<String> duplicates = new ArrayList<>();
 
     public DistributionDBRow(int id, String uuid, String pid, int cno, int vartype, String scheduler,
             long lstarttime, long lendtime, long lexctime, long nexecutiontime, long noh, long poh,
@@ -391,6 +391,34 @@ public class DistributionDBRow {
 
     public void setTotalChunks(Integer totalChunks) {
         this.totalChunks = totalChunks;
+    }
+
+    public ArrayList<String> getDuplicates() {
+        return duplicates;
+    }
+
+    public void setDuplicates(ArrayList<String> duplicates) {
+        this.duplicates = duplicates;
+    }
+
+    public void addDuplicate(String duplicateId) {
+        this.duplicates.add(duplicateId);
+    }
+
+    public String getDuplicateOf() {
+        return duplicateOf;
+    }
+
+    public void setDuplicateOf(String duplicateOf) {
+        this.duplicateOf = duplicateOf;
+    }
+
+    public boolean isDuplicate() {
+        return duplicateOf != null;
+    }
+
+    public boolean hasDuplicates() {
+        return duplicates.size() > 0;
     }
 
     @Override

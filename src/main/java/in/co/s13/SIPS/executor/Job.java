@@ -510,7 +510,7 @@ public class Job implements Runnable {
                     }
                     ConcurrentHashMap<String, DistributionDBRow> DistTable = new ConcurrentHashMap<>();
                     ArrayList<Node> backupNodes = loadScheduler.getBackupNodes();
-                    ExecutorService jobUploadExecutor = Executors.newFixedThreadPool(4);
+                    ExecutorService jobUploadExecutor = Executors.newFixedThreadPool(GlobalValues.TASK_LIMIT*2);
 
                     for (int k = 0; k < loopChunks.size(); k++) {
                         final int l = k;
@@ -612,9 +612,7 @@ public class Job implements Runnable {
                 resultDBEntry.setParsingOH(parsingEndTime - parsingStartTime);
                 resultDBEntry.setStatus("Job Distributed and Started");
             }
-        } catch (SQLException ex) {
-            Logger.getLogger(Job.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
+        } catch (SQLException | InterruptedException ex) {
             Logger.getLogger(Job.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

@@ -16,6 +16,7 @@
  */
 package in.co.s13.SIPS.datastructure;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.OptionalDouble;
 import org.json.JSONObject;
@@ -36,6 +37,9 @@ public class TaskDBRow {
     private long cachedData = 0;
     private ArrayList<Double> uploadSpeed = new ArrayList<>(), downloadSpeed = new ArrayList<>();
 
+    private DecimalFormat df = new DecimalFormat("##.##");
+    
+    
     public TaskDBRow(String taskID, String projectName, String submitterUUID, int chunkNo) {
         this.taskID = taskID;
         this.projectName = projectName;
@@ -107,7 +111,7 @@ public class TaskDBRow {
         OptionalDouble avgUploadSpeed = uploadSpeed.parallelStream()
                 .mapToDouble(a -> a)
                 .average();
-        return avgUploadSpeed.isPresent() ? avgUploadSpeed.getAsDouble() : 0;
+        return avgUploadSpeed.isPresent() ? Double.parseDouble(df.format(avgUploadSpeed.getAsDouble())) : 0;
     }
 
     public synchronized void addUploadSpeed(Double uploadSpeed) {
@@ -118,7 +122,7 @@ public class TaskDBRow {
         OptionalDouble avgDownloadSpeed = downloadSpeed.parallelStream()
                 .mapToDouble(a -> a)
                 .average();
-        return avgDownloadSpeed.isPresent() ? avgDownloadSpeed.getAsDouble() : 0;
+        return avgDownloadSpeed.isPresent() ? Double.parseDouble(df.format(avgDownloadSpeed.getAsDouble())) : 0;
     }
 
     public synchronized void addDownloadSpeed(Double downloadSpeed) {

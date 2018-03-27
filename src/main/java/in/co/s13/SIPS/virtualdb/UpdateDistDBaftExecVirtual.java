@@ -321,7 +321,7 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                             double avgUploadSpeed = 0;
                             int avgReqRecieved = 0;
                             long avgCachedData = 0;
-                            System.out.println("Here in here " + pid + " CNO" + cno);
+                            System.out.println("Calculating Average " + pid + " CNO" + cno);
                             int c = 0;
                             {
                                 for (DistributionDBRow distTableRow : DistTable.values()) {
@@ -355,7 +355,7 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                             avgUploadSpeed /= c;
                             avgReqRecieved /= c;
                             avgCachedData /= c;
-                            System.out.println("Here in here 2 " + pid + " CNO" + cno);
+                            System.out.println("Calculated Average " + pid + " CNO" + cno);
 
                             GlobalValues.RESULT_WH_DB_EXECUTOR.submit(new UpdateResultDBafterExecVirtual(pid, endtime, ttime, tempNOH, tempload, tempavgWaitinQ, tempavgSleeptime, avgCacheHitMissRatio,
                                     avgDownloadData,

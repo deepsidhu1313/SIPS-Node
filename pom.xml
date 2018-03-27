@@ -159,7 +159,7 @@
             <artifactId>common-json</artifactId>
             <version>0.1</version>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>in.co.s13</groupId>
             <artifactId>SIPS-lib</artifactId>
             <version>0.2-SNAPSHOT</version>
@@ -176,6 +176,11 @@
             <artifactId>javaparser-core</artifactId>
             <version>3.5.2</version>
             <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.cqengine</groupId>
+            <artifactId>cqengine</artifactId>
+            <version>2.12.4</version>
         </dependency>
     </dependencies>
 </project>
