@@ -292,11 +292,11 @@ public class Result {
         result.put("avgSleeptime", avgSleeptime);
         result.put("finished", finished);
         result.put("scheduler", scheduler);
-        result.put("avgDownloadData", avgDownloadData);
-        result.put("avgDownloadSpeed", getAvgDownloadSpeed());
+        result.put("avgDownloadDataPerChunk", avgDownloadData);
+        result.put("avgDownloadSpeedPerNode", getAvgDownloadSpeed());
         result.put("avgReqSent", avgReqSent);
-        result.put("avgUploadData", avgUploadData);
-        result.put("avgUploadSpeed", getAvgUploadSpeed());
+        result.put("avgUploadDataPerChunk", avgUploadData);
+        result.put("avgUploadSpeedPerNode", getAvgUploadSpeed());
         result.put("avgReqRecieved", avgReqRecieved);
         result.put("avgCachedData", avgCachedData);
         result.put("avgCacheHitMissRatio", avgCacheHitMissRatio);

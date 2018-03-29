@@ -41,6 +41,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import org.json.JSONObject;
 
 /**
@@ -510,23 +511,25 @@ public class Job implements Runnable {
                     }
                     ConcurrentHashMap<String, DistributionDBRow> DistTable = new ConcurrentHashMap<>();
                     ArrayList<Node> backupNodes = loadScheduler.getBackupNodes();
-                    ExecutorService jobUploadExecutor = Executors.newFixedThreadPool(GlobalValues.TASK_LIMIT*2);
-
-                    for (int k = 0; k < loopChunks.size(); k++) {
+                    ExecutorService jobUploadExecutor = Executors.newFixedThreadPool(GlobalValues.TASK_LIMIT * 2);
+                    ArrayList<ParallelForSENP> withDuplicates = loopChunks.stream().filter(l -> l.hasDuplicates()).collect(Collectors.toCollection(ArrayList::new));
+                    ArrayList<ParallelForSENP> withoutDuplicates = loopChunks.stream().filter(l -> !(l.hasDuplicates())).collect(Collectors.toCollection(ArrayList::new));
+                    ArrayList<ParallelForSENP> duplicates = loopChunks.stream().filter(l -> (l.isDuplicate())).collect(Collectors.toCollection(ArrayList::new));
+                    for (int k = 0; k < withoutDuplicates.size(); k++) {
                         final int l = k;
 //                        Future<DistributionDBRow> fut = 
                         jobUploadExecutor.submit(() -> {
 
                             try {
-                                ParallelForSENP get = loopChunks.get(l);
-                                Util.copyFolder(new File("data/" + jobToken + "/src/"), new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + l + "/src/"));
+                                ParallelForSENP get = withoutDuplicates.get(l);
+                                Util.copyFolder(new File("data/" + jobToken + "/src/"), new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getChunkNo() + "/src/"));
                                 ModASTParallelFor ma = new ModASTParallelFor((parallel4BL + 1), datatype, get.getStart(), get.getEnd(), "" + diff);
-                                try (FileInputStream in = new FileInputStream(new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + l + "/src/" + parent + "/" + file))) {
+                                try (FileInputStream in = new FileInputStream(new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getChunkNo() + "/src/" + parent + "/" + file))) {
                                     CompilationUnit cu = JavaParser.parse(in);
                                     ma.visit(cu, null);
                                     //                        System.out.println("Modified AST: " + cu.toString());
-                                    Util.write("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + l + "/src/" + parent + "/" + file, cu.toString());
-                                    Distributor dist = new Distributor(get.getNodeUUID(), "" + l, jobToken);
+                                    Util.write("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getChunkNo() + "/src/" + parent + "/" + file, cu.toString());
+                                    Distributor dist = new Distributor(get.getNodeUUID(), "" + get.getChunkNo(), jobToken);
                                     boolean uploaded = dist.upload();
                                     int maxTries = 3;
                                     int tries = 0;
@@ -537,7 +540,7 @@ public class Job implements Runnable {
                                         if (tries == maxTries) {
                                             if (!backupNodes.isEmpty()) {
                                                 get.setNodeUUID(backupNodes.get(Util.getRandomNumberInRange(0, backupNodes.size())).getUuid());
-                                                dist = new Distributor(get.getNodeUUID(), "" + l, jobToken);
+                                                dist = new Distributor(get.getNodeUUID(), "" + get.getChunkNo(), jobToken);
                                                 tries = 0;
                                                 triedBackUpNodes++;
                                             } else {
@@ -547,7 +550,7 @@ public class Job implements Runnable {
                                             }
                                         }
                                     }
-                                    DistTable.put(get.getNodeUUID() + "-" + l, new DistributionDBRow(0, get.getNodeUUID(), jobToken, l, datatype, schedulerName, System.currentTimeMillis(), 0, 0, 0, 0, 0, 0, 0, 0, 0, get.getDiff(), get.getStart(), get.getEnd(), "0", 0, 9999, dist.getToIPAddress(), dist.getHostName(), 0, loopChunks.size()));
+                                    DistTable.put(get.getNodeUUID() + "-" + get.getChunkNo(), new DistributionDBRow(0, get.getNodeUUID(), jobToken, get.getChunkNo(), datatype, schedulerName, System.currentTimeMillis(), 0, 0, 0, 0, 0, 0, 0, 0, 0, get.getDiff(), get.getStart(), get.getEnd(), "0", 0, 9999, dist.getToIPAddress(), dist.getHostName(), 0, loopChunks.size()));
                                     if (l != 0) {
                                         MASTER_DIST_DB.replace(jobToken.trim(), DistTable);
                                     } else {
@@ -560,46 +563,111 @@ public class Job implements Runnable {
                                 Logger.getLogger(Job.class.getName()).log(Level.SEVERE, null, ex);
                             }
                         });
-//                        ParallelForSENP get = loopChunks.get(k);
-//                        Util.copyFolder(new File("data/" + jobToken + "/src/"), new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + k + "/src/"));
-//                        ModASTParallelFor ma = new ModASTParallelFor((parallel4BL + 1), datatype, get.getStart(), get.getEnd(), "" + diff);
-//                        FileInputStream in = new FileInputStream(new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + k + "/src/" + parent + "/" + file));
-//                        CompilationUnit cu = JavaParser.parse(in);
-//
-//                        ma.visit(cu, null);
-////                        System.out.println("Modified AST: " + cu.toString());
-//                        Util.write("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + k + "/src/" + parent + "/" + file, cu.toString());
-//                        Distributor dist = new Distributor(get.getNodeUUID(), "" + k, jobToken);
-//                        boolean uploaded = dist.upload();
-//                        int maxTries = 3;
-//                        int tries = 0;
-//                        int triedBackUpNodes = 0;
-//                        while (!uploaded && triedBackUpNodes < 3) {
-//                            uploaded = dist.upload();
-//                            tries++;
-//                            if (tries == maxTries) {
-//                                if (!backupNodes.isEmpty()) {
-//                                    get.setNodeUUID(backupNodes.get(Util.getRandomNumberInRange(0, backupNodes.size())).getUuid());
-//                                    dist = new Distributor(get.getNodeUUID(), "" + k, jobToken);
-//                                    tries = 0;
-//                                    triedBackUpNodes++;
-//                                } else {
-//                                    triedBackUpNodes = 3;
-//                                    Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.ERROR, "Failed To Distribute Job " + jobToken);
-//                                    break;
-//                                }
-//                            }
-//                        }
-//                        DistTable.put(get.getNodeUUID() + "-" + k, new DistributionDBRow(i, get.getNodeUUID(), jobToken, k, datatype, schedulerName, System.currentTimeMillis(), 0, 0, 0, 0, 0, 0, 0, 0, 0, get.getDiff(), get.getStart(), get.getEnd(), "0", 0, 9999, dist.getToIPAddress(), dist.getHostName(), 0));
-////                        if (k != 0) {
-////                            MASTER_DIST_DB.replace(jobToken.trim(), DistTable);
-////                        } else {
-////                            MASTER_DIST_DB.put(jobToken.trim(), DistTable);
-////                        }
                     }
+                    MASTER_DIST_DB.replace(jobToken.trim(), DistTable);
+                    for (int k = 0; k < withDuplicates.size(); k++) {
+                        final int l = k;
+//                        Future<DistributionDBRow> fut = 
+                        jobUploadExecutor.submit(() -> {
+
+                            try {
+                                ParallelForSENP get = withDuplicates.get(l);
+                                Util.copyFolder(new File("data/" + jobToken + "/src/"), new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getChunkNo() + "/src/"));
+                                ModASTParallelFor ma = new ModASTParallelFor((parallel4BL + 1), datatype, get.getStart(), get.getEnd(), "" + diff);
+                                try (FileInputStream in = new FileInputStream(new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getChunkNo() + "/src/" + parent + "/" + file))) {
+                                    CompilationUnit cu = JavaParser.parse(in);
+                                    ma.visit(cu, null);
+                                    //                        System.out.println("Modified AST: " + cu.toString());
+                                    Util.write("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getChunkNo() + "/src/" + parent + "/" + file, cu.toString());
+                                    Distributor dist = new Distributor(get.getNodeUUID(), "" + get.getChunkNo(), jobToken);
+                                    boolean uploaded = dist.upload();
+                                    int maxTries = 3;
+                                    int tries = 0;
+                                    int triedBackUpNodes = 0;
+                                    while (!uploaded && triedBackUpNodes < 3) {
+                                        uploaded = dist.upload();
+                                        tries++;
+                                        if (tries == maxTries) {
+                                            if (!backupNodes.isEmpty()) {
+                                                get.setNodeUUID(backupNodes.get(Util.getRandomNumberInRange(0, backupNodes.size())).getUuid());
+                                                dist = new Distributor(get.getNodeUUID(), "" + get.getChunkNo(), jobToken);
+                                                tries = 0;
+                                                triedBackUpNodes++;
+                                            } else {
+                                                triedBackUpNodes = 3;
+                                                Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.ERROR, "Failed To Distribute Job " + jobToken);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    DistTable.put(get.getNodeUUID() + "-" + get.getChunkNo(), new DistributionDBRow(0, get.getNodeUUID(), jobToken, get.getChunkNo(), datatype, schedulerName, System.currentTimeMillis(), 0, 0, 0, 0, 0, 0, 0, 0, 0, get.getDiff(), get.getStart(), get.getEnd(), "0", 0, 9999, dist.getToIPAddress(), dist.getHostName(), 0, loopChunks.size()));
+                                    if (l != 0) {
+                                        MASTER_DIST_DB.replace(jobToken.trim(), DistTable);
+                                    } else {
+                                        MASTER_DIST_DB.put(jobToken.trim(), DistTable);
+                                    }
+                                }
+                            } catch (FileNotFoundException ex) {
+                                Logger.getLogger(Job.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (IOException ex) {
+                                Logger.getLogger(Job.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        });
+                    }
+                    MASTER_DIST_DB.replace(jobToken.trim(), DistTable);
+                    for (int k = 0; k < duplicates.size(); k++) {
+                        final int l = k;
+//                        Future<DistributionDBRow> fut = 
+                        jobUploadExecutor.submit(() -> {
+
+                            try {
+                                ParallelForSENP get = duplicates.get(l);
+                                Util.copyFolder(new File("data/" + jobToken + "/src/"), new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getChunkNo() + "/src/"));
+                                ModASTParallelFor ma = new ModASTParallelFor((parallel4BL + 1), datatype, get.getStart(), get.getEnd(), "" + diff);
+                                try (FileInputStream in = new FileInputStream(new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getChunkNo() + "/src/" + parent + "/" + file))) {
+                                    CompilationUnit cu = JavaParser.parse(in);
+                                    ma.visit(cu, null);
+                                    //                        System.out.println("Modified AST: " + cu.toString());
+                                    Util.write("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getChunkNo() + "/src/" + parent + "/" + file, cu.toString());
+                                    Distributor dist = new Distributor(get.getNodeUUID(), "" + get.getChunkNo(), jobToken);
+                                    boolean uploaded = dist.upload();
+                                    int maxTries = 3;
+                                    int tries = 0;
+                                    int triedBackUpNodes = 0;
+                                    while (!uploaded && triedBackUpNodes < 3) {
+                                        uploaded = dist.upload();
+                                        tries++;
+                                        if (tries == maxTries) {
+                                            if (!backupNodes.isEmpty()) {
+                                                get.setNodeUUID(backupNodes.get(Util.getRandomNumberInRange(0, backupNodes.size())).getUuid());
+                                                dist = new Distributor(get.getNodeUUID(), "" + get.getChunkNo(), jobToken);
+                                                tries = 0;
+                                                triedBackUpNodes++;
+                                            } else {
+                                                triedBackUpNodes = 3;
+                                                Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.ERROR, "Failed To Distribute Job " + jobToken);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    DistTable.put(get.getNodeUUID() + "-" + get.getChunkNo(), new DistributionDBRow(0, get.getNodeUUID(), jobToken, get.getChunkNo(), datatype, schedulerName, System.currentTimeMillis(), 0, 0, 0, 0, 0, 0, 0, 0, 0, get.getDiff(), get.getStart(), get.getEnd(), "0", 0, 9999, dist.getToIPAddress(), dist.getHostName(), 0, loopChunks.size()));
+                                    if (l != 0) {
+                                        MASTER_DIST_DB.replace(jobToken.trim(), DistTable);
+                                    } else {
+                                        MASTER_DIST_DB.put(jobToken.trim(), DistTable);
+                                    }
+                                }
+                            } catch (FileNotFoundException ex) {
+                                Logger.getLogger(Job.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (IOException ex) {
+                                Logger.getLogger(Job.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        });
+                    }
+                    MASTER_DIST_DB.replace(jobToken.trim(), DistTable);
                     jobUploadExecutor.shutdown();
                     jobUploadExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
-                    MASTER_DIST_DB.replace(jobToken.trim(), DistTable);
+
 //                    MASTER_DIST_DB.put(jobToken.trim(), DistTable);
                 }
             }

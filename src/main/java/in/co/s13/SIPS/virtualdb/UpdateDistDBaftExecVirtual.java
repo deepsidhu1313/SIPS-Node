@@ -25,6 +25,7 @@ import in.co.s13.SIPS.tools.Util;
 import java.util.ArrayList;
 import java.util.Collections;
 import static in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB;
+import java.util.OptionalDouble;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -166,84 +167,81 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
 
                     Util.outPrintln("Job Completed " + isFinished);
                     {
-                        String Node = "";
-                        String PID = "";
-                        Integer CNO = 0;
-                        Integer VARTYPE = 0;
-                        String SCHEDULER = "";
-                        Long LStart = 0L;
-                        Long Lend = 0L;
-                        Long Lexec = 0L;
-                        String CS = "";
-                        String LOWL = "";
-                        String UPL = "";
-                        String COUNTER = "";
-                        Long Nexec = 0L;
-                        Long CommOH = 0L;
-                        Long ParOH = 0L;
-                        Long ENTERINQ = 0L;
-                        Long STARTINQ = 0L;
-                        Long WAITINQ = 0L;
-                        Long SLEEP = 0L;
-                        Double PRFM = 0.0;
-                        Integer XTC = 0;
+                        DistributionDBRow distRow = DistTable.get(uuid.trim() + "-" + cno.trim());
+                        if (distRow != null) {
 
-                        double avgCacheHitMissRatio = 0;
-                        long avgDownloadData = 0;
-                        double avgDownloadSpeed = 0;
-                        int avgReqSent = 0;
-                        long avgUploadData = 0;
-                        double avgUploadSpeed = 0;
-                        int avgReqRecieved = 0;
-                        long avgCachedData = 0;
-                        {
-//                    for ()
-                            {
-                                DistributionDBRow distRow = DistTable.get(uuid.trim() + "-" + cno.trim());
-                                if (distRow != null) {
-                                    CommOH = (distRow.getNoh());
-                                    double d = distRow.getPrfm();
-                                    Node = (distRow.getUuid());
-                                    PID = (distRow.getPid());
-                                    CNO = (distRow.getCno());
-                                    VARTYPE = (distRow.getVartype());
-                                    SCHEDULER = (distRow.getScheduler());
-                                    LStart = (distRow.getLstarttime());
-                                    Lend = (distRow.getLendtime());
-                                    Lexec = (distRow.getLexctime());
-                                    CS = ((distRow.getChunksize()));
-                                    LOWL = ((distRow.getLowlimit()));
-                                    UPL = ((distRow.getUplimit()));
-                                    COUNTER = ((distRow.getCounter()));
-                                    Nexec = ((distRow.getNexecutiontime()));
-                                    CommOH = (distRow.getNoh());
-                                    ParOH = (distRow.getPoh());
-                                    ENTERINQ = (distRow.getEntrinq());
-                                    STARTINQ = (distRow.getStartinq());
-                                    WAITINQ = (distRow.getWaitinq());
-                                    SLEEP = (distRow.getSleeptime());
-                                    PRFM = (distRow.getAvgLoad());
-                                    XTC = (distRow.getExitcode());
-                                    avgCacheHitMissRatio = distRow.getCacheHitMissRatio();
-                                    avgDownloadData = distRow.getDownloadedData();
-                                    avgDownloadSpeed = distRow.getAvgDownloadSpeed();
-                                    avgReqSent = distRow.getReqsSent();
-                                    avgUploadData = distRow.getUploadedData();
-                                    avgUploadSpeed = distRow.getAvgUploadSpeed();
-                                    avgReqRecieved = distRow.getReqsRecieved();
-                                    avgCachedData = distRow.getCachedData();
-//                            break;
-                                }
-                            }
+                            String Node = "";
+                            String PID = "";
+                            Integer CNO = 0;
+                            Integer VARTYPE = 0;
+                            String SCHEDULER = "";
+                            Long LStart = 0L;
+                            Long Lend = 0L;
+                            Long Lexec = 0L;
+                            String CS = "";
+                            String LOWL = "";
+                            String UPL = "";
+                            String COUNTER = "";
+                            Long Nexec = 0L;
+                            Long CommOH = 0L;
+                            Long ParOH = 0L;
+                            Long ENTERINQ = 0L;
+                            Long STARTINQ = 0L;
+                            Long WAITINQ = 0L;
+                            Long SLEEP = 0L;
+                            Double PRFM = 0.0;
+                            Integer XTC = 0;
+
+                            double avgCacheHitMissRatio = 0;
+                            long avgDownloadData = 0;
+                            double avgDownloadSpeed = 0;
+                            int avgReqSent = 0;
+                            long avgUploadData = 0;
+                            double avgUploadSpeed = 0;
+                            int avgReqRecieved = 0;
+                            long avgCachedData = 0;
+
+                            CommOH = (distRow.getNoh());
+                            double d = distRow.getPrfm();
+                            Node = (distRow.getUuid());
+                            PID = (distRow.getPid());
+                            CNO = (distRow.getCno());
+                            VARTYPE = (distRow.getVartype());
+                            SCHEDULER = (distRow.getScheduler());
+                            LStart = (distRow.getLstarttime());
+                            Lend = (distRow.getLendtime());
+                            Lexec = (distRow.getLexctime());
+                            CS = ((distRow.getChunksize()));
+                            LOWL = ((distRow.getLowlimit()));
+                            UPL = ((distRow.getUplimit()));
+                            COUNTER = ((distRow.getCounter()));
+                            Nexec = ((distRow.getNexecutiontime()));
+                            CommOH = (distRow.getNoh());
+                            ParOH = (distRow.getPoh());
+                            ENTERINQ = (distRow.getEntrinq());
+                            STARTINQ = (distRow.getStartinq());
+                            WAITINQ = (distRow.getWaitinq());
+                            SLEEP = (distRow.getSleeptime());
+                            PRFM = (distRow.getAvgLoad());
+                            XTC = (distRow.getExitcode());
+                            avgCacheHitMissRatio = distRow.getCacheHitMissRatio();
+                            avgDownloadData = distRow.getDownloadedData();
+                            avgDownloadSpeed = distRow.getAvgDownloadSpeed();
+                            avgReqSent = distRow.getReqsSent();
+                            avgUploadData = distRow.getUploadedData();
+                            avgUploadSpeed = distRow.getAvgUploadSpeed();
+                            avgReqRecieved = distRow.getReqsRecieved();
+                            avgCachedData = distRow.getCachedData();
+
+                            GlobalValues.DIST_WH_DB_EXECUTOR.submit(new InsertDistributionWareHouse(Node, PID, CNO, VARTYPE, SCHEDULER, LStart, Lend, Lexec, CS, LOWL, UPL, COUNTER, Nexec, CommOH, ParOH, ENTERINQ, STARTINQ, WAITINQ, SLEEP, PRFM, XTC, fname, avgCacheHitMissRatio,
+                                    avgDownloadData,
+                                    avgDownloadSpeed,
+                                    avgReqSent,
+                                    avgUploadData,
+                                    avgUploadSpeed,
+                                    avgReqRecieved,
+                                    avgCachedData));
                         }
-                        GlobalValues.DIST_WH_DB_EXECUTOR.submit(new InsertDistributionWareHouse(Node, PID, CNO, VARTYPE, SCHEDULER, LStart, Lend, Lexec, CS, LOWL, UPL, COUNTER, Nexec, CommOH, ParOH, ENTERINQ, STARTINQ, WAITINQ, SLEEP, PRFM, XTC, fname, avgCacheHitMissRatio,
-                                avgDownloadData,
-                                avgDownloadSpeed,
-                                avgReqSent,
-                                avgUploadData,
-                                avgUploadSpeed,
-                                avgReqRecieved,
-                                avgCachedData));
 
                     }
 
@@ -253,53 +251,6 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                         if (counter > nodeUUIDs.size()) {
                             counter = nodeUUIDs.size();
                         }
-                        /* for (int i = 0; i < nodeUUIDs.size(); i++) {
-//                                sql = "SELECT * FROM ALLN WHERE IP='" + nodeUUIDs.get(i) + "'";
-                                for (IPAddress nodeIP : allNodeDB) {
-                                    if (nodeIP.getFirstName().trim().equalsIgnoreCase(nodeUUIDs.get(i).trim())) {
-                                        double tempprfm = nodeIP.getCpuLoad();
-                                        double tempprfm2 = (tempprfm + ((double) 1 * ((double) counter / (double) (nodeUUIDs.size())))) / 2;
-                                        final String ip = nodeUUIDs.get(i);
-                                        final String cn = CNOs.get(i);
-                                        System.OUT.println("IP adress: " + ip + " CNO: " + cn + " PrevPRF "
-                                                + tempprfm + " NewPrfm:" + ((double) 1 * (double) ((double) counter / (double) (nodeUUIDs.size()))) + " Avg is:" + tempprfm2 + " counter:" + counter + " IPsSize:" + nodeUUIDs.size());
-                                        if (tempprfm2 < 0.1) {
-                                            tempprfm2 = 0.1;
-                                        }
-
-                                        int p = Integer.parseInt(pid.trim());
-                                        for (DistributionDBRow get : DistTable) {
-                                            if (get.getUuid().trim().equalsIgnoreCase(ip.trim()) && (get.getCno() == (Integer.parseInt(cn.trim())))) {
-                                                get.setPrfm(tempprfm2);
-                                            }
-                                        }
-                                        double prfmt = tempprfm2;
-
-                                        for (IPAddress allGet : allNodeDB) {
-                                            if (allGet.getFirstName().trim().equalsIgnoreCase(ip.trim())) {
-                                                prfmt += allGet.getCpuLoad();
-                                                prfmt /= 2;
-
-                                            }
-
-                                            if (prfmt < 0.1) {
-                                                prfmt = 0.1;
-                                            }
-                                            // sql = "UPDATE ALLN SET PRFM='" + prfmt + "' WHERE IP='" + ip + "';";
-                                            //   Settings.alldb.Update(sql);
-                                            //  Settings.alldb.closeStatement();
-                                        }
-                                        for (IPAddress allGet : allNodeDB) {
-                                            if (allGet.getFirstName().trim().equalsIgnoreCase(ip.trim())) {
-                                                allGet.setCpuLoad(prfmt);
-                                            }
-
-                                        }
-                                        counter--;
-                                    }
-
-                                }
-                            }*/
 
                         GlobalValues.RESULT_DB_EXECUTOR.submit(() -> {
                             long temp = Long.MIN_VALUE;
@@ -333,10 +284,10 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
 
                                     avgCacheHitMissRatio += distTableRow.getCacheHitMissRatio();
                                     avgDownloadData += distTableRow.getDownloadedData();
-                                    avgDownloadSpeed += distTableRow.getAvgDownloadSpeed();
+//                                    avgDownloadSpeed += distTableRow.getAvgDownloadSpeed();
                                     avgReqSent += distTableRow.getReqsSent();
                                     avgUploadData += distTableRow.getUploadedData();
-                                    avgUploadSpeed += distTableRow.getAvgUploadSpeed();
+//                                    avgUploadSpeed += distTableRow.getAvgUploadSpeed();
                                     avgReqRecieved += distTableRow.getReqsRecieved();
                                     avgCachedData += distTableRow.getCachedData();
                                     c++;
@@ -349,10 +300,16 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
 
                             avgCacheHitMissRatio /= c;
                             avgDownloadData /= c;
-                            avgDownloadSpeed /= c;
+
+//                            avgDownloadSpeed /= c;
+                            OptionalDouble downSpeed = DistTable.values().stream().filter(i -> i.getAvgDownloadSpeed() > 0).mapToDouble(i -> i.getAvgDownloadSpeed()).average();
+                            avgDownloadSpeed = downSpeed.isPresent() ? downSpeed.getAsDouble() : 0;
                             avgReqSent /= c;
                             avgUploadData /= c;
-                            avgUploadSpeed /= c;
+//                            avgUploadSpeed /= c;
+                            OptionalDouble upSpeed = DistTable.values().stream().filter(i -> i.getAvgUploadSpeed() > 0).mapToDouble(i -> i.getAvgUploadSpeed()).average();
+                            avgUploadSpeed = upSpeed.isPresent() ? upSpeed.getAsDouble() : 0;
+
                             avgReqRecieved /= c;
                             avgCachedData /= c;
                             System.out.println("Calculated Average " + pid + " CNO" + cno);
