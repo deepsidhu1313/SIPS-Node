@@ -34,6 +34,7 @@ public class Result {
     private String chunkSize;
     private int totalChunks = Integer.MIN_VALUE;
     private int totalNodes = Integer.MIN_VALUE;
+    private int selectedNodes = Integer.MIN_VALUE;
     private double avgLoad;
     private long avgWaitinq = Long.MIN_VALUE;
     private long avgSleeptime = Long.MIN_VALUE;
@@ -42,7 +43,7 @@ public class Result {
     private String status;
     private long avgDownloadData = 0, avgUploadData = 0, avgCachedData;
     private double avgCacheHitMissRatio = 0, avgUploadSpeed = 0, avgDownloadSpeed = 0;
-    private int avgReqRecieved = 0, avgReqSent = 0;
+    private int avgReqRecieved = 0, avgReqSent = 0, duplicates=0;
     private DecimalFormat df = new DecimalFormat("##.##");
 
     public Result() {
@@ -265,6 +266,24 @@ public class Result {
         this.avgReqSent = avgReqSent;
     }
 
+    public int getSelectedNodes() {
+        return selectedNodes;
+    }
+
+    public void setSelectedNodes(int selectedNodes) {
+        this.selectedNodes = selectedNodes;
+    }
+
+    public int getDuplicates() {
+        return duplicates;
+    }
+
+    public void setDuplicates(int duplicates) {
+        this.duplicates = duplicates;
+    }
+    
+    
+
     @Override
     public String toString() {
         return toString(0);
@@ -287,6 +306,7 @@ public class Result {
         result.put("chunkSize", chunkSize);
         result.put("totalChunks", totalChunks);
         result.put("totalNodes", totalNodes);
+        result.put("selectedNodes", selectedNodes);
         result.put("avgLoad", avgLoad);
         result.put("avgWaitinq", avgWaitinq);
         result.put("avgSleeptime", avgSleeptime);
@@ -299,6 +319,7 @@ public class Result {
         result.put("avgUploadSpeedPerNode", getAvgUploadSpeed());
         result.put("avgReqRecieved", avgReqRecieved);
         result.put("avgCachedData", avgCachedData);
+        result.put("duplicates", duplicates);
         result.put("avgCacheHitMissRatio", avgCacheHitMissRatio);
         result.put("createdOn", createdOn);
         return result;

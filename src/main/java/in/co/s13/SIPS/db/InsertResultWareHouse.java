@@ -40,6 +40,7 @@ public class InsertResultWareHouse implements Runnable {
     double avgUploadSpeed = 0;
     int avgReqRecieved = 0;
     long avgCachedData = 0;
+    int selectedNodes = 0,duplicates=0;
 
     public InsertResultWareHouse(String PID, String Project, String SCHEDULER, String STARTTIME, String ENDTIME, String TOTALTIME, String NOH, String POH, String CHUNKSIZE, String TCHUNKS, String TNODES, double PRFM, String FINISHED, String AVGWAITINQ, String AVGSLEEP,
             double avgCacheHitMissRatio,
@@ -49,7 +50,7 @@ public class InsertResultWareHouse implements Runnable {
             long avgUploadData,
             double avgUploadSpeed,
             int avgReqRecieved,
-            long avgCachedData) {
+            long avgCachedData, int selectedNodes,int duplicates) {
 
         this.projectName = Project;
         this.STARTTIME = STARTTIME;
@@ -75,6 +76,8 @@ public class InsertResultWareHouse implements Runnable {
         this.avgUploadSpeed = avgUploadSpeed;
         this.avgReqRecieved = avgReqRecieved;
         this.avgCachedData = avgCachedData;
+        this.selectedNodes = selectedNodes;
+        this.duplicates=duplicates;
     }
 
     @Override
@@ -111,6 +114,8 @@ public class InsertResultWareHouse implements Runnable {
                 + "avgUploadSpeed,"
                 + "avgReqRecieved,"
                 + "avgCachedData,"
+                + "selectedNodes,"
+                + "duplicates,"
                 + " TIMESTAMP)"
                 + " VALUES("
                 + "'" + PID
@@ -136,6 +141,8 @@ public class InsertResultWareHouse implements Runnable {
                 + "','" + avgUploadSpeed
                 + "','" + avgReqRecieved
                 + "','" + avgCachedData
+                + "','" + selectedNodes
+                + "','" + duplicates
                 + "','" + dateFormat.format(date) + "');";
         resWH.insert("log/dw-result.db", sql);
         resWH.closeConnection();
@@ -168,6 +175,8 @@ public class InsertResultWareHouse implements Runnable {
                 + "avgUploadSpeed DOUBLE,"
                 + "avgReqRecieved INT,"
                 + "avgCachedData LONG,"
+                + "selectedNodes INT,"
+                + "duplicates INT,"
                 + "TIMESTAMP DATE);";
         boolean created = resWH.createtable("log/dw-result.db", sql);
         resWH.closeConnection();

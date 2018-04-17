@@ -140,15 +140,32 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                     tempDist.addAll(DistTable.values());
                     Collections.sort(tempDist, getComparator(DistributionDBRow.DistributionDBRowComparator.EXITCODE_SORT).reversed());
                     Boolean isFinished = true;
-                    for (DistributionDBRow get2 : tempDist) {
-                        int code = get2.getExitcode();
-                        if (code == 9999) {
-                            isFinished = false;
-                            break;
+//                    for (DistributionDBRow get2 : tempDist) {
+//                        int code = get2.getExitcode();
+//                        if (code == 9999) {
+//                            isFinished = false;
+//                            break;
+//                        }
+//                        if (code != 0) {
+//                            continue;
+//                        }
+//                    }
+                    ArrayList<DistributionDBRow> unFinished = new ArrayList<>();
+                    ArrayList<DistributionDBRow> withoutDuplicates = new ArrayList<>();
+                    ArrayList<DistributionDBRow> withDuplicates = new ArrayList<>();
+                    tempDist.stream().filter((value) -> value.getExitcode() == 9999).forEach((value) -> {
+                        unFinished.add(value);
+                    });
+                    unFinished.stream().forEach(value -> {
+                        if (!value.hasDuplicates()) {
+                            withoutDuplicates.add(value);
+                        } else {
+                            withDuplicates.add(value);
                         }
-                        if (code != 0) {
-                            continue;
-                        }
+
+                    });
+                    if (!withoutDuplicates.isEmpty()) {
+                        isFinished = false;
                     }
 
                     if (isFinished) {
@@ -159,7 +176,25 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                         }
 
                         isFinished = (tempDist.size() == get.getTotalChunks());
-
+                        
+                        for (int i = 0; i < withDuplicates.size(); i++) {
+                            DistributionDBRow get1 = withDuplicates.get(i);
+                            ArrayList<String> keys = get1.getDuplicates();
+                            ArrayList<DistributionDBRow> duplicates = new ArrayList<>();
+                            for (int j = 0; j < keys.size(); j++) {
+                                String get2 = keys.get(j);
+                                duplicates.add(DistTable.get(get2));
+                            }
+                            Collections.sort(duplicates, DistributionDBRow.DistributionDBRowComparator.EXITCODE_SORT);
+                            if (!duplicates.isEmpty()) {
+                                if (duplicates.get(0).getExitcode() == 9999) {
+                                    isFinished = false;
+                                } else {
+                                    get1.setExitcode(Integer.parseInt(exitCode.trim()));
+//                                    isFinished = true;
+                                }
+                            }
+                        }
                     }
 
                     tempDist.clear();

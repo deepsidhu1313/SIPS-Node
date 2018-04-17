@@ -23,7 +23,7 @@ import in.co.s13.sips.scheduler.LoadScheduler;
 import in.co.s13.sips.schedulers.Chunk;
 import in.co.s13.sips.schedulers.Factoring;
 import in.co.s13.sips.schedulers.GA;
-import in.co.s13.sips.schedulers.GA2;
+import in.co.s13.sips.schedulers.GATDS;
 import in.co.s13.sips.schedulers.GSS;
 import in.co.s13.sips.schedulers.QSS;
 import in.co.s13.sips.schedulers.TSS;
@@ -52,6 +52,7 @@ public class Job implements Runnable {
 
     private String jobToken;
 
+    private LoadScheduler loadScheduler = null;
     private ArrayList<Integer> parallelForBeginLine = new ArrayList<>();
     private ArrayList<Integer> parallelForEndLine = new ArrayList<>();
     private ArrayList<ParallelForSENP> loopChunks;
@@ -59,7 +60,7 @@ public class Job implements Runnable {
     String init, updatevalue, compare, type = null, varinit = null, limit = null;
     boolean reverseLoop = false;
     Object min = null, max = null, diff = null;
-    int datatype = 0;
+    int datatype = 0, duplicates = 0;
 
     public Job(String jobToken) {
         this.jobToken = jobToken.trim();
@@ -79,7 +80,6 @@ public class Job implements Runnable {
             });
             return;
         }
-        LoadScheduler loadScheduler = null;
         if (schedulerName.startsWith("in.co.s13.sips.schedulers.")) {
             if (schedulerName.endsWith("Chunk")) {
                 loadScheduler = new LoadScheduler(new Chunk());
@@ -87,8 +87,8 @@ public class Job implements Runnable {
             } else if (schedulerName.endsWith("GA")) {
                 loadScheduler = new LoadScheduler(new GA());
                 System.out.println("Using GA Scheduler For " + jobToken);
-            } else if (schedulerName.endsWith("GA2")) {
-                loadScheduler = new LoadScheduler(new GA2());
+            } else if (schedulerName.endsWith("GATDS")) {
+                loadScheduler = new LoadScheduler(new GATDS());
                 System.out.println("Using GA Scheduler For " + jobToken);
             } else if (schedulerName.endsWith("Factoring")) {
                 loadScheduler = new LoadScheduler(new Factoring());
@@ -511,6 +511,7 @@ public class Job implements Runnable {
                     }
                     ConcurrentHashMap<String, DistributionDBRow> DistTable = new ConcurrentHashMap<>();
                     ArrayList<Node> backupNodes = loadScheduler.getBackupNodes();
+
                     ExecutorService jobUploadExecutor = Executors.newFixedThreadPool(GlobalValues.TASK_LIMIT * 2);
                     ArrayList<ParallelForSENP> withDuplicates = loopChunks.stream().filter(l -> l.hasDuplicates()).collect(Collectors.toCollection(ArrayList::new));
                     ArrayList<ParallelForSENP> withoutDuplicates = loopChunks.stream().filter(l -> !(l.hasDuplicates())).collect(Collectors.toCollection(ArrayList::new));
@@ -550,7 +551,8 @@ public class Job implements Runnable {
                                             }
                                         }
                                     }
-                                    DistTable.put(get.getNodeUUID() + "-" + get.getChunkNo(), new DistributionDBRow(0, get.getNodeUUID(), jobToken, get.getChunkNo(), datatype, schedulerName, System.currentTimeMillis(), 0, 0, 0, 0, 0, 0, 0, 0, 0, get.getDiff(), get.getStart(), get.getEnd(), "0", 0, 9999, dist.getToIPAddress(), dist.getHostName(), 0, loopChunks.size()));
+                                    DistributionDBRow distRow = new DistributionDBRow(0, get.getNodeUUID(), jobToken, get.getChunkNo(), datatype, schedulerName, System.currentTimeMillis(), 0, 0, 0, 0, 0, 0, 0, 0, 0, get.getDiff(), get.getStart(), get.getEnd(), "0", 0, 9999, dist.getToIPAddress(), dist.getHostName(), 0, loadScheduler.getTotalChunks());
+                                    DistTable.put(get.getNodeUUID() + "-" + get.getChunkNo(), distRow);
                                     if (l != 0) {
                                         MASTER_DIST_DB.replace(jobToken.trim(), DistTable);
                                     } else {
@@ -600,7 +602,9 @@ public class Job implements Runnable {
                                             }
                                         }
                                     }
-                                    DistTable.put(get.getNodeUUID() + "-" + get.getChunkNo(), new DistributionDBRow(0, get.getNodeUUID(), jobToken, get.getChunkNo(), datatype, schedulerName, System.currentTimeMillis(), 0, 0, 0, 0, 0, 0, 0, 0, 0, get.getDiff(), get.getStart(), get.getEnd(), "0", 0, 9999, dist.getToIPAddress(), dist.getHostName(), 0, loopChunks.size()));
+                                    DistributionDBRow distRow = new DistributionDBRow(0, get.getNodeUUID(), jobToken, get.getChunkNo(), datatype, schedulerName, System.currentTimeMillis(), 0, 0, 0, 0, 0, 0, 0, 0, 0, get.getDiff(), get.getStart(), get.getEnd(), "0", 0, 9999, dist.getToIPAddress(), dist.getHostName(), 0, loadScheduler.getTotalChunks());
+                                    get.getDuplicates().stream().forEach(value -> distRow.addDuplicate(value));
+                                    DistTable.put(get.getNodeUUID() + "-" + get.getChunkNo(), distRow);
                                     if (l != 0) {
                                         MASTER_DIST_DB.replace(jobToken.trim(), DistTable);
                                     } else {
@@ -615,6 +619,7 @@ public class Job implements Runnable {
                         });
                     }
                     MASTER_DIST_DB.replace(jobToken.trim(), DistTable);
+                    this.duplicates = duplicates.size();
                     for (int k = 0; k < duplicates.size(); k++) {
                         final int l = k;
 //                        Future<DistributionDBRow> fut = 
@@ -650,7 +655,9 @@ public class Job implements Runnable {
                                             }
                                         }
                                     }
-                                    DistTable.put(get.getNodeUUID() + "-" + get.getChunkNo(), new DistributionDBRow(0, get.getNodeUUID(), jobToken, get.getChunkNo(), datatype, schedulerName, System.currentTimeMillis(), 0, 0, 0, 0, 0, 0, 0, 0, 0, get.getDiff(), get.getStart(), get.getEnd(), "0", 0, 9999, dist.getToIPAddress(), dist.getHostName(), 0, loopChunks.size()));
+                                    DistributionDBRow distRow = new DistributionDBRow(0, get.getNodeUUID(), jobToken, get.getChunkNo(), datatype, schedulerName, System.currentTimeMillis(), 0, 0, 0, 0, 0, 0, 0, 0, 0, get.getDiff(), get.getStart(), get.getEnd(), "0", 0, 9999, dist.getToIPAddress(), dist.getHostName(), 0, loadScheduler.getTotalChunks());
+                                    distRow.setDuplicateOf(get.getDuplicateOf());
+                                    DistTable.put(get.getNodeUUID() + "-" + get.getChunkNo(), distRow);
                                     if (l != 0) {
                                         MASTER_DIST_DB.replace(jobToken.trim(), DistTable);
                                     } else {
@@ -676,8 +683,10 @@ public class Job implements Runnable {
             if (resultDBEntry != null) {
                 resultDBEntry.setTotalChunks(MASTER_DIST_DB.get(jobToken.trim()).size());
                 resultDBEntry.setTotalNodes(loadScheduler.getTotalNodes());
+                resultDBEntry.setSelectedNodes(loadScheduler.getSelectedNodes());
                 resultDBEntry.setStarttime(System.currentTimeMillis());
                 resultDBEntry.setParsingOH(parsingEndTime - parsingStartTime);
+                resultDBEntry.setDuplicates(duplicates);
                 resultDBEntry.setStatus("Job Distributed and Started");
             }
         } catch (SQLException | InterruptedException ex) {

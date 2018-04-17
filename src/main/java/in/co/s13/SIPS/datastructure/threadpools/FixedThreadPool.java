@@ -51,23 +51,20 @@ public class FixedThreadPool {
     }
 
     public void restart() {
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (!executor.isShutdown()) {
-                    try {
-                        System.out.println("Waiting for threadpool to shutdown");
-                        Thread.sleep(1000L);
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(FixedThreadPool.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+        Thread thread = new Thread(() -> {
+            while (!executor.isShutdown()) {
+                try {
+                    System.out.println("Waiting for threadpool to shutdown");
+                    Thread.sleep(1000L);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(FixedThreadPool.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                init();
-                for (int i = 0; i < list.size(); i++) {
-                    Runnable get = list.get(i);
-                    System.out.println("Adding " + get + " to pool after restart");
-                    submit(get);
-                }
+            }
+            init();
+            for (int i = 0; i < list.size(); i++) {
+                Runnable get = list.get(i);
+                System.out.println("Adding " + get + " to pool after restart");
+                submit(get);
             }
         });
         thread.start();

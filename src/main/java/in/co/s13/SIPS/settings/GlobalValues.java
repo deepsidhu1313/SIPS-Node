@@ -227,7 +227,7 @@ public class GlobalValues {
     public static int API_HANDLER_LIMIT = 2;
     public static int TASK_HANDLER_LIMIT = TASK_LIMIT;
     public static int JOB_HANDLER_LIMIT = TASK_LIMIT;
-    public static int TASK_FINISH_LISTENER_HANDLER_LIMIT = 1000;
+    public static int TASK_FINISH_LISTENER_HANDLER_LIMIT = 200;
     public static int JOB_LIMIT = TASK_LIMIT;
     public static int TOTAL_IP_SCANNING_THREADS = TASK_LIMIT;
     public static int PING_REQUEST_LIMIT = TASK_LIMIT;
