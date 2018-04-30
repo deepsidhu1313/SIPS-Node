@@ -352,7 +352,7 @@ public class SIPSNode {
                         ServiceOperations.initJobServerAtStartUp();
                         ServiceOperations.initFileDownloadServerAtStartUp();
                         ServiceOperations.initLogRotateAtStartUp();
-                        ServiceOperations.initCleanResultDBAtStartUp();
+//                        ServiceOperations.initCleanResultDBAtStartUp();
                         break;
                     /**
                      * *
@@ -369,7 +369,7 @@ public class SIPSNode {
                         ServiceOperations.initFileDownloadServerAtStartUp();
                         ServiceOperations.initLogRotateAtStartUp();
                         ServiceOperations.initJobServerAtStartUp();
-                        ServiceOperations.initCleanResultDBAtStartUp();
+//                        ServiceOperations.initCleanResultDBAtStartUp();
                         break;
                     /**
                      * *
@@ -385,7 +385,7 @@ public class SIPSNode {
                         ServiceOperations.initFileDownloadServerAtStartUp();
                         ServiceOperations.initLogRotateAtStartUp();
                         ServiceOperations.initJobServerAtStartUp();
-                        ServiceOperations.initCleanResultDBAtStartUp();
+//                        ServiceOperations.initCleanResultDBAtStartUp();
                         break;
                 }
             } else {
@@ -400,7 +400,7 @@ public class SIPSNode {
                 ServiceOperations.initFileDownloadServerAtStartUp();
                 ServiceOperations.initLogRotateAtStartUp();
                 ServiceOperations.initJobServerAtStartUp();
-                ServiceOperations.initCleanResultDBAtStartUp();
+//                ServiceOperations.initCleanResultDBAtStartUp();
             }
 
         } else {
@@ -419,7 +419,7 @@ public class SIPSNode {
             ServiceOperations.initTaskFinishListenerServerAtStartUp();
             ServiceOperations.initFileDownloadServerAtStartUp();
             ServiceOperations.initLogRotateAtStartUp();
-            ServiceOperations.initCleanResultDBAtStartUp();
+//            ServiceOperations.initCleanResultDBAtStartUp();
             ServiceOperations.initJobServerAtStartUp();
 
         }

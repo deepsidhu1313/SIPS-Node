@@ -31,6 +31,7 @@ public class Result {
     private long totalTime = Long.MIN_VALUE;
     private long parsingOH = Long.MIN_VALUE;
     private long networkOH = Long.MIN_VALUE;
+    private long schedulingOH = Long.MIN_VALUE;
     private String chunkSize;
     private int totalChunks = Integer.MIN_VALUE;
     private int totalNodes = Integer.MIN_VALUE;
@@ -281,6 +282,14 @@ public class Result {
     public void setDuplicates(int duplicates) {
         this.duplicates = duplicates;
     }
+
+    public long getSchedulingOH() {
+        return schedulingOH;
+    }
+
+    public void setSchedulingOH(long schedulingOH) {
+        this.schedulingOH = schedulingOH;
+    }
     
     
 
@@ -302,6 +311,7 @@ public class Result {
         result.put("endTime", endTime);
         result.put("totalTime", totalTime);
         result.put("parsingOH", parsingOH);
+        result.put("schedulingOH", schedulingOH);
         result.put("avgNetworkOH", networkOH);
         result.put("chunkSize", chunkSize);
         result.put("totalChunks", totalChunks);

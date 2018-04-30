@@ -61,6 +61,7 @@ public class Job implements Runnable {
     boolean reverseLoop = false;
     Object min = null, max = null, diff = null;
     int datatype = 0, duplicates = 0;
+    private long schedulingOHStart = Long.MIN_VALUE;
 
     public Job(String jobToken) {
         this.jobToken = jobToken.trim();
@@ -499,7 +500,7 @@ public class Job implements Runnable {
                         datatype = 5;
                     }
                     ParallelForLoop parallelForLoop = new ParallelForLoop(min, max, diff, datatype, reverseLoop);
-
+                    schedulingOHStart = System.currentTimeMillis();
                     loopChunks = loadScheduler.scheduleParallelFor(Util.getAllLiveNodes(), parallelForLoop, schedulerJSON);
                     System.out.println("Parallel For Loop Chunks: " + loopChunks.toString());
                     sql = "SELECT * FROM META;";
@@ -686,6 +687,7 @@ public class Job implements Runnable {
                 resultDBEntry.setSelectedNodes(loadScheduler.getSelectedNodes());
                 resultDBEntry.setStarttime(System.currentTimeMillis());
                 resultDBEntry.setParsingOH(parsingEndTime - parsingStartTime);
+                resultDBEntry.setSchedulingOH(parsingEndTime - schedulingOHStart);
                 resultDBEntry.setDuplicates(duplicates);
                 resultDBEntry.setStatus("Job Distributed and Started");
             }

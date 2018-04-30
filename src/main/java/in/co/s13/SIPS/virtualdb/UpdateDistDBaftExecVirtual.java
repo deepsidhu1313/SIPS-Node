@@ -150,6 +150,14 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
 //                            continue;
 //                        }
 //                    }
+
+                    if (get.isDuplicate()) {
+                        DistributionDBRow duplicateof = DistTable.get(get.getDuplicateOf());
+                        if (duplicateof != null) {
+                            duplicateof.setExitcode(Integer.parseInt(exitCode.trim()));
+
+                        }
+                    }
                     ArrayList<DistributionDBRow> unFinished = new ArrayList<>();
                     ArrayList<DistributionDBRow> withoutDuplicates = new ArrayList<>();
                     ArrayList<DistributionDBRow> withDuplicates = new ArrayList<>();
@@ -169,14 +177,15 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                     }
 
                     if (isFinished) {
-                        for (DistributionDBRow get3 : tempDist) {
-                            nodeUUIDs.add(get3.getUuid());
-                            CNOs.add(" " + get3.getCno());
-                            counter++;
-                        }
+                        counter = tempDist.size();
+//                        for (DistributionDBRow get3 : tempDist) {
+//                            nodeUUIDs.add(get3.getUuid());
+//                            CNOs.add(" " + get3.getCno());
+//                            counter++;
+//                        }
+//
+//                        isFinished = (tempDist.size() == get.getTotalChunks());
 
-                        isFinished = (tempDist.size() == get.getTotalChunks());
-                        
                         for (int i = 0; i < withDuplicates.size(); i++) {
                             DistributionDBRow get1 = withDuplicates.get(i);
                             ArrayList<String> keys = get1.getDuplicates();
