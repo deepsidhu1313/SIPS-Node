@@ -697,6 +697,12 @@ public class Job implements Runnable {
                                 String object = resources.getString(j);
                                 task.addResource(object);
                             }
+
+                            JSONArray dependencies = new JSONArray(rs.getString("DependsOn"));
+                            for (int j = 0; j < dependencies.length(); j++) {
+                                String object = dependencies.getString(j);
+                                task.addDependency(object);
+                            }
                             task.addFile(new FileCoverage(rs.getString("File"), rs.getInt("BeginLine"), rs.getInt("BeginColumn"), rs.getInt("EndLine"), rs.getInt("EndColumn")));
                             task.setLength(new BigDecimal(rs.getDouble("Length")));
                             task.setTimeout(new BigInteger(rs.getString("Timeout")));
@@ -709,6 +715,12 @@ public class Job implements Runnable {
                             for (int j = 0; j < resources.length(); j++) {
                                 String object = resources.getString(j);
                                 task.addResource(object);
+                            }
+
+                            JSONArray dependencies = new JSONArray(rs.getString("DependsOn"));
+                            for (int j = 0; j < dependencies.length(); j++) {
+                                String object = dependencies.getString(j);
+                                task.addDependency(object);
                             }
                             task.addFile(new FileCoverage(rs.getString("File"), rs.getInt("BeginLine"), rs.getInt("BeginColumn"), rs.getInt("EndLine"), rs.getInt("EndColumn")));
                             task.setLength(new BigDecimal(rs.getDouble("Length")));
