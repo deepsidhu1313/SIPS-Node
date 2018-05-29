@@ -24,7 +24,7 @@ import in.co.s13.SIPS.settings.GlobalValues;
 import in.co.s13.SIPS.tools.Util;
 import java.util.ArrayList;
 import java.util.Collections;
-import static in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB;
+
 import java.util.OptionalDouble;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -64,7 +64,7 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
         cno = CNO;
         exitCode = EXITCODE;
         this.avgLoad = avgLoad;
-        System.out.println("size of master dist db " + MASTER_DIST_DB.size());
+        System.out.println("size of master dist db " + in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB.size());
         this.uuid = nodeUUID;
         this.taskRow = taskRow;
 
@@ -75,11 +75,11 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
     @Override
     public void run() {
         System.out.println("UpdateDistDBaftExecVirtual Started For " + pid + " CNO" + cno);
-        DistTable = MASTER_DIST_DB.get((pid.trim()));
+        DistTable = in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB.get((pid.trim()));
         Thread.currentThread().setName("UpdateDistDBaftExecVirtual For " + pid + " CNO" + cno);
         int tries = 0;
         while (DistTable == null) {
-            DistTable = MASTER_DIST_DB.get((pid.trim()));
+            DistTable = in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB.get((pid.trim()));
 
             if (tries == 50) {
                 break;
@@ -101,7 +101,7 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                     if (tries == 50) {
                         break;
                     }
-                    DistTable = MASTER_DIST_DB.get((pid.trim()));
+                    DistTable = in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB.get((pid.trim()));
                     get = DistTable.get(uuid + "-" + cno.trim());
 
                     tries++;

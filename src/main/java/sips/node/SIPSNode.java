@@ -101,6 +101,9 @@ public class SIPSNode {
                 Util.deleteDirectory(new File("data/"));
                 Util.deleteDirectory(new File("proc/"));
             }
+            if (arguments.contains("--clean-cache")) {
+                Util.deleteDirectory(new File("cache/"));
+            }
 
             /**
              * *

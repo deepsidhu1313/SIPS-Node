@@ -63,31 +63,29 @@ public class ParallelProcess implements Runnable {
     public ParallelProcess(JSONObject body, String ipadd) throws FileNotFoundException {
 
         ip = ipadd;
-        pid = body.getString("PID");//substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
-        cno = body.getString("CNO");//body.substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
+        pid = body.getString("PID");
+        cno = body.getString("CNO");
         uuid = body.getString("UUID");
-        files = body.getJSONArray("FILES");//body.substring(body.indexOf("<FILES>") + 7, body.indexOf("</FILES>"));
+        files = body.getJSONArray("FILES");
         for (int i = 0; i < files.length(); i++) {
             JSONObject filesList1 = files.getJSONObject(i);
             fname.add(filesList1.getString("FILENAME"));
             content.add(filesList1.getString("CONTENT"));
         }
-        manifest = body.getJSONObject("MANIFEST");//substring(body.indexOf("<MANIFEST>") + 10, body.indexOf("</MANIFEST>"));
+        manifest = body.getJSONObject("MANIFEST");
         counter = GlobalValues.TASK_ID.get();
-        main = manifest.getString("MAIN");//substring(manifest.indexOf("<MAIN>") + 6, manifest.indexOf("</MAIN>"));
-        projectName = manifest.getString("PROJECT");//substring(manifest.indexOf("<PROJECT>") + 9, manifest.indexOf("</PROJECT>"));
-        
+        main = manifest.getString("MAIN");
+        projectName = manifest.getString("PROJECT");
+
         GlobalValues.TASK_ID.incrementAndGet();
         GlobalValues.TASK_DB.put("" + uuid + "-ID-" + pid + "-CN-" + cno, new TaskDBRow(pid, projectName, uuid, Integer.parseInt(cno)));
         taskDBRow = GlobalValues.TASK_DB.get("" + uuid + "-ID-" + pid + "-CN-" + cno);
 
         taskDBRow.setEnteredInQueue(System.currentTimeMillis());
-//        SendStartInQue sendEnteredInQueue = (new SendStartInQue("enterinq", ip, pid, cno, projectName, "" + System.currentTimeMillis()));
-//        GlobalValues.SEND_ENTER_IN_QUEUE_EXECUTOR_SERVICE.submit(sendEnteredInQueue);
 
         {
             if (manifest.has("LIB")) {
-                JSONArray tmp = manifest.getJSONArray("LIB");//line.substring(line.indexOf("<LIB>") + 5, line.indexOf("</LIB>"));
+                JSONArray tmp = manifest.getJSONArray("LIB");
                 if (tmp.length() > 0) {
                     for (int i = 0; i < tmp.length(); i++) {
                         libList.add("lib/" + tmp.getString(i));
@@ -95,7 +93,7 @@ public class ParallelProcess implements Runnable {
                 }
             }
             if (manifest.has("ATTCH")) {
-                JSONArray tmp = manifest.getJSONArray("ATTCH");//line.substring(line.indexOf("<LIB>") + 5, line.indexOf("</LIB>"));
+                JSONArray tmp = manifest.getJSONArray("ATTCH");
                 if (tmp.length() > 0) {
                     for (int i = 0; i < tmp.length(); i++) {
                         attachments.add(tmp.getString(i));
@@ -103,7 +101,7 @@ public class ParallelProcess implements Runnable {
                 }
             }
             if (manifest.has("ARGS")) {
-                JSONArray tmp = manifest.getJSONArray("ARGS");//line.substring(line.indexOf("<LIB>") + 5, line.indexOf("</LIB>"));
+                JSONArray tmp = manifest.getJSONArray("ARGS");
                 if (tmp.length() > 0) {
                     for (int i = 0; i < tmp.length(); i++) {
                         args.add(tmp.getString(i));
@@ -111,43 +109,45 @@ public class ParallelProcess implements Runnable {
                 }
             }
             if (manifest.has("JVMARGS")) {
-                JSONArray tmp = manifest.getJSONArray("JVMARGS");//line.substring(line.indexOf("<LIB>") + 5, line.indexOf("</LIB>"));
+                JSONArray tmp = manifest.getJSONArray("JVMARGS");
                 if (tmp.length() > 0) {
                     for (int i = 0; i < tmp.length(); i++) {
                         double reqMem = 0, avalMem = GlobalValues.MEM_SIZE;
                         String tmp2 = tmp.getString(i);
                         if (tmp2.trim().contains("-Xmx")) {
-                            if (tmp2.trim().substring(tmp2.trim().length() - 1).equalsIgnoreCase("m")) {
-                                reqMem = Double.parseDouble(tmp2.trim().substring(tmp2.trim().indexOf("-Xmx") + 4, tmp2.trim().lastIndexOf("m")));
-                                avalMem /= (1024 * 1024);
+                            if (tmp2.trim().endsWith("m") || tmp2.trim().endsWith("M")) {
+                                reqMem = Double.parseDouble(tmp2.trim().substring(tmp2.trim().indexOf("-Xmx") + 4, tmp2.trim().length() - 1));
+                                avalMem /= ( 1024);
                                 if (reqMem >= avalMem) {
                                     reqMem = avalMem - 500;
-                                    tmp2 = "-Xmx" + reqMem + "m";
+                                    tmp2 = "-Xmx" + ((int) Math.ceil(reqMem)) + "M";
 
                                 }
-                            } else if (tmp2.trim().substring(tmp2.trim().length() - 1).equalsIgnoreCase("g")) {
-                                reqMem = Double.parseDouble(tmp2.trim().substring(tmp2.trim().indexOf("-Xmx") + 4, tmp2.trim().lastIndexOf("g")));
-                                avalMem /= (1024 * 1024 * 1024);
+                            } else if (tmp2.trim().endsWith("g") || tmp2.trim().endsWith("G")) {
+                                reqMem = Double.parseDouble(tmp2.trim().substring(tmp2.trim().indexOf("-Xmx") + 4, tmp2.trim().length() - 1));
+                                avalMem /= (1024 * 1024);
                                 if (reqMem >= avalMem) {
-                                    reqMem = avalMem - 1.2;
-                                    tmp2 = "-Xmx" + reqMem + "g";
+                                    reqMem = avalMem;
+                                    tmp2 = "-Xmx" + ((int) Math.ceil(reqMem)) + "G";
 
                                 }
                             }
                         } else if (tmp2.trim().contains("-Xms")) {
-                            if (tmp2.trim().substring(tmp2.trim().length() - 1).equalsIgnoreCase("m")) {
-                                reqMem = Double.parseDouble(tmp2.trim().substring(tmp2.trim().indexOf("-Xms") + 4, tmp2.trim().lastIndexOf("m")));
-                                avalMem /= (1024 * 1024);
+                            System.out.println("Test 5");
+                            if (tmp2.trim().endsWith("m") || tmp2.trim().endsWith("M")) {
+                                reqMem = Double.parseDouble(tmp2.trim().substring(tmp2.trim().indexOf("-Xms") + 4, tmp2.trim().length() - 1));
+                                avalMem /= ( 1024);
                                 if (reqMem >= avalMem) {
                                     reqMem = avalMem - 500;
-                                    tmp2 = "-Xms" + reqMem + "m";
+                                    tmp2 = "-Xms" + ((int) Math.ceil(reqMem)) + "M";
                                 }
-                            } else if (tmp2.trim().substring(tmp2.trim().length() - 1).equalsIgnoreCase("g")) {
-                                reqMem = Double.parseDouble(tmp2.trim().substring(tmp2.trim().indexOf("-Xms") + 4, tmp2.trim().lastIndexOf("g")));
-                                avalMem /= (1024 * 1024 * 1024);
+                            } else if (tmp2.trim().endsWith("g") || tmp2.trim().endsWith("G")) {
+                                String val = tmp2.trim().substring(tmp2.trim().indexOf("-Xms") + 4, tmp2.trim().length() - 1);
+                                reqMem = Double.parseDouble(val);
+                                avalMem /= (1024 * 1024);
                                 if (reqMem >= avalMem) {
-                                    reqMem = avalMem - 1.2;
-                                    tmp2 = "-Xms" + reqMem + "g";
+                                    reqMem = avalMem;
+                                    tmp2 = "-Xms" + ((int) Math.ceil(reqMem)) + "G";
                                 }
                             }
                         }
@@ -155,7 +155,7 @@ public class ParallelProcess implements Runnable {
                     }
                 }
             }
-            opfrequecy = manifest.getInt("OUTPUTFREQUENCY", opfrequecy);//Integer.parseInt(tmp.trim());
+            opfrequecy = manifest.getInt("OUTPUTFREQUENCY", opfrequecy);
 
         }
 
@@ -209,7 +209,7 @@ public class ParallelProcess implements Runnable {
             }
 
             try {
-                out = new PrintStream(f); //new AppendFileStream
+                out = new PrintStream(f);
                 StringBuilder ARGS = new StringBuilder();
                 StringBuilder JVMARGS = new StringBuilder();
                 for (String arg1 : args) {
@@ -269,8 +269,7 @@ public class ParallelProcess implements Runnable {
     public void run() {
         taskDBRow.setStartedInQueue(System.currentTimeMillis());
         Thread.currentThread().setName("ParallelProcessThread" + ip + "-" + pid);
-//        SendStartInQue sendStartInQueue = (new SendStartInQue("startinque", ip, pid, cno, projectName, "" + System.currentTimeMillis()));
-//        GlobalValues.SEND_START_IN_QUEUE_EXECUTOR_SERVICE.submit(sendStartInQueue);
+
         try {
             GlobalValues.TASK_WAITING.decrementAndGet();
             ProcessBuilder pb = null;
@@ -301,7 +300,7 @@ public class ParallelProcess implements Runnable {
 
             try {
                 process = pb.start();
-//                System.out.println("ROW "+taskDBRow.toString());
+
                 taskDBRow.setProcess(process);
             } catch (IOException ex) {
                 Logger.getLogger(ParallelProcess.class.getName()).log(Level.SEVERE, null, ex);
@@ -365,13 +364,11 @@ public class ParallelProcess implements Runnable {
                 GlobalValues.SEND_OUTPUT_EXECUTOR_SERVICE.submit(outputThread3);
                 loadAvg /= loadCounter;
 
-                ////settings.outPrintln("Process executed");
                 int exitValue = process.waitFor();
                 Util.outPrintln("\n\nExit Value is " + exitValue);
                 Long stopTime = System.currentTimeMillis();
                 totalTime = stopTime - startTime;
             }
-            //process.destroy();
 
         } catch (IOException | InterruptedException ex) {
             Logger.getLogger(ParallelProcess.class.getName()).log(Level.SEVERE, null, ex);
@@ -384,7 +381,7 @@ public class ParallelProcess implements Runnable {
             GlobalValues.SEND_FINISH_EXECUTOR_SERVICE.submit(t2);
 
         }
-//        System.out.println("Task DB " + GlobalValues.TASK_DB);
+
     }
 
 }

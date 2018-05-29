@@ -72,9 +72,9 @@ public class JobHandler implements Runnable {
                 String ipAddress = inetAddress.getHostAddress();
                 Thread.currentThread().setName("Process handler for " + ipAddress);
                 if (messageString.length() > 1) {
-                    System.out.println("IP adress of sender is " + ipAddress);
+//                    System.out.println("IP adress of sender is " + ipAddress);
 
-//                    System.OUT.println("" + messageString);
+//                    System.out.println("" + messageString);
                     String command = messageJson.getString("Command");//messageString.substring(messageString.indexOf("<Command>") + 9, messageString.indexOf("</Command>"));
                     JSONObject body = messageJson.getJSONObject("Body");//messageString.substring(messageString.indexOf("<Body>") + 6, messageString.indexOf("</Body>"));
                     if (command.equals("START_JOB")) {

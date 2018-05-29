@@ -47,258 +47,258 @@ public class TaskHandler implements Runnable {
 
     @Override
     public void run() {
-        try {
-            String messageString;
-            JSONObject messageJson;
-            try (DataInputStream dataInputStream = new DataInputStream(submitter.getInputStream())) {
-                messageString = "";
-                int messageLength = dataInputStream.readInt();                    // read length of incoming message
-                byte[] messageBytes = new byte[messageLength];
-                if (messageLength > 0) {
-                    dataInputStream.readFully(messageBytes, 0, messageBytes.length); // read the message
-                }
-                messageString = new String(messageBytes);
-                messageJson = new JSONObject(messageString);
-                InetAddress inetAddress = submitter.getInetAddress();
-                String ipAddress = inetAddress.getHostAddress();
-                Thread.currentThread().setName("Process handler for " + ipAddress);
-                if (messageString.length() > 1) {
+
+        String messageString;
+        JSONObject messageJson;
+        try (DataInputStream dataInputStream = new DataInputStream(submitter.getInputStream())) {
+            messageString = "";
+            int messageLength = dataInputStream.readInt();                    // read length of incoming message
+            byte[] messageBytes = new byte[messageLength];
+            if (messageLength > 0) {
+                dataInputStream.readFully(messageBytes, 0, messageBytes.length); // read the message
+            }
+            messageString = new String(messageBytes);
+            messageJson = new JSONObject(messageString);
+            InetAddress inetAddress = submitter.getInetAddress();
+            String ipAddress = inetAddress.getHostAddress();
+            Thread.currentThread().setName("Process handler for " + ipAddress);
+            if (messageString.length() > 1) {
 //                    System.out.println("IP adress of sender is " + ipAddress);
 
 //                    System.OUT.println("" + messageString);
-                    String command = messageJson.getString("Command");//messageString.substring(messageString.indexOf("<Command>") + 9, messageString.indexOf("</Command>"));
-                    JSONObject body = messageJson.getJSONObject("Body");//messageString.substring(messageString.indexOf("<Body>") + 6, messageString.indexOf("</Body>"));
-//                    System.out.println(messageString);
-                    if (command.equalsIgnoreCase("createprocess")) {
-                        GlobalValues.TASK_WAITING.incrementAndGet();
+                String command = messageJson.getString("Command");//messageString.substring(messageString.indexOf("<Command>") + 9, messageString.indexOf("</Command>"));
+                JSONObject body = messageJson.getJSONObject("Body");//messageString.substring(messageString.indexOf("<Body>") + 6, messageString.indexOf("</Body>"));
+//                   System.out.println(messageString);
+                if (command.equalsIgnoreCase("createprocess")) {
+                    GlobalValues.TASK_WAITING.incrementAndGet();
 
-                        GlobalValues.TASK_EXECUTOR.submit(new ParallelProcess(body, ipAddress));
-                        System.out.println("created process");
+                    GlobalValues.TASK_EXECUTOR.submit(new ParallelProcess(body, ipAddress));
+                    System.out.println("created process");
 
-                        try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
-                            String sendmsg = "OK";
+                    try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
+                        String sendmsg = "OK";
 
-                            byte[] bytes = sendmsg.getBytes("UTF8");
-                            outToClient.writeInt(bytes.length);
-                            outToClient.write(bytes);
+                        byte[] bytes = sendmsg.getBytes("UTF8");
+                        outToClient.writeInt(bytes.length);
+                        outToClient.write(bytes);
 
-                        }
-                        submitter.close();
+                    }
+                    submitter.close();
 //                        System.out.println("" + messageJson.toString(4));
-                    } else if (command.equalsIgnoreCase("ComOH")) {
-                        String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
-                        String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
-                        String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
-                        String content = body.getString("OUTPUT");//.substring(body.indexOf("<OUTPUT>") + 8, body.indexOf("</OUTPUT>"));
-                        String uuid = body.getString("UUID");
-                        try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
-                            String sendmsg = "OK";
+                } else if (command.equalsIgnoreCase("ComOH")) {
+                    String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
+                    String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
+                    String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
+                    String content = body.getString("OUTPUT");//.substring(body.indexOf("<OUTPUT>") + 8, body.indexOf("</OUTPUT>"));
+                    String uuid = body.getString("UUID");
+                    try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
+                        String sendmsg = "OK";
 
-                            byte[] bytes = sendmsg.getBytes("UTF-8");
-                            outToClient.writeInt(bytes.length);
-                            outToClient.write(bytes);
+                        byte[] bytes = sendmsg.getBytes("UTF-8");
+                        outToClient.writeInt(bytes.length);
+                        outToClient.write(bytes);
 
-                        }
-                        submitter.close();
-                        GlobalValues.DIST_DB_EXECUTOR.execute(() -> {
-                            int counter = 0;
-                            boolean exist = false;
-                            while (!exist && counter < 5) {
-                                ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
-                                if (DistTable != null) {
-                                    exist = true;
-                                    DistributionDBRow get = DistTable.get(uuid + "-" + cno.trim());
-                                    if (get != null) {
-                                        get.setNoh(get.getNoh() + Long.parseLong(content));
-//                                System.out.println("Set Network OH in Q:\n" + get.toString(4));
-                                    }
-                                }
-                                try {
-                                    Thread.currentThread().sleep(1000);
-                                } catch (InterruptedException ex) {
-                                    Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
-                                }
-                                counter++;
-                            }
-                        });
-
-                    } else if (command.equalsIgnoreCase("CACHEHIT")) {
-                        String pid = body.getString("PID");
-                        String cno = body.getString("CNO");
-                        String senderUuid = body.getString("SENDER_UUID");
-                        long size = body.getLong("SIZE");
-                        double speed = body.getDouble("SPEED");
-                        String uuid = body.getString("UUID");
-                        long commOH = body.getLong("COMM_OH");
-                        long sleepTime = body.getLong("SLEEP_TIME");
-                        submitter.close();
-//                        System.out.println("" + messageJson.toString(4));
-                        TaskDBRow taskDBRow = GlobalValues.TASK_DB.get("" + senderUuid + "-ID-" + pid + "-CN-" + cno);
-                        taskDBRow.incrementCacheHit();
-                        taskDBRow.setCachedData(taskDBRow.getCachedData() + size);
-                        taskDBRow.addCommOH(commOH);
-                        taskDBRow.addSleepTime(sleepTime);
-                    } else if (command.equalsIgnoreCase("CACHEMISS")) {
-                        String pid = body.getString("PID");
-                        String cno = body.getString("CNO");
-                        String senderUuid = body.getString("SENDER_UUID");
-                        long size = body.getLong("SIZE");
-                        double speed = body.getDouble("SPEED");
-                        String uuid = body.getString("UUID");
-                        long commOH = body.getLong("COMM_OH");
-                        long sleepTime = body.getLong("SLEEP_TIME");
-                        submitter.close();
-                        System.out.println("" + messageJson.toString(4));
-                        TaskDBRow taskDBRow = GlobalValues.TASK_DB.get("" + senderUuid + "-ID-" + pid + "-CN-" + cno);
-                        taskDBRow.incrementCacheMiss();
-                        taskDBRow.setDownloadData(taskDBRow.getDownloadData() + size);
-                        taskDBRow.addDownloadSpeed(speed);
-                        taskDBRow.addCommOH(commOH);
-                        taskDBRow.addSleepTime(sleepTime);
-                        taskDBRow.incrementReqRecieved();
-                    } else if (command.equalsIgnoreCase("startinque")) {
-                        String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
-                        String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
-                        String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
-                        String content = body.getString("OUTPUT");//.substring(body.indexOf("<OUTPUT>") + 8, body.indexOf("</OUTPUT>"));
-                        String uuid = body.getString("UUID");
-                        //   String ExitCode = body.substring(body.indexOf("<EXTCODE>") + 9, body.indexOf("</EXTCODE>"));
-//                        System.out.println("Recieved: " + messageJson);
-//                        int p = Integer.parseInt(pid);
-                        try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
-                            String sendmsg = "OK";
-
-                            byte[] bytes = sendmsg.getBytes("UTF-8");
-                            outToClient.writeInt(bytes.length);
-                            outToClient.write(bytes);
-
-                        }
-                        submitter.close();
-                        GlobalValues.DIST_DB_EXECUTOR.execute(() -> {
+                    }
+                    submitter.close();
+                    GlobalValues.DIST_DB_EXECUTOR.execute(() -> {
+                        int counter = 0;
+                        boolean exist = false;
+                        while (!exist && counter < 5) {
                             ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
                             if (DistTable != null) {
+                                exist = true;
+                                DistributionDBRow get = DistTable.get(uuid + "-" + cno.trim());
+                                if (get != null) {
+                                    get.setNoh(get.getNoh() + Long.parseLong(content));
+//                                System.out.println("Set Network OH in Q:\n" + get.toString(4));
+                                }
+                            }
+                            try {
+                                Thread.currentThread().sleep(1000);
+                            } catch (InterruptedException ex) {
+                                Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            counter++;
+                        }
+                    });
+
+                } else if (command.equalsIgnoreCase("CACHEHIT")) {
+                    String pid = body.getString("PID");
+                    String cno = body.getString("CNO");
+                    String senderUuid = body.getString("SENDER_UUID");
+                    long size = body.getLong("SIZE");
+                    double speed = body.getDouble("SPEED");
+                    String uuid = body.getString("UUID");
+                    long commOH = body.getLong("COMM_OH");
+                    long sleepTime = body.getLong("SLEEP_TIME");
+                    submitter.close();
+//                        System.out.println("" + messageJson.toString(4));
+                    TaskDBRow taskDBRow = GlobalValues.TASK_DB.get("" + senderUuid + "-ID-" + pid + "-CN-" + cno);
+                    taskDBRow.incrementCacheHit();
+                    taskDBRow.setCachedData(taskDBRow.getCachedData() + size);
+                    taskDBRow.addCommOH(commOH);
+                    taskDBRow.addSleepTime(sleepTime);
+                } else if (command.equalsIgnoreCase("CACHEMISS")) {
+                    String pid = body.getString("PID");
+                    String cno = body.getString("CNO");
+                    String senderUuid = body.getString("SENDER_UUID");
+                    long size = body.getLong("SIZE");
+                    double speed = body.getDouble("SPEED");
+                    String uuid = body.getString("UUID");
+                    long commOH = body.getLong("COMM_OH");
+                    long sleepTime = body.getLong("SLEEP_TIME");
+                    submitter.close();
+                    System.out.println("" + messageJson.toString(4));
+                    TaskDBRow taskDBRow = GlobalValues.TASK_DB.get("" + senderUuid + "-ID-" + pid + "-CN-" + cno);
+                    taskDBRow.incrementCacheMiss();
+                    taskDBRow.setDownloadData(taskDBRow.getDownloadData() + size);
+                    taskDBRow.addDownloadSpeed(speed);
+                    taskDBRow.addCommOH(commOH);
+                    taskDBRow.addSleepTime(sleepTime);
+                    taskDBRow.incrementReqRecieved();
+                } else if (command.equalsIgnoreCase("startinque")) {
+                    String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
+                    String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
+                    String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
+                    String content = body.getString("OUTPUT");//.substring(body.indexOf("<OUTPUT>") + 8, body.indexOf("</OUTPUT>"));
+                    String uuid = body.getString("UUID");
+                    //   String ExitCode = body.substring(body.indexOf("<EXTCODE>") + 9, body.indexOf("</EXTCODE>"));
+//                        System.out.println("Recieved: " + messageJson);
+//                        int p = Integer.parseInt(pid);
+                    try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
+                        String sendmsg = "OK";
+
+                        byte[] bytes = sendmsg.getBytes("UTF-8");
+                        outToClient.writeInt(bytes.length);
+                        outToClient.write(bytes);
+
+                    }
+                    submitter.close();
+                    GlobalValues.DIST_DB_EXECUTOR.execute(() -> {
+                        ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
+                        if (DistTable != null) {
+
+                            DistributionDBRow get = DistTable.get(uuid + "-" + cno.trim());
+                            if (get != null) {
+                                get.setStartinq(Long.parseLong(content));
+//                                    System.out.println("Set start in Q:\n" + get.toString(4));
+                            }
+                        }
+                    });
+
+                } else if (command.equalsIgnoreCase("enterinq")) {
+                    String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
+                    String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
+                    String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
+                    String content = body.getString("OUTPUT");//.substring(body.indexOf("<OUTPUT>") + 8, body.indexOf("</OUTPUT>"));
+                    String uuid = body.getString("UUID");
+                    System.out.println("Recieved: " + messageJson);
+                    try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
+                        String sendmsg = "OK";
+                        byte[] bytes = sendmsg.getBytes("UTF-8");
+                        outToClient.writeInt(bytes.length);
+                        outToClient.write(bytes);
+
+                    }
+                    submitter.close();
+                    GlobalValues.DIST_DB_EXECUTOR.execute(() -> {
+                        int counter = 0;
+                        boolean exist = false;
+                        while (!exist && counter < 5) {
+                            ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get(pid.trim());
+//                                System.out.println("\n\nRetriving DIST Table From:\n " + MASTER_DIST_DB.values());
+                            if (DistTable != null) {
+                                exist = true;
+                                System.out.println("Retriving DIST Row");
 
                                 DistributionDBRow get = DistTable.get(uuid + "-" + cno.trim());
                                 if (get != null) {
-                                    get.setStartinq(Long.parseLong(content));
-//                                    System.out.println("Set start in Q:\n" + get.toString(4));
-                                }
-                            }
-                        });
-
-                    } else if (command.equalsIgnoreCase("enterinq")) {
-                        String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
-                        String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
-                        String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
-                        String content = body.getString("OUTPUT");//.substring(body.indexOf("<OUTPUT>") + 8, body.indexOf("</OUTPUT>"));
-                        String uuid = body.getString("UUID");
-                        System.out.println("Recieved: " + messageJson);
-                        try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
-                            String sendmsg = "OK";
-                            byte[] bytes = sendmsg.getBytes("UTF-8");
-                            outToClient.writeInt(bytes.length);
-                            outToClient.write(bytes);
-
-                        }
-                        submitter.close();
-                        GlobalValues.DIST_DB_EXECUTOR.execute(() -> {
-                            int counter = 0;
-                            boolean exist = false;
-                            while (!exist && counter < 5) {
-                                ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get(pid.trim());
-//                                System.out.println("\n\nRetriving DIST Table From:\n " + MASTER_DIST_DB.values());
-                                if (DistTable != null) {
-                                    exist = true;
-                                    System.out.println("Retriving DIST Row");
-
-                                    DistributionDBRow get = DistTable.get(uuid + "-" + cno.trim());
-                                    if (get != null) {
-                                        get.setEntrinq(Long.parseLong(content));
-                                        break;
+                                    get.setEntrinq(Long.parseLong(content));
+                                    break;
 //                                        System.out.println("Set Enter in Q:\n" + get.toString(4));
-                                    }
                                 }
-                                try {
-                                    Thread.currentThread().sleep(1000);
-                                } catch (InterruptedException ex) {
-                                    Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
-                                }
-                                counter++;
                             }
-                        });
-
-                    } else if (command.equalsIgnoreCase("sleeptime")) {
-                        String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
-                        String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
-                        String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
-                        String content = body.getString("OUTPUT");
-                        String uuid = body.getString("UUID");
-                        submitter.close();
-                        GlobalValues.DIST_DB_EXECUTOR.execute(() -> {
-                            int counter = 0;
-                            boolean exist = false;
-                            while (!exist && counter < 5) {
-                                ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
-                                if (DistTable != null) {
-                                    exist = true;
-                                    System.out.println("Retrived DIST Row");
-                                    DistributionDBRow get = DistTable.get(uuid + "-" + cno.trim());
-                                    if (get != null) {
-                                        get.setSleeptime(get.getSleeptime() + Long.parseLong(content));
-                                    }
-                                }
-                                try {
-                                    Thread.currentThread().sleep(1000);
-                                } catch (InterruptedException ex) {
-                                    Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
-                                }
-                                counter++;
+                            try {
+                                Thread.currentThread().sleep(1000);
+                            } catch (InterruptedException ex) {
+                                Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
                             }
-                        });
-
-                    } else if (command.equalsIgnoreCase("kill")) {
-                        String pid = body.getString("PID");//body.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
-                        String cno = body.getString("CNO");//body.substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
-                        String uuid = body.getString("UUID");
-
-                        if (GlobalValues.TASK_DB.containsKey("" + uuid + "-ID-" + pid + "c" + cno)) {
-                            Process p = GlobalValues.TASK_DB.get("" + uuid + "-ID-" + pid + "c" + cno).getProcess();
-                            if (p.isAlive()) {
-                                p.destroy();
-                            }
-
+                            counter++;
                         }
-                        try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
-                            String sendmsg = "OK";
+                    });
 
-                            byte[] bytes = sendmsg.getBytes("UTF-8");
-                            outToClient.writeInt(bytes.length);
-                            outToClient.write(bytes);
-
+                } else if (command.equalsIgnoreCase("sleeptime")) {
+                    String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
+                    String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
+                    String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
+                    String content = body.getString("OUTPUT");
+                    String uuid = body.getString("UUID");
+                    submitter.close();
+                    GlobalValues.DIST_DB_EXECUTOR.execute(() -> {
+                        int counter = 0;
+                        boolean exist = false;
+                        while (!exist && counter < 5) {
+                            ConcurrentHashMap<String, DistributionDBRow> DistTable = MASTER_DIST_DB.get((pid.trim()));
+                            if (DistTable != null) {
+                                exist = true;
+                                System.out.println("Retrived DIST Row");
+                                DistributionDBRow get = DistTable.get(uuid + "-" + cno.trim());
+                                if (get != null) {
+                                    get.setSleeptime(get.getSleeptime() + Long.parseLong(content));
+                                }
+                            }
+                            try {
+                                Thread.currentThread().sleep(1000);
+                            } catch (InterruptedException ex) {
+                                Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                            counter++;
                         }
-                        submitter.close();
+                    });
 
-                    } else if (command.equalsIgnoreCase("printoutput")) {
-                        String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
-                        String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
-                        String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
-                        String content = body.getString("OUTPUT");//.substring(body.indexOf("<OUTPUT>") + 8, body.indexOf("</OUTPUT>"));
-//                        int p = Integer.parseInt(pid);
-                        String output = content;
-                        try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
-                            String sendmsg = "OK";
+                } else if (command.equalsIgnoreCase("kill")) {
+                    String pid = body.getString("PID");//body.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
+                    String cno = body.getString("CNO");//body.substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
+                    String uuid = body.getString("UUID");
 
-                            byte[] bytes = sendmsg.getBytes("UTF-8");
-                            outToClient.writeInt(bytes.length);
-                            outToClient.write(bytes);
+                    if (GlobalValues.TASK_DB.containsKey("" + uuid + "-ID-" + pid + "c" + cno)) {
+                        Process p = GlobalValues.TASK_DB.get("" + uuid + "-ID-" + pid + "c" + cno).getProcess();
+                        if (p.isAlive()) {
+                            p.destroy();
                         }
 
-                        submitter.close();
-                        PrintToFile outToFile = (new PrintToFile(fname, pid, cno, content));
-                        GlobalValues.OUTPUT_WRITER_EXECUTOR.submit(outToFile);
                     }
+                    try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
+                        String sendmsg = "OK";
+
+                        byte[] bytes = sendmsg.getBytes("UTF-8");
+                        outToClient.writeInt(bytes.length);
+                        outToClient.write(bytes);
+
+                    }
+                    submitter.close();
+
+                } else if (command.equalsIgnoreCase("printoutput")) {
+                    String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
+                    String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
+                    String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
+                    String content = body.getString("OUTPUT");//.substring(body.indexOf("<OUTPUT>") + 8, body.indexOf("</OUTPUT>"));
+//                        int p = Integer.parseInt(pid);
+                    String output = content;
+                    try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
+                        String sendmsg = "OK";
+
+                        byte[] bytes = sendmsg.getBytes("UTF-8");
+                        outToClient.writeInt(bytes.length);
+                        outToClient.write(bytes);
+                    }
+
+                    submitter.close();
+                    PrintToFile outToFile = (new PrintToFile(fname, pid, cno, content));
+                    GlobalValues.OUTPUT_WRITER_EXECUTOR.submit(outToFile);
                 }
             }
+
         } catch (IOException ex) {
             Logger.getLogger(TaskHandler.class.getName()).log(Level.SEVERE, null, ex);
             try {

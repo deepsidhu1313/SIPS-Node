@@ -98,9 +98,7 @@ public class FileDownloadHandler implements Runnable {
                                     byte[] bytes = sendmsg.getBytes("UTF-8");
                                     outToClient.writeInt(bytes.length);
                                     outToClient.write(bytes);
-                                    outputStream.close();
-                                    outToClient.close();
-                                    submitter.close();
+
                                     Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "REQUEST Already Finished : " + downQue.toString() + " sending Message " + sendmsg);
                                 } else {
                                     long rt = downQue.getRemainingTime();
@@ -111,9 +109,7 @@ public class FileDownloadHandler implements Runnable {
                                     byte[] bytes = sendmsg.getBytes("UTF-8");
                                     outToClient.writeInt(bytes.length);
                                     outToClient.write(bytes);
-                                    outputStream.close();
-                                    outToClient.close();
-                                    submitter.close();
+
                                     Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "REQUEST Already IN QUE wait for " + rt + " : " + downQue.toString() + " sending Message " + sendmsg);
                                 }
                             }
@@ -127,9 +123,7 @@ public class FileDownloadHandler implements Runnable {
                         byte[] bytes = sendmsg.getBytes("UTF-8");
                         outToClient.writeInt(bytes.length);
                         outToClient.write(bytes);
-                        outputStream.close();
-                        outToClient.close();
-                        submitter.close();
+
                         FileDownQueReq downQue = GlobalValues.DOWNLOAD_QUEUE.get(fileToSend.trim() + "-" + pid.trim() + "-" + checksum.trim() + "-" + ip.trim());
                         Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "REQUEST Added IN QUE : " + downQue.toString() + " sending Message " + sendmsg);
                         if (downQue != null) {
@@ -192,7 +186,7 @@ public class FileDownloadHandler implements Runnable {
                                                         bytes = nmsg.getBytes("UTF-8");
                                                         outToServer.writeInt(bytes.length);
                                                         outToServer.write(bytes);
-                                                        sock.close();
+
                                                     } else {
                                                         JSONObject replyJSON = new JSONObject();
                                                         replyJSON.put("REPLY", "sendNew");
@@ -210,7 +204,7 @@ public class FileDownloadHandler implements Runnable {
                                                             fileLen = sockdin.readLong();
                                                             downData = fileLen;
                                                             int n = 0;
-                                                            byte[] buf = new byte[8192];
+                                                            byte[] buf = new byte[1024];
                                                             while (fileLen > 0 && ((n = sockdin.read(buf, 0, (int) Math.min(buf.length, fileLen))) != -1)) {
                                                                 bos.write(buf, 0, n);
                                                                 fileLen -= n;
@@ -291,9 +285,7 @@ public class FileDownloadHandler implements Runnable {
                         byte[] bytes = sendmsg.getBytes("UTF-8");
                         outToClient.writeInt(bytes.length);
                         outToClient.write(bytes);
-                        outputStream.close();
-                        outToClient.close();
-                        submitter.close();
+
                         FileDownQueReq downQue2 = GlobalValues.DOWNLOAD_QUEUE.get(pathtoFile.trim() + "-" + pid2.trim() + "-" + checksum.trim() + "-" + ip.trim());
                         if (downQue2 != null) {
                             Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "Added in Queue : " + downQue2.toString() + " sending Message " + sendmsg);
@@ -370,7 +362,7 @@ public class FileDownloadHandler implements Runnable {
                                                             fileLen = sockdin.readLong();
                                                             downData = fileLen;
                                                             int n = 0;
-                                                            byte[] buf = new byte[8192];
+                                                            byte[] buf = new byte[1024];
                                                             while (fileLen > 0 && ((n = sockdin.read(buf, 0, (int) Math.min(buf.length, fileLen))) != -1)) {
                                                                 bos.write(buf, 0, n);
                                                                 fileLen -= n;
@@ -411,7 +403,7 @@ public class FileDownloadHandler implements Runnable {
                             }
                         }
                     }
-                    submitter.close();
+
                 } else if (command.trim().equalsIgnoreCase("downloadResult")) {
                     String objToSend = body.getString("OBJECT");// body.substring(body.indexOf("<OBJECT>") + 8, body.indexOf("</OBJECT>"));
                     String pid2 = body.getString("PID");//body.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
@@ -459,9 +451,7 @@ public class FileDownloadHandler implements Runnable {
                         byte[] bytes = sendmsg.getBytes("UTF-8");
                         outToClient.writeInt(bytes.length);
                         outToClient.write(bytes);
-                        outputStream.close();
-                        outToClient.close();
-                        submitter.close();
+
                         FileDownQueReq downQue2 = GlobalValues.DOWNLOAD_QUEUE.get(pathtoFile.trim() + "-" + pid2.trim() + "-" + checksum.trim() + "-" + ip.trim());
                         if (downQue2 != null) {
                             Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "Added in Queue : " + downQue2.toString() + " sending Message " + sendmsg);
@@ -541,10 +531,11 @@ public class FileDownloadHandler implements Runnable {
                                                             fileLen = sockdin.readLong();
                                                             downData = fileLen;
                                                             int n = 0;
-                                                            byte[] buf = new byte[8192];
+                                                            byte[] buf = new byte[1024];
                                                             while (fileLen > 0 && ((n = sockdin.read(buf, 0, (int) Math.min(buf.length, fileLen))) != -1)) {
                                                                 bos.write(buf, 0, n);
                                                                 fileLen -= n;
+                                                                System.out.println("Reading " + n + " bytes : Remaining: " + fileLen);
                                                                 downQue2.setRemainingsize(fileLen);
                                                                 Long elapsedTime = System.currentTimeMillis() - starttime;
                                                                 Long allTimeForDownloading = (elapsedTime * (downData / (downData - fileLen)));
@@ -579,9 +570,9 @@ public class FileDownloadHandler implements Runnable {
                             }
                         }
                     }
-                    submitter.close();
+
                 } else {
-                    submitter.close();
+
                 }
 
             }
@@ -590,15 +581,13 @@ public class FileDownloadHandler implements Runnable {
         } catch (IOException ex) {
             Logger.getLogger(FileDownloadHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
-        {
-            try {
-                if (submitter != null && !submitter.isClosed()) {
-                    submitter.close();
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(FileHandler.class.getName()).log(Level.SEVERE, null, ex);
-            }
 
+        try {
+            if (submitter != null && !submitter.isClosed()) {
+                submitter.close();
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(FileHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
