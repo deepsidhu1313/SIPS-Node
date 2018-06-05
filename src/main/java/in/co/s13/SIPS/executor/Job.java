@@ -508,7 +508,14 @@ public class Job implements Runnable {
                         ParallelForLoop parallelForLoop = new ParallelForLoop(min, max, diff, datatype, reverseLoop);
                         schedulingOHStart = System.currentTimeMillis();
                         loopChunks = loadScheduler.scheduleParallelFor(Util.getAllLiveNodes(), parallelForLoop, schedulerJSON);
-                        System.out.println("Parallel For Loop Chunks: " + loopChunks.toString());
+                        loadScheduler.getOutputs().forEach((out) -> {
+                            Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.OUTPUT, out);
+                        });
+                        loadScheduler.getErrors().forEach((err) -> {
+                            Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.ERROR, err);
+                        });
+
+                        Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.OUTPUT, "Parallel For Loop Chunks: " + loopChunks.toString());
                         sql = "SELECT * FROM META;";
                         ResultSet rs99 = parsedDB.select(parsedDBLoc, sql);
 
@@ -743,6 +750,12 @@ public class Job implements Runnable {
                     parsedDB.closeConnection();
                     schedulingOHStart = System.currentTimeMillis();
                     ArrayList<SIPSTask> result = loadScheduler.schedule(Util.getAllLiveNodes(), tasks, schedulerJSON);
+                    loadScheduler.getOutputs().forEach((out) -> {
+                        Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.OUTPUT, out);
+                    });
+                    loadScheduler.getErrors().forEach((err) -> {
+                        Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.ERROR, err);
+                    });
                     ArrayList<SIPSTask> withDuplicates = new ArrayList<>();
                     ArrayList<SIPSTask> withoutDuplicates = new ArrayList<>();
                     ArrayList<SIPSTask> duplicates = new ArrayList<>();
@@ -760,9 +773,9 @@ public class Job implements Runnable {
                     ConcurrentHashMap<String, DistributionDBRow> DistTable = new ConcurrentHashMap<>();
                     ExecutorService jobUploadExecutor = Executors.newFixedThreadPool(2);
                     ArrayList<Node> backupNodes = loadScheduler.getBackupNodes();
-                    System.out.println("\n\nwithDuplicates:\n" + withDuplicates);
-                    System.out.println("\n\nwithoutDuplicates:\n" + withoutDuplicates);
-                    System.out.println("\n\nDuplicates:\n" + duplicates);
+                    Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.OUTPUT, "\n\nwithDuplicates:\n" + withDuplicates);
+                    Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.OUTPUT, "\n\nwithoutDuplicates:\n" + withoutDuplicates);
+                    Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.OUTPUT, "\n\nDuplicates:\n" + duplicates);
                     for (int k = 0; k < withoutDuplicates.size(); k++) {
                         final int l = k;
                         jobUploadExecutor.submit(() -> {

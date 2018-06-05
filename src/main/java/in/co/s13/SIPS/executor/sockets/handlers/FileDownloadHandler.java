@@ -317,7 +317,7 @@ public class FileDownloadHandler implements Runnable {
                                             }
                                             String reply = new String(message);
                                             Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "Recieved Reply Message: " + reply);
-                                            File ipDir = new File("cache/" + nodeUUID + "/" + projectName);
+                                            File ipDir = new File("cache/" + nodeUUID + "/" + pid2+"/"+projectName);
                                             if (!ipDir.exists()) {
                                                 ipDir.mkdirs();
                                             }
@@ -482,7 +482,7 @@ public class FileDownloadHandler implements Runnable {
                                             }
                                             String reply = new String(message);
                                             Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "Recieved Reply Message: " + reply);
-                                            File ipDir = new File("cache/" + nodeUUID + "/" + projectName);
+                                            File ipDir = new File("cache/" + nodeUUID + "/" +pid2);
                                             if (!ipDir.exists()) {
                                                 ipDir.mkdirs();
                                             }

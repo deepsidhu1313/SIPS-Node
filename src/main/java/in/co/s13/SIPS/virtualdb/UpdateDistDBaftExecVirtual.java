@@ -21,6 +21,7 @@ import static in.co.s13.SIPS.datastructure.DistributionDBRow.DistributionDBRowCo
 import in.co.s13.SIPS.datastructure.Result;
 import in.co.s13.SIPS.db.InsertDistributionWareHouse;
 import in.co.s13.SIPS.settings.GlobalValues;
+import static in.co.s13.SIPS.settings.GlobalValues.RESULT_DB;
 import in.co.s13.SIPS.tools.Util;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -302,73 +303,75 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                             if (result != null) {
                                 temp = result.getStarttime();
                             }
-                            Long StartTime = temp;
-                            Long ttime = endtime - StartTime;
-                            Long tempNOH = 0L;
-                            long tempavgWaitinQ = 0, tempavgSleeptime = 0;
-                            double tempload = 0.0;
 
-                            double avgCacheHitMissRatio = 0;
-                            long avgDownloadData = 0;
-                            double avgDownloadSpeed = 0;
-                            int avgReqSent = 0;
-                            long avgUploadData = 0;
-                            double avgUploadSpeed = 0;
-                            int avgReqRecieved = 0;
-                            long avgCachedData = 0;
-                            System.out.println("Calculating Average " + pid + " CNO" + cno);
-                            int c = 0;
-                            {
-                                for (DistributionDBRow distTableRow : DistTable.values()) {
-                                    tempNOH += distTableRow.getNoh();
-                                    double d = distTableRow.getAvgLoad();
-                                    tempavgSleeptime += distTableRow.getSleeptime();
-                                    tempavgWaitinQ += distTableRow.getWaitinq();
-                                    tempload += d;
+                            if (!result.isFinished()) {
+                                Long StartTime = temp;
+                                Long ttime = endtime - StartTime;
+                                Long tempNOH = 0L;
+                                long tempavgWaitinQ = 0, tempavgSleeptime = 0;
+                                double tempload = 0.0;
 
-                                    avgCacheHitMissRatio += distTableRow.getCacheHitMissRatio();
-                                    avgDownloadData += distTableRow.getDownloadedData();
+                                double avgCacheHitMissRatio = 0;
+                                long avgDownloadData = 0;
+                                double avgDownloadSpeed = 0;
+                                int avgReqSent = 0;
+                                long avgUploadData = 0;
+                                double avgUploadSpeed = 0;
+                                int avgReqRecieved = 0;
+                                long avgCachedData = 0;
+                                System.out.println("Calculating Average " + pid + " CNO" + cno);
+                                int c = 0;
+                                {
+                                    for (DistributionDBRow distTableRow : DistTable.values()) {
+                                        tempNOH += distTableRow.getNoh();
+                                        double d = distTableRow.getAvgLoad();
+                                        tempavgSleeptime += distTableRow.getSleeptime();
+                                        tempavgWaitinQ += distTableRow.getWaitinq();
+                                        tempload += d;
+
+                                        avgCacheHitMissRatio += distTableRow.getCacheHitMissRatio();
+                                        avgDownloadData += distTableRow.getDownloadedData();
 //                                    avgDownloadSpeed += distTableRow.getAvgDownloadSpeed();
-                                    avgReqSent += distTableRow.getReqsSent();
-                                    avgUploadData += distTableRow.getUploadedData();
+                                        avgReqSent += distTableRow.getReqsSent();
+                                        avgUploadData += distTableRow.getUploadedData();
 //                                    avgUploadSpeed += distTableRow.getAvgUploadSpeed();
-                                    avgReqRecieved += distTableRow.getReqsRecieved();
-                                    avgCachedData += distTableRow.getCachedData();
-                                    c++;
+                                        avgReqRecieved += distTableRow.getReqsRecieved();
+                                        avgCachedData += distTableRow.getCachedData();
+                                        c++;
+                                    }
                                 }
-                            }
-                            tempload /= c;
-                            tempNOH /= c;
-                            tempavgSleeptime /= c;
-                            tempavgWaitinQ /= c;
+                                tempload /= c;
+                                tempNOH /= c;
+                                tempavgSleeptime /= c;
+                                tempavgWaitinQ /= c;
 
-                            avgCacheHitMissRatio /= c;
-                            avgDownloadData /= c;
+                                avgCacheHitMissRatio /= c;
+                                avgDownloadData /= c;
 
 //                            avgDownloadSpeed /= c;
-                            OptionalDouble downSpeed = DistTable.values().stream().filter(i -> i.getAvgDownloadSpeed() > 0).mapToDouble(i -> i.getAvgDownloadSpeed()).average();
-                            avgDownloadSpeed = downSpeed.isPresent() ? downSpeed.getAsDouble() : 0;
-                            avgReqSent /= c;
-                            avgUploadData /= c;
+                                OptionalDouble downSpeed = DistTable.values().stream().filter(i -> i.getAvgDownloadSpeed() > 0).mapToDouble(i -> i.getAvgDownloadSpeed()).average();
+                                avgDownloadSpeed = downSpeed.isPresent() ? downSpeed.getAsDouble() : 0;
+                                avgReqSent /= c;
+                                avgUploadData /= c;
 //                            avgUploadSpeed /= c;
-                            OptionalDouble upSpeed = DistTable.values().stream().filter(i -> i.getAvgUploadSpeed() > 0).mapToDouble(i -> i.getAvgUploadSpeed()).average();
-                            avgUploadSpeed = upSpeed.isPresent() ? upSpeed.getAsDouble() : 0;
+                                OptionalDouble upSpeed = DistTable.values().stream().filter(i -> i.getAvgUploadSpeed() > 0).mapToDouble(i -> i.getAvgUploadSpeed()).average();
+                                avgUploadSpeed = upSpeed.isPresent() ? upSpeed.getAsDouble() : 0;
 
-                            avgReqRecieved /= c;
-                            avgCachedData /= c;
-                            System.out.println("Calculated Average " + pid + " CNO" + cno);
+                                avgReqRecieved /= c;
+                                avgCachedData /= c;
+                                System.out.println("Calculated Average " + pid + " CNO" + cno);
 
-                            GlobalValues.RESULT_WH_DB_EXECUTOR.submit(new UpdateResultDBafterExecVirtual(pid, endtime, ttime, tempNOH, tempload, tempavgWaitinQ, tempavgSleeptime, avgCacheHitMissRatio,
-                                    avgDownloadData,
-                                    avgDownloadSpeed,
-                                    avgReqSent,
-                                    avgUploadData,
-                                    avgUploadSpeed,
-                                    avgReqRecieved,
-                                    avgCachedData));
-                            //  controlpanel.Settings.distDWDBExecutor.execute(new InsDistWareHouse(Node, PID, CNO, VARTYPE, SCHEDULER, LStart, Lend, Lexec, CS, LOWL, UPL, COUNTER, Nexec, CommOH, ParOH, PRFM, XTC, fname));
+                                GlobalValues.RESULT_WH_DB_EXECUTOR.submit(new UpdateResultDBafterExecVirtual(pid, endtime, ttime, tempNOH, tempload, tempavgWaitinQ, tempavgSleeptime, avgCacheHitMissRatio,
+                                        avgDownloadData,
+                                        avgDownloadSpeed,
+                                        avgReqSent,
+                                        avgUploadData,
+                                        avgUploadSpeed,
+                                        avgReqRecieved,
+                                        avgCachedData));
+                                //  controlpanel.Settings.distDWDBExecutor.execute(new InsDistWareHouse(Node, PID, CNO, VARTYPE, SCHEDULER, LStart, Lend, Lexec, CS, LOWL, UPL, COUNTER, Nexec, CommOH, ParOH, PRFM, XTC, fname));
+                            }
                         });
-//                        });
 
                     }
                 }
