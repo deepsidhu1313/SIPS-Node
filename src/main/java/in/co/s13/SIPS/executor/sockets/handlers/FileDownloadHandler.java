@@ -317,7 +317,7 @@ public class FileDownloadHandler implements Runnable {
                                             }
                                             String reply = new String(message);
                                             Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "Recieved Reply Message: " + reply);
-                                            File ipDir = new File("cache/" + nodeUUID + "/" + pid2+"/"+projectName);
+                                            File ipDir = new File("cache/" + nodeUUID + "/" + pid2 + "/" + projectName);
                                             if (!ipDir.exists()) {
                                                 ipDir.mkdirs();
                                             }
@@ -482,7 +482,7 @@ public class FileDownloadHandler implements Runnable {
                                             }
                                             String reply = new String(message);
                                             Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "Recieved Reply Message: " + reply);
-                                            File ipDir = new File("cache/" + nodeUUID + "/" +pid2);
+                                            File ipDir = new File("cache/" + nodeUUID + "/" + pid2);
                                             if (!ipDir.exists()) {
                                                 ipDir.mkdirs();
                                             }
@@ -526,8 +526,14 @@ public class FileDownloadHandler implements Runnable {
                                                             df.mkdirs();
                                                         }
                                                         long fileLen, downData;
+                                                        File tmpFile = new File(ip2Dir.getAbsolutePath() + ".tmp");
+                                                        int r = 0;
+                                                        while (tmpFile.exists()) {
+                                                            tmpFile = new File(ip2Dir.getAbsolutePath() + ".tmp." + r);
+                                                            r++;
+                                                        }
                                                         long starttime = System.currentTimeMillis();
-                                                        try (FileOutputStream fos = new FileOutputStream(ip2Dir); BufferedOutputStream bos = new BufferedOutputStream(fos)) {
+                                                        try (FileOutputStream fos = new FileOutputStream(tmpFile); BufferedOutputStream bos = new BufferedOutputStream(fos)) {
                                                             fileLen = sockdin.readLong();
                                                             downData = fileLen;
                                                             int n = 0;
@@ -535,7 +541,7 @@ public class FileDownloadHandler implements Runnable {
                                                             while (fileLen > 0 && ((n = sockdin.read(buf, 0, (int) Math.min(buf.length, fileLen))) != -1)) {
                                                                 bos.write(buf, 0, n);
                                                                 fileLen -= n;
-                                                                System.out.println("Reading " + n + " bytes : Remaining: " + fileLen);
+//                                                                System.out.println("Reading " + n + " bytes : Remaining: " + fileLen);
                                                                 downQue2.setRemainingsize(fileLen);
                                                                 Long elapsedTime = System.currentTimeMillis() - starttime;
                                                                 Long allTimeForDownloading = (elapsedTime * (downData / (downData - fileLen)));
@@ -544,6 +550,7 @@ public class FileDownloadHandler implements Runnable {
                                                             }
                                                             bos.flush();
                                                         }
+                                                        tmpFile.renameTo(ip2Dir);
                                                         downQue2.setFinished(true);
                                                         downQue2.setChecksum(checksum2);
                                                         long endtime = System.currentTimeMillis();

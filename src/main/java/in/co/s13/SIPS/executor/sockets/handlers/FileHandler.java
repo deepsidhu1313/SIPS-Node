@@ -312,6 +312,11 @@ public class FileHandler implements Runnable {
                     if (fileToSave.getAbsolutePath().trim().contains("data/" + pid2)) {
                         long fileLen, downData;
                         File tmpFile = new File(fileToSave.getAbsolutePath() + ".tmp");
+                        int r = 0;
+                        while (tmpFile.exists()) {
+                            tmpFile = new File(fileToSave.getAbsolutePath() + ".tmp." + r);
+                            r++;
+                        }
                         try (FileOutputStream fos = new FileOutputStream(tmpFile); BufferedOutputStream bos = new BufferedOutputStream(fos)) {
                             fileLen = dataInputStream.readLong();
 

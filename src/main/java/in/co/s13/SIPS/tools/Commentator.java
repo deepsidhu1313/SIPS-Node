@@ -49,19 +49,19 @@ public class Commentator {
                 lines += 1;
                 if (lines == startline) {
 //                    System.out.println("Before Comm: "+cursor);
-                    if (cursor.contains("/*")) {
-                        cursor = cursor.replace("/*", "  ");
-                    }
+//                    if (cursor.contains("/*")) {
+//                        cursor = cursor.replace("/*", "  ");
+//                    }
 
                     cursor = new StringBuilder("/*").append(cursor.substring(0)).toString();
 //                    System.out.println("After Comm: "+cursor);
                     body = true;
                 } else if (lines == endline) {
 //                    System.out.println("Before Comm: "+cursor);
-                    if (cursor.contains("*/")) {
-                        cursor = cursor.replace("*/", "  ");
-
-                    }
+//                    if (cursor.contains("*/")) {
+//                        cursor = cursor.replace("*/", "  ");
+//
+//                    }
                     cursor += "*/";
 //                    System.out.println("After Comm: "+cursor);
                     body = false;

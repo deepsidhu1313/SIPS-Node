@@ -527,27 +527,14 @@ public class Job implements Runnable {
                         ArrayList<Node> backupNodes = loadScheduler.getBackupNodes();
 
                         ExecutorService jobUploadExecutor = Executors.newFixedThreadPool(2);
-                        ArrayList<ParallelForSENP> withDuplicates = new ArrayList<>();
-                        ArrayList<ParallelForSENP> withoutDuplicates = new ArrayList<>();
-                        ArrayList<ParallelForSENP> duplicates = new ArrayList<>();
 
                         for (int k = 0; k < loopChunks.size(); k++) {
-                            ParallelForSENP get = loopChunks.get(k);
-                            if (get.hasDuplicates()) {
-                                withDuplicates.add(get);
-                            } else if (get.isDuplicate()) {
-                                duplicates.add(get);
-                            } else {
-                                withoutDuplicates.add(get);
-                            }
-                        }
-                        for (int k = 0; k < withoutDuplicates.size(); k++) {
                             final int l = k;
 //                        Future<DistributionDBRow> fut = 
                             jobUploadExecutor.submit(() -> {
 
                                 try {
-                                    ParallelForSENP get = withoutDuplicates.get(l);
+                                    ParallelForSENP get = loopChunks.get(l);
                                     Util.copyFolder(new File("data/" + jobToken + "/src/"), new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getChunkNo() + "/src/"));
                                     ModASTParallelFor ma = new ModASTParallelFor((parallel4BL + 1), datatype, get.getStart(), get.getEnd(), "" + diff);
                                     try (FileInputStream inputStream = new FileInputStream(new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getChunkNo() + "/src/" + parent + "/" + file))) {
@@ -577,111 +564,12 @@ public class Job implements Runnable {
                                             }
                                         }
                                         DistributionDBRow distRow = new DistributionDBRow(0, get.getNodeUUID(), jobToken, get.getChunkNo(), datatype, schedulerName, System.currentTimeMillis(), 0, 0, 0, 0, 0, 0, 0, 0, 0, get.getDiff(), get.getStart(), get.getEnd(), "0", 0, 9999, dist.getToIPAddress(), dist.getHostName(), 0, loadScheduler.getTotalChunks());
-                                        distTable.put(get.getNodeUUID() + "-" + get.getChunkNo(), distRow);
-                                        if (l != 0) {
-                                            in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB.replace(jobToken.trim(), distTable);
-                                        } else {
-                                            in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB.put(jobToken.trim(), distTable);
+                                        if (get.hasDuplicates()) {
+                                            get.getDuplicates().stream().forEach(value -> distRow.addDuplicate(value));
+                                        } else if (get.isDuplicate()) {
+                                            distRow.setDuplicateOf(get.getDuplicateOf());
+                                            duplicates++;
                                         }
-                                    }
-                                } catch (FileNotFoundException ex) {
-                                    Logger.getLogger(Job.class.getName()).log(Level.SEVERE, null, ex);
-                                } catch (IOException ex) {
-                                    Logger.getLogger(Job.class.getName()).log(Level.SEVERE, null, ex);
-                                }
-                            });
-                        }
-                        in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB.replace(jobToken.trim(), distTable);
-                        for (int k = 0; k < withDuplicates.size(); k++) {
-                            final int l = k;
-//                        Future<DistributionDBRow> fut = 
-                            jobUploadExecutor.submit(() -> {
-
-                                try {
-                                    ParallelForSENP get = withDuplicates.get(l);
-                                    Util.copyFolder(new File("data/" + jobToken + "/src/"), new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getChunkNo() + "/src/"));
-                                    ModASTParallelFor ma = new ModASTParallelFor((parallel4BL + 1), datatype, get.getStart(), get.getEnd(), "" + diff);
-                                    try (FileInputStream inputStream = new FileInputStream(new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getChunkNo() + "/src/" + parent + "/" + file))) {
-                                        CompilationUnit cu = JavaParser.parse(inputStream);
-                                        ma.visit(cu, null);
-                                        //                        System.out.println("Modified AST: " + cu.toString());
-                                        Util.write("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getChunkNo() + "/src/" + parent + "/" + file, cu.toString());
-                                        Distributor dist = new Distributor(get.getNodeUUID(), "" + get.getChunkNo(), jobToken);
-                                        boolean uploaded = dist.upload();
-                                        int maxTries = 3;
-                                        int tries = 0;
-                                        int triedBackUpNodes = 0;
-                                        while (!uploaded && triedBackUpNodes < 3) {
-                                            uploaded = dist.upload();
-                                            tries++;
-                                            if (tries == maxTries) {
-                                                if (!backupNodes.isEmpty()) {
-                                                    get.setNodeUUID(backupNodes.get(Util.getRandomNumberInRange(0, backupNodes.size())).getUuid());
-                                                    dist = new Distributor(get.getNodeUUID(), "" + get.getChunkNo(), jobToken);
-                                                    tries = 0;
-                                                    triedBackUpNodes++;
-                                                } else {
-                                                    triedBackUpNodes = 3;
-                                                    Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.ERROR, "Failed To Distribute Job " + jobToken);
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                        DistributionDBRow distRow = new DistributionDBRow(0, get.getNodeUUID(), jobToken, get.getChunkNo(), datatype, schedulerName, System.currentTimeMillis(), 0, 0, 0, 0, 0, 0, 0, 0, 0, get.getDiff(), get.getStart(), get.getEnd(), "0", 0, 9999, dist.getToIPAddress(), dist.getHostName(), 0, loadScheduler.getTotalChunks());
-                                        get.getDuplicates().stream().forEach(value -> distRow.addDuplicate(value));
-                                        distTable.put(get.getNodeUUID() + "-" + get.getChunkNo(), distRow);
-                                        if (l != 0) {
-                                            in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB.replace(jobToken.trim(), distTable);
-                                        } else {
-                                            in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB.put(jobToken.trim(), distTable);
-                                        }
-                                    }
-                                } catch (FileNotFoundException ex) {
-                                    Logger.getLogger(Job.class.getName()).log(Level.SEVERE, null, ex);
-                                } catch (IOException ex) {
-                                    Logger.getLogger(Job.class.getName()).log(Level.SEVERE, null, ex);
-                                }
-                            });
-                        }
-                        in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB.replace(jobToken.trim(), distTable);
-                        this.duplicates = duplicates.size();
-                        for (int k = 0; k < duplicates.size(); k++) {
-                            final int l = k;
-//                        Future<DistributionDBRow> fut = 
-                            jobUploadExecutor.submit(() -> {
-
-                                try {
-                                    ParallelForSENP get = duplicates.get(l);
-                                    Util.copyFolder(new File("data/" + jobToken + "/src/"), new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getChunkNo() + "/src/"));
-                                    ModASTParallelFor ma = new ModASTParallelFor((parallel4BL + 1), datatype, get.getStart(), get.getEnd(), "" + diff);
-                                    try (FileInputStream inputStream = new FileInputStream(new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getChunkNo() + "/src/" + parent + "/" + file))) {
-                                        CompilationUnit cu = JavaParser.parse(inputStream);
-                                        ma.visit(cu, null);
-                                        //                        System.out.println("Modified AST: " + cu.toString());
-                                        Util.write("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getChunkNo() + "/src/" + parent + "/" + file, cu.toString());
-                                        Distributor dist = new Distributor(get.getNodeUUID(), "" + get.getChunkNo(), jobToken);
-                                        boolean uploaded = dist.upload();
-                                        int maxTries = 3;
-                                        int tries = 0;
-                                        int triedBackUpNodes = 0;
-                                        while (!uploaded && triedBackUpNodes < 3) {
-                                            uploaded = dist.upload();
-                                            tries++;
-                                            if (tries == maxTries) {
-                                                if (!backupNodes.isEmpty()) {
-                                                    get.setNodeUUID(backupNodes.get(Util.getRandomNumberInRange(0, backupNodes.size())).getUuid());
-                                                    dist = new Distributor(get.getNodeUUID(), "" + get.getChunkNo(), jobToken);
-                                                    tries = 0;
-                                                    triedBackUpNodes++;
-                                                } else {
-                                                    triedBackUpNodes = 3;
-                                                    Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.ERROR, "Failed To Distribute Job " + jobToken);
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                        DistributionDBRow distRow = new DistributionDBRow(0, get.getNodeUUID(), jobToken, get.getChunkNo(), datatype, schedulerName, System.currentTimeMillis(), 0, 0, 0, 0, 0, 0, 0, 0, 0, get.getDiff(), get.getStart(), get.getEnd(), "0", 0, 9999, dist.getToIPAddress(), dist.getHostName(), 0, loadScheduler.getTotalChunks());
-                                        distRow.setDuplicateOf(get.getDuplicateOf());
                                         distTable.put(get.getNodeUUID() + "-" + get.getChunkNo(), distRow);
                                         if (l != 0) {
                                             in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB.replace(jobToken.trim(), distTable);
@@ -750,47 +638,28 @@ public class Job implements Runnable {
                     parsedDB.closeConnection();
                     schedulingOHStart = System.currentTimeMillis();
                     ArrayList<SIPSTask> result = loadScheduler.schedule(Util.getAllLiveNodes(), tasks, schedulerJSON);
-                    loadScheduler.getOutputs().forEach((out) -> {
-                        Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.OUTPUT, out);
+                    loadScheduler.getOutputs().forEach((t) -> {
+                        Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.OUTPUT, "" + t);
                     });
                     loadScheduler.getErrors().forEach((err) -> {
-                        Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.ERROR, err);
+                        Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.ERROR, "" + err);
                     });
-                    ArrayList<SIPSTask> withDuplicates = new ArrayList<>();
-                    ArrayList<SIPSTask> withoutDuplicates = new ArrayList<>();
-                    ArrayList<SIPSTask> duplicates = new ArrayList<>();
-                    for (int j = 0; j < result.size(); j++) {
-                        SIPSTask get = result.get(j);
-                        if (get.hasDuplicates()) {
-                            withDuplicates.add(get);
-                        } else if (get.isDuplicate()) {
-                            duplicates.add(get);
-                        } else {
-                            withoutDuplicates.add(get);
-                        }
-                    }
+
+                    Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.OUTPUT, " \n\nResult :\n" + result);
 
                     ConcurrentHashMap<String, DistributionDBRow> DistTable = new ConcurrentHashMap<>();
                     ExecutorService jobUploadExecutor = Executors.newFixedThreadPool(2);
                     ArrayList<Node> backupNodes = loadScheduler.getBackupNodes();
-                    Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.OUTPUT, "\n\nwithDuplicates:\n" + withDuplicates);
-                    Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.OUTPUT, "\n\nwithoutDuplicates:\n" + withoutDuplicates);
-                    Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.OUTPUT, "\n\nDuplicates:\n" + duplicates);
-                    for (int k = 0; k < withoutDuplicates.size(); k++) {
+                    for (int k = 0; k < result.size(); k++) {
                         final int l = k;
                         jobUploadExecutor.submit(() -> {
 
-                            SIPSTask get = withoutDuplicates.get(l);
+                            SIPSTask get = result.get(l);
                             Util.copyFolder(new File("data/" + jobToken + "/src/"), new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getId() + "/src/"));
-                            for (int j = 0; j < result.size(); j++) {
-                                SIPSTask get1 = result.get(j);
-                                if (!get.equals(get1)) {
-                                    ArrayList<FileCoverage> filecoverages = get1.getFiles();
-                                    for (int m = 0; m < filecoverages.size(); m++) {
-                                        FileCoverage get2 = filecoverages.get(m);
-                                        Commentator commentator = new Commentator("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getId() + "/src/" + get2.getPath(), get2.getBeginLine(), get2.getBeginColumn(), get2.getEndLine(), get2.getEndColumn());
-                                    }
-                                }
+                            ArrayList<FileCoverage> filecoverages = get.getFiles();
+                            for (int m = 0; m < filecoverages.size(); m++) {
+                                FileCoverage get2 = filecoverages.get(m);
+                                Commentator commentator = new Commentator("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getId() + "/src/" + get2.getPath(), get2.getBeginLine(), get2.getBeginColumn(), get2.getEndLine(), get2.getEndColumn());
                             }
 
                             Distributor dist = new Distributor(get.getNodeUUID(), "" + get.getId(), jobToken);
@@ -815,6 +684,12 @@ public class Job implements Runnable {
                                 }
                             }
                             DistributionDBRow distRow = new DistributionDBRow(0, get.getNodeUUID(), jobToken, get.getId(), datatype, schedulerName, System.currentTimeMillis(), 0, 0, 0, 0, 0, 0, 0, 0, 0, get.getLength().toString(), "", "", "0", 0, 9999, dist.getToIPAddress(), dist.getHostName(), 0, loadScheduler.getTotalChunks());
+                            if (get.hasDuplicates()) {
+                                get.getDuplicates().stream().forEach(value -> distRow.addDuplicate(value));
+                            } else if (get.isDuplicate()) {
+                                distRow.setDuplicateOf(get.getDuplicateOf());
+                                duplicates++;
+                            }
                             DistTable.put(get.getNodeUUID() + "-" + get.getId(), distRow);
                             if (l != 0) {
                                 in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB.replace(jobToken.trim(), DistTable);
@@ -823,117 +698,9 @@ public class Job implements Runnable {
                             }
 
                         });
-                        if (k != withoutDuplicates.size() - 1) {
+                        if (k != result.size() - 1) {
                             Thread.sleep(500);
                         }
-                    }
-                    in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB.replace(jobToken.trim(), DistTable);
-
-                    for (int k = 0; k < duplicates.size(); k++) {
-                        final int l = k;
-                        jobUploadExecutor.submit(() -> {
-
-                            SIPSTask get = duplicates.get(l);
-                            Util.copyFolder(new File("data/" + jobToken + "/src/"), new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getId() + "/src/"));
-                            for (int j = 0; j < result.size(); j++) {
-                                SIPSTask get1 = result.get(j);
-                                if (!get.equals(get1)) {
-                                    ArrayList<FileCoverage> filecoverages = get1.getFiles();
-                                    for (int m = 0; m < filecoverages.size(); m++) {
-                                        FileCoverage get2 = filecoverages.get(m);
-                                        Commentator commentator = new Commentator("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getId() + "/src/" + get2.getPath(), get2.getBeginLine(), get2.getBeginColumn(), get2.getEndLine(), get2.getEndColumn());
-                                    }
-                                }
-                            }
-
-                            Distributor dist = new Distributor(get.getNodeUUID(), "" + get.getId(), jobToken);
-                            boolean uploaded = dist.upload();
-                            int maxTries = 3;
-                            int tries = 0;
-                            int triedBackUpNodes = 0;
-                            while (!uploaded && triedBackUpNodes < 3) {
-                                uploaded = dist.upload();
-                                tries++;
-                                if (tries == maxTries) {
-                                    if (!backupNodes.isEmpty()) {
-                                        get.setNodeUUID(backupNodes.get(Util.getRandomNumberInRange(0, backupNodes.size())).getUuid());
-                                        dist = new Distributor(get.getNodeUUID(), "" + get.getId(), jobToken);
-                                        tries = 0;
-                                        triedBackUpNodes++;
-                                    } else {
-                                        triedBackUpNodes = 3;
-                                        Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.ERROR, "Failed To Distribute Job " + jobToken);
-                                        break;
-                                    }
-                                }
-                            }
-                            DistributionDBRow distRow = new DistributionDBRow(0, get.getNodeUUID(), jobToken, get.getId(), datatype, schedulerName, System.currentTimeMillis(), 0, 0, 0, 0, 0, 0, 0, 0, 0, get.getLength().toString(), "", "", "0", 0, 9999, dist.getToIPAddress(), dist.getHostName(), 0, loadScheduler.getTotalChunks());
-                            DistTable.put(get.getNodeUUID() + "-" + get.getId(), distRow);
-                            if (l != 0) {
-                                in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB.replace(jobToken.trim(), DistTable);
-                            } else {
-                                in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB.put(jobToken.trim(), DistTable);
-                            }
-
-                        });
-                        if (k != duplicates.size() - 1) {
-                            Thread.sleep(500);
-                        }
-
-                    }
-                    in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB.replace(jobToken.trim(), DistTable);
-
-                    for (int k = 0; k < withDuplicates.size(); k++) {
-                        final int l = k;
-                        jobUploadExecutor.submit(() -> {
-
-                            SIPSTask get = withDuplicates.get(l);
-                            Util.copyFolder(new File("data/" + jobToken + "/src/"), new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getId() + "/src/"));
-                            for (int j = 0; j < result.size(); j++) {
-                                SIPSTask get1 = result.get(j);
-                                if (!get.equals(get1)) {
-                                    ArrayList<FileCoverage> filecoverages = get1.getFiles();
-                                    for (int m = 0; m < filecoverages.size(); m++) {
-                                        FileCoverage get2 = filecoverages.get(m);
-                                        Commentator commentator = new Commentator("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getId() + "/src/" + get2.getPath(), get2.getBeginLine(), get2.getBeginColumn(), get2.getEndLine(), get2.getEndColumn());
-                                    }
-                                }
-                            }
-
-                            Distributor dist = new Distributor(get.getNodeUUID(), "" + get.getId(), jobToken);
-                            boolean uploaded = dist.upload();
-                            int maxTries = 3;
-                            int tries = 0;
-                            int triedBackUpNodes = 0;
-                            while (!uploaded && triedBackUpNodes < 3) {
-                                uploaded = dist.upload();
-                                tries++;
-                                if (tries == maxTries) {
-                                    if (!backupNodes.isEmpty()) {
-                                        get.setNodeUUID(backupNodes.get(Util.getRandomNumberInRange(0, backupNodes.size())).getUuid());
-                                        dist = new Distributor(get.getNodeUUID(), "" + get.getId(), jobToken);
-                                        tries = 0;
-                                        triedBackUpNodes++;
-                                    } else {
-                                        triedBackUpNodes = 3;
-                                        Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.ERROR, "Failed To Distribute Job " + jobToken);
-                                        break;
-                                    }
-                                }
-                            }
-                            DistributionDBRow distRow = new DistributionDBRow(0, get.getNodeUUID(), jobToken, get.getId(), datatype, schedulerName, System.currentTimeMillis(), 0, 0, 0, 0, 0, 0, 0, 0, 0, get.getLength().toString(), "", "", "0", 0, 9999, dist.getToIPAddress(), dist.getHostName(), 0, loadScheduler.getTotalChunks());
-                            DistTable.put(get.getNodeUUID() + "-" + get.getId(), distRow);
-                            if (l != 0) {
-                                in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB.replace(jobToken.trim(), DistTable);
-                            } else {
-                                in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB.put(jobToken.trim(), DistTable);
-                            }
-
-                        });
-                        if (k != withDuplicates.size() - 1) {
-                            Thread.sleep(500);
-                        }
-
                     }
                     in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB.replace(jobToken.trim(), DistTable);
                     jobUploadExecutor.shutdown();
