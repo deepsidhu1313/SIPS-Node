@@ -655,8 +655,15 @@ public class Job implements Runnable {
                         jobUploadExecutor.submit(() -> {
 
                             SIPSTask get = result.get(l);
+                            ArrayList<FileCoverage> filecoverages = new ArrayList<>();
+
+                            for (int j = 0; j < result.size(); j++) {
+                                SIPSTask get1 = result.get(j);
+                                if (!get1.getName().equalsIgnoreCase(get.getName())) {
+                                    filecoverages.addAll(get1.getFiles());
+                                }
+                            }
                             Util.copyFolder(new File("data/" + jobToken + "/src/"), new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getId() + "/src/"));
-                            ArrayList<FileCoverage> filecoverages = get.getFiles();
                             for (int m = 0; m < filecoverages.size(); m++) {
                                 FileCoverage get2 = filecoverages.get(m);
                                 Commentator commentator = new Commentator("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getId() + "/src/" + get2.getPath(), get2.getBeginLine(), get2.getBeginColumn(), get2.getEndLine(), get2.getEndColumn());
