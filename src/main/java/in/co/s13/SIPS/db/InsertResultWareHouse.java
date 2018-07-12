@@ -41,7 +41,7 @@ public class InsertResultWareHouse implements Runnable {
     int avgReqRecieved = 0;
     long avgCachedData = 0;
     int selectedNodes = 0,duplicates=0;
-    long schedulingOH=0;
+    long schedulingOH=0;long distOH=0;
     public InsertResultWareHouse(String PID, String Project, String SCHEDULER, String STARTTIME, String ENDTIME, String TOTALTIME, String NOH, String POH, String CHUNKSIZE, String TCHUNKS, String TNODES, double PRFM, String FINISHED, String AVGWAITINQ, String AVGSLEEP,
             double avgCacheHitMissRatio,
             long avgDownloadData,
@@ -50,7 +50,7 @@ public class InsertResultWareHouse implements Runnable {
             long avgUploadData,
             double avgUploadSpeed,
             int avgReqRecieved,
-            long avgCachedData, int selectedNodes,int duplicates,long schedulingOH) {
+            long avgCachedData, int selectedNodes,int duplicates,long schedulingOH,long distOH) {
 
         this.projectName = Project;
         this.STARTTIME = STARTTIME;
@@ -79,6 +79,7 @@ public class InsertResultWareHouse implements Runnable {
         this.selectedNodes = selectedNodes;
         this.duplicates=duplicates;
         this.schedulingOH=schedulingOH;
+        this.distOH=distOH;
     }
 
     @Override
@@ -118,6 +119,7 @@ public class InsertResultWareHouse implements Runnable {
                 + "selectedNodes,"
                 + "duplicates,"
                 + "schedulingOH,"
+                + "distOH,"
                 + " TIMESTAMP)"
                 + " VALUES("
                 + "'" + PID
@@ -146,6 +148,7 @@ public class InsertResultWareHouse implements Runnable {
                 + "','" + selectedNodes
                 + "','" + duplicates
                 + "','" + schedulingOH
+                + "','" + distOH
                 + "','" + dateFormat.format(date) + "');";
         resWH.insert("log/dw-result.db", sql);
         resWH.closeConnection();
@@ -181,6 +184,7 @@ public class InsertResultWareHouse implements Runnable {
                 + "selectedNodes INT,"
                 + "duplicates INT,"
                 + "schedulingOH LONG,"
+                + "distOH LONG,"
                 + "TIMESTAMP DATE);";
         boolean created = resWH.createtable("log/dw-result.db", sql);
         resWH.closeConnection();

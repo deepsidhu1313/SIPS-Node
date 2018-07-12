@@ -117,7 +117,9 @@ public class UpdateResultDBafterExecVirtual implements Runnable {
                             avgCachedData,
                             resultDBEntry.getSelectedNodes(),
                             resultDBEntry.getDuplicates(),
-                            resultDBEntry.getSchedulingOH()));
+                            resultDBEntry.getSchedulingOH(),
+                            resultDBEntry.getDistributionOH()
+                    ));
                 }
             }
 
