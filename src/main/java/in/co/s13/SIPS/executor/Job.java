@@ -12,7 +12,6 @@ import in.co.s13.SIPS.datastructure.Result;
 import in.co.s13.SIPS.db.SQLiteJDBC;
 import in.co.s13.SIPS.executor.parser.ModASTParallelFor;
 import in.co.s13.SIPS.settings.GlobalValues;
-import static in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB;
 import static in.co.s13.SIPS.settings.GlobalValues.RESULT_DB;
 import in.co.s13.SIPS.tools.Commentator;
 import in.co.s13.SIPS.tools.GetDBFiles;
@@ -42,11 +41,9 @@ import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -535,7 +532,7 @@ public class Job implements Runnable {
                         distOHStart = System.currentTimeMillis();
                         for (int k = 0; k < loopChunks.size(); k++) {
                             final int l = k;
-//                        Future<DistributionDBRow> fut = 
+
                             jobUploadExecutor.submit(() -> {
 
                                 try {
