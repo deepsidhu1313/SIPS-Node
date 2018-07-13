@@ -59,11 +59,11 @@ public class LogRotate implements Runnable {
 
                 if ((file.length() / 1024 > GlobalValues.LOG_FILE_SIZE_LIMIT)) {
                     Util.outPrintln("Log Rotate File name: " + file.getAbsolutePath());
-                    Util.outPrintln(" Logrotate File met the criteria renaming "
+                    Util.outPrintln(" Logrotate File met the criteria, renaming "
                             + file.renameTo(new File(file.getParentFile().getAbsolutePath() + "/" + System.currentTimeMillis() + "-" + file.getName())));
                 } else if ((TimeUnit.MILLISECONDS.toHours(System.currentTimeMillis() - GlobalValues.LAST_ROTATED_ON) > GlobalValues.LOGROTATION_INTERVAL_IN_HOURS)) {
                     Util.outPrintln("Log Rotate File name: " + file.getAbsolutePath());
-                    Util.outPrintln(" Logrotate File met the criteria renaming "
+                    Util.outPrintln(" Logrotate File met the criteria, renaming "
                             + file.renameTo(new File(file.getParentFile().getAbsolutePath() + "/" + System.currentTimeMillis() + "-" + file.getName())));
                     GlobalValues.LAST_ROTATED_ON = System.currentTimeMillis();
                     Settings.saveSettings();
