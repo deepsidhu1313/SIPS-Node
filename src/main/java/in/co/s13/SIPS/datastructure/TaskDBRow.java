@@ -19,6 +19,7 @@ package in.co.s13.SIPS.datastructure;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.OptionalDouble;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -36,7 +37,8 @@ public class TaskDBRow {
     private int reqRecieved = 0, cacheHit = 0, cacheMiss = 0;
     private long cachedData = 0;
     private ArrayList<Double> uploadSpeed = new ArrayList<>(), downloadSpeed = new ArrayList<>();
-
+    private JSONArray cacheHits= new JSONArray();
+    private JSONArray cacheMisses= new JSONArray();
     private DecimalFormat df = new DecimalFormat("##.##");
     
     
@@ -209,6 +211,22 @@ public class TaskDBRow {
     public synchronized void setEnteredInQueue(long enteredInQueue) {
         this.enteredInQueue = enteredInQueue;
     }
+
+    public JSONArray getCacheHits() {
+        return cacheHits;
+    }
+
+    public void setCacheHits(JSONArray cacheHits) {
+        this.cacheHits = cacheHits;
+    }
+
+    public JSONArray getCacheMisses() {
+        return cacheMisses;
+    }
+
+    public void setCacheMisses(JSONArray cacheMisses) {
+        this.cacheMisses = cacheMisses;
+    }
     
     
 
@@ -237,6 +255,9 @@ public class TaskDBRow {
         taskDBRow.put("SleepTime", sleepTime);
         taskDBRow.put("EnteredInQueue", enteredInQueue);
         taskDBRow.put("StartedInQueue", startedInQueue);
+        taskDBRow.put("cacheHits", cacheHits);
+        taskDBRow.put("cacheMisses", cacheMisses);
+        
         return taskDBRow;
     }
 

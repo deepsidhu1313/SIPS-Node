@@ -20,6 +20,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.OptionalDouble;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -38,6 +39,8 @@ public class DistributionDBRow {
     private ArrayList<Double> uploadSpeed = new ArrayList<>(), downloadSpeed = new ArrayList<>();
     private String duplicateOf = "";
     private ArrayList<String> duplicates = new ArrayList<>();
+    private JSONArray cacheHits = new JSONArray();
+    private JSONArray cacheMisses = new JSONArray();
 
     public DistributionDBRow(int id, String uuid, String pid, int cno, int vartype, String scheduler,
             long lstarttime, long lendtime, long lexctime, long nexecutiontime, long noh, long poh,
@@ -421,6 +424,22 @@ public class DistributionDBRow {
         return duplicates.size() > 0;
     }
 
+    public JSONArray getCacheHits() {
+        return cacheHits;
+    }
+
+    public void setCacheHits(JSONArray cacheHits) {
+        this.cacheHits = cacheHits;
+    }
+
+    public JSONArray getCacheMisses() {
+        return cacheMisses;
+    }
+
+    public void setCacheMisses(JSONArray cacheMisses) {
+        this.cacheMisses = cacheMisses;
+    }
+
     @Override
     public String toString() {
         return toString(0);
@@ -466,6 +485,8 @@ public class DistributionDBRow {
         result.put("cacheMiss", cacheMiss);
         result.put("cachedData", cachedData);
         result.put("cacheHitMissRatio", getCacheHitMissRatio());
+        result.put("cacheHits", cacheHits);
+        result.put("cacheMisses", cacheMisses);
         return result;
     }
 

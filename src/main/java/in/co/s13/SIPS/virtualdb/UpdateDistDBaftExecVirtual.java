@@ -21,7 +21,6 @@ import static in.co.s13.SIPS.datastructure.DistributionDBRow.DistributionDBRowCo
 import in.co.s13.SIPS.datastructure.Result;
 import in.co.s13.SIPS.db.InsertDistributionWareHouse;
 import in.co.s13.SIPS.settings.GlobalValues;
-import static in.co.s13.SIPS.settings.GlobalValues.RESULT_DB;
 import in.co.s13.SIPS.tools.Util;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -136,6 +135,8 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                     get.addCacheMiss(taskRow.getInt("CacheMiss"));
                     get.addReqsRecieved(taskRow.getInt("ReqSent"));
                     get.addReqsSent(taskRow.getInt("ReqRecieved"));
+                    get.setCacheHits(taskRow.getJSONArray("cacheHits"));
+                    get.setCacheMisses(taskRow.getJSONArray("cacheMisses"));
                     get.setExitcode(Integer.parseInt(exitCode.trim()));
                     ArrayList<DistributionDBRow> tempDist = new ArrayList<>();
                     tempDist.addAll(DistTable.values());
@@ -285,7 +286,7 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
                                     avgUploadData,
                                     avgUploadSpeed,
                                     avgReqRecieved,
-                                    avgCachedData));
+                                    avgCachedData, distRow.getCacheHits(), distRow.getCacheMisses()));
                         }
 
                     }

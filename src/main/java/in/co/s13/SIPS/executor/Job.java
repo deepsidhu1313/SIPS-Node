@@ -528,6 +528,7 @@ public class Job implements Runnable {
                         ConcurrentHashMap<String, DistributionDBRow> distTable = new ConcurrentHashMap<>();
                         ArrayList<Node> backupNodes = loadScheduler.getBackupNodes();
 
+                        resultDBEntry.setStarttime(System.currentTimeMillis());
                         ExecutorService jobUploadExecutor = Executors.newFixedThreadPool(2);
                         distOHStart = System.currentTimeMillis();
                         for (int k = 0; k < loopChunks.size(); k++) {
@@ -576,7 +577,6 @@ public class Job implements Runnable {
                                         if (l != 0) {
                                             in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB.replace(jobToken.trim(), distTable);
                                         } else {
-                                            resultDBEntry.setStarttime(System.currentTimeMillis());
                                             in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB.put(jobToken.trim(), distTable);
                                         }
                                     }
@@ -654,6 +654,12 @@ public class Job implements Runnable {
                     ConcurrentHashMap<String, DistributionDBRow> DistTable = new ConcurrentHashMap<>();
                     ExecutorService jobUploadExecutor = Executors.newFixedThreadPool(2);
                     ArrayList<Node> backupNodes = loadScheduler.getBackupNodes();
+                    if (resultDBEntry != null) {
+                        resultDBEntry.setStarttime(System.currentTimeMillis());
+                        resultDBEntry.setTotalNodes(loadScheduler.getTotalNodes());
+                        resultDBEntry.setSelectedNodes(loadScheduler.getSelectedNodes());
+                        resultDBEntry.setSchedulingOH(schedulingOHEnd - schedulingOHStart);
+                    }
                     distOHStart = System.currentTimeMillis();
                     for (int k = 0; k < result.size(); k++) {
                         final int l = k;
@@ -706,7 +712,6 @@ public class Job implements Runnable {
                             if (l != 0) {
                                 in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB.replace(jobToken.trim(), DistTable);
                             } else {
-                                resultDBEntry.setStarttime(System.currentTimeMillis());
                                 in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB.put(jobToken.trim(), DistTable);
                             }
 
@@ -724,12 +729,9 @@ public class Job implements Runnable {
             long parsingEndTime = System.currentTimeMillis();
             if (resultDBEntry != null) {
                 resultDBEntry.setTotalChunks(in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB.get(jobToken.trim()).size());
-                resultDBEntry.setTotalNodes(loadScheduler.getTotalNodes());
-                resultDBEntry.setSelectedNodes(loadScheduler.getSelectedNodes());
-                resultDBEntry.setParsingOH(parsingEndTime - parsingStartTime);
-                resultDBEntry.setSchedulingOH(schedulingOHEnd - schedulingOHStart);
                 resultDBEntry.setDistributionOH(parsingEndTime - distOHStart);
                 resultDBEntry.setDuplicates(duplicates);
+                resultDBEntry.setParsingOH(parsingEndTime - parsingStartTime);
                 resultDBEntry.setStatus("Job Distributed and Started");
             }
         } catch (SQLException | InterruptedException ex) {

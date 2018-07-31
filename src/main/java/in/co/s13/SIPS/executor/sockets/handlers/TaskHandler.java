@@ -138,6 +138,7 @@ public class TaskHandler implements Runnable {
                     taskDBRow.setCachedData(taskDBRow.getCachedData() + size);
                     taskDBRow.addCommOH(commOH);
                     taskDBRow.addSleepTime(sleepTime);
+                    taskDBRow.getCacheHits().put(System.currentTimeMillis());
                 } else if (command.equalsIgnoreCase("CACHEMISS")) {
                     String pid = body.getString("PID");
                     String cno = body.getString("CNO");
@@ -156,6 +157,7 @@ public class TaskHandler implements Runnable {
                     taskDBRow.addCommOH(commOH);
                     taskDBRow.addSleepTime(sleepTime);
                     taskDBRow.incrementReqRecieved();
+                    taskDBRow.getCacheMisses().put(System.currentTimeMillis());
                 } else if (command.equalsIgnoreCase("startinque")) {
                     String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
                     String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));

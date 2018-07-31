@@ -20,6 +20,7 @@ import in.co.s13.SIPS.tools.Util;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import org.json.JSONArray;
 
 /**
  *
@@ -59,6 +60,8 @@ public class InsertDistributionWareHouse implements Runnable {
     double avgUploadSpeed;
     int avgReqRecieved;
     long avgCachedData;
+    private JSONArray cacheHits = new JSONArray();
+    private JSONArray cacheMisses = new JSONArray();
 
     public InsertDistributionWareHouse(String Node,
             String PID,
@@ -88,7 +91,7 @@ public class InsertDistributionWareHouse implements Runnable {
             long avgUploadData,
             double avgUploadSpeed,
             int avgReqRecieved,
-            long avgCachedData) {
+            long avgCachedData, JSONArray cacheHits, JSONArray cacheMisses) {
 
         this.Node = Node;
         this.PID = PID;
@@ -121,7 +124,8 @@ public class InsertDistributionWareHouse implements Runnable {
         this.avgUploadSpeed = avgUploadSpeed;
         this.avgReqRecieved = avgReqRecieved;
         this.avgCachedData = avgCachedData;
-
+        this.cacheHits = cacheHits;
+        this.cacheMisses = cacheMisses;
     }
 
     @Override
@@ -165,6 +169,8 @@ public class InsertDistributionWareHouse implements Runnable {
                     + "avgUploadSpeed,"
                     + "avgReqRecieved,"
                     + "avgCachedData,"
+                    + "cacheHits,"
+                    + "cacheMisses,"
                     + "EXITCODE,"
                     + "TIMESTAMP"
                     + ") VALUES ("
@@ -197,6 +203,8 @@ public class InsertDistributionWareHouse implements Runnable {
                     + "','" + avgUploadSpeed
                     + "','" + avgReqRecieved
                     + "','" + avgCachedData
+                    + "','" + cacheHits.toString()
+                    + "','" + cacheMisses.toString()
                     + "','" + EXITCODE
                     + "','" + dateFormat.format(date) + "');";
             distWH.insert("log/dw-dist.db", sql);
@@ -238,6 +246,8 @@ public class InsertDistributionWareHouse implements Runnable {
                 + "avgUploadSpeed DOUBLE,"
                 + "avgReqRecieved INT,"
                 + "avgCachedData LONG,"
+                + "cacheHits TEXT ,"
+                + "cacheMisses TEXT ,"
                 + "TIMESTAMP DATE);";
         boolean created = distWH.createtable("log/dw-dist.db", sql);
         distWH.closeConnection();
