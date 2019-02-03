@@ -53,7 +53,7 @@ public class TaskServer implements Runnable {
                     out.println("PATH=/bin:/usr/bin:/usr/local/bin");
                     out.println("WORK=${PWD}/");
                     out.println("cd  \"${WORK}${1}/\"");
-                    out.println("bash ant");
+                    out.println("ant");
                     //       OUT.println("bash process-executor.sh \"$3\"");
                 } catch (FileNotFoundException ex) {
                     Logger.getLogger(TaskServer.class.getName()).log(Level.SEVERE, null, ex);

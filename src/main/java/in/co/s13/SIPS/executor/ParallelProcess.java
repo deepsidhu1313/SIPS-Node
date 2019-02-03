@@ -230,7 +230,7 @@ public class ParallelProcess implements Runnable {
                         + "  <!--ANT 1.7 is required                                        -->\n"
                         + "\n"
                         + "  <target name=\"compile\">\n"
-                        + "    <javac srcdir=\"src\" destdir=\"src\" includes=\"**/*.java\" target=\"1.8\">\n"
+                        + "    <javac srcdir=\"src\" destdir=\"src\" includes=\"**/*.java\" target=\"1.10\">\n"
                         + "\n"
                         + "        <classpath refid=\"classpath.base\" />\n"
                         + "    </javac>\n"
