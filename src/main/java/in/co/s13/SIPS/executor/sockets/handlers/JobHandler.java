@@ -242,7 +242,7 @@ public class JobHandler implements Runnable {
                         String fname = body.getString("FILENAME");//substring(body.indexOf("<FILENAME>") + 10, body.indexOf("</FILENAME>"));
                         String content = body.getString("OUTPUT");//.substring(body.indexOf("<OUTPUT>") + 8, body.indexOf("</OUTPUT>"));
 //                        int p = Integer.parseInt(pid);
-                        String output = content;
+                        
                         try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
                             String sendmsg = "OK";
 
@@ -252,6 +252,7 @@ public class JobHandler implements Runnable {
                         }
 
                         submitter.close();
+                        Util.outPrintln(body.toString(4));
                         PrintToFile outToFile = (new PrintToFile(fname, pid, cno, content));
                         GlobalValues.OUTPUT_WRITER_EXECUTOR.submit(outToFile);
                     } else {

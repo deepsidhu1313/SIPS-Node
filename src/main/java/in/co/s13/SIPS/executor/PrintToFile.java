@@ -25,8 +25,8 @@ import java.util.logging.Logger;
 
 public class PrintToFile implements Runnable {
 
-    String content;
-    File f;
+    private String content;
+    private File f;
 
     public PrintToFile(String Filename, String PID, String cno, String output) {
         f = new File("data/" + PID + "/" + PID + "c" + cno + ".output");
@@ -36,10 +36,14 @@ public class PrintToFile implements Runnable {
     @Override
     public void run() {
         try (PrintStream out = new PrintStream(f)) {
-            out.append(Util.readFile(f.getAbsolutePath()) + "\n" + content);
+            String existing=Util.readFile(f.getAbsolutePath());
+            out.append( existing+ "\n" + content);
+            out.flush();
             out.close();
+            Util.outPrintln("Printed "+content);
         } catch (FileNotFoundException ex) {
             Logger.getLogger(PrintToFile.class.getName()).log(Level.SEVERE, null, ex);
+            Util.errPrintln(ex.toString());
         }
     }
 

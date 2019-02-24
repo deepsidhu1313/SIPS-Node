@@ -261,7 +261,7 @@ public class GlobalValues {
 //    public static ExecutorService SEND_START_IN_QUEUE_EXECUTOR_SERVICE = Executors.newFixedThreadPool(TASK_LIMIT);
 //    public static ExecutorService SEND_ENTER_IN_QUEUE_EXECUTOR_SERVICE = Executors.newFixedThreadPool(TASK_LIMIT);
 //    public static ExecutorService SEND_COMMOH_EXECUTOR_SERVICE = Executors.newFixedThreadPool(1);
-    public static ExecutorService OUTPUT_WRITER_EXECUTOR = Executors.newFixedThreadPool(TASK_LIMIT);
+    public static ExecutorService OUTPUT_WRITER_EXECUTOR = Executors.newFixedThreadPool(1);
 
     /**
      * Server ThreadPools

@@ -735,6 +735,7 @@ public class Util {
             }
         } catch (IOException ex) {
             Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
+            Util.errPrintln(ex.toString());
         }
         return sb.toString();
     }

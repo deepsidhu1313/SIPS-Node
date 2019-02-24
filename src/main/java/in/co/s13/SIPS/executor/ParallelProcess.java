@@ -230,7 +230,7 @@ public class ParallelProcess implements Runnable {
                         + "  <!--ANT 1.7 is required                                        -->\n"
                         + "\n"
                         + "  <target name=\"compile\">\n"
-                        + "    <javac srcdir=\"src\" destdir=\"src\" includes=\"**/*.java\" target=\"1.10\">\n"
+                        + "    <javac srcdir=\"src\" destdir=\"src\" includes=\"**/*.java\" target=\"1.8\">\n"
                         + "\n"
                         + "        <classpath refid=\"classpath.base\" />\n"
                         + "    </javac>\n"
@@ -324,16 +324,17 @@ public class ParallelProcess implements Runnable {
                     loadAvg += osBean.getSystemLoadAverage();
                     loadCounter++;
                     Util.outPrintln(s);
-                    if (ocounter == opfrequecy) {
+                    if (ocounter != opfrequecy) {
+
+                        output += "\n" + s;
+                        
+                    } else {
 
                         output += "\n" + s;
                         SendOutput outputThread = (new SendOutput(ip, pid, cno, projectName, output));
                         GlobalValues.SEND_OUTPUT_EXECUTOR_SERVICE.submit(outputThread);
                         ocounter = 0;
                         output = "";
-                    } else {
-
-                        output += "\n" + s;
                     }
                 }
                 SendOutput outputThread = (new SendOutput(ip, pid, cno, projectName, output));
@@ -349,15 +350,17 @@ public class ParallelProcess implements Runnable {
                     loadCounter++;
                     Util.outPrintln(s);
                     success = false;
-                    if (ocounter == opfrequecy) {
+                    if (ocounter != opfrequecy) {
 
+                        output += "\n" + s;
+                        
+                         } else {
                         output += "\n" + s;
                         SendOutput outputThread2 = (new SendOutput(ip, pid, cno, projectName, output));
                         GlobalValues.SEND_OUTPUT_EXECUTOR_SERVICE.submit(outputThread2);
                         ocounter = 0;
                         output = "\n";
-                    } else {
-                        output += "\n" + s;
+                   
                     }
                 }
                 SendOutput outputThread3 = (new SendOutput(ip, pid, cno, projectName, output));
