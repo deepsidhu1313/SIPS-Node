@@ -810,8 +810,9 @@ public class Util {
         if (DUMP_LOG) {
             LOG.append("\n" + "[" + timestamp + "] [" + sout + "]");
         }
+        if(ERR!=null){
         ERR.append("\n" + "[" + timestamp + "] [" + sout + "]");
-
+        }
     }
 
     public static void appendToApiLog(GlobalValues.LOG_LEVEL logLevel, String sout) {
