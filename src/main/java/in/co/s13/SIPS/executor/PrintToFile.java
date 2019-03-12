@@ -37,7 +37,7 @@ public class PrintToFile implements Runnable {
     public void run() {
         try (PrintStream out = new PrintStream(f)) {
             String existing=Util.readFile(f.getAbsolutePath());
-            out.append( existing+ "\n" + content);
+            out.append( existing+ "\n" + content.trim());
             out.flush();
             out.close();
             Util.outPrintln("Printed "+content);

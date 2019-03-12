@@ -253,8 +253,11 @@ public class JobHandler implements Runnable {
 
                         submitter.close();
                         Util.outPrintln(body.toString(4));
-                        PrintToFile outToFile = (new PrintToFile(fname, pid, cno, content));
-                        GlobalValues.OUTPUT_WRITER_EXECUTOR.submit(outToFile);
+                        
+                        if(content.trim().length()>0){
+                            PrintToFile outToFile = (new PrintToFile(fname, pid, cno, content));
+                            GlobalValues.OUTPUT_WRITER_EXECUTOR.submit(outToFile);
+                        }
                     } else {
                         submitter.close();
                     }
