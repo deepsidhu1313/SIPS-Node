@@ -127,6 +127,10 @@ class Ping implements Runnable {
                 JSONObject adjacentNodes = reply.getJSONObject("ADJ_NODES");
                 JSONObject nonAdjacentNodes = reply.getJSONObject("NON_ADJ_NODES");
                 JSONObject benchmarks = reply.getJSONObject("BENCHMARKS");
+                // Absent from peers running a build without device discovery.
+                java.util.List<in.co.s13.sips.lib.accelerator.Device> devices
+                        = in.co.s13.sips.lib.accelerator.Devices.fromJSON(
+                                reply.optJSONArray("DEVICES"));
                 JSONObject liveNodes = reply.getJSONObject("LIVE_NODES");
                 JSONObject nonAdjLiveNodes = reply.getJSONObject("NON_ADJ_LIVE_NODES");
                 /**
@@ -163,6 +167,9 @@ class Ping implements Runnable {
 
                     }
                     Node live = LIVE_NODE_ADJ_DB.get(uuid);
+                    if (live != null) {
+                        live.setDevices(devices);
+                    }
                     live.getIP(IPadress).setDistance(distance);
                     live.getIP(IPadress).incrementPingScore();
                     for (int i = 0; i < ips.size(); i++) {
