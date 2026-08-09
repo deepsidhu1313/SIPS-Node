@@ -335,6 +335,15 @@ public class GlobalValues {
     public static ConcurrentHashMap<String, Result> RESULT_DB = new ConcurrentHashMap<>();
 
     /**
+     * Early-exit state per job, keyed by job token.
+     *
+     * <p>Set when a chunk calls breakAll or breakAfter. The scheduler and the
+     * task executor consult it before handing out or starting further work.
+     */
+    public static ConcurrentHashMap<String, in.co.s13.sips.lib.loop.EarlyExit> EARLY_EXIT
+            = new ConcurrentHashMap<>();
+
+    /**
      * Task Server Vars
      */
 //    public static ConcurrentHashMap<String,String> ALIEN_PROCESS_ID= new ConcurrentHashMap<>();

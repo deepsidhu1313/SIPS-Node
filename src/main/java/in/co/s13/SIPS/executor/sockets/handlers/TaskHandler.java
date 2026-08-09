@@ -271,6 +271,52 @@ public class TaskHandler implements Runnable {
                         }
                     });
 
+                } else if (command.equalsIgnoreCase("breakAll")
+                        || command.equalsIgnoreCase("breakAfter")) {
+                    // A chunk has decided the loop can stop. Record it against
+                    // the job so the scheduler stops handing out work and
+                    // running chunks can see it between iterations.
+                    String pid = body.getString("PID").trim();
+                    long index = body.optLong("INDEX", 0);
+                    String why = body.optString("REASON", "");
+
+                    in.co.s13.sips.lib.loop.EarlyExit exit = GlobalValues.EARLY_EXIT
+                            .computeIfAbsent(pid, in.co.s13.sips.lib.loop.EarlyExit::new);
+
+                    if (command.equalsIgnoreCase("breakAll")) {
+                        String value = body.has("VALUE") ? body.getString("VALUE") : null;
+                        exit.breakAll(index, value);
+                        Util.appendToJobLog(GlobalValues.LOG_LEVEL.OUTPUT,
+                                "Job " + pid + " stopped by breakAll at " + index
+                                + (value == null ? "" : " with a result") + "; " + why);
+                    } else {
+                        exit.breakAfter(index, why);
+                        Util.appendToJobLog(GlobalValues.LOG_LEVEL.OUTPUT,
+                                "Job " + pid + " bounded to index " + index + "; " + why);
+                    }
+
+                    // Stop chunks of this job that are already running. Chunks
+                    // still needed under breakAfter are left alone.
+                    GlobalValues.TASK_DB.forEach((key, task) -> {
+                        if (task == null || !key.contains("-ID-" + pid + "-CN-")) {
+                            return;
+                        }
+                        if (!exit.shouldRunChunk(task.getChunkNo(), task.getChunkNo())) {
+                            Process running = task.getProcess();
+                            if (running != null && running.isAlive()) {
+                                running.destroy();
+                            }
+                        }
+                    });
+
+                    try (OutputStream os = submitter.getOutputStream();
+                            DataOutputStream outToClient = new DataOutputStream(os)) {
+                        byte[] bytes = "OK".getBytes("UTF-8");
+                        outToClient.writeInt(bytes.length);
+                        outToClient.write(bytes);
+                    }
+                    submitter.close();
+
                 } else if (command.equalsIgnoreCase("kill")) {
                     String pid = body.getString("PID");//body.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
                     String cno = body.getString("CNO");//body.substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
