@@ -18,7 +18,10 @@ package in.co.s13.SIPS.executor;
 
 import com.sun.management.OperatingSystemMXBean;
 import in.co.s13.SIPS.datastructure.TaskDBRow;
+import in.co.s13.SIPS.datastructure.TaskKeys;
 import in.co.s13.SIPS.settings.GlobalValues;
+import in.co.s13.SIPS.tools.JavaTarget;
+import in.co.s13.SIPS.tools.Platform;
 import in.co.s13.SIPS.tools.Util;
 import java.io.BufferedReader;
 import java.io.File;
@@ -28,6 +31,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONArray;
@@ -78,8 +82,8 @@ public class ParallelProcess implements Runnable {
         projectName = manifest.getString("PROJECT");
 
         GlobalValues.TASK_ID.incrementAndGet();
-        GlobalValues.TASK_DB.put("" + uuid + "-ID-" + pid + "-CN-" + cno, new TaskDBRow(pid, projectName, uuid, Integer.parseInt(cno)));
-        taskDBRow = GlobalValues.TASK_DB.get("" + uuid + "-ID-" + pid + "-CN-" + cno);
+        GlobalValues.TASK_DB.put(TaskKeys.of(uuid, pid, cno), new TaskDBRow(pid, projectName, uuid, Integer.parseInt(cno)));
+        taskDBRow = GlobalValues.TASK_DB.get(TaskKeys.of(uuid, pid, cno));
 
         taskDBRow.setEnteredInQueue(System.currentTimeMillis());
 
@@ -201,15 +205,8 @@ public class ParallelProcess implements Runnable {
     }
 
     
-    static String getVersion () {
-        String version = System.getProperty("java.version");
-        Double ver = Double.parseDouble (version.substring(0,version.indexOf('.')));
-        if(ver>=1.8){
-        return "1.8";//ver.toString();
-        }else{
-            return ("1."+ver.intValue());
-        }
-        
+    static String getVersion() {
+        return JavaTarget.forVersion(System.getProperty("java.version"));
     }
     public void generateScript(String location, String main) {
         File f = new File(location + "/build.xml");
@@ -283,31 +280,12 @@ public class ParallelProcess implements Runnable {
 
         try {
             GlobalValues.TASK_WAITING.decrementAndGet();
-            ProcessBuilder pb = null;
-            String cmd2 = "";
             Long startTime = System.currentTimeMillis();
-            if (GlobalValues.OS_Name == 0) {
-                String pwd = "" + GlobalValues.PWD;
-                String cmd[] = {"bin/process-executor.bat ", loc};
-                for (int i = 0; i <= cmd.length - 1; i++) {
-                    cmd2 += cmd[i];
-                }
-                Util.outPrintln("" + cmd2);
+            List<String> command = Platform.current().executorCommand(GlobalValues.PWD, loc);
+            Util.outPrintln(String.join(" ", command));
 
-                pb = new ProcessBuilder(cmd);
-                pb.directory(new File(GlobalValues.PWD));
-
-            } else if (GlobalValues.OS_Name == 2) {
-                String workingDir = System.getProperty("user.dir");
-                String scriptloc = "" + workingDir + "/bin/process-executor.sh";
-                String cmd[] = {"/bin/bash", scriptloc, loc};
-                for (int i = 0; i <= cmd.length - 1; i++) {
-                    cmd2 += cmd[i];
-                }
-                Util.outPrintln("" + cmd2);
-                pb = new ProcessBuilder(cmd);
-                pb.directory(new File(GlobalValues.PWD));
-            }
+            ProcessBuilder pb = new ProcessBuilder(command);
+            pb.directory(new File(GlobalValues.PWD));
 
             try {
                 process = pb.start();

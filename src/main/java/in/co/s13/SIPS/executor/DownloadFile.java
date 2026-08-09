@@ -18,6 +18,7 @@ package in.co.s13.SIPS.executor;
 
 import in.co.s13.SIPS.datastructure.FileDownQueReq;
 import in.co.s13.SIPS.datastructure.TaskDBRow;
+import in.co.s13.SIPS.datastructure.TaskKeys;
 import in.co.s13.SIPS.settings.GlobalValues;
 import in.co.s13.SIPS.tools.Util;
 import java.io.DataInputStream;
@@ -117,12 +118,16 @@ public class DownloadFile {
                         if (new File(ip2Dir.getAbsolutePath() + ".sha").exists()) {
                             lchecksum = Util.LoadCheckSum(ip2Dir.getAbsolutePath() + ".sha");
                         }
-                        TaskDBRow task = GlobalValues.TASK_DB.get("" + uuid + "-ID-" + pid + "-CN-" + cno);
+                        TaskDBRow task = GlobalValues.TASK_DB.get(TaskKeys.of(uuid, pid, cno));
 
                         if (lchecksum.trim().equalsIgnoreCase(checksum.trim())) {
                             Util.copyFileUsingStream(ip2Dir.getAbsolutePath(), localFolder + "/" + _item);
-                            task.setCachedData(task.getCachedData() + ip2Dir.length());
-                            task.incrementCacheHit();
+                            // The row is absent if the chunk was cancelled while
+                            // its files were still being fetched.
+                            if (task != null) {
+                                task.setCachedData(task.getCachedData() + ip2Dir.length());
+                                task.incrementCacheHit();
+                            }
                             Ndownloaded = false;
                         }
                         while (Ndownloaded) {

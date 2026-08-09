@@ -456,174 +456,40 @@ public class Util {
         return MEMORY_SIZE;
     }
 
+    /**
+     * The host CPU model name.
+     *
+     * @see CpuInfo for the per-platform commands and parsing
+     */
     public static String getCPUName() {
-        String CPUname = "";
-        boolean success;
-        try {
-            ProcessBuilder pb = null;
-            Process p;
-            String cmd2 = "";
-            File directory;
-            if (OS_Name == 0) {
-                String pwd = "" + PWD;
-                pb = new ProcessBuilder();
-
-//                if ((directory = new File("c:\\windows\\system32\\")).exists()) {
-////                    pb.directory(directory);
-//
-//                } else if ((directory = new File("d:\\windows\\system32\\")).exists()) {
-////                    pb.directory(directory);
-//
-//                } else if ((directory = new File("e:\\windows\\system32\\")).exists()) {
-////                    pb.directory(directory);
-//
-//                } else if ((directory = new File("f:\\windows\\system32\\")).exists()) {
-////                    pb.directory(directory);
-//
-//                } else if ((directory = new File("g:\\windows\\system32\\")).exists()) {
-////                    pb.directory(directory);
-//
-//                } else if ((directory = new File("h:\\windows\\system32\\")).exists()) {
-////                    pb.directory(directory);
-//
-//                } else {
-//                    return CPUname = "Unidentified";
-//                }
-                //"cd", "/d", "" + directory.getAbsolutePath(), "&",
-                // String cmd[] = {"cd", "/d", "" + directory.getAbsolutePath(), "&", "wmic cpu get Name"};
-                String cmd[] = {GlobalValues.dir_bin + "/procn.bat"};
-                pb.command(cmd);
-                p = null;
-                p = pb.start();
-
-                BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
-
-                BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-
-                // read the output from the command
-                System.out.println("Here is the standard output of the command:\n");
-
-                String s = null;
-                String output = "";
-                while ((s = stdInput.readLine()) != null) {
-                    System.out.println(s);
-                    CPUname = s;
-                }
-                System.out.println("Here is the standard error of the command (if any):\n");
-                while ((s = stdError.readLine()) != null) {
-                    System.out.println(s);
-                    success = false;
-
-                }
-                int exitValue = p.waitFor();
-                System.out.println("\n\nExit Value is " + exitValue);
-                p.destroy();
-
-            } else if (OS_Name == 2) {
-                String cmd[] = {"cat", "/proc/cpuinfo"};
-                pb = new ProcessBuilder(cmd);
-                pb.directory(new File("/"));
-                p = null;
-                try {
-                    p = pb.start();
-
-                    BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
-
-                    BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-
-                    // read the output from the command
-                    System.out.println("Here is the standard output of the command:\n");
-
-                    String s = null;
-                    String output = "";
-                    while ((s = stdInput.readLine()) != null) {
-                        System.out.println(s);
-                        if (s.contains("model") && s.contains("name")) {
-                            CPUname = s.substring(s.indexOf(":") + 1).trim();
-                            break;
-                        }
-                    }
-                    System.out.println("Here is the standard error of the command (if any):\n");
-                    while ((s = stdError.readLine()) != null) {
-                        System.out.println(s);
-                        success = false;
-
-                    }
-                    int exitValue = p.waitFor();
-                    System.out.println("\n\nExit Value is " + exitValue);
-                    p.destroy();
-                } catch (IOException ex) {
-                    Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
-                }
-
-            }
-
-        } catch (IOException ex) {
-            Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return CPUname;
-
+        return CpuInfo.detect();
     }
 
+    /**
+     * Deletes a single file.
+     *
+     * <p>Uses the platform-neutral file API rather than shelling out to
+     * {@code rm}/{@code del}. The previous implementation concatenated the path
+     * into a shell string, which broke on paths containing spaces and let a
+     * crafted job token inject a second command.
+     *
+     * @param path file to delete; directories are left alone
+     * @return true if the file existed and was deleted
+     */
     public static boolean deleteFile(String path) {
-        boolean b = false;
-        try {
-            ArrayList<String> command = new ArrayList<>();
-            StringBuilder sb = new StringBuilder();
-            if (OS_Name == 0) {
-                //command.add("del");
-                //command.add("/f");
-                //sb.append("cd /d ");
-                //sb.append(path.substring(0,path.lastIndexOf("\\")));
-                sb.append("cmd /c del /f ");
-            } else {
-                //sb.append("cd ");
-                //sb.append(path.substring(path.lastIndexOf("/")));
-                sb.append("rm -vf ");
-            }
-            //command.add(path);
-            sb.append(path);
-            Runtime rt = Runtime.getRuntime();
-            ProcessBuilder pb = new ProcessBuilder();
-
-            //   pb.command(sb.toString());
-            Process p = rt.exec(sb.toString());
-
-            BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
-
-            BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-
-            // read the output from the command
-            System.out.println("Here is the standard output of the command:\n");
-
-            String s = null;
-            String output = "";
-            int c = 0;
-            while ((s = stdInput.readLine()) != null) {
-                System.out.println(s);
-                System.out.println(s);
-                b = true;
-            }
-
-            System.out.println("Here is the standard error of the command (if any):\n");
-            while ((s = stdError.readLine()) != null) {
-                System.out.println(s);
-                b = false;
-
-            }
-            int exitValue = p.waitFor();
-            System.out.println("\n\nExit Value is " + exitValue);
-            p.destroy();
-
-            return b;
-        } catch (IOException ex) {
-            Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
+        if (path == null || path.isBlank()) {
+            return false;
         }
-        return b;
+        try {
+            java.nio.file.Path target = java.nio.file.Paths.get(path);
+            if (java.nio.file.Files.isDirectory(target)) {
+                return false;
+            }
+            return java.nio.file.Files.deleteIfExists(target);
+        } catch (java.io.IOException | java.nio.file.InvalidPathException ex) {
+            Logger.getLogger(Util.class.getName()).log(Level.WARNING, "Could not delete " + path, ex);
+            return false;
+        }
     }
 
     public static void copyFolder(File src, File dest) {

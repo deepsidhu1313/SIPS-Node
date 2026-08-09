@@ -23,6 +23,7 @@ import static in.co.s13.SIPS.settings.GlobalValues.HAS_SHARED_STORAGE;
 import static in.co.s13.SIPS.settings.GlobalValues.HOST_NAME;
 import static in.co.s13.SIPS.settings.GlobalValues.dir_etc;
 import in.co.s13.SIPS.settings.Settings;
+import in.co.s13.SIPS.tools.AccessControl;
 import in.co.s13.SIPS.tools.ServiceOperations;
 import static in.co.s13.SIPS.tools.ServiceOperations.restartApiServer;
 import static in.co.s13.SIPS.tools.ServiceOperations.restartFileServer;
@@ -106,8 +107,10 @@ public class APIHandler implements Runnable {
                 JSONArray args = requestBody.getJSONArray("ARGS");
 //                System.out.println("ARGS : " + args.toString());
                 String apiKey = requestBody.getString("API_KEY");
-                if ((GlobalValues.BLACKLIST.containsKey(ipAddress) || GlobalValues.BLACKLIST.containsKey(clientUUID))
-                        && (!GlobalValues.API_LIST.containsKey(clientUUID) || !GlobalValues.API_LIST.containsKey(ipAddress))) {
+                // A blacklist entry is absolute. It used to be waived when the
+                // caller also held an API key, and the check itself could be
+                // sidestepped by asserting an unlisted UUID.
+                if (AccessControl.isBlacklisted(GlobalValues.BLACKLIST.keySet(), ipAddress, clientUUID)) {
                     //send error message
                     // bad node no cookie for u
 
@@ -126,7 +129,7 @@ public class APIHandler implements Runnable {
 
                     submitter.close();
                     return;
-                } else if ((!GlobalValues.BLACKLIST.containsKey(ipAddress) || !GlobalValues.BLACKLIST.containsKey(clientUUID))) {
+                } else {
                     JSONObject keyInfo = null;
                     if (GlobalValues.API_LIST.containsKey(clientUUID.trim())) {
                         keyInfo = GlobalValues.API_LIST.get(clientUUID.trim());
@@ -767,15 +770,15 @@ public class APIHandler implements Runnable {
     }
 
     private boolean hasReadPermissions(int key_permissions) {
-        return key_permissions == 4 || key_permissions == 5 || key_permissions == 6 || key_permissions == 7;
+        return AccessControl.hasRead(key_permissions);
     }
 
     private boolean hasWritePermissions(int key_permissions) {
-        return key_permissions == 2 || key_permissions == 3 || key_permissions == 6 || key_permissions == 7;
+        return AccessControl.hasWrite(key_permissions);
     }
 
     private boolean hasExecutePermissions(int key_permissions) {
-        return key_permissions == 1 || key_permissions == 3 || key_permissions == 5 || key_permissions == 7;
+        return AccessControl.hasExecute(key_permissions);
     }
 
 }

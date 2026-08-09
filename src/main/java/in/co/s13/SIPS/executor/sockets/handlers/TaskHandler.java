@@ -18,9 +18,11 @@ package in.co.s13.SIPS.executor.sockets.handlers;
 
 import in.co.s13.SIPS.datastructure.DistributionDBRow;
 import in.co.s13.SIPS.datastructure.TaskDBRow;
+import in.co.s13.SIPS.datastructure.TaskKeys;
 import in.co.s13.SIPS.executor.ParallelProcess;
 import in.co.s13.SIPS.executor.PrintToFile;
 import in.co.s13.SIPS.settings.GlobalValues;
+import in.co.s13.SIPS.tools.Util;
 import static in.co.s13.SIPS.settings.GlobalValues.MASTER_DIST_DB;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -133,12 +135,17 @@ public class TaskHandler implements Runnable {
                     long sleepTime = body.getLong("SLEEP_TIME");
                     submitter.close();
 //                        System.out.println("" + messageJson.toString(4));
-                    TaskDBRow taskDBRow = GlobalValues.TASK_DB.get("" + senderUuid + "-ID-" + pid + "-CN-" + cno);
-                    taskDBRow.incrementCacheHit();
-                    taskDBRow.setCachedData(taskDBRow.getCachedData() + size);
-                    taskDBRow.addCommOH(commOH);
-                    taskDBRow.addSleepTime(sleepTime);
-                    taskDBRow.getCacheHits().put(System.currentTimeMillis());
+                    TaskDBRow taskDBRow = GlobalValues.TASK_DB.get(TaskKeys.of(senderUuid, pid, cno));
+                    if (taskDBRow == null) {
+                        Util.appendToTasksLog(GlobalValues.LOG_LEVEL.ERROR,
+                                "CACHEHIT for unknown task " + TaskKeys.of(senderUuid, pid, cno));
+                    } else {
+                        taskDBRow.incrementCacheHit();
+                        taskDBRow.setCachedData(taskDBRow.getCachedData() + size);
+                        taskDBRow.addCommOH(commOH);
+                        taskDBRow.addSleepTime(sleepTime);
+                        taskDBRow.getCacheHits().put(System.currentTimeMillis());
+                    }
                 } else if (command.equalsIgnoreCase("CACHEMISS")) {
                     String pid = body.getString("PID");
                     String cno = body.getString("CNO");
@@ -150,14 +157,19 @@ public class TaskHandler implements Runnable {
                     long sleepTime = body.getLong("SLEEP_TIME");
                     submitter.close();
                     System.out.println("" + messageJson.toString(4));
-                    TaskDBRow taskDBRow = GlobalValues.TASK_DB.get("" + senderUuid + "-ID-" + pid + "-CN-" + cno);
-                    taskDBRow.incrementCacheMiss();
-                    taskDBRow.setDownloadData(taskDBRow.getDownloadData() + size);
-                    taskDBRow.addDownloadSpeed(speed);
-                    taskDBRow.addCommOH(commOH);
-                    taskDBRow.addSleepTime(sleepTime);
-                    taskDBRow.incrementReqRecieved();
-                    taskDBRow.getCacheMisses().put(System.currentTimeMillis());
+                    TaskDBRow taskDBRow = GlobalValues.TASK_DB.get(TaskKeys.of(senderUuid, pid, cno));
+                    if (taskDBRow == null) {
+                        Util.appendToTasksLog(GlobalValues.LOG_LEVEL.ERROR,
+                                "CACHEMISS for unknown task " + TaskKeys.of(senderUuid, pid, cno));
+                    } else {
+                        taskDBRow.incrementCacheMiss();
+                        taskDBRow.setDownloadData(taskDBRow.getDownloadData() + size);
+                        taskDBRow.addDownloadSpeed(speed);
+                        taskDBRow.addCommOH(commOH);
+                        taskDBRow.addSleepTime(sleepTime);
+                        taskDBRow.incrementReqRecieved();
+                        taskDBRow.getCacheMisses().put(System.currentTimeMillis());
+                    }
                 } else if (command.equalsIgnoreCase("startinque")) {
                     String pid = body.getString("PID");//.substring(body.indexOf("<PID>") + 5, body.indexOf("</PID>"));
                     String cno = body.getString("CNO");//substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
@@ -263,12 +275,14 @@ public class TaskHandler implements Runnable {
                     String cno = body.getString("CNO");//body.substring(body.indexOf("<CNO>") + 5, body.indexOf("</CNO>"));
                     String uuid = body.getString("UUID");
 
-                    if (GlobalValues.TASK_DB.containsKey("" + uuid + "-ID-" + pid + "c" + cno)) {
-                        Process p = GlobalValues.TASK_DB.get("" + uuid + "-ID-" + pid + "c" + cno).getProcess();
-                        if (p.isAlive()) {
+                    TaskDBRow toKill = GlobalValues.TASK_DB.get(TaskKeys.of(uuid, pid, cno));
+                    if (toKill != null) {
+                        Process p = toKill.getProcess();
+                        // Null until the ProcessBuilder has actually started: a
+                        // kill arriving while the chunk is still queued is normal.
+                        if (p != null && p.isAlive()) {
                             p.destroy();
                         }
-
                     }
                     try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
                         String sendmsg = "OK";

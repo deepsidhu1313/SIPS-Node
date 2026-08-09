@@ -139,6 +139,14 @@ public class Job implements Runnable {
                             + "\nSimulated DB Loc File Exist : " + (new File(simDBLoc).exists()) + "\n");
                     SQLiteJDBC parsedDB = new SQLiteJDBC();
                     SQLiteJDBC simDB = new SQLiteJDBC();
+                    // These accumulate per source file. Without the reset, line
+                    // numbers from the previous file are reprocessed against this
+                    // one, scheduling loops that do not exist here.
+                    parallelForBeginLine.clear();
+                    parallelForEndLine.clear();
+                    type = null;
+                    varinit = null;
+                    limit = null;
                     String sql = "SELECT * FROM SYNTAX WHERE Category LIKE '%ParallelFor%';";
                     ResultSet rs = parsedDB.select(parsedDBLoc, sql);
                     while (rs.next()) {
@@ -169,6 +177,15 @@ public class Job implements Runnable {
                             }
                         }
 
+                        if (type == null) {
+                            // No VARIABLES row matched this loop's line, so the
+                            // induction variable's type is unknown and the chunk
+                            // bounds cannot be derived. Skip rather than NPE.
+                            Util.appendToJobLog(GlobalValues.LOG_LEVEL.ERROR,
+                                    "No declared type for the loop at line " + (parallel4BL + 1)
+                                    + " in " + parsedDBLoc + "; skipping this parallel for");
+                            continue;
+                        }
                         type = type.toUpperCase();
                         //rs3.close();
                         //sqldb.closeConnection();

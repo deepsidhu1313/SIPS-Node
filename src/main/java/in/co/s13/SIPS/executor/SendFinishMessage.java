@@ -17,6 +17,7 @@
 package in.co.s13.SIPS.executor;
 
 import in.co.s13.SIPS.datastructure.TaskDBRow;
+import in.co.s13.SIPS.datastructure.TaskKeys;
 import in.co.s13.SIPS.settings.GlobalValues;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -68,7 +69,7 @@ public class SendFinishMessage implements Runnable {
                 sendmsgBodyJsonObj.put("OUTPUT", value);
                 sendmsgBodyJsonObj.put("EXTCODE", exitCode);
                 sendmsgBodyJsonObj.put("AVGLOAD", avgLoad);
-                TaskDBRow task = GlobalValues.TASK_DB.get("" + uuid + "-ID-" + pid + "-CN-" + chunkno);
+                TaskDBRow task = GlobalValues.TASK_DB.get(TaskKeys.of(uuid, pid, chunkno));
                 if (task != null) {
                     sendmsgBodyJsonObj.put("TASK", task.toJSON());
                 }
