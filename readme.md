@@ -27,6 +27,9 @@ generated Ant build.
 
 ## Documentation
 
+- **[Getting started](docs/GETTING_STARTED.md)** — zero to a distributed job in
+  fifteen minutes, including the failure modes people actually hit
+- [Parallel loops](docs/PARALLEL_LOOPS.md) — `break`, `continue`, early exit
 - [Architecture](docs/ARCHITECTURE.md) — job flow, ports, how loop bounds are recovered
 - [Operations](docs/OPERATIONS.md) — configuration, tuning, troubleshooting
 - [Security](docs/SECURITY.md) — trust model and known gaps
