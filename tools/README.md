@@ -7,9 +7,9 @@ from it, so each repository still builds standalone.
 ```bash
 mkdir sips && cd sips
 for r in common-json common-sqlitejdbc SIPS-lib SIPS-Schedulers SIPS-Node SIPS-Run; do
-  git clone --branch v1.0.0 https://github.com/deepsidhu1313/$r.git
+  git clone --branch v1.1.0 https://github.com/deepsidhu1313/$r.git
 done
-curl -sLo pom.xml https://raw.githubusercontent.com/deepsidhu1313/SIPS-Node/v1.0.0/tools/aggregator-pom.xml
+curl -sLo pom.xml https://raw.githubusercontent.com/deepsidhu1313/SIPS-Node/v1.1.0/tools/aggregator-pom.xml
 mvn install
 ```
 
