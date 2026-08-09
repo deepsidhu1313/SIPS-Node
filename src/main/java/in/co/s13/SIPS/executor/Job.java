@@ -5,7 +5,7 @@
  */
 package in.co.s13.SIPS.executor;
 
-import com.github.javaparser.JavaParser;
+import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import in.co.s13.SIPS.datastructure.DistributionDBRow;
 import in.co.s13.SIPS.datastructure.Result;
@@ -558,7 +558,7 @@ public class Job implements Runnable {
                                     Util.copyFolder(new File("data/" + jobToken + "/src/"), new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getChunkNo() + "/src/"));
                                     ModASTParallelFor ma = new ModASTParallelFor((parallel4BL + 1), datatype, get.getStart(), get.getEnd(), "" + diff);
                                     try (FileInputStream inputStream = new FileInputStream(new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getChunkNo() + "/src/" + parent + "/" + file))) {
-                                        CompilationUnit cu = JavaParser.parse(inputStream);
+                                        CompilationUnit cu = StaticJavaParser.parse(inputStream);
                                         ma.visit(cu, null);
                                         //                        System.out.println("Modified AST: " + cu.toString());
                                         Util.write("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getChunkNo() + "/src/" + parent + "/" + file, cu.toString());
