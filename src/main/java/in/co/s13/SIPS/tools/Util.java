@@ -590,20 +590,35 @@ public class Util {
         return readFile(ld).trim();
     }
 
+    /**
+     * Reads a text file exactly as written.
+     *
+     * <p>Previously used a FileReader on the platform default charset and
+     * rebuilt the content line by line with the local separator, which changed
+     * the encoding, the line endings and the presence of a final newline. Job
+     * output and JSON configuration both pass through here.
+     *
+     * @return the file's content, or an empty string if it cannot be read
+     */
     public static String readFile(String location) {
-        StringBuilder sb = new StringBuilder();
-        try (BufferedReader br = new BufferedReader(new FileReader(location))) {
-            String line = br.readLine();
-            while (line != null) {
-                sb.append(line);
-                sb.append(System.lineSeparator());
-                line = br.readLine();
+        try {
+            return java.nio.file.Files.readString(java.nio.file.Paths.get(location),
+                    java.nio.charset.StandardCharsets.UTF_8);
+        } catch (java.nio.charset.MalformedInputException ex) {
+            // Not UTF-8. Fall back to a lossy read rather than losing the file
+            // entirely; callers here handle logs and config, never binary.
+            try {
+                return new String(java.nio.file.Files.readAllBytes(
+                        java.nio.file.Paths.get(location)),
+                        java.nio.charset.StandardCharsets.ISO_8859_1);
+            } catch (IOException inner) {
+                Logger.getLogger(Util.class.getName()).log(Level.SEVERE, null, inner);
+                return "";
             }
         } catch (IOException ex) {
-            Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
-            Util.errPrintln(ex.toString());
+            Logger.getLogger(Util.class.getName()).log(Level.WARNING, "Could not read " + location, ex);
+            return "";
         }
-        return sb.toString();
     }
 
     public static JSONObject readJSONFile(String location) {

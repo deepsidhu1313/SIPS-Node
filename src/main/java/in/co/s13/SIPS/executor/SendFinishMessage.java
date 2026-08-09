@@ -23,6 +23,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.logging.Level;
@@ -86,7 +87,7 @@ public class SendFinishMessage implements Runnable {
                 if (length > 0) {
                     dIn.readFully(message, 0, message.length); // read the message
                 }
-                String reply = new String(message);
+                String reply = new String(message, StandardCharsets.UTF_8);
                 if (reply.contains("OK")) {
                     System.out.println("Received Reply For Finish Message: " + reply);
                     sent = true;

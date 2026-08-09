@@ -28,6 +28,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.logging.Level;
@@ -62,7 +63,7 @@ public class FileHandler implements Runnable {
             if (length > 0) {
                 dataInputStream.readFully(message, 0, message.length); // read the message
             }
-            String s = new String(message);
+            String s = new String(message, StandardCharsets.UTF_8);
             JSONObject msg = new JSONObject(s);
 
             InetAddress inetAddress = submitter.getInetAddress();
@@ -115,7 +116,7 @@ public class FileHandler implements Runnable {
                         if (length > 0) {
                             dataInputStream.readFully(message, 0, message.length); // read the message
                         }
-                        s = new String(message);
+                        s = new String(message, StandardCharsets.UTF_8);
                         msg = new JSONObject(s);
                         if (msg.getString("REPLY").trim().equalsIgnoreCase("foundLocal")) {
 
@@ -190,7 +191,7 @@ public class FileHandler implements Runnable {
                         if (length > 0) {
                             dataInputStream.readFully(message, 0, message.length); // read the message
                         }
-                        s = new String(message);
+                        s = new String(message, StandardCharsets.UTF_8);
                         msg = new JSONObject(s);
                         if (msg.getString("REPLY").trim().equalsIgnoreCase("foundLocal")) {
 
@@ -267,7 +268,7 @@ public class FileHandler implements Runnable {
                         if (length > 0) {
                             dataInputStream.readFully(message, 0, message.length); // read the message
                         }
-                        s = new String(message);
+                        s = new String(message, StandardCharsets.UTF_8);
                         msg = new JSONObject(s);
                         if (msg.getString("REPLY").trim().equalsIgnoreCase("foundLocal")) {
 

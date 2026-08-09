@@ -26,6 +26,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
@@ -79,7 +80,7 @@ public class DownloadFile {
                                     if (length > 0) {
                                         dIn.readFully(message, 0, message.length); // read the message
                                     }
-                                    String reply = new String(message);
+                                    String reply = new String(message, StandardCharsets.UTF_8);
                                     ipDir = new File("cache/" + uuid + "/" + projectname);
                                     if (!ipDir.exists()) {
                                         ipDir.mkdirs();
@@ -97,7 +98,7 @@ public class DownloadFile {
                                         if (length > 0) {
                                             dIn.readFully(message, 0, message.length); // read the message
                                         }
-                                        checksum = new String(message);
+                                        checksum = new String(message, StandardCharsets.UTF_8);
                                         System.out.println("CheckSum Recieved " + checksum);
                                         sock.close();
                                     } else {
@@ -168,7 +169,7 @@ public class DownloadFile {
                                             if (length > 0) {
                                                 dIn.readFully(message, 0, message.length); // read the message
                                             }
-                                            JSONObject reply = new JSONObject(new String(message));
+                                            JSONObject reply = new JSONObject(new String(message, StandardCharsets.UTF_8));
                                             String rpl = reply.getString("MSG");//substring(reply.indexOf("<MSG>") + 5, reply.indexOf("</MSG>"));
                                             if (rpl.equalsIgnoreCase("finished")) {
                                                 // receive file

@@ -79,6 +79,11 @@ new File("data/" + pid + "/" + filenameToSend)
 
 Neither value is normalised, so `../` escapes the job directory.
 
+The equivalent hole on the task-execution path is closed: `ParallelProcess`
+now resolves the payload's `FILENAME` through `SafePath`, which normalises the
+name and refuses anything landing outside the chunk directory. The two file
+servers should be moved onto the same helper.
+
 ### 4. SQL built by string concatenation
 
 Roughly fifty queries interpolate values directly, some of them
@@ -101,6 +106,9 @@ For reference, these were live and have been closed:
 - **Negative permissions granted full access.** A malformed key yielding `-1`
   has every bit set, so all permission checks passed. Non-positive values now
   grant nothing.
+- **Path traversal when writing chunk files.** `ParallelProcess` wrote the
+  payload's network-supplied `FILENAME` straight into the chunk directory, so
+  `../` escaped it. Names now go through `SafePath`, which confines them.
 - **Command injection in `deleteFile`.** The path was concatenated into a shell
   string and passed to `Runtime.exec(String)`; a crafted job token could append a
   second command. It now uses the platform-neutral file API and never invokes a

@@ -27,6 +27,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.logging.Level;
@@ -59,7 +60,7 @@ public class FileDownloadHandler implements Runnable {
             if (length > 0) {
                 dataInputStream.readFully(message, 0, message.length); // read the message
             }
-            msg = new String(message);
+            msg = new String(message, StandardCharsets.UTF_8);
             InetAddress inetAddress = submitter.getInetAddress();
             String ipAddress = inetAddress.getHostAddress();
             Thread.currentThread().setName("File Request handler for " + ipAddress);
@@ -155,7 +156,7 @@ public class FileDownloadHandler implements Runnable {
                                             if (length > 0) {
                                                 sockdin.readFully(message, 0, message.length); // read the message
                                             }
-                                            String reply = new String(message);
+                                            String reply = new String(message, StandardCharsets.UTF_8);
                                             File ipDir = new File("cache/" + nodeUUID + "/" + projectName);
                                             if (!ipDir.exists()) {
                                                 ipDir.mkdirs();
@@ -173,7 +174,7 @@ public class FileDownloadHandler implements Runnable {
                                                 if (length > 0) {
                                                     sockdin.readFully(message, 0, message.length); // read the message
                                                 }
-                                                String checksum2 = new String(message);
+                                                String checksum2 = new String(message, StandardCharsets.UTF_8);
                                                 System.out.println("CheckSum Recieved " + checksum2);
                                                 Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "CheckSum Recieved  : " + checksum2 + " for Request " + downQue.toString());
 
@@ -315,7 +316,7 @@ public class FileDownloadHandler implements Runnable {
                                             if (length > 0) {
                                                 sockdin.readFully(message, 0, message.length); // read the message
                                             }
-                                            String reply = new String(message);
+                                            String reply = new String(message, StandardCharsets.UTF_8);
                                             Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "Recieved Reply Message: " + reply);
                                             File ipDir = new File("cache/" + nodeUUID + "/" + pid2 + "/" + projectName);
                                             if (!ipDir.exists()) {
@@ -332,7 +333,7 @@ public class FileDownloadHandler implements Runnable {
                                                 if (length > 0) {
                                                     sockdin.readFully(message, 0, message.length); // read the message
                                                 }
-                                                String checksum2 = new String(message);
+                                                String checksum2 = new String(message, StandardCharsets.UTF_8);
                                                 Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "CheckSum Recieved " + checksum2 + " for REQUEST : " + downQue2.toString());
                                                 {
                                                     String nmsg = "";
@@ -480,7 +481,7 @@ public class FileDownloadHandler implements Runnable {
                                             if (length > 0) {
                                                 sockdin.readFully(message, 0, message.length); // read the message
                                             }
-                                            String reply = new String(message);
+                                            String reply = new String(message, StandardCharsets.UTF_8);
                                             Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "Recieved Reply Message: " + reply);
                                             File ipDir = new File("cache/" + nodeUUID + "/" + pid2);
                                             if (!ipDir.exists()) {
@@ -500,7 +501,7 @@ public class FileDownloadHandler implements Runnable {
                                                 if (length > 0) {
                                                     sockdin.readFully(message, 0, message.length); // read the message
                                                 }
-                                                String checksum2 = new String(message);
+                                                String checksum2 = new String(message, StandardCharsets.UTF_8);
                                                 Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "CheckSum Recieved " + checksum2 + " for REQUEST : " + downQue2.toString());
                                                 {
                                                     String nmsg = "";

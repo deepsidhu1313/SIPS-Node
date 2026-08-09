@@ -8,12 +8,16 @@ package in.co.s13.SIPS.executor;
 import in.co.s13.SIPS.settings.GlobalValues;
 import in.co.s13.SIPS.tools.CollectFiles;
 import in.co.s13.SIPS.tools.Util;
+import java.nio.file.Paths;
+import java.nio.file.Files;
+import in.co.s13.SIPS.transfer.FilePayload;
 import in.co.s13.sips.lib.common.datastructure.IPAddress;
 import in.co.s13.sips.lib.common.datastructure.Node;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -91,10 +95,18 @@ public class Distributor {
             ArrayList<String> toSend = collectFiles.getFiles("data/" + jobToken + "/dist/" + nodeUUID + ":CN:" + chunkNumber + "/src");
             for (int i = 0; i < toSend.size(); i++) {
                 String filePath = toSend.get(i);
-                JSONObject file = new JSONObject();
-                file.put("FILENAME", filePath.substring(filePath.lastIndexOf("/src/")));
-                file.put("CONTENT", Util.readFile(filePath));
-                files.put(file);
+                try {
+                    // Encoded byte-exactly: source may be UTF-8 or CRLF, and a
+                    // chunk's inputs may be binary, such as image tiles.
+                    JSONObject file = FilePayload.encode(
+                            filePath.substring(filePath.lastIndexOf("/src/")),
+                            Files.readAllBytes(Paths.get(filePath)));
+                    files.put(file);
+                } catch (IOException ex) {
+                    Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.ERROR,
+                            "Could not read " + filePath + " for " + jobToken + ": " + ex);
+                    return false;
+                }
             }
             body.put("FILES", files);
             JSONObject manifest = Util.readJSONFile("data/" + jobToken + "/manifest.json");
@@ -142,7 +154,7 @@ public class Distributor {
                 if (length > 0) {
                     dIn.readFully(message, 0, message.length); // read the message
                 }
-                String reply = (new String(message));
+                String reply = (new String(message, StandardCharsets.UTF_8));
                 if (reply.equals("OK")) {
                     toIPAddress = host;
                     return true;

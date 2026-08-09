@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -83,5 +84,43 @@ class UtilFileOpsTest {
     void toleratesNullAndBlankPaths() {
         assertFalse(Util.deleteFile(null));
         assertFalse(Util.deleteFile("   "));
+    }
+
+    // ---- readFile: content preservation ----
+
+    /**
+     * readFile used a FileReader on the platform default charset and rebuilt the
+     * content line by line with System.lineSeparator(), so it altered encoding,
+     * line endings and the final newline. Job stdout and JSON config both pass
+     * through it.
+     */
+    @Test
+    void readFilePreservesUtf8Characters(@TempDir Path dir) throws IOException {
+        Path file = dir.resolve("out.log");
+        String original = "café ∑ 日本語 done";
+        Files.writeString(file, original, java.nio.charset.StandardCharsets.UTF_8);
+
+        assertEquals(original, Util.readFile(file.toString()));
+    }
+
+    @Test
+    void readFileDoesNotAppendATrailingNewline(@TempDir Path dir) throws IOException {
+        Path file = dir.resolve("out.log");
+        Files.writeString(file, "no trailing newline");
+
+        assertEquals("no trailing newline", Util.readFile(file.toString()));
+    }
+
+    @Test
+    void readFilePreservesCarriageReturns(@TempDir Path dir) throws IOException {
+        Path file = dir.resolve("out.log");
+        Files.writeString(file, "one\r\ntwo\r\n");
+
+        assertEquals("one\r\ntwo\r\n", Util.readFile(file.toString()));
+    }
+
+    @Test
+    void readFileReturnsEmptyForAMissingFile(@TempDir Path dir) {
+        assertEquals("", Util.readFile(dir.resolve("absent").toString()));
     }
 }

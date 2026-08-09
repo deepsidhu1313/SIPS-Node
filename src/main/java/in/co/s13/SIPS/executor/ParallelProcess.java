@@ -23,6 +23,8 @@ import in.co.s13.SIPS.settings.GlobalValues;
 import in.co.s13.SIPS.tools.JavaTarget;
 import in.co.s13.SIPS.tools.Platform;
 import in.co.s13.SIPS.tools.Util;
+import in.co.s13.SIPS.transfer.FilePayload;
+import in.co.s13.SIPS.transfer.SafePath;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -30,6 +32,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.lang.management.ManagementFactory;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -47,7 +52,7 @@ public class ParallelProcess implements Runnable {
     ArrayList<String> args = new ArrayList<>(), jvmargs = new ArrayList<>();
     ArrayList<String> fname = new ArrayList<>();
     ArrayList<String> fileLog = new ArrayList<>();
-    ArrayList<String> content = new ArrayList<>();
+    ArrayList<byte[]> content = new ArrayList<>();
     ArrayList<String> libList = new ArrayList<>();
     ArrayList<String> attachments = new ArrayList<>();
     ArrayList<String> libListLocal = new ArrayList<>();
@@ -74,7 +79,9 @@ public class ParallelProcess implements Runnable {
         for (int i = 0; i < files.length(); i++) {
             JSONObject filesList1 = files.getJSONObject(i);
             fname.add(filesList1.getString("FILENAME"));
-            content.add(filesList1.getString("CONTENT"));
+            // Decoded to bytes so binary inputs survive; legacy senders that
+            // omit the encoding field are read as UTF-8 text.
+            content.add(FilePayload.decode(filesList1));
         }
         manifest = body.getJSONObject("MANIFEST");
         counter = GlobalValues.TASK_ID.get();
@@ -167,7 +174,7 @@ public class ParallelProcess implements Runnable {
 
     }
 
-    public void createProcess(String ip, String PID, ArrayList<String> filename, ArrayList<String> Content, String uuid) throws FileNotFoundException {
+    public void createProcess(String ip, String PID, ArrayList<String> filename, ArrayList<byte[]> Content, String uuid) throws FileNotFoundException {
         loc = "proc/" + uuid + "/" + PID + "/" + cno;
         File d2 = new File("proc");
         if (!d2.exists()) {
@@ -200,7 +207,19 @@ public class ParallelProcess implements Runnable {
         }
 
         for (int i = 0; i < Content.size(); i++) {
-            Util.write(loc + "/" + filename.get(i), Content.get(i));
+            try {
+                // FILENAME arrives over the network, so it is confined to the
+                // chunk directory before anything is written.
+                Path target = SafePath.resolve(Paths.get(loc), filename.get(i));
+                // Written as raw bytes: re-encoding here would undo the
+                // byte-exact transport and corrupt binary chunk inputs.
+                Files.createDirectories(target.getParent());
+                Files.write(target, Content.get(i));
+            } catch (IOException | IllegalArgumentException ex) {
+                Logger.getLogger(ParallelProcess.class.getName())
+                        .log(Level.SEVERE, "Rejected or failed file " + filename.get(i), ex);
+                success = false;
+            }
         }
     }
 

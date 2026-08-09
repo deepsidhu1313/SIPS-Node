@@ -28,6 +28,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.logging.Level;
@@ -59,7 +60,7 @@ public class TaskHandler implements Runnable {
             if (messageLength > 0) {
                 dataInputStream.readFully(messageBytes, 0, messageBytes.length); // read the message
             }
-            messageString = new String(messageBytes);
+            messageString = new String(messageBytes, StandardCharsets.UTF_8);
             messageJson = new JSONObject(messageString);
             InetAddress inetAddress = submitter.getInetAddress();
             String ipAddress = inetAddress.getHostAddress();

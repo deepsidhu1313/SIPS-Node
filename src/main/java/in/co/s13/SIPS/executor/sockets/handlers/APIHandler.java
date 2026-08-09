@@ -51,6 +51,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.sql.ResultSet;
@@ -91,7 +92,7 @@ public class APIHandler implements Runnable {
             if (length > 0) {
                 dataInputStream.readFully(message, 0, message.length); // read the message
             }
-            msg = new JSONObject(new String(message));
+            msg = new JSONObject(new String(message, StandardCharsets.UTF_8));
 
             InetAddress inetAddress = submitter.getInetAddress();
             String ipAddress = inetAddress.getHostAddress();

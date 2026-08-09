@@ -23,6 +23,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -57,7 +58,7 @@ public class PingHandler implements Runnable {
                 if (length > 0) {
                     dataInputStream.readFully(message, 0, message.length); // read the message
                 }
-                String request = new String(message);
+                String request = new String(message, StandardCharsets.UTF_8);
 //                System.out.println("Ping Handler Received:" + request);
                 msg = new JSONObject(request);
 

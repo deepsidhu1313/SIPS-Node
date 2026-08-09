@@ -25,6 +25,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -109,7 +110,7 @@ class Ping implements Runnable {
                     dIn.readFully(message, 0, message.length); // read the message
                 }
                 long endTime = System.currentTimeMillis();
-                JSONObject reply = new JSONObject(new String(message));
+                JSONObject reply = new JSONObject(new String(message, StandardCharsets.UTF_8));
                 osname = reply.getString("OS");
                 hostname = reply.getString("HOSTNAME");
                 task_limit = reply.getInt("TASK_LIMIT");
