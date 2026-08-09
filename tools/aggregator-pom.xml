@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>in.co.s13</groupId>
+    <artifactId>sips-aggregator</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+
+    <name>SIPS Aggregator</name>
+    <description>
+        Builds every SIPS module in dependency order with a single command.
+
+        Copy this file as pom.xml into a directory holding clones of all six
+        repositories, then run: mvn install
+
+        This is an aggregator only, not a parent: the modules deliberately do NOT
+        inherit from it, so each repository still builds standalone with its own
+        pom.xml. The module list below is the authoritative build order.
+    </description>
+
+    <modules>
+        <module>common-json</module>
+        <module>common-sqlitejdbc</module>
+        <module>SIPS-lib</module>
+        <module>SIPS-Schedulers</module>
+        <module>SIPS-Node</module>
+        <module>SIPS-Run</module>
+    </modules>
+</project>
