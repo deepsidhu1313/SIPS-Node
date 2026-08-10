@@ -16,6 +16,7 @@
  */
 package in.co.s13.SIPS.executor;
 
+import in.co.s13.sips.lib.job.ChunkSpec;
 import in.co.s13.sips.lib.common.SipsPaths;
 import in.co.s13.SIPS.tools.JobPaths;
 import com.sun.management.OperatingSystemMXBean;
@@ -55,8 +56,14 @@ import org.json.JSONObject;
  */
 public class ParallelProcess implements Runnable {
 
-    /** Per-chunk file naming the iteration range a WebAssembly module receives. */
-    public static final String CHUNK_RANGE_FILE = "chunk.json";
+    /**
+     * Per-chunk file describing what this chunk was asked to do.
+     *
+     * @deprecated the name and the shape now belong to {@link ChunkSpec#FILE},
+     *         which carries inputs and an output as well as the range.
+     */
+    @Deprecated
+    public static final String CHUNK_RANGE_FILE = ChunkSpec.FILE;
 
     /** Where a module's result lands when the manifest does not name a file. */
     public static final String DEFAULT_WASM_OUTPUT_FILE = "output.bin";
@@ -344,13 +351,13 @@ public class ParallelProcess implements Runnable {
     private void runWasm() {
         Long startTime = System.currentTimeMillis();
         try (WasmRunner runner = new WasmRunner()) {
-            JSONObject range = Util.readJSONFile(SipsPaths.join(loc, CHUNK_RANGE_FILE));
+            ChunkSpec spec = chunkSpec();
             // MODULE arrives over the network like FILENAME does, so it is
             // confined to the chunk directory before it is opened.
             WasmTask task = new WasmTask(pid, Integer.parseInt(cno),
                     SafePath.resolve(Paths.get(loc), wasm.getString("MODULE")),
                     wasm.optString("ENTRY", null),
-                    range.getLong("FIRST"), range.getLong("LAST"));
+                    spec.firstIndex(), spec.lastIndexExclusive());
 
             // The module reads whatever the chunk directory holds under INPUT
             // and its result is written back beside it, so a WASM chunk gets
@@ -378,6 +385,37 @@ public class ParallelProcess implements Runnable {
             report(String.valueOf(ex.getMessage()));
         }
         totalTime = System.currentTimeMillis() - startTime;
+    }
+
+    /** What this chunk in particular was asked to do. */
+    private ChunkSpec chunkSpec() {
+        return ChunkSpec.read(Util.readJSONFile(SipsPaths.join(loc, ChunkSpec.FILE)));
+    }
+
+    /**
+     * Reads back the file a chunk was told to produce, if it produced one.
+     *
+     * <p>Only for the Java path: a module's output is already in hand. Quiet
+     * when there is nothing to read, because most chunks are not pipeline
+     * stages and have nothing to return.
+     */
+    private void readDeclaredOutput() {
+        if (moduleOutput.length > 0) {
+            return;
+        }
+        try {
+            java.util.Optional<String> declared = chunkSpec().output();
+            if (declared.isEmpty()) {
+                return;
+            }
+            Path output = SafePath.resolve(Paths.get(loc), declared.get());
+            if (Files.exists(output)) {
+                moduleOutput = Files.readAllBytes(output);
+            }
+        } catch (RuntimeException | IOException ex) {
+            Util.appendToTasksLog(GlobalValues.LOG_LEVEL.ERROR,
+                    "Could not read the declared output of chunk " + cno + ": " + ex);
+        }
     }
 
     /**
@@ -527,14 +565,15 @@ public class ParallelProcess implements Runnable {
         } catch (IOException | InterruptedException ex) {
             Logger.getLogger(ParallelProcess.class.getName()).log(Level.SEVERE, null, ex);
         }
-        if (success) {
-            SendFinishMessage t2 = (new SendFinishMessage("Finished", ip, pid, cno, projectName, "" + totalTime, "0", loadAvg, uuid));
-            GlobalValues.SEND_FINISH_EXECUTOR_SERVICE.submit(t2);
-        } else {
-            SendFinishMessage t2 = (new SendFinishMessage("Error", ip, pid, cno, projectName, "" + totalTime, "1", loadAvg, uuid));
-            GlobalValues.SEND_FINISH_EXECUTOR_SERVICE.submit(t2);
+        // A pipeline stage written in Java leaves its result as a file; read it
+        // back so it travels home the same way a module's does. Without this a
+        // Java stage could produce output that no later stage could ever read.
+        readDeclaredOutput();
 
-        }
+        SendFinishMessage finished = new SendFinishMessage(success ? "Finished" : "Error",
+                ip, pid, cno, projectName, "" + totalTime, success ? "0" : "1", loadAvg, uuid,
+                ChunkResults.encode(moduleOutput));
+        GlobalValues.SEND_FINISH_EXECUTOR_SERVICE.submit(finished);
 
     }
 

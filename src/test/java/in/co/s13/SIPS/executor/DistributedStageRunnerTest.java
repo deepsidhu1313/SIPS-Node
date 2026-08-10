@@ -78,7 +78,9 @@ class DistributedStageRunnerTest {
 
     private static StageExecution watching(String... keys) {
         Set<String> set = new LinkedHashSet<>(java.util.List.of(keys));
-        return runner().new DistributedStage(aStage(), set);
+        // No shards, so collecting outputs is a no-op: these tests are about
+        // when a stage is finished, not about what it produced.
+        return runner().new DistributedStage(aStage(), set, java.util.Map.of());
     }
 
     @Test

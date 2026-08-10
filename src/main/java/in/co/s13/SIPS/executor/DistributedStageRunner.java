@@ -16,6 +16,10 @@
  */
 package in.co.s13.SIPS.executor;
 
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.io.IOException;
+import in.co.s13.sips.lib.job.ChunkSpec;
 import in.co.s13.sips.lib.manifest.TaskType;
 import in.co.s13.sips.lib.protocol.Protocol.Feature;
 import in.co.s13.sips.lib.protocol.Protocol;
@@ -111,6 +115,17 @@ public class DistributedStageRunner implements StageRunner {
                     + "'. " + Protocol.refusalReason(required, Protocol.UNKNOWN));
         }
 
+        // What the stages this one reads produced, staged where each chunk's
+        // copy will pick it up. Done before scheduling so a stage whose inputs
+        // are missing fails here rather than on a node.
+        List<String> inputs;
+        try {
+            inputs = StageOutputs.stageInputs(jobToken, stage);
+        } catch (IOException ex) {
+            throw new IllegalStateException("Could not give stage '" + stage.name()
+                    + "' its inputs: " + ex.getMessage(), ex);
+        }
+
         List<ParallelForSENP> chunks = scheduler.scheduleParallelFor(nodes,
                 new ParallelForLoop(stage.firstIndex(), stage.lastIndexExclusive(),
                         stage.iterationCount(), 3, false),
@@ -129,12 +144,28 @@ public class DistributedStageRunner implements StageRunner {
                 GlobalValues.MASTER_DIST_DB.computeIfAbsent(jobToken,
                         token -> new ConcurrentHashMap<>());
 
+        // Put each shard back where its data already is, swapping only within
+        // the nodes the scheduler chose so its balance survives.
+        Map<Integer, String> scheduled = new LinkedHashMap<>();
+        for (int shard = 0; shard < chunks.size(); shard++) {
+            scheduled.put(shard, chunks.get(shard).getNodeUUID());
+        }
+        Map<Integer, String> placed = ShardAffinity.apply(jobToken, scheduled, nodes);
+        for (int shard = 0; shard < chunks.size(); shard++) {
+            chunks.get(shard).setNodeUUID(placed.get(shard));
+        }
+
         Set<String> keys = new LinkedHashSet<>();
+        Map<Integer, Integer> shardsByChunk = new LinkedHashMap<>();
         List<Node> backupNodes = scheduler.getBackupNodes();
-        for (ParallelForSENP chunk : chunks) {
+        for (int shard = 0; shard < chunks.size(); shard++) {
+            ParallelForSENP chunk = chunks.get(shard);
             int chunkNumber = nextChunkNumber.getAndIncrement();
             chunk.setChunkNo(chunkNumber);
+            shardsByChunk.put(chunkNumber, shard);
+            ShardAffinity.record(jobToken, shard, chunk.getNodeUUID());
             copyStageSources(stage, chunk, chunkNumber);
+            writeChunkSpec(stage, chunk, chunkNumber, shard, inputs);
 
             Distributor distributor = new Distributor(chunk.getNodeUUID(),
                     String.valueOf(chunkNumber), jobToken);
@@ -153,7 +184,7 @@ public class DistributedStageRunner implements StageRunner {
                     0, chunks.size()));
             keys.add(key);
         }
-        return new DistributedStage(stage, keys);
+        return new DistributedStage(stage, keys, shardsByChunk);
     }
 
     /**
@@ -170,6 +201,25 @@ public class DistributedStageRunner implements StageRunner {
         }
         Util.copyFolder(source, new File(JobPaths.chunkSource(jobToken,
                 chunk.getNodeUUID(), chunkNumber)));
+    }
+
+    /**
+     * Writes what this chunk in particular is being asked to do.
+     *
+     * <p>The manifest is one file for the whole job, so the slice, the inputs
+     * and the output name -- all per chunk -- travel here instead.
+     */
+    private void writeChunkSpec(Stage stage, ParallelForSENP chunk, int chunkNumber,
+            int shard, List<String> inputs) {
+        ChunkSpec.Builder spec = ChunkSpec
+                .range(Long.parseLong(chunk.getStart()), Long.parseLong(chunk.getEnd()))
+                .stage(stage.name())
+                .shard(shard);
+        stage.output().ifPresent(pattern -> spec.output(stage.outputFor(shard)));
+        inputs.forEach(spec::input);
+        Util.write(new File(SipsPaths.join(
+                JobPaths.chunkSource(jobToken, chunk.getNodeUUID(), chunkNumber),
+                ChunkSpec.FILE)), spec.build().toJSON().toString());
     }
 
     private boolean upload(Distributor distributor, ParallelForSENP chunk, int chunkNumber,
@@ -203,11 +253,14 @@ public class DistributedStageRunner implements StageRunner {
 
         private final Stage stage;
         private final Set<String> chunkKeys;
+        private final Map<Integer, Integer> shardsByChunk;
         private String failure;
 
-        DistributedStage(Stage stage, Set<String> chunkKeys) {
+        DistributedStage(Stage stage, Set<String> chunkKeys,
+                Map<Integer, Integer> shardsByChunk) {
             this.stage = stage;
             this.chunkKeys = Set.copyOf(chunkKeys);
+            this.shardsByChunk = Map.copyOf(shardsByChunk);
         }
 
         @Override
@@ -238,7 +291,18 @@ public class DistributedStageRunner implements StageRunner {
                     return Outcome.FAILED;
                 }
             }
-            return allFinished ? Outcome.COMPLETE : Outcome.RUNNING;
+            if (!allFinished) {
+                return Outcome.RUNNING;
+            }
+            try {
+                // Gathered here rather than by the next stage, so a result that
+                // never came home is reported against the stage that owed it.
+                StageOutputs.collect(jobToken, stage, shardsByChunk);
+            } catch (IOException ex) {
+                failure = ex.getMessage();
+                return Outcome.FAILED;
+            }
+            return Outcome.COMPLETE;
         }
 
         @Override
