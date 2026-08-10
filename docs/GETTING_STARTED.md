@@ -244,9 +244,16 @@ java -jar SIPS-Node.jar --clean-cache   # clears cache/
 Stated plainly, so you find them here rather than the hard way:
 
 - **The task server has no authentication.** Firewall ports 13131–13139.
-- **`break` is not wired**; `continue` is fine.
-- **Windows path handling is inconsistent** — mostly works, not guaranteed.
+- **A running WebAssembly chunk cannot be interrupted.** It finishes or hits its
+  timeout; only queued chunks are cancelled. Java chunks are killable.
+- **Nothing here has been run against a live cluster** since the pipeline,
+  WebAssembly and cluster-call work landed.
 - **The IDE and mobile client have not been run against a live cluster** since
   their last rebuild.
 - **`saveArrayElement`, `updateArrayElement` and `resolveArrayElement` do
   nothing** — no node handler exists. They are marked deprecated.
+
+`break` and Windows paths used to be on this list. `sim.breakAll()` and
+`sim.breakAfter()` are wired end to end as of 1.2.0, and every path in the
+framework is built with `SipsPaths` as of 1.2.3 — with a test in each repository
+that fails the build if one is glued together again.
