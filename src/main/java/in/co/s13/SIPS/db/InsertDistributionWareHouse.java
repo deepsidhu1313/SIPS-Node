@@ -28,7 +28,6 @@ import org.json.JSONArray;
  */
 public class InsertDistributionWareHouse implements Runnable {
 
-    public static boolean created = false;
     String Node;
     String PID;
     Integer CNO;
@@ -132,9 +131,6 @@ public class InsertDistributionWareHouse implements Runnable {
     public void run() {
         Thread.currentThread().setName("InsertDistDBWHThread");
         String sql = "";
-        if (!created) {
-            created = createTable();
-        }
         //for (int i = 0; i < Node.size(); i++)
         {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.sss");
@@ -213,55 +209,5 @@ public class InsertDistributionWareHouse implements Runnable {
 
     }
 
-    private boolean createTable() {
-        String sql = "CREATE TABLE DISTWH"
-                + "(ID INTEGER PRIMARY KEY  AUTOINCREMENT   NOT NULL,"
-                + " IP TEXT Not Null,"
-                + "PROJECT TEXT ,"
-                + "PID INT,"
-                + "CNO INT,"
-                + "VARTYPE INT,"
-                + "SCHEDULER INT,"
-                + "LStartTime LONG,"
-                + "LEndTime LONG,"
-                + "LExcTime LONG,"
-                + "CHUNKSIZE DECIMAL,"
-                + "LOWLIMIT DECIMAL,"
-                + "UPLIMIT DECIMAL,"
-                + "COUNTER DECIMAL,"
-                + "NExecutionTime LONG,"
-                + "NOH LONG,"
-                + "POH LONG,"
-                + "ENTERINQ LONG,"
-                + "STARTINQ LONG,"
-                + "WAITINQ LONG,"
-                + "SLEEPTIME LONG,"
-                + "PRFM DOUBLE,"
-                + "EXITCODE INT,"
-                + "avgCacheHitMissRatio DOUBLE,"
-                + "avgDownloadData LONG,"
-                + "avgDownloadSpeed DOUBLE,"
-                + "avgReqSent INT,"
-                + "avgUploadData LONG,"
-                + "avgUploadSpeed DOUBLE,"
-                + "avgReqRecieved INT,"
-                + "avgCachedData LONG,"
-                + "cacheHits TEXT ,"
-                + "cacheMisses TEXT ,"
-                + "TIMESTAMP DATE);";
-        boolean created = distWH.createtable("log/dw-dist.db", sql);
-        distWH.closeConnection();
-        if (!created) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.sss");
-            Date date = new Date();
-            File existing = new File("log/dw-dist.db");
-            if (existing.exists()) {
-                existing.renameTo(new File("log/dw-dist-" + dateFormat.format(date) + ".db"));
-            }
-        }
-        created = distWH.createtable("log/dw-dist.db", sql);
-        distWH.closeConnection();
-        return created;
-    }
 
 }

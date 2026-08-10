@@ -16,6 +16,8 @@
  */
 package in.co.s13.SIPS.settings;
 
+import in.co.s13.sips.lib.db.SettingsMigrator;
+import in.co.s13.SIPS.db.NodeDatabases;
 import in.co.s13.sips.lib.common.SipsPaths;
 import in.co.s13.SIPS.db.OLDSQLiteJDBC;
 import java.io.File;
@@ -230,8 +232,42 @@ public class Settings {
         saveSettings();
     }
 
+    /**
+     * Transformations that a settings file may still need.
+     *
+     * <p>Empty today, and that is the point: adding a key has always worked
+     * without help, because every value is read with the code's default as a
+     * fallback. What needs a step here is anything that is not a pure addition
+     * -- a rename, or a change of units -- because those silently discard or
+     * misread an operator's value. There is now somewhere to put one.
+     */
+    static SettingsMigrator settingsMigrations() {
+        return new SettingsMigrator();
+    }
+
+    /** Applies any pending settings transformations and writes the file back. */
+    private JSONObject upgraded(String file, JSONObject settings) {
+        SettingsMigrator migrator = settingsMigrations();
+        if (!migrator.needsMigrating(settings)) {
+            return settings;
+        }
+        JSONObject migrated = migrator.logTo(System.out::println).migrate(settings);
+        write(file, migrated.toString(4));
+        return migrated;
+    }
+
     void loadSettings() {
-        JSONObject commonSettings = Util.readJSONFile(SipsPaths.join(dir_etc, "common_settings.json"));
+        // Long-lived databases first: a node that cannot record its work should
+        // say so at startup rather than at the end of the first job.
+        try {
+            NodeDatabases.migrate(System.out::println);
+        } catch (RuntimeException ex) {
+            System.err.println("Could not bring the databases up to date: " + ex.getMessage());
+        }
+
+        String commonSettingsFile = SipsPaths.join(dir_etc, "common_settings.json");
+        JSONObject commonSettings = upgraded(commonSettingsFile,
+                Util.readJSONFile(commonSettingsFile));
         HAS_SHARED_STORAGE = commonSettings.getBoolean("HAS_SHARED_STORAGE", HAS_SHARED_STORAGE);
         HAS_COMMON_API_KEYS = commonSettings.getBoolean("HAS_COMMON_API_KEYS", HAS_COMMON_API_KEYS);
         HAS_COMMON_BLACKLIST = commonSettings.getBoolean("HAS_COMMON_BLACKLIST", HAS_COMMON_BLACKLIST);
@@ -285,6 +321,7 @@ public class Settings {
 
     public static synchronized void saveSettings() {
         JSONObject commonSettings = Util.readJSONFile(SipsPaths.join(dir_etc, "common_settings.json"));
+        commonSettings.put(SettingsMigrator.VERSION_KEY, settingsMigrations().targetVersion());
         commonSettings.put("HAS_SHARED_STORAGE", HAS_SHARED_STORAGE);
         commonSettings.put("HAS_COMMON_API_KEYS", HAS_COMMON_API_KEYS);
         commonSettings.put("HAS_COMMON_BLACKLIST", HAS_COMMON_BLACKLIST);
@@ -294,6 +331,8 @@ public class Settings {
         write(SipsPaths.join(dir_etc, "common_settings.json"), commonSettings.toString(4));
         JSONObject settings = new JSONObject();
 
+        // Written from scratch, so the version has to be put back explicitly.
+        settings.put(SettingsMigrator.VERSION_KEY, settingsMigrations().targetVersion());
         settings.put("DUMP_LOG", DUMP_LOG);
         settings.put("VERBOSE", VERBOSE);
         write(new File(SipsPaths.join(dir_etc, (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "settings.json")), settings.toString(4));

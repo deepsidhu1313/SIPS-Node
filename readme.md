@@ -37,6 +37,13 @@ JVM: the module arrives precompiled and runs in the node's own process.
 A pipeline says its ordering once, so the cluster is not drained to idle between
 steps the way separate submissions leave it.
 
+## Upgrading
+
+Run the new build. `Settings.init()` brings the databases and settings files up
+to date at every startup, and `bin/` scripts are rewritten when the task server
+starts — so there is no upgrade step to remember. See
+[MIGRATIONS.md](../SIPS-lib/docs/MIGRATIONS.md).
+
 ## Documentation
 
 - **[Getting started](docs/GETTING_STARTED.md)** — zero to a distributed job in
@@ -44,6 +51,7 @@ steps the way separate submissions leave it.
 - [Parallel loops](docs/PARALLEL_LOOPS.md) — `break`, `continue`, early exit
 - [WebAssembly chunks](../SIPS-lib/docs/WASM_TASKS.md) — the host interface and its limits
 - [Task graphs](../SIPS-lib/docs/TASK_GRAPHS.md) — pipelines and placement policies
+- [Migrations](../SIPS-lib/docs/MIGRATIONS.md) — upgrading an existing node
 - [Architecture](docs/ARCHITECTURE.md) — job flow, ports, how loop bounds are recovered
 - [Operations](docs/OPERATIONS.md) — configuration, tuning, troubleshooting
 - [Security](docs/SECURITY.md) — trust model and known gaps

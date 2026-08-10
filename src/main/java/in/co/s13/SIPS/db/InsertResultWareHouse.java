@@ -26,7 +26,6 @@ import java.util.Date;
  */
 public class InsertResultWareHouse implements Runnable {
 
-    public static boolean created = false;
     String projectName;
     SQLiteJDBC resWH = new SQLiteJDBC();
     String SCHEDULER, PID;
@@ -87,9 +86,6 @@ public class InsertResultWareHouse implements Runnable {
         Thread.currentThread().setName("InsertResDBWHThread");
 
         String sql = "";
-        if (!created) {
-            created = createTable();
-        }
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.sss");
         Date date = new Date();
         sql = "INSERT INTO RESULTWH ("
@@ -154,50 +150,4 @@ public class InsertResultWareHouse implements Runnable {
         resWH.closeConnection();
     }
 
-    private boolean createTable() {
-
-        String sql = "CREATE TABLE RESULTWH"
-                + "(ID INTEGER PRIMARY KEY   AUTOINCREMENT  NOT NULL ,"
-                + "PID TEXT,"
-                + "PROJECT TEXT ,"
-                + "SCHEDULER TEXT,"
-                + "STARTTIME TEXT,"
-                + "ENDTIME TEXT,"
-                + "TOTALTIME TEXT,"
-                + "NOH TEXT,"
-                + "POH TEXT,"
-                + "CHUNKSIZE TEXT,"
-                + "TCHUNKS TEXT,"
-                + "TNODES TEXT,"
-                + "PRFM DOUBLE,"
-                + "FINISHED TEXT,"
-                + "AVGWAITINQ TEXT,"
-                + "AVGSLEEP TEXT,"
-                + "avgCacheHitMissRatio DOUBLE,"
-                + "avgDownloadData LONG,"
-                + "avgDownloadSpeed DOUBLE,"
-                + "avgReqSent INT,"
-                + "avgUploadData LONG,"
-                + "avgUploadSpeed DOUBLE,"
-                + "avgReqRecieved INT,"
-                + "avgCachedData LONG,"
-                + "selectedNodes INT,"
-                + "duplicates INT,"
-                + "schedulingOH LONG,"
-                + "distOH LONG,"
-                + "TIMESTAMP DATE);";
-        boolean created = resWH.createtable("log/dw-result.db", sql);
-        resWH.closeConnection();
-        if (!created) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.sss");
-            Date date = new Date();
-            File existing = new File("log/dw-result.db");
-            if (existing.exists()) {
-                existing.renameTo(new File("log/dw-result-" + dateFormat.format(date) + ".db"));
-            }
-            created = resWH.createtable("log/dw-result.db", sql);
-            resWH.closeConnection();
-        }
-        return created;
-    }
 }
