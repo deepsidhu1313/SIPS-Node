@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -208,6 +209,28 @@ class OutboundWorkerTest {
             assertEquals("from two", new String(master.send("phone-2", new JSONObject(),
                     10, TimeUnit.SECONDS), StandardCharsets.UTF_8));
         }
+    }
+
+    @Test
+    @Timeout(60)
+    void anAnswerThatArrivesBeforeTheAskerWaitsIsNotLost() {
+        // The reply can win the race to the queue. Handing off directly would
+        // drop it -- the value is discarded when no consumer is blocked yet --
+        // and the worker would then be reported as never having answered.
+        // Timing-dependent by nature, so this leans on repetition; it failed on
+        // Windows CI and passed locally before the fix.
+        assertDoesNotThrow(() -> {
+            int port = listening();
+            try (OutboundWorker worker = new OutboundWorker("fast", "127.0.0.1", port)) {
+                worker.onWork(task -> "immediate".getBytes(StandardCharsets.UTF_8));
+                worker.connect();
+                assertTrue(master.awaitWorker("fast", 10, TimeUnit.SECONDS));
+                for (int i = 0; i < 200; i++) {
+                    assertArrayEquals("immediate".getBytes(StandardCharsets.UTF_8),
+                            master.send("fast", new JSONObject(), 10, TimeUnit.SECONDS));
+                }
+            }
+        });
     }
 
     @Test

@@ -29,7 +29,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -70,7 +71,7 @@ public final class WorkerConnections implements AutoCloseable {
         private final Socket socket;
         private final DataOutputStream out;
         private final JSONObject announcement;
-        private final Map<String, SynchronousQueue<Object>> waiting = new ConcurrentHashMap<>();
+        private final Map<String, BlockingQueue<Object>> waiting = new ConcurrentHashMap<>();
 
         Connection(Socket socket, DataOutputStream out, JSONObject announcement) {
             this.socket = socket;
@@ -147,7 +148,7 @@ public final class WorkerConnections implements AutoCloseable {
         while (!closing) {
             WorkerFrames.Frame frame = WorkerFrames.read(in);
             String request = frame.header().optString("REQUEST", "");
-            SynchronousQueue<Object> waiting = connection.waiting.remove(request);
+            BlockingQueue<Object> waiting = connection.waiting.remove(request);
             if (waiting == null) {
                 continue;
             }
@@ -175,7 +176,11 @@ public final class WorkerConnections implements AutoCloseable {
             throw new IOException("Worker '" + workerId + "' is not connected");
         }
         String request = String.valueOf(requestIds.incrementAndGet());
-        SynchronousQueue<Object> answer = new SynchronousQueue<>();
+        // Holds one element rather than handing off directly. A SynchronousQueue
+        // drops the value when no consumer is already blocked in poll, so a
+        // worker that replied before this thread reached its poll would have
+        // its answer thrown away and then be reported as never answering.
+        BlockingQueue<Object> answer = new ArrayBlockingQueue<>(1);
         connection.waiting.put(request, answer);
         try {
             WorkerFrames.write(connection.out, new JSONObject()
