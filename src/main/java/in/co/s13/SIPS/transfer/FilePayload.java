@@ -40,6 +40,20 @@ import org.json.JSONObject;
  *
  * <p>Payloads written by older nodes carry no {@link #ENCODING} field and are
  * decoded as UTF-8 text, so a mixed-version cluster keeps working.
+ *
+ * <h2>Files too large to inline</h2>
+ *
+ * <p>Every chunk carries its whole file set inside the task JSON, which is
+ * right for the few kilobytes of source most chunks ship and wrong for a
+ * model: eight chunks of a 50 MB model is eight base64 copies, and inference
+ * sends the same model to every worker for every batch. Over
+ * {@link #MAX_INLINE_BYTES} the payload therefore carries a {@link #REFERENCE}
+ * — the checksum of the bytes and their length — and the receiver resolves it
+ * against a content-addressed cache, fetching once and reusing it thereafter.
+ *
+ * <p>Content-addressed rather than named, so the same model referenced by two
+ * jobs is one cached copy and a stale name can never resolve to the wrong
+ * bytes.
  */
 public final class FilePayload {
 
@@ -49,6 +63,20 @@ public final class FilePayload {
 
     public static final String UTF8 = "utf-8";
     public static final String BASE64 = "base64";
+    public static final String REFERENCE = "reference";
+
+    /** Where the reference points, and how much is there. */
+    public static final String CHECKSUM = "SHA256";
+    public static final String LENGTH = "BYTES";
+
+    /**
+     * The largest file carried inside the task JSON.
+     *
+     * <p>Comfortably above the source a normal chunk ships, so the ordinary
+     * job pays no round trip, and far below the size at which base64 inside a
+     * JSON document stops being reasonable.
+     */
+    public static final int MAX_INLINE_BYTES = 1024 * 1024;
 
     private FilePayload() {
     }
@@ -67,7 +95,11 @@ public final class FilePayload {
     public static JSONObject encode(String name, byte[] content) {
         JSONObject payload = new JSONObject();
         payload.put(FILENAME, name);
-        if (isBinary(content)) {
+        if (content.length > MAX_INLINE_BYTES) {
+            payload.put(ENCODING, REFERENCE);
+            payload.put(CHECKSUM, checksum(content));
+            payload.put(LENGTH, content.length);
+        } else if (isBinary(content)) {
             payload.put(ENCODING, BASE64);
             payload.put(CONTENT, Base64.getEncoder().encodeToString(content));
         } else {
@@ -84,6 +116,14 @@ public final class FilePayload {
      *                carrying no {@link #ENCODING} field
      */
     public static byte[] decode(JSONObject payload) {
+        if (isReference(payload)) {
+            // Refused rather than decoded to nothing: a caller that does not
+            // know about references would write a zero-byte model and then run
+            // on it, which is a wrong answer instead of a failure.
+            throw new IllegalArgumentException("'" + payload.optString(FILENAME)
+                    + "' is a reference to " + lengthOf(payload) + " bytes, not content; "
+                    + "resolve it against the asset cache before decoding");
+        }
         String content = payload.optString(CONTENT, "");
         // Legacy payloads predate the encoding field and were always text.
         String encoding = payload.optString(ENCODING, UTF8);
@@ -118,6 +158,31 @@ public final class FilePayload {
             return false;
         } catch (CharacterCodingException ex) {
             return true;
+        }
+    }
+
+    /** Whether this payload names its bytes instead of carrying them. */
+    public static boolean isReference(JSONObject payload) {
+        return REFERENCE.equalsIgnoreCase(payload.optString(ENCODING, UTF8));
+    }
+
+    /** The content address of a referenced payload: what the cache is keyed by. */
+    public static String checksumOf(JSONObject payload) {
+        return payload.optString(CHECKSUM, "");
+    }
+
+    /** How many bytes a referenced payload stands for. */
+    public static long lengthOf(JSONObject payload) {
+        return payload.optLong(LENGTH, -1);
+    }
+
+    /** The content address of some bytes. */
+    public static String checksum(byte[] content) {
+        try {
+            return java.util.HexFormat.of().formatHex(
+                    java.security.MessageDigest.getInstance("SHA-256").digest(content));
+        } catch (java.security.NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException("SHA-256 is required of every JVM", impossible);
         }
     }
 }

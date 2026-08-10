@@ -16,6 +16,7 @@
  */
 package in.co.s13.SIPS.executor.sockets.handlers;
 
+import in.co.s13.SIPS.executor.AssetCache;
 import in.co.s13.SIPS.executor.ResultFetch;
 import in.co.s13.SIPS.transfer.SafePath;
 import in.co.s13.sips.lib.common.SipsPaths;
@@ -154,6 +155,8 @@ public class FileHandler implements Runnable {
                     }
                 } else if (command.trim().equalsIgnoreCase(ResultFetch.COMMAND)) {
                     sendChunkResult(body, outToClient);
+                } else if (command.trim().equalsIgnoreCase(ResultFetch.ASSET_COMMAND)) {
+                    sendAsset(body, outToClient);
                 } else if (command.trim().equalsIgnoreCase("resolveObject")) {
 //                        System.out.println("finding Object");
                     String objToSend = body.getString("OBJECT");
@@ -549,17 +552,60 @@ public class FileHandler implements Runnable {
             return;
         }
 
-        // Digested in one pass and sent in another rather than held in memory:
-        // the whole point of this path is results too big to carry, and reading
-        // one into a byte[] here would put the cost back on the worker.
-        long length = result.length();
+        // Checksum computed rather than known: unlike an asset, a chunk result
+        // is not addressed by its content.
+        send(result, null, outToClient);
+        Util.appendToFileServerLog(GlobalValues.LOG_LEVEL.OUTPUT,
+                "Sent result " + name + " (" + result.length() + " bytes) for chunk " + cno);
+    }
+
+    /**
+     * Serves an asset by its content address.
+     *
+     * <p>A file too large to inline into a task payload travels as a
+     * reference, and the sender keeps the bytes in its own cache so that both
+     * ends address it exactly the same way. There is no name to resolve and
+     * nothing to go stale: the address either names bytes this node holds or
+     * it does not.
+     */
+    private void sendAsset(JSONObject body, DataOutputStream outToClient) throws IOException {
+        String checksum = body.getString("CHECKSUM");
+        File asset;
+        try {
+            asset = AssetCache.path(checksum).toFile();
+        } catch (IllegalArgumentException notAnAddress) {
+            reply(outToClient, new JSONObject().put("MSG", "refused")
+                    .put("REASON", notAnAddress.getMessage()));
+            return;
+        }
+        if (!asset.isFile()) {
+            reply(outToClient, new JSONObject().put("MSG", "missing")
+                    .put("REASON", "this node does not hold asset " + checksum));
+            return;
+        }
+        send(asset, checksum, outToClient);
+        Util.appendToFileServerLog(GlobalValues.LOG_LEVEL.OUTPUT,
+                "Sent asset " + checksum + " (" + asset.length() + " bytes)");
+    }
+
+    /**
+     * Announces a file and then streams it.
+     *
+     * <p>Digested in one pass and sent in another rather than held in memory:
+     * these paths exist for things too big to carry, and reading one into a
+     * byte[] here would put the cost straight back on the sender.
+     */
+    private static void send(File file, String checksum, DataOutputStream outToClient)
+            throws IOException {
+        long length = file.length();
         reply(outToClient, new JSONObject().put("MSG", "found")
                 .put("BYTES", length)
-                .put("CHECKSUM", ResultFetch.checksumOf(result.toPath())));
+                .put("CHECKSUM", checksum != null ? checksum
+                        : ResultFetch.checksumOf(file.toPath())));
 
         byte[] buffer = new byte[64 * 1024];
         long sent = 0;
-        try (FileInputStream fis = new FileInputStream(result);
+        try (FileInputStream fis = new FileInputStream(file);
                 BufferedInputStream bis = new BufferedInputStream(fis)) {
             int read;
             while (sent < length && (read = bis.read(buffer, 0,
@@ -569,8 +615,6 @@ public class FileHandler implements Runnable {
             }
         }
         outToClient.flush();
-        Util.appendToFileServerLog(GlobalValues.LOG_LEVEL.OUTPUT,
-                "Sent result " + name + " (" + sent + " bytes) for chunk " + cno);
     }
 
     /** Writes a length-prefixed JSON reply, the shape every message here uses. */

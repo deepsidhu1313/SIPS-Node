@@ -96,7 +96,11 @@ public class ParallelProcess implements Runnable {
     String uuid;
     TaskDBRow taskDBRow;
 
-    public ParallelProcess(JSONObject body, String ipadd) throws FileNotFoundException {
+    // Widened from FileNotFoundException: building a chunk may now have to
+    // fetch an asset the sender referenced instead of inlining, and a chunk
+    // whose model could not be collected must not start on a file that is not
+    // there.
+    public ParallelProcess(JSONObject body, String ipadd) throws IOException {
 
         ip = ipadd;
         pid = body.getString("PID");
@@ -107,8 +111,10 @@ public class ParallelProcess implements Runnable {
             JSONObject filesList1 = files.getJSONObject(i);
             fname.add(filesList1.getString("FILENAME"));
             // Decoded to bytes so binary inputs survive; legacy senders that
-            // omit the encoding field are read as UTF-8 text.
-            content.add(FilePayload.decode(filesList1));
+            // omit the encoding field are read as UTF-8 text. A file too large
+            // to have been inlined arrives as a reference instead, and is
+            // fetched from the sender once per node rather than once per chunk.
+            content.add(resolve(filesList1, ipadd));
         }
         manifest = body.getJSONObject("MANIFEST");
         counter = GlobalValues.TASK_ID.get();
@@ -390,6 +396,22 @@ public class ParallelProcess implements Runnable {
     /** What this chunk in particular was asked to do. */
     private ChunkSpec chunkSpec() {
         return ChunkSpec.read(Util.readJSONFile(SipsPaths.join(loc, ChunkSpec.FILE)));
+    }
+
+    /**
+     * The bytes of one payload, fetching it from the sender if it was too
+     * large to inline and this node does not hold it yet.
+     *
+     * <p>Fetched from the node that sent the work, which keeps the same asset
+     * under the same content address. The second chunk of a job to want a model
+     * finds it already here, so a model crosses to a node once rather than once
+     * per chunk.
+     *
+     * @param master the address the task arrived from
+     */
+    private static byte[] resolve(JSONObject payload, String master) throws IOException {
+        return AssetCache.resolve(payload, checksum -> ResultFetch.asset(master,
+                GlobalValues.FILE_SERVER_PORT, checksum));
     }
 
     /**

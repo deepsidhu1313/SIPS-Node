@@ -274,4 +274,33 @@ class ResultFetchTest {
                 () -> ResultFetch.from("127.0.0.1", port, JOB, NODE, 0, "model-0.bin"));
         assertTrue(failed.getMessage().contains("too large"), failed.getMessage());
     }
+
+    @Test
+    @Timeout(60)
+    void fetchesAnAssetByItsContentAddress() throws IOException {
+        // A model too large to inline travels as a reference; this is the
+        // other end of that. Served from the master's own cache, so both ends
+        // address it the same way and there is no name to get stale.
+        byte[] model = new byte[in.co.s13.SIPS.transfer.FilePayload.MAX_INLINE_BYTES + 1];
+        new Random(3).nextBytes(model);
+        String checksum = AssetCache.store(model);
+        try {
+            assertArrayEquals(model, ResultFetch.asset("127.0.0.1", realNode(), checksum));
+        } finally {
+            AssetCache.forget(checksum);
+        }
+    }
+
+    @Test
+    @Timeout(60)
+    void anAssetThisNodeDoesNotHoldSaysSoInsteadOfHanging() throws IOException {
+        String absent = in.co.s13.SIPS.transfer.FilePayload.checksum(
+                "never stored".getBytes(StandardCharsets.UTF_8));
+
+        int port = realNode();
+        IOException failed = assertThrows(IOException.class,
+                () -> ResultFetch.asset("127.0.0.1", port, absent));
+
+        assertTrue(failed.getMessage().contains(absent), failed.getMessage());
+    }
 }

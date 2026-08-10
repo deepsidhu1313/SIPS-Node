@@ -27,6 +27,8 @@ import org.junit.jupiter.api.io.TempDir;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -177,5 +179,60 @@ class FilePayloadTest {
         assertTrue(FilePayload.isBinary(new byte[]{(byte) 0xC3, (byte) 0x28}));
         // A NUL byte means binary even though it decodes cleanly.
         assertTrue(FilePayload.isBinary(new byte[]{'a', 0x00, 'b'}));
+    }
+
+    @Test
+    void aLargeFileIsSentAsAReferenceRatherThanInlined() {
+        // Every chunk inlines its whole file set into the task JSON, so a
+        // 50 MB model distributed to eight chunks is eight base64 copies --
+        // and inference ships the same model to every worker, every batch.
+        // A reference names the bytes instead of carrying them.
+        byte[] model = new byte[FilePayload.MAX_INLINE_BYTES + 1];
+
+        JSONObject payload = FilePayload.encode("model.bin", model);
+
+        assertTrue(FilePayload.isReference(payload));
+        assertEquals(model.length, FilePayload.lengthOf(payload));
+        assertFalse(payload.has(FilePayload.CONTENT),
+                "a reference that still carried the content would save nothing");
+    }
+
+    @Test
+    void aSmallFileIsStillInlined() {
+        // The round trip is worth avoiding for anything that fits: most chunks
+        // ship a few kilobytes of source and would rather not pay a fetch.
+        JSONObject payload = FilePayload.encode("Main.java", "class Main {}\n"
+                .getBytes(StandardCharsets.UTF_8));
+
+        assertFalse(FilePayload.isReference(payload));
+    }
+
+    @Test
+    void aReferenceNamesTheBytesItStandsFor() {
+        // Content-addressed: the same model referenced from two jobs is one
+        // cached copy, and a name that did not come from the bytes could not
+        // promise that.
+        byte[] model = new byte[FilePayload.MAX_INLINE_BYTES + 1];
+        model[7] = 42;
+
+        String checksum = FilePayload.checksumOf(FilePayload.encode("model.bin", model));
+
+        assertEquals(checksum, FilePayload.checksumOf(FilePayload.encode("other.bin", model)),
+                "the same bytes under another name are the same asset");
+        model[7] = 43;
+        assertNotEquals(checksum, FilePayload.checksumOf(FilePayload.encode("model.bin", model)));
+    }
+
+    @Test
+    void decodingAReferenceRefusesRatherThanReturningNothing() {
+        // The dangerous failure: a caller that does not know about references
+        // would otherwise write a zero-byte model and run inference on it.
+        JSONObject payload = FilePayload.encode("model.bin",
+                new byte[FilePayload.MAX_INLINE_BYTES + 1]);
+
+        IllegalArgumentException refused = assertThrows(IllegalArgumentException.class,
+                () -> FilePayload.decode(payload));
+
+        assertTrue(refused.getMessage().contains("model.bin"), refused.getMessage());
     }
 }

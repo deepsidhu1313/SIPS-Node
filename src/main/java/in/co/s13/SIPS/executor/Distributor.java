@@ -113,9 +113,15 @@ public class Distributor {
                 try {
                     // Encoded byte-exactly: source may be UTF-8 or CRLF, and a
                     // chunk's inputs may be binary, such as image tiles.
+                    byte[] content = Files.readAllBytes(Paths.get(filePath));
                     JSONObject file = FilePayload.encode(
-                            JobPaths.nameForTransfer(filePath),
-                            Files.readAllBytes(Paths.get(filePath)));
+                            JobPaths.nameForTransfer(filePath), content);
+                    if (FilePayload.isReference(file)) {
+                        // Kept here too, under the same address the reference
+                        // names, so this node can serve it to whichever workers
+                        // do not have it yet.
+                        AssetCache.store(content);
+                    }
                     files.put(file);
                 } catch (IOException ex) {
                     Util.appendToJobDistributorLog(GlobalValues.LOG_LEVEL.ERROR,

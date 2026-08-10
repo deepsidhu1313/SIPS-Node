@@ -65,6 +65,9 @@ public final class ResultFetch {
     /** The command this speaks, understood by nodes from protocol version 2. */
     public static final String COMMAND = "sendresult";
 
+    /** Asking for an asset by content address, rather than a chunk's result. */
+    public static final String ASSET_COMMAND = "sendasset";
+
     /**
      * The largest result fetched.
      *
@@ -97,14 +100,42 @@ public final class ResultFetch {
      */
     public static byte[] from(String host, int port, String jobToken, String nodeUuid,
             Object chunkNumber, String fileName, int timeoutMillis) throws IOException {
-        String what = "chunk " + chunkNumber + " result '" + fileName + "' from " + host;
+        return fetch(host, port, request(jobToken, nodeUuid, chunkNumber, fileName),
+                "chunk " + chunkNumber + " result '" + fileName + "' from " + host,
+                timeoutMillis);
+    }
+
+    /**
+     * Fetches an asset by its content address — a model too large to have been
+     * inlined into the task payload.
+     *
+     * <p>Served from the sender's own cache, so both ends address it the same
+     * way and there is no name that could go stale. The checksum verification
+     * every transfer here does is, for this one, the whole point: the address
+     * <em>is</em> the integrity check.
+     */
+    public static byte[] asset(String host, int port, String checksum) throws IOException {
+        return asset(host, port, checksum, DEFAULT_TIMEOUT_MILLIS);
+    }
+
+    /** Fetches an asset by its content address. */
+    public static byte[] asset(String host, int port, String checksum, int timeoutMillis)
+            throws IOException {
+        JSONObject request = new JSONObject()
+                .put("Command", ASSET_COMMAND)
+                .put("Body", new JSONObject().put("CHECKSUM", checksum));
+        return fetch(host, port, request, "asset " + checksum + " from " + host, timeoutMillis);
+    }
+
+    private static byte[] fetch(String host, int port, JSONObject request, String what,
+            int timeoutMillis) throws IOException {
         try (Socket socket = new Socket()) {
             socket.connect(new InetSocketAddress(host, port), timeoutMillis);
             socket.setSoTimeout(timeoutMillis);
 
             try (DataOutputStream out = new DataOutputStream(socket.getOutputStream());
                     DataInputStream in = new DataInputStream(socket.getInputStream())) {
-                write(out, request(jobToken, nodeUuid, chunkNumber, fileName));
+                write(out, request);
 
                 JSONObject reply = read(in, what);
                 if (!"found".equalsIgnoreCase(reply.optString("MSG"))) {
