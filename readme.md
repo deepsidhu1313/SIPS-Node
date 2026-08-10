@@ -44,6 +44,11 @@ to date at every startup, and `bin/` scripts are rewritten when the task server
 starts — so there is no upgrade step to remember. See
 [MIGRATIONS.md](../SIPS-lib/docs/MIGRATIONS.md).
 
+Nodes can be upgraded one at a time. Each announces which wire protocol it
+speaks on every ping, and work that an older node would accept and then fail is
+scheduled onto the nodes that can run it — with the ones left out named in the
+job log. See [PROTOCOL.md](../SIPS-lib/docs/PROTOCOL.md).
+
 ## Documentation
 
 - **[Getting started](docs/GETTING_STARTED.md)** — zero to a distributed job in
@@ -52,6 +57,7 @@ starts — so there is no upgrade step to remember. See
 - [WebAssembly chunks](../SIPS-lib/docs/WASM_TASKS.md) — the host interface and its limits
 - [Task graphs](../SIPS-lib/docs/TASK_GRAPHS.md) — pipelines and placement policies
 - [Migrations](../SIPS-lib/docs/MIGRATIONS.md) — upgrading an existing node
+- [Wire protocol](../SIPS-lib/docs/PROTOCOL.md) — running a half-upgraded cluster
 - [Architecture](docs/ARCHITECTURE.md) — job flow, ports, how loop bounds are recovered
 - [Operations](docs/OPERATIONS.md) — configuration, tuning, troubleshooting
 - [Security](docs/SECURITY.md) — trust model and known gaps

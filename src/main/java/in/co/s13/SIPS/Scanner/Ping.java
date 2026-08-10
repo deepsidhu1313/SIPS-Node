@@ -16,6 +16,7 @@
  */
 package in.co.s13.SIPS.Scanner;
 
+import in.co.s13.sips.lib.protocol.Protocol;
 import in.co.s13.sips.lib.common.datastructure.Hop;
 import in.co.s13.sips.lib.common.datastructure.UniqueElementList;
 
@@ -131,6 +132,9 @@ class Ping implements Runnable {
                 java.util.List<in.co.s13.sips.lib.accelerator.Device> devices
                         = in.co.s13.sips.lib.accelerator.Devices.fromJSON(
                                 reply.optJSONArray("DEVICES"));
+                // Absent from peers running a build before negotiation, which
+                // is what Protocol.UNKNOWN means and why it is not an error.
+                int peerProtocol = Protocol.of(reply);
                 JSONObject liveNodes = reply.getJSONObject("LIVE_NODES");
                 JSONObject nonAdjLiveNodes = reply.getJSONObject("NON_ADJ_LIVE_NODES");
                 /**
@@ -169,6 +173,7 @@ class Ping implements Runnable {
                     Node live = LIVE_NODE_ADJ_DB.get(uuid);
                     if (live != null) {
                         live.setDevices(devices);
+                        live.setProtocolVersion(peerProtocol);
                     }
                     live.getIP(IPadress).setDistance(distance);
                     live.getIP(IPadress).incrementPingScore();

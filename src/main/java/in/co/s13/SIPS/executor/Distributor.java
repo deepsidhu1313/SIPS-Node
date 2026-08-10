@@ -5,6 +5,7 @@
  */
 package in.co.s13.SIPS.executor;
 
+import in.co.s13.sips.lib.protocol.Protocol;
 import in.co.s13.SIPS.tools.JobPaths;
 import in.co.s13.SIPS.settings.GlobalValues;
 import in.co.s13.SIPS.tools.CollectFiles;
@@ -142,6 +143,9 @@ public class Distributor {
             try (OutputStream os = socket.getOutputStream(); DataInputStream dIn = new DataInputStream(socket.getInputStream()); DataOutputStream outToServer = new DataOutputStream(os)) {
                 JSONObject requestJson = new JSONObject();
                 requestJson.put("Command", "createprocess");
+                // Symmetric with the ping: a node receiving work knows which
+                // protocol the sender speaks, without asking.
+                Protocol.stamp(requestJson);
                 requestJson.put("Body", body);
                 String sendmsg = requestJson.toString();
                 System.out.println("Sending " + jobToken + " chunk no:" + chunkNumber + " to " + host);

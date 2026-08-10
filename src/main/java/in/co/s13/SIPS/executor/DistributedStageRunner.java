@@ -16,6 +16,9 @@
  */
 package in.co.s13.SIPS.executor;
 
+import in.co.s13.sips.lib.manifest.TaskType;
+import in.co.s13.sips.lib.protocol.Protocol.Feature;
+import in.co.s13.sips.lib.protocol.Protocol;
 import in.co.s13.sips.lib.common.SipsPaths;
 import in.co.s13.SIPS.tools.JobPaths;
 import in.co.s13.SIPS.datastructure.DistributionDBRow;
@@ -86,11 +89,26 @@ public class DistributedStageRunner implements StageRunner {
 
     @Override
     public StageExecution start(Stage stage) {
-        ConcurrentHashMap<String, Node> nodes = Util.getAllLiveNodes();
-        if (nodes.isEmpty()) {
+        ConcurrentHashMap<String, Node> live = Util.getAllLiveNodes();
+        if (live.isEmpty()) {
             // Distributing to nobody would leave a stage that never reports and
             // never times out unless a timeout was set. Fail it now instead.
             throw new IllegalStateException("No live nodes to run stage '" + stage.name() + "'");
+        }
+
+        // A node running an older build accepts a pipeline chunk and then fails
+        // it, so it is left out here rather than found out after the round trip.
+        Feature required = stage.taskType() == TaskType.WASM
+                ? Feature.WASM_TASKS
+                : Feature.STAGED_JOBS;
+        ConcurrentHashMap<String, Node> nodes = NodeCapabilities.capableOf(required, live);
+        String leftOut = NodeCapabilities.summarise(required, live.values());
+        if (!leftOut.isEmpty()) {
+            Util.appendToJobLog(GlobalValues.LOG_LEVEL.OUTPUT, leftOut);
+        }
+        if (nodes.isEmpty()) {
+            throw new IllegalStateException("No node can run stage '" + stage.name()
+                    + "'. " + Protocol.refusalReason(required, Protocol.UNKNOWN));
         }
 
         List<ParallelForSENP> chunks = scheduler.scheduleParallelFor(nodes,

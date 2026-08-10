@@ -16,6 +16,7 @@
  */
 package in.co.s13.SIPS.executor.sockets.handlers;
 
+import in.co.s13.sips.lib.protocol.Protocol;
 import com.sun.management.OperatingSystemMXBean;
 import in.co.s13.SIPS.settings.GlobalValues;
 import in.co.s13.SIPS.tools.Util;
@@ -109,6 +110,12 @@ public class PingHandler implements Runnable {
                             sendmsg2Json.put("IP_ADDRESSES", GlobalValues.IP_ADDRESSES);
                             sendmsg2Json.put("BENCHMARKS", GlobalValues.BENCHMARKING);
                             sendmsg2Json.put("DEVICES", in.co.s13.sips.lib.accelerator.Devices.local());
+                            // What this node can be asked to do. Carried on the
+                            // ping because that already runs once per discovery
+                            // cycle and already says what a node offers; a
+                            // handshake of its own would cost a round trip on
+                            // every chunk sent.
+                            Protocol.stamp(sendmsg2Json);
                             sendmsg2Json.put("PROCESS_TIME", (System.currentTimeMillis() - startTime));
                             sendmsg2Json.put("ADJ_NODES", Util.getAdjacentTableInJSON());
                             sendmsg2Json.put("NON_ADJ_NODES", Util.getNonAdjacentTableInJSON());
