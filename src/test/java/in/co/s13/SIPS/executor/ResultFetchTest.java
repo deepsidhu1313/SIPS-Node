@@ -19,6 +19,7 @@ package in.co.s13.SIPS.executor;
 import in.co.s13.SIPS.executor.sockets.handlers.FileHandler;
 import in.co.s13.SIPS.tools.JobPaths;
 import in.co.s13.SIPS.tools.Util;
+import in.co.s13.sips.lib.ml.Tensors;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -67,6 +68,8 @@ class ResultFetchTest {
             serving.shutdownNow();
         }
         Util.deleteDirectory(new java.io.File(JobPaths.chunkWorkingDirectory(NODE, JOB, 0)));
+        Util.deleteDirectory(new java.io.File(
+                JobPaths.chunkWorkingDirectory(Distributor.senderUuid(), JOB, 0)));
     }
 
     /** Starts the real file handler on an ephemeral port and returns it. */
@@ -212,6 +215,27 @@ class ResultFetchTest {
 
         assertThrows(IOException.class, () -> ResultFetch.from("127.0.0.1", port, JOB, NODE, 0,
                 "model-0.bin", 2000));
+    }
+
+    @Test
+    @Timeout(60)
+    void aResultIsFetchedFromTheSandboxTheSenderNamed() throws IOException {
+        // A chunk sandbox is named after the node that SENT the work, not the
+        // one running it: the distributor stamps its own uuid into the task
+        // message and the worker builds proc/<that>/<job>/<chunk> from it, the
+        // same "per sender" convention the file cache uses. A master asking
+        // under the worker's uuid looks in a directory that never existed, and
+        // every fetch of a large result misses.
+        Path sandbox = Path.of(JobPaths.chunkWorkingDirectory(
+                Distributor.senderUuid(), JOB, 0));
+        Files.createDirectories(sandbox);
+        byte[] expected = Tensors.toBytes(new float[]{1f, 2f, 3f});
+        Files.write(sandbox.resolve("model-0.bin"), expected);
+
+        byte[] fetched = DistributedStageRunner.fetchResult("127.0.0.1", realNode(),
+                JOB, 0, "model-0.bin");
+
+        assertArrayEquals(expected, fetched);
     }
 
     @Test

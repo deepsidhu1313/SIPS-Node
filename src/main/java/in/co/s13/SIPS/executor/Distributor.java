@@ -82,6 +82,19 @@ public class Distributor {
         this.hostName = hostName;
     }
 
+    /**
+     * The uuid a chunk's sandbox on the worker is named after.
+     *
+     * <p>This node's own, not the one being sent to: a worker files incoming
+     * work under who sent it, the same "per sender" convention the file cache
+     * uses, so two masters cannot collide on the same job token. Anyone asking
+     * a worker for something under {@code proc/} has to use this — asking under
+     * the worker's own uuid names a directory that never existed.
+     */
+    public static String senderUuid() {
+        return in.co.s13.sips.lib.node.settings.GlobalValues.NODE_UUID;
+    }
+
     public boolean upload() {
         Node node = GlobalValues.LIVE_NODE_ADJ_DB.get(nodeUUID);
         if (node != null) {
@@ -91,7 +104,7 @@ public class Distributor {
             JSONObject body = new JSONObject();
             body.put("PID", jobToken);
             body.put("CNO", chunkNumber);
-            body.put("UUID", in.co.s13.sips.lib.node.settings.GlobalValues.NODE_UUID);
+            body.put("UUID", senderUuid());
             JSONArray files = new JSONArray();
             CollectFiles collectFiles = new CollectFiles();
             ArrayList<String> toSend = collectFiles.getFiles(JobPaths.chunkSource(jobToken, nodeUUID, chunkNumber));

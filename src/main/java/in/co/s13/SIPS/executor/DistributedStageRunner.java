@@ -249,6 +249,21 @@ public class DistributedStageRunner implements StageRunner {
      * <p>Visible for testing the polling rules without a cluster: a test can
      * build one over keys it has put in the distribution table itself.
      */
+    /**
+     * Asks the node at {@code host} for a chunk result it still holds.
+     *
+     * <p>Addressed by {@link Distributor#senderUuid()} rather than by the
+     * worker's own uuid, because that is what the sandbox is named after — a
+     * worker files incoming work under who sent it. Getting this wrong asks for
+     * a directory that never existed, and does so only for results large enough
+     * to need fetching, which is the case a small job never reaches.
+     */
+    static byte[] fetchResult(String host, int port, String jobToken, int chunkNumber,
+            String fileName) throws IOException {
+        return ResultFetch.from(host, port, jobToken, Distributor.senderUuid(),
+                chunkNumber, fileName);
+    }
+
     public class DistributedStage implements StageExecution {
 
         private final Stage stage;
@@ -315,8 +330,8 @@ public class DistributedStageRunner implements StageRunner {
             for (String key : chunkKeys) {
                 DistributionDBRow row = distTable.get(key);
                 if (row != null && row.getCno() == chunkNumber) {
-                    return ResultFetch.from(row.getIpAddress(), GlobalValues.FILE_SERVER_PORT,
-                            jobToken, row.getUuid(), chunkNumber, fileName);
+                    return fetchResult(row.getIpAddress(), GlobalValues.FILE_SERVER_PORT,
+                            jobToken, chunkNumber, fileName);
                 }
             }
             throw new IOException("no node is recorded as having run chunk " + chunkNumber);
