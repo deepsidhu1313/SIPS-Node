@@ -127,7 +127,25 @@ A job names its scheduler in `manifest.json`. Built-in implementations:
 A job may also supply its own scheduler as a serialized object. See
 [SECURITY.md](SECURITY.md) for why that path needs care.
 
+Two newer, smaller interfaces sit alongside it, each one method, because the
+eight-method `Scheduler` is the reason nobody writes a new policy:
+
+| Interface | Question it answers |
+|---|---|
+| `LoopPolicy` | how big is the next batch of one iteration space |
+| `PlacementPolicy` | which of several ready tasks goes to which node |
+
+Both can be compared against the classics offline — `Evaluator` and
+`DagEvaluator` in SIPS-Schedulers, no cluster required.
+
 ## Execution on a node
+
+`ParallelProcess` takes one of two paths, decided by the manifest's `TYPE`
+field. It is declared rather than inferred from which other fields happen to be
+set — a manifest naming no executor it meant gets a sentence back instead of a
+surprise.
+
+### Java chunks (`TYPE` absent or `java`)
 
 1. `TaskHandler` accepts a `createprocess` command carrying source, manifest and
    chunk number.
@@ -142,6 +160,53 @@ A job may also supply its own scheduler as a serialized object. See
    `OUTPUTFREQUENCY` lines.
 6. Results travel back as serialized objects through the file server, not as
    text.
+
+### WebAssembly chunks (`TYPE` is `wasm`)
+
+No Ant, no javac, no fork. The module arrives precompiled and runs inside the
+node's own process through Chicory, a WebAssembly runtime written in pure Java —
+a native runtime would reintroduce exactly the per-node toolchain requirement
+that makes the Ant path painful.
+
+1. The module and a `chunk.json` naming the iteration range travel in the
+   per-chunk directory, the same channel that carries generated sources. Nothing
+   in the distribution path changes.
+2. `WasmRunner` parses the module once and instantiates it per chunk, so one
+   chunk's output can never leak into another's.
+3. The module reaches the outside world only through the six `sips` host
+   functions — input, output, log, and the two early-exit calls. There is no file
+   access, no network and no clock, which is why it is safe in-process. That list
+   is the security model, and the runtime enforces it.
+4. A result under 256 KB rides home inside the finish message; anything larger
+   stays on disk for the file server.
+
+Cost: single-digit milliseconds to parse, then well under a millisecond per
+chunk, against hundreds of milliseconds for javac plus JVM startup. That is what
+puts a floor under how small a chunk can usefully be — and removing the floor is
+what lets a scheduler balance ragged work.
+
+**One limitation, and it is not small:** WebAssembly has no interrupt, so a
+module already running cannot be killed. It finishes or hits its timeout. See
+[WASM_TASKS.md](../../SIPS-lib/docs/WASM_TASKS.md).
+
+## Pipelines
+
+A manifest declaring `STAGES` is a graph rather than a single loop, and takes a
+second path from `JobHandler`: `StagedJob` instead of `Job`. Every manifest
+without `STAGES` — which is every manifest written before stages existed — goes
+through the original path unchanged.
+
+```
+JobHandler ──┬─ manifest has STAGES ──> StagedJob ──> JobRunner ──> DistributedStageRunner
+             └─ otherwise ────────────> Job (single loop, as before)
+```
+
+`JobSequencer` releases a stage the moment *its own* dependencies finish, not at
+a round boundary and not when a whole level is done. Chunk numbers are handed out
+from one counter across the whole job, because the distribution table is keyed
+`nodeUuid-chunkNumber` and two stages numbering from zero would collide.
+
+See [TASK_GRAPHS.md](../../SIPS-lib/docs/TASK_GRAPHS.md).
 
 ## Node-local state
 
@@ -162,14 +227,19 @@ In-memory tables live in `GlobalValues`: `TASK_DB` (running chunks, keyed via
 
 Worth knowing before extending the framework:
 
-- **The task transport is text-only.** `Distributor.upload()` places file
-  contents into a JSON string field. Binary payloads such as images cannot pass
-  through this path intact; the file server's streaming path is the binary-safe
-  route.
-- **Decomposition is one-dimensional.** The model splits a single numeric range.
-  Two-dimensional tiling, and any halo exchange between neighbouring tiles, has
-  no representation yet.
 - **There is no result-merge primitive.** Chunks write their own outputs; the
-  framework does not reduce or reassemble them.
+  framework does not reduce or reassemble them. A pipeline can express *that* a
+  merge stage runs last, but the merging itself is yours to write.
 - **`Job` resolves bounds through eight near-identical per-primitive branches.**
-  Adding a new bound type currently means adding a ninth.
+  Adding a new bound type currently means adding a ninth. `StagedJob` sidesteps
+  this — a stage carries explicit bounds — but the single-loop path still has it.
+- **A pipeline cannot name a custom `PlacementPolicy`** the way a job names a
+  scheduler. It gets the default.
+- **`DistributedStageRunner` has not been run against a live cluster.** Its
+  polling half is tested against a populated distribution table; the distributing
+  half needs nodes.
+
+Two constraints listed here previously are now fixed, noted in case older notes
+still cite them: the task transport is byte-exact (`FilePayload` marks each
+payload base64 or UTF-8, so images survive it), and two-dimensional tiling with
+halo exists as `TileGrid` and `Tile` in SIPS-lib.

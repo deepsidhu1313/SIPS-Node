@@ -22,14 +22,28 @@ Requires **JDK 21**. Runs on Windows, macOS, Linux and Solaris.
 java -jar target/SIPS-Node-0.1-SNAPSHOT-jar-with-dependencies.jar --help
 ```
 
-**Apache Ant must be on `PATH`** — chunks are compiled and executed through a
-generated Ant build.
+**Apache Ant must be on `PATH`** for Java chunks — they are compiled and
+executed through a generated Ant build. WebAssembly chunks need nothing but the
+JVM: the module arrives precompiled and runs in the node's own process.
+
+## What a job can be
+
+| Manifest says | What runs | Needs Ant |
+|---|---|---|
+| nothing extra | one marked `for` loop, split across nodes | yes |
+| `"TYPE": "wasm"` | a precompiled WebAssembly module | no |
+| `"STAGES": [...]` | a pipeline: parallel stages, single stages, dependencies | per stage |
+
+A pipeline says its ordering once, so the cluster is not drained to idle between
+steps the way separate submissions leave it.
 
 ## Documentation
 
 - **[Getting started](docs/GETTING_STARTED.md)** — zero to a distributed job in
   fifteen minutes, including the failure modes people actually hit
 - [Parallel loops](docs/PARALLEL_LOOPS.md) — `break`, `continue`, early exit
+- [WebAssembly chunks](../SIPS-lib/docs/WASM_TASKS.md) — the host interface and its limits
+- [Task graphs](../SIPS-lib/docs/TASK_GRAPHS.md) — pipelines and placement policies
 - [Architecture](docs/ARCHITECTURE.md) — job flow, ports, how loop bounds are recovered
 - [Operations](docs/OPERATIONS.md) — configuration, tuning, troubleshooting
 - [Security](docs/SECURITY.md) — trust model and known gaps
@@ -42,7 +56,7 @@ generated Ant build.
 
 | Package | Role |
 |---|---|
-| `executor` | Task execution, distribution, generated build files |
+| `executor` | Task execution, distribution, generated build files, pipelines |
 | `executor.sockets` | The seven servers, and their handlers |
 | `Scanner` | Peer discovery and liveness |
 | `datastructure` | Node, task, result and graph types |

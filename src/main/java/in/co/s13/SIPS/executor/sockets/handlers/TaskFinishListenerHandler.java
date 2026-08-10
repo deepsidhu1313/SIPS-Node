@@ -16,6 +16,7 @@
  */
 package in.co.s13.SIPS.executor.sockets.handlers;
 
+import in.co.s13.SIPS.executor.ChunkResults;
 import in.co.s13.SIPS.settings.GlobalValues;
 import in.co.s13.SIPS.tools.Util;
 import in.co.s13.SIPS.virtualdb.UpdateDistDBaftExecVirtual;
@@ -86,6 +87,10 @@ public class TaskFinishListenerHandler implements Runnable {
 
                     }
                     System.out.println("Task Finish Handler Recieved:" + msg);
+
+                    // A small result rides along with the finish message; a
+                    // caller blocked on it cannot afford a second round trip.
+                    ChunkResults.record(pid, cno, body.optString("RESULT", null));
 
                     submitter.close();
                     GlobalValues.DIST_DB_EXECUTOR.submit(new UpdateDistDBaftExecVirtual(System.currentTimeMillis(), Long.parseLong(content), fname, ipAddress, pid, cno, ExitCode, uuid, avgLoad, task));

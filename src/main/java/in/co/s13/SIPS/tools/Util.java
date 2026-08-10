@@ -680,7 +680,9 @@ public class Util {
             LOG.append("\n" + "[" + timestamp + "] [" + sout + "]");
 
         }
-        OUT.append("\n" + "[" + timestamp + "] [" + sout + "]");
+        if (OUT != null) {
+            OUT.append("\n" + "[" + timestamp + "] [" + sout + "]");
+        }
     }
 
     public static void errPrintln(String sout) {

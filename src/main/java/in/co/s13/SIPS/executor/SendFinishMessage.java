@@ -39,8 +39,20 @@ public class SendFinishMessage implements Runnable {
     String ipadd = "", pid = "", outPut = "", filename = "", value = "", cmd, chunkno, exitCode;
     double avgLoad = Double.MAX_VALUE;
     String uuid;
+    /** A small result carried home with the message, base64; null when there is none. */
+    String result;
 
     public SendFinishMessage(String overheadName, String ip, String PID, String chunknumber, String Filename, String value, String ExitCode, double avgLoad, String uuid) {
+        this(overheadName, ip, PID, chunknumber, Filename, value, ExitCode, avgLoad, uuid, null);
+    }
+
+    /**
+     * @param result the chunk's output, base64, when it is small enough to ride
+     *        along. A caller blocked waiting for bytes cannot afford a second
+     *        round trip to collect them.
+     */
+    public SendFinishMessage(String overheadName, String ip, String PID, String chunknumber, String Filename, String value, String ExitCode, double avgLoad, String uuid, String result) {
+        this.result = result;
         ipadd = ip;
         pid = PID;
         filename = Filename;
@@ -70,6 +82,9 @@ public class SendFinishMessage implements Runnable {
                 sendmsgBodyJsonObj.put("OUTPUT", value);
                 sendmsgBodyJsonObj.put("EXTCODE", exitCode);
                 sendmsgBodyJsonObj.put("AVGLOAD", avgLoad);
+                if (result != null) {
+                    sendmsgBodyJsonObj.put("RESULT", result);
+                }
                 TaskDBRow task = GlobalValues.TASK_DB.get(TaskKeys.of(uuid, pid, chunkno));
                 if (task != null) {
                     sendmsgBodyJsonObj.put("TASK", task.toJSON());

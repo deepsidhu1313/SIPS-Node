@@ -1,14 +1,16 @@
 # Control flow in a parallel loop
 
-What `break` and `continue` mean once a loop is spread across machines, which
-of them SIPS supports today, and how the missing one should be built.
+What `break` and `continue` mean once a loop is spread across machines, and
+what SIPS gives you instead of the promise `break` cannot keep.
 
 ## Short answer
 
 | | Works today | Needs coordination |
 |---|---|---|
 | `continue` | **Yes** — plain Java `continue` | None |
-| `break` | **No** — `sim.breakLoop()` is not wired | Yes, and it cannot mean what it means sequentially |
+| `sim.breakAll(index, value)` | **Yes** — stop everything, carry an answer home | Yes |
+| `sim.breakAfter(index, why)` | **Yes** — nothing past this index is wanted | Yes |
+| `sim.breakLoop()` | **Deprecated** — never finished; use one of the two above | — |
 
 ## `continue` is free
 
@@ -49,8 +51,8 @@ operation to stop implying a guarantee they could not keep:
 | **Rayon** | `find_first` vs `find_any` |
 | **Intel TBB** | No break; `task_group::cancel()` |
 
-SIPS should follow the same precedent, and
-[`LoopCancellation`](../../SIPS-lib/src/main/java/in/co/s13/sips/lib/loop/LoopCancellation.java)
+SIPS follows the same precedent, and
+[`EarlyExit`](../../SIPS-lib/src/main/java/in/co/s13/sips/lib/loop/EarlyExit.java)
 states the guarantees explicitly:
 
 **Guaranteed** — no *further* chunks are handed out; the decision is visible to
@@ -72,8 +74,7 @@ the answer is known is the difference between seconds and hours.
 sim.parallelFor();
 for (long candidate = 0; candidate < keyspace; candidate++) {
     if (matches(candidate)) {
-        found = candidate;
-        sim.breakLoop();     // 8 nodes stop; do not search the other 99%
+        sim.breakAll(candidate, found(candidate));   // 8 nodes stop; skip the other 99%
     }
 }
 sim.endParallelFor();
@@ -83,15 +84,15 @@ Brute-force key recovery, preimage search, SAT solving. The answer is usually
 found early in *someone's* range, and the remaining work is pure waste. Without
 cancellation a 1-in-1000 hit still costs the full keyspace.
 
-**Cancellation semantics are exactly right here.** Any match will do; which node
-found it and whether a lower index also matched are irrelevant.
+**`breakAll` is exactly right here.** Any match will do; which node found it and
+whether a lower index also matched are irrelevant — and the value travels home
+with the stop, so nothing else has to go looking for it.
 
 ### Branch and bound
 
 ```java
 if (cost < bestKnownBound) {
-    recordSolution(cost);
-    sim.breakLoop();         // everything worse is now unreachable
+    sim.breakAll(index, solution);   // everything worse is now unreachable
 }
 ```
 
@@ -110,6 +111,9 @@ A hyperparameter search where one configuration reaches the target metric. The
 rest of the grid no longer needs evaluating — and each evaluation may be hours
 of GPU time.
 
+An iterative solver is the `breakAfter` case instead: iterations up to
+convergence are the answer, and only the ones past it are waste.
+
 ### Where cancellation is the *wrong* tool
 
 If correctness depends on stopping before a specific iteration — a loop with
@@ -118,42 +122,97 @@ cancellation will not give you that, and no distributed loop can cheaply. Either
 keep that loop sequential, or collect all matches and take the minimum index
 afterwards.
 
-## How it should be built
+## The two operations, and which to reach for
 
-The transformation route is right; three pieces are missing, one per layer.
+They answer different questions, and conflating them is how you end up with a
+wrong answer rather than a slow one.
 
-**1. The AST pass must recognise the marker.** SIPS-Run's pass currently
-recognises nine (`parallelFor`, `endParallelFor`, `simulateSection`,
-`endSimulateSection`, `saveValues`, `saveObject`, `resolveObject`, `defineTask`,
-`endTask`). Add `breakLoop`, and rewrite a call inside a parallel region into
-two statements — signal the master, then a real Java `break` so the node stops
-its own chunk immediately:
+### `breakAll(index, value)` — search
+
+*"I found it. Nobody needs to keep looking."*
+
+Every chunk is cancelled, including ones that had not started. The finder
+carries a value home, and the first report wins.
 
 ```java
-// sim.breakLoop();   becomes:
-SipsRuntime.cancel(jobToken, "breakLoop at Search.java:42");
-break;
+sim.parallelFor();
+for (long i = 0; i < keyspace; i++) {
+    if (matches(i)) {
+        sim.breakAll(i, describe(i));   // stop the cluster, bring the answer
+    }
+}
+sim.endParallelFor();
 ```
 
-**2. The node must handle the command.** `TaskHandler` has cases for
-`createprocess`, `kill`, `printoutput` and six others but not `breakLoop`. It
-needs one that sets `LoopCancellation` for the job and stops the executor
-handing out queued chunks. Note the existing client sends its body under
-`"body"` while every handler reads `"Body"` — that must be fixed or the handler
-will never see it.
+It is **find-any, not find-first.** Node B's match at index 3 loses to node A's
+at index 10 if A reported first. If you need the lowest matching index, collect
+every match and take the minimum — do not use `breakAll`.
 
-**3. Nodes must observe it.** Two paths, and both are wanted: the master pushes
-cancellation to nodes holding chunks of that job, and a long-running chunk polls
-`shouldContinue()` between iterations so it can stop mid-chunk rather than at
-the next chunk boundary.
+### `breakAfter(index, why)` — a prefix
 
-The scheduler side is already in place — cancellation only has to make
-`shouldContinue()` false for the loop being scheduled.
+*"Nothing past index N is wanted."*
+
+Chunks entirely beyond the boundary are cancelled. Chunks before it must still
+finish, because their results are part of the answer — and a chunk that
+*straddles* the boundary still runs, because cancelling it would silently
+truncate the result. The tighter of two boundaries wins.
+
+```java
+sim.parallelFor();
+for (long i = 0; i < maxIterations; i++) {
+    double error = refine(i);
+    if (error < tolerance) {
+        sim.breakAfter(i, "converged");   // keep 0..i, drop the rest
+    }
+}
+sim.endParallelFor();
+```
+
+A `breakAll` arriving after a `breakAfter` overrides it: a definite answer makes
+even the prefix unnecessary.
+
+## How it is wired
+
+Three layers, all built.
+
+**1. The AST pass recognises the markers.** SIPS-Run records `breakAll` and
+`breakAfter` into the `SYNTAX` table alongside the nine markers it already knew.
+The match is exact rather than a substring — `"endParallelFor".contains("parallelFor")`
+is true, and that class of bug is why.
+
+**2. The node handles the command.** `TaskHandler` records the exit into
+`GlobalValues.EARLY_EXIT`, keyed by job token, and kills chunks that
+`shouldRunChunk` says are no longer wanted.
+
+**3. Chunks observe it.** A chunk cancelled while still queued never starts. A
+chunk already running is killed through `Process.destroy()` — except on the
+WebAssembly path, where it cannot be (see below).
+
+The bug that made `breakLoop` undeliverable for years is also fixed: the client
+was sending its body under `"body"` while every handler read `"Body"`.
+
+## WebAssembly chunks
+
+A WASM module can call early exit itself, through the host interface:
+
+```wat
+(import "sips" "break_all"   (func (param i64 i32 i32)))   ;; index, ptr, len
+(import "sips" "break_after" (func (param i64)))           ;; index
+```
+
+These reach the same `EarlyExit` state the Java API does, so a WASM search chunk
+stops the cluster exactly as `sim.breakAll()` does. The value comes home as raw
+bytes — only the module knows what its answer means.
+
+**One difference, and it is not small:** WebAssembly has no interrupt, so a
+module already running cannot be stopped. It finishes or hits its timeout.
+Queued chunks are still cancelled. Size chunks accordingly if early exit is what
+you are relying on. See [WASM_TASKS.md](../../SIPS-lib/docs/WASM_TASKS.md).
 
 ## Reporting it honestly
 
-`LoopCancellation` counts iterations that completed *after* cancellation was
-set, and the job report should show it. On any real cluster that number is
+`EarlyExit` records when the stop was set, and the job report should show how
+many iterations completed after it. On any real cluster that number is
 non-zero. Surfacing it is the point: a user who assumed sequential `break`
 needs to see that the assumption did not hold, rather than discovering it later
 through a wrong result.

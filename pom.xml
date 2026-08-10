@@ -172,6 +172,16 @@
             <type>jar</type>
         </dependency>
         <dependency>
+            <!-- The WebAssembly module assembler, so this module's tests can
+                 build real modules without a WASM toolchain or a second copy
+                 of the binary format. -->
+            <groupId>in.co.s13</groupId>
+            <artifactId>SIPS-lib</artifactId>
+            <version>1.1.0</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>in.co.s13</groupId>
             <artifactId>SIPS-Schedulers</artifactId>
             <version>1.1.0</version>

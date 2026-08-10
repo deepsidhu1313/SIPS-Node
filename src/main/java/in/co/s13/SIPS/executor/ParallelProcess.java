@@ -25,6 +25,10 @@ import in.co.s13.SIPS.tools.Platform;
 import in.co.s13.SIPS.tools.Util;
 import in.co.s13.SIPS.transfer.FilePayload;
 import in.co.s13.SIPS.transfer.SafePath;
+import in.co.s13.sips.lib.manifest.TaskType;
+import in.co.s13.sips.lib.wasm.WasmHost;
+import in.co.s13.sips.lib.wasm.WasmRunner;
+import in.co.s13.sips.lib.wasm.WasmTask;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -35,6 +39,7 @@ import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -48,6 +53,15 @@ import org.json.JSONObject;
  */
 public class ParallelProcess implements Runnable {
 
+    /** Per-chunk file naming the iteration range a WebAssembly module receives. */
+    public static final String CHUNK_RANGE_FILE = "chunk.json";
+
+    /** Where a module's result lands when the manifest does not name a file. */
+    public static final String DEFAULT_WASM_OUTPUT_FILE = "output.bin";
+
+    /** Long enough that a real chunk finishes; short enough that a hung one is noticed. */
+    static final long DEFAULT_WASM_TIMEOUT_SECONDS = 600;
+
     String ip, pid, cno, main, projectName;
     ArrayList<String> args = new ArrayList<>(), jvmargs = new ArrayList<>();
     ArrayList<String> fname = new ArrayList<>();
@@ -59,6 +73,10 @@ public class ParallelProcess implements Runnable {
     ArrayList<String> attachmentsLocal = new ArrayList<>();
     JSONArray files = new JSONArray();
     JSONObject manifest;
+    TaskType taskType;
+    JSONObject wasm;
+    /** What a WASM module wrote, kept so a small result can travel home inline. */
+    byte[] moduleOutput = new byte[0];
     String loc;
     boolean success = true;
     long counter = 0;
@@ -85,7 +103,20 @@ public class ParallelProcess implements Runnable {
         }
         manifest = body.getJSONObject("MANIFEST");
         counter = GlobalValues.TASK_ID.get();
-        main = manifest.getString("MAIN");
+        // How the chunk runs is declared, not inferred from which other fields
+        // happen to be set: a manifest that names no executor it meant gets a
+        // sentence back, not a surprise.
+        taskType = TaskType.of(manifest.optString("TYPE", null));
+        if (taskType == TaskType.WASM) {
+            wasm = manifest.optJSONObject("WASM");
+            if (wasm == null) {
+                throw new IllegalArgumentException("A " + taskType.manifestValue()
+                        + " job needs a WASM block naming its module");
+            }
+            main = "";
+        } else {
+            main = manifest.getString("MAIN");
+        }
         projectName = manifest.getString("PROJECT");
 
         GlobalValues.TASK_ID.incrementAndGet();
@@ -199,7 +230,9 @@ public class ParallelProcess implements Runnable {
         temp.addAll(libList);
         temp.addAll(attachments);
         Util.write(new File(loc + "/task.json"), meta.toString());
-        generateScript(loc, main);
+        if (taskType == TaskType.JAVA) {
+            generateScript(loc, main);
+        }
 
         if (!temp.isEmpty()) {
             DownloadFile recieveFile = new DownloadFile(ip, pid, cno, projectName, loc, temp, uuid);
@@ -292,10 +325,118 @@ public class ParallelProcess implements Runnable {
 
     }
 
+    /**
+     * Runs the chunk as a WebAssembly module instead of compiling and forking a
+     * JVM.
+     *
+     * <p>The saving is the whole point: the Ant path costs hundreds of
+     * milliseconds of javac and JVM startup before the first iteration runs,
+     * which puts a floor under how small a chunk can usefully be. A module
+     * starts in microseconds, so a scheduler is free to hand out chunks small
+     * enough to actually balance a ragged workload.
+     *
+     * <p>The module and its range travel in the per-chunk directory, the same
+     * channel that already carries generated sources, so nothing else in the
+     * distribution path changes.
+     */
+    private void runWasm() {
+        Long startTime = System.currentTimeMillis();
+        try (WasmRunner runner = new WasmRunner()) {
+            JSONObject range = Util.readJSONFile(loc + "/" + CHUNK_RANGE_FILE);
+            // MODULE arrives over the network like FILENAME does, so it is
+            // confined to the chunk directory before it is opened.
+            WasmTask task = new WasmTask(pid, Integer.parseInt(cno),
+                    SafePath.resolve(Paths.get(loc), wasm.getString("MODULE")),
+                    wasm.optString("ENTRY", null),
+                    range.getLong("FIRST"), range.getLong("LAST"));
+
+            // The module reads whatever the chunk directory holds under INPUT
+            // and its result is written back beside it, so a WASM chunk gets
+            // its data through the same per-chunk channel a Java chunk does.
+            WasmHost host = WasmHost.builder()
+                    .input(chunkInput())
+                    .log(this::report)
+                    .earlyExit(GlobalValues.EARLY_EXIT.computeIfAbsent(pid,
+                            in.co.s13.sips.lib.loop.EarlyExit::new))
+                    .build();
+
+            long status = runner.run(task, host,
+                    Duration.ofSeconds(wasm.optLong("TIMEOUT", DEFAULT_WASM_TIMEOUT_SECONDS)));
+            byte[] result = host.output();
+            moduleOutput = result;
+            success = status == WasmTask.SUCCESS;
+            writeChunkOutput(result);
+            report(success
+                    ? "Module finished " + task.iterationCount() + " iterations, "
+                        + result.length + " bytes out"
+                    : "Module returned status " + status);
+        } catch (RuntimeException | IOException ex) {
+            Logger.getLogger(ParallelProcess.class.getName()).log(Level.SEVERE, null, ex);
+            success = false;
+            report(String.valueOf(ex.getMessage()));
+        }
+        totalTime = System.currentTimeMillis() - startTime;
+    }
+
+    /**
+     * The bytes this chunk operates on, named by {@code INPUT} in the WASM
+     * block. A chunk that computes purely from its index range has none.
+     */
+    private byte[] chunkInput() throws IOException {
+        String name = wasm.optString("INPUT", "");
+        if (name.isBlank()) {
+            return new byte[0];
+        }
+        Path input = SafePath.resolve(Paths.get(loc), name);
+        return Files.exists(input) ? Files.readAllBytes(input) : new byte[0];
+    }
+
+    /**
+     * Writes what the module produced into the chunk directory, where the
+     * existing collection path can find it.
+     */
+    private void writeChunkOutput(byte[] output) throws IOException {
+        if (output.length == 0) {
+            return;
+        }
+        Files.write(SafePath.resolve(Paths.get(loc),
+                wasm.optString("OUTPUT", DEFAULT_WASM_OUTPUT_FILE)), output);
+    }
+
+    /** Sends one line of chunk output back to the submitter. */
+    private void report(String line) {
+        Util.outPrintln(line);
+        GlobalValues.SEND_OUTPUT_EXECUTOR_SERVICE
+                .submit(new SendOutput(ip, pid, cno, projectName, line));
+    }
+
     @Override
     public void run() {
         taskDBRow.setStartedInQueue(System.currentTimeMillis());
         Thread.currentThread().setName("ParallelProcessThread" + ip + "-" + pid);
+
+        // A break may have arrived while this chunk sat in the queue. Killing a
+        // started chunk is TaskHandler's job; not starting one is cheaper, and
+        // for a WASM chunk it is the only chance -- a module in flight cannot be
+        // interrupted, only timed out.
+        in.co.s13.sips.lib.loop.EarlyExit exit = GlobalValues.EARLY_EXIT.get(pid);
+        if (exit != null && !exit.shouldRunChunk(taskDBRow.getChunkNo(), taskDBRow.getChunkNo())) {
+            GlobalValues.TASK_WAITING.decrementAndGet();
+            report("Chunk " + cno + " skipped: the job stopped early");
+            GlobalValues.SEND_FINISH_EXECUTOR_SERVICE.submit(new SendFinishMessage("Finished",
+                    ip, pid, cno, projectName, "0", "0", loadAvg, uuid));
+            return;
+        }
+
+        if (taskType == TaskType.WASM) {
+            GlobalValues.TASK_WAITING.decrementAndGet();
+            runWasm();
+            SendFinishMessage done = new SendFinishMessage(success ? "Finished" : "Error",
+                    ip, pid, cno, projectName, "" + totalTime, success ? "0" : "1", loadAvg, uuid,
+                    ChunkResults.encode(moduleOutput));
+            GlobalValues.SEND_FINISH_EXECUTOR_SERVICE.submit(done);
+            return;
+        }
 
         try {
             GlobalValues.TASK_WAITING.decrementAndGet();

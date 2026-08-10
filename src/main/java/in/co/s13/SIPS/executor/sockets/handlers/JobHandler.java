@@ -20,9 +20,11 @@ import in.co.s13.SIPS.datastructure.Result;
 import in.co.s13.SIPS.db.SQLiteJDBC;
 import in.co.s13.SIPS.executor.Job;
 import in.co.s13.SIPS.executor.PrintToFile;
+import in.co.s13.SIPS.executor.StagedJob;
 import in.co.s13.SIPS.settings.GlobalValues;
 import in.co.s13.SIPS.tools.Util;
 import in.co.s13.SIPS.virtualdb.UpdateResultDBbefExecVirtual;
+import in.co.s13.sips.lib.job.JobManifest;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -81,7 +83,14 @@ public class JobHandler implements Runnable {
                     if (command.equals("START_JOB")) {
                         GlobalValues.JOB_WAITING.incrementAndGet();
                         String jobToken = body.getString("JOB_TOKEN");
-                        GlobalValues.JOB_EXECUTOR.submit(new Job(jobToken));
+                        // A manifest declaring STAGES is a pipeline; anything
+                        // else -- which is every manifest written before stages
+                        // existed -- takes the single-loop path unchanged.
+                        GlobalValues.JOB_EXECUTOR.submit(
+                                JobManifest.hasStages(
+                                        Util.readJSONFile("data/" + jobToken + "/manifest.json"))
+                                        ? new StagedJob(jobToken)
+                                        : new Job(jobToken));
                         System.out.println("Created Job");
 
                         try (OutputStream os = submitter.getOutputStream(); DataOutputStream outToClient = new DataOutputStream(os)) {
