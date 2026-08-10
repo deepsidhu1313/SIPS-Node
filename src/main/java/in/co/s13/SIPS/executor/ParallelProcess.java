@@ -398,6 +398,11 @@ public class ParallelProcess implements Runnable {
      * <p>Only for the Java path: a module's output is already in hand. Quiet
      * when there is nothing to read, because most chunks are not pipeline
      * stages and have nothing to return.
+     *
+     * <p>An output too large to ride home is left alone rather than read: it
+     * stays in this sandbox for {@link ResultFetch} to collect, and reading a
+     * model into memory only to have the encoder refuse it would cost the
+     * worker a copy of every large result it ever produces.
      */
     private void readDeclaredOutput() {
         if (moduleOutput.length > 0) {
@@ -409,7 +414,7 @@ public class ParallelProcess implements Runnable {
                 return;
             }
             Path output = SafePath.resolve(Paths.get(loc), declared.get());
-            if (Files.exists(output)) {
+            if (Files.exists(output) && Files.size(output) <= ChunkResults.MAX_INLINE_BYTES) {
                 moduleOutput = Files.readAllBytes(output);
             }
         } catch (RuntimeException | IOException ex) {

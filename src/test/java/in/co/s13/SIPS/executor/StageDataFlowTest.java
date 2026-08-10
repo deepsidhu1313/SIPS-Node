@@ -111,6 +111,71 @@ class StageDataFlowTest {
     }
 
     @Test
+    void aResultTooLargeToRideHomeIsFetchedFromTheNodeThatMadeIt() throws IOException {
+        // The inline path caps at 256 KB, which is right for what a call
+        // returns and wrong for a model. Anything with a hidden layer is
+        // megabytes, so without this a training run works on the sample and
+        // fails on the thing anyone would actually train.
+        Job job = trainThenAverage();
+        chunkFinished(5, Tensors.toBytes(new float[]{1f}));
+        Map<Integer, Integer> shards = new LinkedHashMap<>();
+        shards.put(5, 0);
+        shards.put(6, 1);
+        List<String> asked = new java.util.ArrayList<>();
+
+        int collected = StageOutputs.collect(JOB, job.stage("train-1").orElseThrow(), shards,
+                (chunkNumber, fileName) -> {
+                    asked.add(chunkNumber + ":" + fileName);
+                    return Tensors.toBytes(new float[]{2f});
+                });
+
+        assertEquals(2, collected);
+        assertEquals(List.of("6:model-1.bin"), asked,
+                "only the shard that came home empty should cost a round trip, "
+                + "and it should be asked for by the name the stage declared");
+        Path out = Path.of(StageOutputs.outputDirectory(JOB, "train-1"));
+        assertArrayEquals(new float[]{2f},
+                Tensors.fromBytes(Files.readAllBytes(out.resolve("1.bin"))));
+    }
+
+    @Test
+    void aShardNeitherPathCanProduceStillFailsTheStage() {
+        // A node that died between finishing its chunk and being asked for the
+        // result. Falling back to seven of eight models would be worse than
+        // stopping.
+        Job job = trainThenAverage();
+        Map<Integer, Integer> shards = new LinkedHashMap<>();
+        shards.put(5, 0);
+
+        String message = assertThrows(IOException.class,
+                () -> StageOutputs.collect(JOB, job.stage("train-1").orElseThrow(), shards,
+                        (chunkNumber, fileName) -> {
+                            throw new IOException("node is gone");
+                        }))
+                .getMessage();
+
+        assertTrue(message.contains("[0]"), message);
+        assertTrue(message.contains("node is gone"), message);
+    }
+
+    @Test
+    void aStageWithNothingToFetchByNameCannotBeFetched() {
+        // A stage that declares no output has no file to ask for, so an empty
+        // result there is genuinely missing rather than merely too large.
+        Job job = new Job(JOB);
+        job.parallelFor("train-1", 0, 1);
+        Map<Integer, Integer> shards = new LinkedHashMap<>();
+        shards.put(5, 0);
+
+        String message = assertThrows(IOException.class,
+                () -> StageOutputs.collect(JOB, job.stage("train-1").orElseThrow(), shards,
+                        (chunkNumber, fileName) -> Tensors.toBytes(new float[]{9f})))
+                .getMessage();
+
+        assertTrue(message.contains("declares no output"), message);
+    }
+
+    @Test
     void theNextStageIsGivenWhatThePreviousOneProduced() throws IOException {
         Job job = trainThenAverage();
         chunkFinished(5, Tensors.toBytes(new float[]{1f}));

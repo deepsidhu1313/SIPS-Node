@@ -16,9 +16,11 @@
  */
 package in.co.s13.SIPS.executor.sockets.handlers;
 
+import in.co.s13.SIPS.executor.ResultFetch;
 import in.co.s13.SIPS.transfer.SafePath;
 import in.co.s13.sips.lib.common.SipsPaths;
 import in.co.s13.SIPS.settings.GlobalValues;
+import in.co.s13.SIPS.tools.JobPaths;
 import in.co.s13.SIPS.tools.Util;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -150,6 +152,8 @@ public class FileHandler implements Runnable {
                         }
 
                     }
+                } else if (command.trim().equalsIgnoreCase(ResultFetch.COMMAND)) {
+                    sendChunkResult(body, outToClient);
                 } else if (command.trim().equalsIgnoreCase("resolveObject")) {
 //                        System.out.println("finding Object");
                     String objToSend = body.getString("OBJECT");
@@ -503,6 +507,79 @@ public class FileHandler implements Runnable {
             Logger.getLogger(FileHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+    }
+
+    /**
+     * Serves a chunk result that was too large to ride home in the finish
+     * message.
+     *
+     * <p>Unlike the transfers above, this always answers. The others reply with
+     * nothing when the file is absent, which leaves the caller blocked on a
+     * read it will never satisfy; here the caller is the master with a whole
+     * job waiting behind it, so "I do not have that" has to be something it can
+     * hear.
+     *
+     * <p>The result is read from the sandbox the chunk actually ran in, and the
+     * name is resolved through {@link SafePath} because it comes from the job
+     * manifest — chosen by whoever submitted the job, not by this node.
+     */
+    private void sendChunkResult(JSONObject body, DataOutputStream outToClient)
+            throws IOException {
+        String pid = body.getString("PID");
+        String cno = body.getString("CNO");
+        String nodeUUID = body.getString("UUID");
+        String name = body.getString("FILE");
+
+        File result;
+        try {
+            result = SafePath.resolve(JobPaths.chunkWorkingDirectory(nodeUUID, pid, cno), name)
+                    .toFile();
+        } catch (IllegalArgumentException escaped) {
+            reply(outToClient, new JSONObject().put("MSG", "refused")
+                    .put("REASON", escaped.getMessage()));
+            Util.appendToFileServerLog(GlobalValues.LOG_LEVEL.ERROR, escaped.getMessage());
+            return;
+        }
+
+        if (!result.isFile()) {
+            reply(outToClient, new JSONObject().put("MSG", "missing")
+                    .put("REASON", "chunk " + cno + " of job " + pid + " left no '" + name + "'"));
+            Util.appendToFileServerLog(GlobalValues.LOG_LEVEL.ERROR,
+                    "No result to send at " + result.getAbsolutePath());
+            return;
+        }
+
+        // Digested in one pass and sent in another rather than held in memory:
+        // the whole point of this path is results too big to carry, and reading
+        // one into a byte[] here would put the cost back on the worker.
+        long length = result.length();
+        reply(outToClient, new JSONObject().put("MSG", "found")
+                .put("BYTES", length)
+                .put("CHECKSUM", ResultFetch.checksumOf(result.toPath())));
+
+        byte[] buffer = new byte[64 * 1024];
+        long sent = 0;
+        try (FileInputStream fis = new FileInputStream(result);
+                BufferedInputStream bis = new BufferedInputStream(fis)) {
+            int read;
+            while (sent < length && (read = bis.read(buffer, 0,
+                    (int) Math.min(buffer.length, length - sent))) > -1) {
+                outToClient.write(buffer, 0, read);
+                sent += read;
+            }
+        }
+        outToClient.flush();
+        Util.appendToFileServerLog(GlobalValues.LOG_LEVEL.OUTPUT,
+                "Sent result " + name + " (" + sent + " bytes) for chunk " + cno);
+    }
+
+    /** Writes a length-prefixed JSON reply, the shape every message here uses. */
+    private static void reply(DataOutputStream outToClient, JSONObject message)
+            throws IOException {
+        byte[] bytes = message.toString().getBytes(StandardCharsets.UTF_8);
+        outToClient.writeInt(bytes.length);
+        outToClient.write(bytes);
+        outToClient.flush();
     }
 
 }

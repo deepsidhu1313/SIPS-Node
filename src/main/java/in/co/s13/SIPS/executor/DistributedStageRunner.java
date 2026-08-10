@@ -297,12 +297,29 @@ public class DistributedStageRunner implements StageRunner {
             try {
                 // Gathered here rather than by the next stage, so a result that
                 // never came home is reported against the stage that owed it.
-                StageOutputs.collect(jobToken, stage, shardsByChunk);
+                StageOutputs.collect(jobToken, stage, shardsByChunk,
+                        (chunkNumber, fileName) -> fetchFrom(distTable, chunkNumber, fileName));
             } catch (IOException ex) {
                 failure = ex.getMessage();
                 return Outcome.FAILED;
             }
             return Outcome.COMPLETE;
+        }
+
+        /**
+         * Collects a result that was too large to ride home in the finish
+         * message, from the node that still has it in its chunk sandbox.
+         */
+        private byte[] fetchFrom(ConcurrentHashMap<String, DistributionDBRow> distTable,
+                int chunkNumber, String fileName) throws IOException {
+            for (String key : chunkKeys) {
+                DistributionDBRow row = distTable.get(key);
+                if (row != null && row.getCno() == chunkNumber) {
+                    return ResultFetch.from(row.getIpAddress(), GlobalValues.FILE_SERVER_PORT,
+                            jobToken, row.getUuid(), chunkNumber, fileName);
+                }
+            }
+            throw new IOException("no node is recorded as having run chunk " + chunkNumber);
         }
 
         @Override

@@ -56,14 +56,37 @@ import java.util.TreeMap;
  *
  * <p>Results ride home inside the finish message, so anything up to
  * {@link ChunkResults#MAX_INLINE_BYTES} arrives without a second round trip.
- * A larger result stays on the node that made it and is reported as missing
- * here rather than silently skipped — fetching it needs the file server, which
- * is the next piece of work and not this one.
+ * That is right for what a call returns and wrong for a model — anything with
+ * a hidden layer is megabytes — so a larger result stays in the sandbox that
+ * produced it and is fetched by name through {@link ResultFetch}. The inline
+ * path is tried first, so only the shards that need one cost a round trip.
  */
 public final class StageOutputs {
 
     /** Everything a stage produced or was given. */
     public static final String STAGES = "stages";
+
+    /**
+     * Collects one chunk's result from wherever it actually is.
+     *
+     * <p>An interface rather than a direct call so collection can be tested
+     * without a cluster, and so a caller that already holds the bytes — a
+     * single-machine run, a replay — does not have to pretend to be a node.
+     */
+    @FunctionalInterface
+    public interface Fetcher {
+
+        /** Never used: a caller that has no way to reach the producing node. */
+        Fetcher NONE = (chunkNumber, fileName) -> {
+            throw new IOException("no way to reach the node that produced it");
+        };
+
+        /**
+         * @param fileName the output name the stage declared for this shard
+         * @throws IOException if the result cannot be had
+         */
+        byte[] fetch(int chunkNumber, String fileName) throws IOException;
+    }
 
     private StageOutputs() {
     }
@@ -78,27 +101,38 @@ public final class StageOutputs {
         return SipsPaths.join(JobPaths.job(jobToken), STAGES, stageName, "src");
     }
 
+    /** Gathers a finished stage's results, using only what came home inline. */
+    public static int collect(String jobToken, Stage stage, Map<Integer, Integer> shardsByChunk)
+            throws IOException {
+        return collect(jobToken, stage, shardsByChunk, Fetcher.NONE);
+    }
+
     /**
      * Gathers a finished stage's results into its output directory.
      *
      * @param shardsByChunk which shard each of the stage's chunk numbers was
+     * @param fetcher how to collect a result too large to have ridden home
      * @return how many results were collected
-     * @throws IOException if a result cannot be written
+     * @throws IOException if any shard's result cannot be had, or written
      */
-    public static int collect(String jobToken, Stage stage, Map<Integer, Integer> shardsByChunk)
-            throws IOException {
+    public static int collect(String jobToken, Stage stage, Map<Integer, Integer> shardsByChunk,
+            Fetcher fetcher) throws IOException {
         Path directory = Path.of(outputDirectory(jobToken, stage.name()));
         Files.createDirectories(directory);
 
         int collected = 0;
-        List<Integer> missing = new ArrayList<>();
+        Map<Integer, String> missing = new TreeMap<>();
         for (Map.Entry<Integer, Integer> entry : new TreeMap<>(shardsByChunk).entrySet()) {
             int chunkNumber = entry.getKey();
             int shard = entry.getValue();
             byte[] result = ChunkResults.of(jobToken, String.valueOf(chunkNumber)).orElse(null);
             if (result == null) {
-                missing.add(shard);
-                continue;
+                try {
+                    result = fetch(stage, fetcher, chunkNumber, shard);
+                } catch (IOException unreachable) {
+                    missing.put(shard, unreachable.getMessage());
+                    continue;
+                }
             }
             Files.write(directory.resolve(shard + ".bin"), result);
             collected++;
@@ -108,11 +142,21 @@ public final class StageOutputs {
             // Named rather than swallowed: a stage that averages seven of eight
             // models produces a subtly wrong answer, not an obvious failure.
             throw new IOException("Stage '" + stage.name() + "' produced no collectable result "
-                    + "for shard(s) " + missing + ". A result over "
-                    + ChunkResults.MAX_INLINE_BYTES + " bytes stays on the node that made it "
-                    + "and needs the file server, which this does not yet use.");
+                    + "for shard(s) " + new ArrayList<>(missing.keySet()) + ": "
+                    + String.join("; ", missing.values()));
         }
         return collected;
+    }
+
+    /** Asks the producing node for a result that did not ride home. */
+    private static byte[] fetch(Stage stage, Fetcher fetcher, int chunkNumber, int shard)
+            throws IOException {
+        if (stage.output().isEmpty()) {
+            // Nothing to ask for by name, so an empty result here is genuinely
+            // missing rather than merely too large to have been carried.
+            throw new IOException("stage declares no output to collect");
+        }
+        return fetcher.fetch(chunkNumber, stage.outputFor(shard));
     }
 
     /**
