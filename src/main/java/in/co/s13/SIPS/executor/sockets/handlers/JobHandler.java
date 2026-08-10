@@ -16,6 +16,8 @@
  */
 package in.co.s13.SIPS.executor.sockets.handlers;
 
+import in.co.s13.SIPS.transfer.SafePath;
+import in.co.s13.SIPS.tools.JobPaths;
 import in.co.s13.SIPS.datastructure.Result;
 import in.co.s13.SIPS.db.SQLiteJDBC;
 import in.co.s13.SIPS.executor.Job;
@@ -88,7 +90,7 @@ public class JobHandler implements Runnable {
                         // existed -- takes the single-loop path unchanged.
                         GlobalValues.JOB_EXECUTOR.submit(
                                 JobManifest.hasStages(
-                                        Util.readJSONFile("data/" + jobToken + "/manifest.json"))
+                                        Util.readJSONFile(JobPaths.manifest(jobToken)))
                                         ? new StagedJob(jobToken)
                                         : new Job(jobToken));
                         System.out.println("Created Job");
@@ -198,7 +200,7 @@ public class JobHandler implements Runnable {
                             JSONObject replyBody = new JSONObject();
                             JSONObject response = new JSONObject();
                             boolean foundLocal = false;
-                            File cachedFile = new File("cache/" + submitterUUID + "/" + jobname + "/" + filePath);
+                            File cachedFile = new File(JobPaths.cache(submitterUUID, jobname, filePath));
                             if (cachedFile.exists()) {
                                 if (Util.LoadCheckSum(cachedFile.getAbsolutePath() + ".sha").trim().equalsIgnoreCase(sha.trim())) {
                                     response.put("Message", "FOUND_LOCAL");
@@ -218,11 +220,11 @@ public class JobHandler implements Runnable {
                             outToClient.writeInt(bytes.length);
                             outToClient.write(bytes);
                             if (foundLocal) {
-                                File copyTo = new File("data/" + jobToken + "/" + filePath);
+                                File copyTo = SafePath.resolve(JobPaths.job(jobToken), filePath).toFile();
                                 Util.copyFileUsingStream(cachedFile, copyTo);
                                 Util.getCheckSum(copyTo.getAbsolutePath());
                             } else {
-                                File toDownload = new File("data/" + jobToken + "/" + filePath);
+                                File toDownload = SafePath.resolve(JobPaths.job(jobToken), filePath).toFile();
                                 toDownload.getParentFile().mkdirs();
                                 try (FileOutputStream fos = new FileOutputStream(toDownload); BufferedOutputStream bos = new BufferedOutputStream(fos)) {
                                     long fileLen, downData;

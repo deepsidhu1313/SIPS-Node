@@ -5,6 +5,8 @@
  */
 package in.co.s13.SIPS.executor;
 
+import in.co.s13.sips.lib.common.SipsPaths;
+import in.co.s13.SIPS.tools.JobPaths;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import in.co.s13.SIPS.datastructure.DistributionDBRow;
@@ -76,7 +78,7 @@ public class Job implements Runnable {
     public void run() {
         long parsingStartTime = System.currentTimeMillis();
         System.out.println("Starting Job : " + jobToken);
-        JSONObject manifestJSON = Util.readJSONFile("data/" + jobToken + "/manifest.json");
+        JSONObject manifestJSON = Util.readJSONFile(JobPaths.manifest(jobToken));
         JSONObject schedulerJSON = manifestJSON.getJSONObject("SCHEDULER", new JSONObject());
         String schedulerName = schedulerJSON.getString("Name", "NotFound");
         if (schedulerName.equals("NotFound")) {
@@ -111,7 +113,8 @@ public class Job implements Runnable {
             }
         } else {
             try {
-                loadScheduler = (LoadScheduler) Util.deserialize("data/" + jobToken + "/.simulated/" + schedulerName + ".obj");
+                loadScheduler = (LoadScheduler) Util.deserialize(SipsPaths.join(JobPaths.job(jobToken), ".simulated",
+                    schedulerName + ".obj"));
             } catch (IOException | ClassNotFoundException ex) {
                 Logger.getLogger(Job.class.getName()).log(Level.SEVERE, null, ex);
                 GlobalValues.RESULT_DB_EXECUTOR.submit(() -> {
@@ -127,7 +130,7 @@ public class Job implements Runnable {
         }
         try {
             GetDBFiles getDBFiles = new GetDBFiles();
-            ArrayList<String> dbfiles = getDBFiles.getDBFiles("data/" + jobToken + "/.parsed/");
+            ArrayList<String> dbfiles = getDBFiles.getDBFiles(SipsPaths.join(JobPaths.job(jobToken), ".parsed"));
             Result resultDBEntry = RESULT_DB.get(jobToken.trim());
 
             for (int i = 0; i < dbfiles.size(); i++) {
@@ -555,13 +558,19 @@ public class Job implements Runnable {
 
                                 try {
                                     ParallelForSENP get = loopChunks.get(l);
-                                    Util.copyFolder(new File("data/" + jobToken + "/src/"), new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getChunkNo() + "/src/"));
+                                    Util.copyFolder(new File(JobPaths.source(jobToken)),
+                                            new File(JobPaths.chunkSource(jobToken,
+                                                    get.getNodeUUID(), get.getChunkNo())));
                                     ModASTParallelFor ma = new ModASTParallelFor((parallel4BL + 1), datatype, get.getStart(), get.getEnd(), "" + diff);
-                                    try (FileInputStream inputStream = new FileInputStream(new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getChunkNo() + "/src/" + parent + "/" + file))) {
+                                    try (FileInputStream inputStream = new FileInputStream(new File(SipsPaths.join(
+                                            JobPaths.chunkSource(jobToken, get.getNodeUUID(),
+                                                    get.getChunkNo()), parent, file)))) {
                                         CompilationUnit cu = StaticJavaParser.parse(inputStream);
                                         ma.visit(cu, null);
                                         //                        System.out.println("Modified AST: " + cu.toString());
-                                        Util.write("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getChunkNo() + "/src/" + parent + "/" + file, cu.toString());
+                                        Util.write(SipsPaths.join(JobPaths.chunkSource(jobToken,
+                                                get.getNodeUUID(), get.getChunkNo()), parent, file),
+                                                cu.toString());
                                         Distributor dist = new Distributor(get.getNodeUUID(), "" + get.getChunkNo(), jobToken);
                                         boolean uploaded = dist.upload();
                                         int maxTries = 3;
@@ -691,10 +700,13 @@ public class Job implements Runnable {
                                     filecoverages.addAll(get1.getFiles());
                                 }
                             }
-                            Util.copyFolder(new File("data/" + jobToken + "/src/"), new File("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getId() + "/src/"));
+                            Util.copyFolder(new File(JobPaths.source(jobToken)),
+                                    new File(JobPaths.chunkSource(jobToken,
+                                            get.getNodeUUID(), get.getId())));
                             for (int m = 0; m < filecoverages.size(); m++) {
                                 FileCoverage get2 = filecoverages.get(m);
-                                Commentator commentator = new Commentator("data/" + jobToken + "/dist/" + get.getNodeUUID() + ":CN:" + get.getId() + "/src/" + get2.getPath(), get2.getBeginLine(), get2.getBeginColumn(), get2.getEndLine(), get2.getEndColumn());
+                                Commentator commentator = new Commentator(SipsPaths.join(JobPaths.chunkSource(jobToken,
+                                        get.getNodeUUID(), get.getId()), get2.getPath()), get2.getBeginLine(), get2.getBeginColumn(), get2.getEndLine(), get2.getEndColumn());
                             }
 
                             Distributor dist = new Distributor(get.getNodeUUID(), "" + get.getId(), jobToken);

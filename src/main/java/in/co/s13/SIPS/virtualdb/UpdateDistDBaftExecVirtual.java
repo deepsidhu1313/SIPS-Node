@@ -16,6 +16,8 @@
  */
 package in.co.s13.SIPS.virtualdb;
 
+import in.co.s13.sips.lib.common.SipsPaths;
+import in.co.s13.SIPS.tools.JobPaths;
 import in.co.s13.SIPS.datastructure.DistributionDBRow;
 import static in.co.s13.SIPS.datastructure.DistributionDBRow.DistributionDBRowComparator.getComparator;
 import in.co.s13.SIPS.datastructure.Result;
@@ -55,7 +57,7 @@ public class UpdateDistDBaftExecVirtual implements Runnable {
     JSONObject taskRow;
 
     public UpdateDistDBaftExecVirtual(Long endTime, Long ExecTime, String filename, String ip, String PID, String CNO, String EXITCODE, String nodeUUID, double avgLoad, JSONObject taskRow) {
-        dbloc = "data/" + PID + "/dist-db/dist-" + PID + ".db";
+        dbloc = SipsPaths.join(JobPaths.job(PID), "dist-db", "dist-" + PID + ".db");
         endtime = endTime;
         exectime = ExecTime;
         IP = ip;

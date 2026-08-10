@@ -16,6 +16,7 @@
  */
 package in.co.s13.SIPS.executor;
 
+import in.co.s13.SIPS.tools.JobPaths;
 import in.co.s13.SIPS.settings.GlobalValues;
 import in.co.s13.SIPS.tools.Util;
 import in.co.s13.sips.lib.job.Job;
@@ -65,7 +66,7 @@ public class StagedJob implements Runnable {
     @Override
     public void run() {
         Thread.currentThread().setName("StagedJob-" + jobToken);
-        JSONObject manifest = Util.readJSONFile("data/" + jobToken + "/manifest.json");
+        JSONObject manifest = Util.readJSONFile(JobPaths.manifest(jobToken));
         JSONObject schedulerJson = manifest.getJSONObject("SCHEDULER", new JSONObject());
         String schedulerName = schedulerJson.getString("Name", "");
 

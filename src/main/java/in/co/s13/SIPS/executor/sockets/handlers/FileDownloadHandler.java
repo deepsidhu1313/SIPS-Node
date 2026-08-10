@@ -16,6 +16,8 @@
  */
 package in.co.s13.SIPS.executor.sockets.handlers;
 
+import in.co.s13.sips.lib.common.SipsPaths;
+import in.co.s13.SIPS.tools.JobPaths;
 import in.co.s13.SIPS.datastructure.FileDownQueReq;
 import in.co.s13.SIPS.settings.GlobalValues;
 import in.co.s13.SIPS.tools.Util;
@@ -157,11 +159,11 @@ public class FileDownloadHandler implements Runnable {
                                                 sockdin.readFully(message, 0, message.length); // read the message
                                             }
                                             String reply = new String(message, StandardCharsets.UTF_8);
-                                            File ipDir = new File("cache/" + nodeUUID + "/" + projectName);
+                                            File ipDir = new File(JobPaths.cache(nodeUUID, projectName));
                                             if (!ipDir.exists()) {
                                                 ipDir.mkdirs();
                                             }
-                                            File ip2Dir = new File(ipDir.getAbsolutePath() + "/" + fileToSend);
+                                            File ip2Dir = new File(SipsPaths.join(ipDir.getAbsolutePath(), fileToSend));
 
                                             String lchecksum = "";
                                             if (new File(ip2Dir.getAbsolutePath() + ".sha").exists()) {
@@ -249,8 +251,10 @@ public class FileDownloadHandler implements Runnable {
                     String ip = body.getString("IP");//body.substring(body.indexOf("<IP>") + 4, body.indexOf("</IP>"));
                     String nodeUUID = body.getString("UUID");
                     String projectName = body.getString("PROJECT");
-                    String pathtoFile = "data/" + pid2 + "/.simulated/" + classname + "/" + objToSend + "-instance-" + instance + ".obj";
-                    String lpathtoFile = "sim/" + classname + "/" + objToSend + "-instance-" + instance + ".obj";
+                    String pathtoFile = SipsPaths.join(JobPaths.job(pid2), ".simulated", classname,
+                            objToSend + "-instance-" + instance + ".obj");
+                    String lpathtoFile = SipsPaths.canonicalJoin("sim", classname,
+                            objToSend + "-instance-" + instance + ".obj");
                     boolean notinQ = true;
                     FileDownQueReq downQue = GlobalValues.DOWNLOAD_QUEUE.get(pathtoFile.trim() + "-" + pid2.trim() + "-" + checksum.trim() + "-" + ip.trim());
                     if (downQue != null) {
@@ -318,11 +322,11 @@ public class FileDownloadHandler implements Runnable {
                                             }
                                             String reply = new String(message, StandardCharsets.UTF_8);
                                             Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "Recieved Reply Message: " + reply);
-                                            File ipDir = new File("cache/" + nodeUUID + "/" + pid2 + "/" + projectName);
+                                            File ipDir = new File(JobPaths.cache(nodeUUID, pid2, projectName));
                                             if (!ipDir.exists()) {
                                                 ipDir.mkdirs();
                                             }
-                                            File ip2Dir = new File(ipDir.getAbsolutePath() + "/" + lpathtoFile);
+                                            File ip2Dir = new File(SipsPaths.join(ipDir.getAbsolutePath(), lpathtoFile));
                                             String lchecksum = "";
                                             if (new File(ip2Dir.getAbsolutePath() + ".sha").exists()) {
                                                 lchecksum = Util.LoadCheckSum(ip2Dir.getAbsolutePath() + ".sha");
@@ -415,8 +419,10 @@ public class FileDownloadHandler implements Runnable {
                     String ip = body.getString("IP");//body.substring(body.indexOf("<IP>") + 4, body.indexOf("</IP>"));
                     String nodeUUID = body.getString("UUID");
                     String projectName = body.getString("PROJECT");
-                    String pathtoFile = "data/" + pid2 + "/.result/" + classname + "/" + objToSend + "-instance-" + instance + ".obj";
-                    String lpathtoFile = ".result/" + classname + "/" + objToSend + "-instance-" + instance + ".obj";
+                    String pathtoFile = SipsPaths.join(JobPaths.job(pid2), ".result", classname,
+                            objToSend + "-instance-" + instance + ".obj");
+                    String lpathtoFile = SipsPaths.canonicalJoin(".result", classname,
+                            objToSend + "-instance-" + instance + ".obj");
                     boolean notinQ = true;
                     FileDownQueReq downQue = GlobalValues.DOWNLOAD_QUEUE.get(pathtoFile.trim() + "-" + pid2.trim() + "-" + checksum.trim() + "-" + ip.trim());
                     if (downQue != null) {
@@ -483,12 +489,12 @@ public class FileDownloadHandler implements Runnable {
                                             }
                                             String reply = new String(message, StandardCharsets.UTF_8);
                                             Util.appendToFileDownloadLog(GlobalValues.LOG_LEVEL.OUTPUT, "Recieved Reply Message: " + reply);
-                                            File ipDir = new File("cache/" + nodeUUID + "/" + pid2);
+                                            File ipDir = new File(JobPaths.cache(nodeUUID, pid2));
                                             if (!ipDir.exists()) {
                                                 ipDir.mkdirs();
                                             }
                                             //   String filename = new File(fileToSend).getName();
-                                            File ip2Dir = new File(ipDir.getAbsolutePath() + "/" + lpathtoFile);
+                                            File ip2Dir = new File(SipsPaths.join(ipDir.getAbsolutePath(), lpathtoFile));
                                             String lchecksum = "";
                                             if (new File(ip2Dir.getAbsolutePath() + ".sha").exists()) {
                                                 lchecksum = Util.LoadCheckSum(ip2Dir.getAbsolutePath() + ".sha");

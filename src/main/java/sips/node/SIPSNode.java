@@ -16,6 +16,7 @@
  */
 package sips.node;
 
+import in.co.s13.sips.lib.common.SipsPaths;
 import in.co.s13.SIPS.benchmarks.Benchmarks;
 import in.co.s13.SIPS.settings.Settings;
 import in.co.s13.SIPS.initializer.HardwareStatThreads;
@@ -122,7 +123,7 @@ public class SIPSNode {
              * *
              * add new IP addresses or Hosts to the API LIST
              */
-            GlobalValues.API_JSON = Util.readJSONFile(dir_etc + "/" + (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_API_KEYS) ? "common" : HOST_NAME) + "-" : "") + "api.json");
+            GlobalValues.API_JSON = Util.readJSONFile(SipsPaths.join(dir_etc, (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_API_KEYS) ? "common" : HOST_NAME) + "-" : "") + "api.json"));
             Iterator<String> it = GlobalValues.API_JSON.keys();
             GlobalValues.API_LIST = new ConcurrentHashMap<>();
             while (it.hasNext()) {
@@ -152,7 +153,7 @@ public class SIPSNode {
                 info.put("key", key);
                 info.put("permissions", permissions);
                 GlobalValues.API_JSON.put(client, info);
-                Util.write(dir_etc + "/" + (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_API_KEYS) ? "common" : HOST_NAME) + "-" : "") + "api.json", GlobalValues.API_JSON.toString(4));
+                Util.write(SipsPaths.join(dir_etc, (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_API_KEYS) ? "common" : HOST_NAME) + "-" : "") + "api.json"), GlobalValues.API_JSON.toString(4));
                 System.out.println(info.toString(4));
                 System.exit(0);
             }
@@ -246,7 +247,7 @@ public class SIPSNode {
              * *
              * add new IP addresses or Hosts
              */
-            GlobalValues.IPs_TO_SCAN_JSON = Util.readJSONFile(dir_etc + "/" + (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_IP_LIST) ? "common" : HOST_NAME) + "-" : "") + "ips.json");
+            GlobalValues.IPs_TO_SCAN_JSON = Util.readJSONFile(SipsPaths.join(dir_etc, (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_IP_LIST) ? "common" : HOST_NAME) + "-" : "") + "ips.json"));
             if (arguments.contains("--add-ip")) {
                 int listSize = 0, index = 0;
                 try {
@@ -266,14 +267,14 @@ public class SIPSNode {
                 }
                 GlobalValues.IPs_TO_SCAN_JSON = new JSONObject();
                 GlobalValues.IPs_TO_SCAN_JSON.put("ips", jsonArray);
-                Util.write(dir_etc + "/" + (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_IP_LIST) ? "common" : HOST_NAME) + "-" : "") + "ips.json", GlobalValues.IPs_TO_SCAN_JSON.toString(4));
+                Util.write(SipsPaths.join(dir_etc, (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_IP_LIST) ? "common" : HOST_NAME) + "-" : "") + "ips.json"), GlobalValues.IPs_TO_SCAN_JSON.toString(4));
             }
 
             /**
              * *
              * add new networks to scan
              */
-            GlobalValues.NETWORKS_TO_SCAN_JSON = Util.readJSONFile(dir_etc + "/" + (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_NETWORK_LIST) ? "common" : HOST_NAME) + "-" : "") + "networks.json");
+            GlobalValues.NETWORKS_TO_SCAN_JSON = Util.readJSONFile(SipsPaths.join(dir_etc, (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_NETWORK_LIST) ? "common" : HOST_NAME) + "-" : "") + "networks.json"));
             if (arguments.contains("--add-network")) {
                 int listSize = 0, index = 0;
                 try {
@@ -293,14 +294,14 @@ public class SIPSNode {
                 }
                 GlobalValues.NETWORKS_TO_SCAN_JSON = new JSONObject();
                 GlobalValues.NETWORKS_TO_SCAN_JSON.put("networks", jsonArray);
-                Util.write(dir_etc + "/" + (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_NETWORK_LIST) ? "common" : HOST_NAME) + "-" : "") + "networks.json", GlobalValues.NETWORKS_TO_SCAN_JSON.toString(4));
+                Util.write(SipsPaths.join(dir_etc, (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_NETWORK_LIST) ? "common" : HOST_NAME) + "-" : "") + "networks.json"), GlobalValues.NETWORKS_TO_SCAN_JSON.toString(4));
             }
 
             /**
              * *
              * blacklist nodes Put these on Raymond Reddington's List
              */
-            GlobalValues.BLACKLIST_JSON = Util.readJSONFile(dir_etc + "/" + (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_BLACKLIST) ? "common" : HOST_NAME) + "-" : "") + "blacklist.json");
+            GlobalValues.BLACKLIST_JSON = Util.readJSONFile(SipsPaths.join(dir_etc, (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_BLACKLIST) ? "common" : HOST_NAME) + "-" : "") + "blacklist.json"));
             if (arguments.contains("--blacklist")) {
                 int listSize = 0, index = 0;
                 try {
@@ -320,7 +321,7 @@ public class SIPSNode {
                 }
                 GlobalValues.BLACKLIST_JSON = new JSONObject();
                 GlobalValues.BLACKLIST_JSON.put("blacklist", jsonArray);
-                Util.write(dir_etc + "/" + (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_BLACKLIST) ? "common" : HOST_NAME) + "-" : "") + "blacklist.json", GlobalValues.BLACKLIST_JSON.toString(4));
+                Util.write(SipsPaths.join(dir_etc, (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_BLACKLIST) ? "common" : HOST_NAME) + "-" : "") + "blacklist.json"), GlobalValues.BLACKLIST_JSON.toString(4));
             }
 
             /**
@@ -409,10 +410,10 @@ public class SIPSNode {
         } else {
             loadSettings.init();
             preBenchmarkingChecks();
-            GlobalValues.BLACKLIST_JSON = Util.readJSONFile(dir_etc + "/" + (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_BLACKLIST) ? "common" : HOST_NAME) + "-" : "") + "blacklist.json");
-            GlobalValues.NETWORKS_TO_SCAN_JSON = Util.readJSONFile(dir_etc + "/" + (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_NETWORK_LIST) ? "common" : HOST_NAME) + "-" : "") + "networks.json");
-            GlobalValues.IPs_TO_SCAN_JSON = Util.readJSONFile(dir_etc + "/" + (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_IP_LIST) ? "common" : HOST_NAME) + "-" : "") + "ips.json");
-            GlobalValues.API_JSON = Util.readJSONFile(dir_etc + "/" + (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_API_KEYS) ? "common" : HOST_NAME) + "-" : "") + "api.json");
+            GlobalValues.BLACKLIST_JSON = Util.readJSONFile(SipsPaths.join(dir_etc, (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_BLACKLIST) ? "common" : HOST_NAME) + "-" : "") + "blacklist.json"));
+            GlobalValues.NETWORKS_TO_SCAN_JSON = Util.readJSONFile(SipsPaths.join(dir_etc, (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_NETWORK_LIST) ? "common" : HOST_NAME) + "-" : "") + "networks.json"));
+            GlobalValues.IPs_TO_SCAN_JSON = Util.readJSONFile(SipsPaths.join(dir_etc, (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_IP_LIST) ? "common" : HOST_NAME) + "-" : "") + "ips.json"));
+            GlobalValues.API_JSON = Util.readJSONFile(SipsPaths.join(dir_etc, (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_API_KEYS) ? "common" : HOST_NAME) + "-" : "") + "api.json"));
             new HardwareStatThreads();
             new NetworkThreads();
             ServiceOperations.initApiServerAtStartUp();
@@ -442,13 +443,13 @@ public class SIPSNode {
         benchmarkResults.put("MEMORY", GlobalValues.MEM_SIZE);
         benchmarkResults.put("TIMESTAMP", System.currentTimeMillis());
         GlobalValues.BENCHMARKING = benchmarkResults;
-        Util.write(new File(dir_etc + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "benchmarks.json"), benchmarkResults.toString(4));
+        Util.write(new File(SipsPaths.join(dir_etc, (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "benchmarks.json")), benchmarkResults.toString(4));
 
     }
 
     public static void preBenchmarkingChecks() {
-        if (new File(dir_etc + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "benchmarks.json").exists()) {
-            JSONObject benchmarkResults = Util.readJSONFile(dir_etc + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "benchmarks.json");
+        if (new File(SipsPaths.join(dir_etc, (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "benchmarks.json")).exists()) {
+            JSONObject benchmarkResults = Util.readJSONFile(SipsPaths.join(dir_etc, (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "benchmarks.json"));
             long timestamp = benchmarkResults.getLong("TIMESTAMP", 0l);
             if ((TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - timestamp)) > 1) {
                 benchmark();

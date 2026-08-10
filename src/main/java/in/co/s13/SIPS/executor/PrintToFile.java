@@ -16,6 +16,8 @@
  */
 package in.co.s13.SIPS.executor;
 
+import in.co.s13.sips.lib.common.SipsPaths;
+import in.co.s13.SIPS.tools.JobPaths;
 import in.co.s13.SIPS.tools.Util;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -29,7 +31,7 @@ public class PrintToFile implements Runnable {
     private File f;
 
     public PrintToFile(String Filename, String PID, String cno, String output) {
-        f = new File("data/" + PID + "/" + PID + "c" + cno + ".output");
+        f = new File(SipsPaths.join(JobPaths.job(PID), PID + "c" + cno + ".output"));
         content = output;
     }
 

@@ -16,6 +16,8 @@
  */
 package in.co.s13.SIPS.executor;
 
+import in.co.s13.sips.lib.common.SipsPaths;
+import in.co.s13.SIPS.tools.JobPaths;
 import in.co.s13.SIPS.datastructure.DistributionDBRow;
 import in.co.s13.SIPS.settings.GlobalValues;
 import in.co.s13.SIPS.tools.Util;
@@ -141,14 +143,15 @@ public class DistributedStageRunner implements StageRunner {
      * distributor uploads from.
      */
     private void copyStageSources(Stage stage, ParallelForSENP chunk, int chunkNumber) {
-        File source = new File("data/" + jobToken + "/stages/" + stage.name() + "/src");
+        File source = new File(SipsPaths.join(JobPaths.job(jobToken), "stages",
+                stage.name(), "src"));
         if (!source.isDirectory()) {
             // Stages that share the job's single source tree, which is the
             // common case for a WASM pipeline shipping one module.
-            source = new File("data/" + jobToken + "/src");
+            source = new File(JobPaths.source(jobToken));
         }
-        Util.copyFolder(source, new File("data/" + jobToken + "/dist/"
-                + chunk.getNodeUUID() + ":CN:" + chunkNumber + "/src/"));
+        Util.copyFolder(source, new File(JobPaths.chunkSource(jobToken,
+                chunk.getNodeUUID(), chunkNumber)));
     }
 
     private boolean upload(Distributor distributor, ParallelForSENP chunk, int chunkNumber,

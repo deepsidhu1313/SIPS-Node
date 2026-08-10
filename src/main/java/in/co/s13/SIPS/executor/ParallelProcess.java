@@ -16,6 +16,8 @@
  */
 package in.co.s13.SIPS.executor;
 
+import in.co.s13.sips.lib.common.SipsPaths;
+import in.co.s13.SIPS.tools.JobPaths;
 import com.sun.management.OperatingSystemMXBean;
 import in.co.s13.SIPS.datastructure.TaskDBRow;
 import in.co.s13.SIPS.datastructure.TaskKeys;
@@ -130,7 +132,7 @@ public class ParallelProcess implements Runnable {
                 JSONArray tmp = manifest.getJSONArray("LIB");
                 if (tmp.length() > 0) {
                     for (int i = 0; i < tmp.length(); i++) {
-                        libList.add("lib/" + tmp.getString(i));
+                        libList.add(SipsPaths.canonicalJoin("lib", tmp.getString(i)));
                     }
                 }
             }
@@ -206,7 +208,7 @@ public class ParallelProcess implements Runnable {
     }
 
     public void createProcess(String ip, String PID, ArrayList<String> filename, ArrayList<byte[]> Content, String uuid) throws FileNotFoundException {
-        loc = "proc/" + uuid + "/" + PID + "/" + cno;
+        loc = JobPaths.chunkWorkingDirectory(uuid, PID, cno);
         File d2 = new File("proc");
         if (!d2.exists()) {
             d2.mkdir();
@@ -229,7 +231,7 @@ public class ParallelProcess implements Runnable {
         ArrayList<String> temp = new ArrayList<>();
         temp.addAll(libList);
         temp.addAll(attachments);
-        Util.write(new File(loc + "/task.json"), meta.toString());
+        Util.write(new File(SipsPaths.join(loc, "task.json")), meta.toString());
         if (taskType == TaskType.JAVA) {
             generateScript(loc, main);
         }
@@ -261,7 +263,7 @@ public class ParallelProcess implements Runnable {
         return JavaTarget.forVersion(System.getProperty("java.version"));
     }
     public void generateScript(String location, String main) {
-        File f = new File(location + "/build.xml");
+        File f = new File(SipsPaths.join(location, "build.xml"));
         {
             PrintStream out = null;
             if (f.exists()) {
@@ -342,7 +344,7 @@ public class ParallelProcess implements Runnable {
     private void runWasm() {
         Long startTime = System.currentTimeMillis();
         try (WasmRunner runner = new WasmRunner()) {
-            JSONObject range = Util.readJSONFile(loc + "/" + CHUNK_RANGE_FILE);
+            JSONObject range = Util.readJSONFile(SipsPaths.join(loc, CHUNK_RANGE_FILE));
             // MODULE arrives over the network like FILENAME does, so it is
             // confined to the chunk directory before it is opened.
             WasmTask task = new WasmTask(pid, Integer.parseInt(cno),

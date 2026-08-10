@@ -16,6 +16,8 @@
  */
 package in.co.s13.SIPS.executor.sockets.handlers;
 
+import in.co.s13.SIPS.transfer.SafePath;
+import in.co.s13.sips.lib.common.SipsPaths;
 import in.co.s13.SIPS.settings.GlobalValues;
 import in.co.s13.SIPS.tools.Util;
 import java.io.BufferedInputStream;
@@ -85,9 +87,9 @@ public class FileHandler implements Runnable {
                     String nodeUUID = body.getString("UUID");
 //                        System.out.println("Accepted connection : " + submitter);
                     // send file
-                    File fileToSend = new File("data/" + pid + "/" + filenameToSend);
+                    File fileToSend = SafePath.resolve(SipsPaths.join("data", pid), filenameToSend).toFile();
 
-                    if (fileToSend.getAbsolutePath().trim().contains("data/" + pid) && fileToSend.exists()) {
+                    if (fileToSend.exists()) {
                         String sendmsg = "foundfile";
 
                         byte[] bytes = sendmsg.getBytes("UTF-8");
@@ -159,9 +161,10 @@ public class FileHandler implements Runnable {
                     String nodeUUID = body.getString("UUID");
 //                        System.out.println("Accepted connection : " + submitter);
                     // send file
-                    File myFile2 = new File("data/" + pid2 + "/.simulated/" + classname + "/" + objToSend + "-instance-" + instance + ".obj");
+                    File myFile2 = SafePath.resolve(SipsPaths.join("data", pid2, ".simulated", classname),
+                        objToSend + "-instance-" + instance + ".obj").toFile();
 
-                    if (myFile2.getAbsolutePath().trim().contains("data/" + pid2) && myFile2.exists()) {
+                    if (myFile2.exists()) {
                         String sendmsg = "foundobj";
 
                         byte[] bytes = sendmsg.getBytes("UTF-8");
@@ -236,9 +239,10 @@ public class FileHandler implements Runnable {
                     String nodeUUID = body.getString("UUID");
 //                        System.out.println("Accepted connection : " + submitter);
                     // send file
-                    File myFile2 = new File("data/" + pid2 + "/.result/" + classname + "/" + objToSend + "-instance-" + instance + ".obj");
+                    File myFile2 = SafePath.resolve(SipsPaths.join("data", pid2, ".result", classname),
+                        objToSend + "-instance-" + instance + ".obj").toFile();
 
-                    if (myFile2.getAbsolutePath().trim().contains("data/" + pid2) && myFile2.exists()) {
+                    if (myFile2.exists()) {
                         String sendmsg = "foundobj";
 
                         byte[] bytes = sendmsg.getBytes("UTF-8");
@@ -308,30 +312,33 @@ public class FileHandler implements Runnable {
                     String projectName = body.getString("PROJECT");
                     String nodeUUID = body.getString("UUID");
 
-                    File fileToSave = new File("data/" + pid2 + "/.result/" + classname + "/" + resultToReceive + "-instance-" + instance + ".obj");
+                    File fileToSave = SafePath.resolve(SipsPaths.join("data", pid2, ".result", classname),
+                        resultToReceive + "-instance-" + instance + ".obj").toFile();
                     fileToSave.getParentFile().mkdirs();
-                    if (fileToSave.getAbsolutePath().trim().contains("data/" + pid2)) {
-                        long fileLen, downData;
-                        File tmpFile = new File(fileToSave.getAbsolutePath() + ".tmp");
-                        int r = 0;
-                        while (tmpFile.exists()) {
-                            tmpFile = new File(fileToSave.getAbsolutePath() + ".tmp." + r);
-                            r++;
-                        }
-                        try (FileOutputStream fos = new FileOutputStream(tmpFile); BufferedOutputStream bos = new BufferedOutputStream(fos)) {
-                            fileLen = dataInputStream.readLong();
-
-                            downData = fileLen;
-                            int n = 0;
-                            byte[] buf = new byte[1024];
-                            while (fileLen > 0 && ((n = dataInputStream.read(buf, 0, (int) Math.min(buf.length, fileLen))) != -1)) {
-                                bos.write(buf, 0, n);
-                                fileLen -= n;
-                            }
-                            bos.flush();
-                        }
-                        tmpFile.renameTo(fileToSave);
+                    // SafePath.resolve has already refused anything outside the
+                    // job directory, so the string search that stood here is both
+                    // redundant and wrong off Unix: an absolute Windows path never
+                    // contains "data/<job>".
+                    long fileLen, downData;
+                    File tmpFile = new File(fileToSave.getAbsolutePath() + ".tmp");
+                    int r = 0;
+                    while (tmpFile.exists()) {
+                        tmpFile = new File(fileToSave.getAbsolutePath() + ".tmp." + r);
+                        r++;
                     }
+                    try (FileOutputStream fos = new FileOutputStream(tmpFile); BufferedOutputStream bos = new BufferedOutputStream(fos)) {
+                        fileLen = dataInputStream.readLong();
+
+                        downData = fileLen;
+                        int n = 0;
+                        byte[] buf = new byte[1024];
+                        while (fileLen > 0 && ((n = dataInputStream.read(buf, 0, (int) Math.min(buf.length, fileLen))) != -1)) {
+                            bos.write(buf, 0, n);
+                            fileLen -= n;
+                        }
+                        bos.flush();
+                    }
+                    tmpFile.renameTo(fileToSave);
 
                 } else if (command.trim().equalsIgnoreCase("resolveObjectChecksum")) {
                     String objToSend = body.getString("OBJECT");
@@ -342,9 +349,10 @@ public class FileHandler implements Runnable {
                     String projectName = body.getString("PROJECT");
 
                     // send file
-                    File myFile2 = new File("data/" + pid2 + "/.simulated/" + classname + "/" + objToSend + "-instance-" + instance + ".obj");
+                    File myFile2 = SafePath.resolve(SipsPaths.join("data", pid2, ".simulated", classname),
+                        objToSend + "-instance-" + instance + ".obj").toFile();
 
-                    if (myFile2.getAbsolutePath().trim().contains("data/" + pid2) && myFile2.exists()) {
+                    if (myFile2.exists()) {
                         String sendmsg = "foundobj";
 
                         byte[] bytes = sendmsg.getBytes("UTF-8");
@@ -387,9 +395,10 @@ public class FileHandler implements Runnable {
                     String projectName = body.getString("PROJECT");
 
                     // send file
-                    File myFile2 = new File("data/" + pid2 + "/.result/" + classname + "/" + objToSend + "-instance-" + instance + ".obj");
+                    File myFile2 = SafePath.resolve(SipsPaths.join("data", pid2, ".result", classname),
+                        objToSend + "-instance-" + instance + ".obj").toFile();
 
-                    if (myFile2.getAbsolutePath().trim().contains("data/" + pid2) && myFile2.exists()) {
+                    if (myFile2.exists()) {
                         String sendmsg = "foundobj";
 
                         byte[] bytes = sendmsg.getBytes("UTF-8");
@@ -436,9 +445,9 @@ public class FileHandler implements Runnable {
 
                     System.out.println("Accepted connection : " + submitter);
                     // send file
-                    File myFile = new File("data/" + pid + "/" + fileToSend);
+                    File myFile = SafePath.resolve(SipsPaths.join("data", pid), fileToSend).toFile();
 
-                    if (myFile.getAbsolutePath().trim().contains("data/" + pid) && myFile.exists()) {
+                    if (myFile.exists()) {
                         String sendmsg = "foundfile";
 
                         byte[] bytes = sendmsg.getBytes("UTF-8");

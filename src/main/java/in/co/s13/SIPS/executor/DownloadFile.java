@@ -16,6 +16,8 @@
  */
 package in.co.s13.SIPS.executor;
 
+import in.co.s13.sips.lib.common.SipsPaths;
+import in.co.s13.SIPS.tools.JobPaths;
 import in.co.s13.SIPS.datastructure.FileDownQueReq;
 import in.co.s13.SIPS.datastructure.TaskDBRow;
 import in.co.s13.SIPS.datastructure.TaskKeys;
@@ -81,12 +83,12 @@ public class DownloadFile {
                                         dIn.readFully(message, 0, message.length); // read the message
                                     }
                                     String reply = new String(message, StandardCharsets.UTF_8);
-                                    ipDir = new File("cache/" + uuid + "/" + projectname);
+                                    ipDir = new File(JobPaths.cache(uuid, projectname));
                                     if (!ipDir.exists()) {
                                         ipDir.mkdirs();
                                     }
                                     //String filename = new File(_item).getName();
-                                    ip2Dir = new File(ipDir.getAbsolutePath() + "/" + _item);
+                                    ip2Dir = new File(SipsPaths.join(ipDir.getAbsolutePath(), _item));
                                     if (ip2Dir.exists()) {
                                         lchecksum = Util.LoadCheckSum(ip2Dir.getAbsolutePath() + ".sha");
                                     }
@@ -122,7 +124,7 @@ public class DownloadFile {
                         TaskDBRow task = GlobalValues.TASK_DB.get(TaskKeys.of(uuid, pid, cno));
 
                         if (lchecksum.trim().equalsIgnoreCase(checksum.trim())) {
-                            Util.copyFileUsingStream(ip2Dir.getAbsolutePath(), localFolder + "/" + _item);
+                            Util.copyFileUsingStream(ip2Dir.getAbsolutePath(), SipsPaths.join(localFolder, _item));
                             // The row is absent if the chunk was cancelled while
                             // its files were still being fetched.
                             if (task != null) {
@@ -138,7 +140,7 @@ public class DownloadFile {
                             }
 
                             if (lchecksum.trim().equalsIgnoreCase(checksum.trim())) {
-                                Util.copyFileUsingStream(ip2Dir.getAbsolutePath(), localFolder + "/" + _item);
+                                Util.copyFileUsingStream(ip2Dir.getAbsolutePath(), SipsPaths.join(localFolder, _item));
                                 Ndownloaded = false;
                             } else {
 
@@ -179,7 +181,7 @@ public class DownloadFile {
                                                     lchecksum = Util.LoadCheckSum(ip2Dir.getAbsolutePath() + ".sha");
                                                 }
                                                 if (lchecksum.trim().equalsIgnoreCase(checksum.trim())) {
-                                                    Util.copyFileUsingStream(ip2Dir.getAbsolutePath(), localFolder + "/" + _item);
+                                                    Util.copyFileUsingStream(ip2Dir.getAbsolutePath(), SipsPaths.join(localFolder, _item));
                                                     Ndownloaded = false;
                                                 }
 

@@ -5,6 +5,7 @@
  */
 package in.co.s13.SIPS.executor;
 
+import in.co.s13.SIPS.tools.JobPaths;
 import in.co.s13.SIPS.settings.GlobalValues;
 import in.co.s13.SIPS.tools.CollectFiles;
 import in.co.s13.SIPS.tools.Util;
@@ -92,14 +93,14 @@ public class Distributor {
             body.put("UUID", in.co.s13.sips.lib.node.settings.GlobalValues.NODE_UUID);
             JSONArray files = new JSONArray();
             CollectFiles collectFiles = new CollectFiles();
-            ArrayList<String> toSend = collectFiles.getFiles("data/" + jobToken + "/dist/" + nodeUUID + ":CN:" + chunkNumber + "/src");
+            ArrayList<String> toSend = collectFiles.getFiles(JobPaths.chunkSource(jobToken, nodeUUID, chunkNumber));
             for (int i = 0; i < toSend.size(); i++) {
                 String filePath = toSend.get(i);
                 try {
                     // Encoded byte-exactly: source may be UTF-8 or CRLF, and a
                     // chunk's inputs may be binary, such as image tiles.
                     JSONObject file = FilePayload.encode(
-                            filePath.substring(filePath.lastIndexOf("/src/")),
+                            JobPaths.nameForTransfer(filePath),
                             Files.readAllBytes(Paths.get(filePath)));
                     files.put(file);
                 } catch (IOException ex) {
@@ -109,7 +110,7 @@ public class Distributor {
                 }
             }
             body.put("FILES", files);
-            JSONObject manifest = Util.readJSONFile("data/" + jobToken + "/manifest.json");
+            JSONObject manifest = Util.readJSONFile(JobPaths.manifest(jobToken));
             /**
              * Remove sensitive info from manifest
              */

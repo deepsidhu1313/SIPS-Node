@@ -16,6 +16,7 @@
  */
 package in.co.s13.SIPS.executor.sockets.handlers;
 
+import in.co.s13.sips.lib.common.SipsPaths;
 import in.co.s13.SIPS.datastructure.DistributionDBRow;
 import in.co.s13.SIPS.db.SQLiteJDBC;
 import in.co.s13.SIPS.settings.GlobalValues;
@@ -531,7 +532,7 @@ public class APIHandler implements Runnable {
                         info.put("key", key);
                         info.put("permissions", permissions);
                         GlobalValues.API_JSON.put(client, info);
-                        Util.write(dir_etc + "/" + (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_API_KEYS) ? "common" : HOST_NAME) + "-" : "") + "api.json", GlobalValues.API_JSON.toString(4));
+                        Util.write(SipsPaths.join(dir_etc, (HAS_SHARED_STORAGE ? ((GlobalValues.HAS_COMMON_API_KEYS) ? "common" : HOST_NAME) + "-" : "") + "api.json"), GlobalValues.API_JSON.toString(4));
                         response.put("Message", info);
                         body.put("Response", response);
 

@@ -16,6 +16,7 @@
  */
 package in.co.s13.SIPS.settings;
 
+import in.co.s13.sips.lib.common.SipsPaths;
 import in.co.s13.SIPS.db.OLDSQLiteJDBC;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -78,7 +79,7 @@ public class Settings {
         File f = new File(workingDir);
         System.out.println("" + f.getAbsolutePath());
 
-        File f4 = new File(workingDir + "/" + dir_temp);
+        File f4 = new File(SipsPaths.join(workingDir, dir_temp));
         if (!f4.exists()) {
             if (!f4.mkdir()) {
                 Util.errPrintln("Directory for VAR couldnot be created !\n"
@@ -108,23 +109,23 @@ public class Settings {
                         + "Please create a dir with this name");
             }
         }
-        if (new File(dir_etc + "/" + (HAS_SHARED_STORAGE ? HOST_NAME : "") + "settings.json").exists()) {
+        if (new File(SipsPaths.join(dir_etc, (HAS_SHARED_STORAGE ? HOST_NAME : "") + "settings.json")).exists()) {
             loadSettings();
         } else {
             saveSettings();
         }
-        alldb = new OLDSQLiteJDBC(dir_etc + "/all.db");
+        alldb = new OLDSQLiteJDBC(SipsPaths.join(dir_etc, "all.db"));
 //        TASK_DB_EXECUTOR.execute(() -> {
 //            String sql = "CREATE TABLE PROC (ID    INT   PRIMARY KEY     NOT NULL,"
 //                    + " ALIENID  INT,"
 //                    + "FNAME     TEXT,"
 //                    + "CNO     INT,"
 //                    + "IP   TEXT);";
-//            File f1 = new File(dir_etc + "/proc.db");
+//            File f1 = new File(SipsPaths.join(dir_etc, "proc.db"));
 //            if (f1.exists()) {
 //                f1.delete();
 //            }
-//            TASK_DB.createtable(dir_etc + "/proc.db", sql);
+//            TASK_DB.createtable(SipsPaths.join(dir_etc, "proc.db"), sql);
 //            TASK_DB.closeConnection();
 //        });
         try {
@@ -133,7 +134,7 @@ public class Settings {
             Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        try (PrintStream procn = new PrintStream(dir_bin + "/procn.bat")) {
+        try (PrintStream procn = new PrintStream(SipsPaths.join(dir_bin, "procn.bat"))) {
             procn.print("wmic cpu get name");
         } catch (FileNotFoundException ex) {
             Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
@@ -142,17 +143,17 @@ public class Settings {
         CPU_NAME = getCPUName();
 
         try {
-            OUT_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "out.log";
-            ERR_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "err.log";
-            LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "app.log";
-            API_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "api.log";
-            FILE_DOWNLOAD_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "file_download.log";
-            FILE_SERVER_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "file_server.log";
-            PING_SERVER_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "ping_server.log";
-            TASK_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "tasks.log";
-            JOB_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "jobs.log";
-            JOB_DISTRIBUTOR_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "distributor.log";
-            PING_REQ_LOG_FILE = dir_log + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "ping.log";
+            OUT_FILE = SipsPaths.join(dir_log, (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "out.log");
+            ERR_FILE = SipsPaths.join(dir_log, (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "err.log");
+            LOG_FILE = SipsPaths.join(dir_log, (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "app.log");
+            API_LOG_FILE = SipsPaths.join(dir_log, (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "api.log");
+            FILE_DOWNLOAD_LOG_FILE = SipsPaths.join(dir_log, (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "file_download.log");
+            FILE_SERVER_LOG_FILE = SipsPaths.join(dir_log, (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "file_server.log");
+            PING_SERVER_LOG_FILE = SipsPaths.join(dir_log, (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "ping_server.log");
+            TASK_LOG_FILE = SipsPaths.join(dir_log, (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "tasks.log");
+            JOB_LOG_FILE = SipsPaths.join(dir_log, (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "jobs.log");
+            JOB_DISTRIBUTOR_LOG_FILE = SipsPaths.join(dir_log, (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "distributor.log");
+            PING_REQ_LOG_FILE = SipsPaths.join(dir_log, (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "ping.log");
 
             String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date(System.currentTimeMillis()));
             String prevContent = Util.readFile(ERR_FILE);
@@ -230,19 +231,19 @@ public class Settings {
     }
 
     void loadSettings() {
-        JSONObject commonSettings = Util.readJSONFile(dir_etc + "/common_settings.json");
+        JSONObject commonSettings = Util.readJSONFile(SipsPaths.join(dir_etc, "common_settings.json"));
         HAS_SHARED_STORAGE = commonSettings.getBoolean("HAS_SHARED_STORAGE", HAS_SHARED_STORAGE);
         HAS_COMMON_API_KEYS = commonSettings.getBoolean("HAS_COMMON_API_KEYS", HAS_COMMON_API_KEYS);
         HAS_COMMON_BLACKLIST = commonSettings.getBoolean("HAS_COMMON_BLACKLIST", HAS_COMMON_BLACKLIST);
         HAS_COMMON_IP_LIST = commonSettings.getBoolean("HAS_COMMON_IP_LIST", HAS_COMMON_IP_LIST);
         HAS_COMMON_NETWORK_LIST = commonSettings.getBoolean("HAS_COMMON_NETWORK_LIST", HAS_COMMON_NETWORK_LIST);
 
-        JSONObject settings = Util.readJSONFile(dir_etc + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "settings.json");
+        JSONObject settings = Util.readJSONFile(SipsPaths.join(dir_etc, (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "settings.json"));
 
         DUMP_LOG = settings.getBoolean("DUMP_LOG", true);
         VERBOSE = settings.getBoolean("VERBOSE", true);
 
-        JSONObject serviceSettings = Util.readJSONFile(dir_etc + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "service_settings.json");
+        JSONObject serviceSettings = Util.readJSONFile(SipsPaths.join(dir_etc, (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "service_settings.json"));
         in.co.s13.sips.lib.node.settings.GlobalValues.NODE_UUID = serviceSettings.getString("UUID", "");
 
         if (in.co.s13.sips.lib.node.settings.GlobalValues.NODE_UUID.length() < 1) {
@@ -275,7 +276,7 @@ public class Settings {
         TASK_FINISH_LISTENER_SERVER_ENABLED_AT_START = serviceSettings.getBoolean("TASK_FINISH_LISTENER_ENABLED_AT_START", TASK_FINISH_LISTENER_SERVER_ENABLED_AT_START);
         LOG_ROTATE_ENABLED_AT_START = serviceSettings.getBoolean("LOG_ROTATE_ENABLED_AT_START", LOG_ROTATE_ENABLED_AT_START);
         NODE_EXPIRY_TIME = serviceSettings.getLong("NODE_EXPIRY_TIME", NODE_EXPIRY_TIME);
-        JSONObject logrotateSettings = Util.readJSONFile(dir_etc + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "log_rotate.json");
+        JSONObject logrotateSettings = Util.readJSONFile(SipsPaths.join(dir_etc, (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "log_rotate.json"));
         LOG_FILE_SIZE_LIMIT = logrotateSettings.getLong("LOG_FILE_SIZE_LIMIT", LOG_FILE_SIZE_LIMIT);
         LOGROTATION_INTERVAL_IN_HOURS = logrotateSettings.getLong("LOGROTATION_INTERVAL_IN_HOURS", LOGROTATION_INTERVAL_IN_HOURS);
         LAST_ROTATED_ON = logrotateSettings.getLong("LAST_ROTATED_ON", LAST_ROTATED_ON);
@@ -283,19 +284,19 @@ public class Settings {
     }
 
     public static synchronized void saveSettings() {
-        JSONObject commonSettings = Util.readJSONFile(dir_etc + "/common_settings.json");
+        JSONObject commonSettings = Util.readJSONFile(SipsPaths.join(dir_etc, "common_settings.json"));
         commonSettings.put("HAS_SHARED_STORAGE", HAS_SHARED_STORAGE);
         commonSettings.put("HAS_COMMON_API_KEYS", HAS_COMMON_API_KEYS);
         commonSettings.put("HAS_COMMON_BLACKLIST", HAS_COMMON_BLACKLIST);
         commonSettings.put("HAS_COMMON_IP_LIST", HAS_COMMON_IP_LIST);
         commonSettings.put("HAS_COMMON_NETWORK_LIST", HAS_COMMON_NETWORK_LIST);
 
-        write(dir_etc + "/common_settings.json", commonSettings.toString(4));
+        write(SipsPaths.join(dir_etc, "common_settings.json"), commonSettings.toString(4));
         JSONObject settings = new JSONObject();
 
         settings.put("DUMP_LOG", DUMP_LOG);
         settings.put("VERBOSE", VERBOSE);
-        write(new File(dir_etc + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "settings.json"), settings.toString(4));
+        write(new File(SipsPaths.join(dir_etc, (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "settings.json")), settings.toString(4));
 
         JSONObject serviceSettings = new JSONObject();
 
@@ -330,14 +331,14 @@ public class Settings {
         serviceSettings.put("NODE_SCANNER_PERIODIC_DELAY", NODE_SCANNER_PERIODIC_DELAY);
         serviceSettings.put("NODE_EXPIRY_TIME", NODE_EXPIRY_TIME);
         serviceSettings.put("LOG_ROTATE_ENABLED_AT_START", LOG_ROTATE_ENABLED_AT_START);
-        write(new File(dir_etc + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "service_settings.json"), serviceSettings.toString(4));
+        write(new File(SipsPaths.join(dir_etc, (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "service_settings.json")), serviceSettings.toString(4));
 
         JSONObject logrotateSettings = new JSONObject();
         logrotateSettings.put("LOG_FILE_SIZE_LIMIT", LOG_FILE_SIZE_LIMIT);
         logrotateSettings.put("LOGROTATION_INTERVAL_IN_HOURS", LOGROTATION_INTERVAL_IN_HOURS);
         logrotateSettings.put("LAST_ROTATED_ON", LAST_ROTATED_ON);
         logrotateSettings.put("LOG_ROTATE_CHECK_FILES_EVERY", LOG_ROTATE_CHECK_FILES_EVERY);
-        write(new File(dir_etc + "/" + (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "log_rotate.json"), logrotateSettings.toString(4));
+        write(new File(SipsPaths.join(dir_etc, (HAS_SHARED_STORAGE ? HOST_NAME + "-" : "") + "log_rotate.json")), logrotateSettings.toString(4));
 
     }
 
