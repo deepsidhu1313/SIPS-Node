@@ -24,7 +24,7 @@ import org.json.JSONArray;
 
 /**
  *
- * @author NAVDEEP SINGH SIDHU <navdeepsingh.sidhu95@gmail.com>
+ * @author NAVDEEP SINGH SIDHU
  */
 public class InsertDistributionWareHouse implements Runnable {
 

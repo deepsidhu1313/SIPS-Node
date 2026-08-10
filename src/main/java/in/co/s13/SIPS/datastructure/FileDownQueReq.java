@@ -20,7 +20,7 @@ import org.json.JSONObject;
 
 /**
  *
- * @author NAVDEEP SINGH SIDHU <navdeepsingh.sidhu95@gmail.com>
+ * @author NAVDEEP SINGH SIDHU
  */
 public class FileDownQueReq {
 

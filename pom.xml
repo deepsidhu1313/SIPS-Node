@@ -56,6 +56,18 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.11.2</version>
+                <configuration>
+                    <!--
+                        -missing only: these sources predate javadoc discipline
+                        and flagging every one-line class comment is noise
+                        nobody reads. Everything else stays on, including
+                        reference checking, which catches a @link to something
+                        that does not exist.
+                    -->
+                    <doclint>all,-missing</doclint>
+                    <!-- Vendored SciMark 2.0. Not ours to document or fix. -->
+                    <excludePackageNames>jnt.scimark2</excludePackageNames>
+                </configuration>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
