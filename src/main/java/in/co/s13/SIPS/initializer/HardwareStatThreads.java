@@ -18,6 +18,7 @@ package in.co.s13.SIPS.initializer;
 
 import in.co.s13.SIPS.tools.HDDInfo;
 import in.co.s13.SIPS.tools.MemoryInfo;
+import in.co.s13.sips.lib.ml.WarmModels;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -33,6 +34,17 @@ public class HardwareStatThreads {
         executorService.scheduleAtFixedRate(new MemoryInfo(), 0, 60, TimeUnit.SECONDS);
         ScheduledExecutorService executorService2 = Executors.newScheduledThreadPool(1);
         executorService2.scheduleAtFixedRate(new HDDInfo(), 2, 90, TimeUnit.SECONDS);
+
+        // A model kept warm for the next chunk is the point; a model kept warm
+        // for a job that finished an hour ago is a leak with a good excuse.
+        // WarmModels deliberately starts no thread of its own -- a library that
+        // starts threads is hard to embed -- so the node runs the sweep.
+        ScheduledExecutorService warmModels = Executors.newScheduledThreadPool(1, runnable -> {
+            Thread thread = new Thread(runnable, "warm-model-sweeper");
+            thread.setDaemon(true);
+            return thread;
+        });
+        warmModels.scheduleAtFixedRate(WarmModels::releaseIdle, 5, 5, TimeUnit.MINUTES);
     }
 
 }
