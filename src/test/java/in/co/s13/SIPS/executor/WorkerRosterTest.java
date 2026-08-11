@@ -54,6 +54,17 @@ class WorkerRosterTest {
                         (long) benchMs, (long) benchMs, (long) benchMs)));
     }
 
+    /**
+     * {@link #healthy} without a Celsius reading — the shape an iOS
+     * announcement actually has, since TEMPERATURE_C outranks THERMAL_STATE
+     * by design and would otherwise silently mask it in a test.
+     */
+    private static JSONObject healthyNoCelsius(double benchMs) {
+        JSONObject announcement = healthy(benchMs);
+        announcement.remove("TEMPERATURE_C");
+        return announcement;
+    }
+
     @Test
     void aHealthyAnnouncedWorkerIsSchedulable() {
         WorkerRoster roster = WorkerRoster.from(Map.of("phone-1", healthy(20)));
@@ -184,6 +195,42 @@ class WorkerRosterTest {
         WorkerRoster roster = WorkerRoster.from(Map.of("phone-1", healthy(20)));
 
         assertEquals(List.of("phone-1"), roster.eligible());
+    }
+
+    @Test
+    void aDeviceReportingOnlyAThermalStateIsJudgedByIt() {
+        // iOS has no Celsius API at all -- ProcessInfo.thermalState is a
+        // four-level enum, not a temperature -- so the roster must accept an
+        // announcement that names a level instead of a degree.
+        WorkerRoster roster = WorkerRoster.from(Map.of(
+                "iphone-cool", healthyNoCelsius(20).put("THERMAL_STATE", "NOMINAL"),
+                "iphone-hot", healthyNoCelsius(20).put("THERMAL_STATE", "SERIOUS")));
+
+        assertEquals(List.of("iphone-cool"), roster.eligible());
+        assertTrue(roster.refusalOf("iphone-hot").orElseThrow().toLowerCase()
+                .contains("thermal"), roster.refusalOf("iphone-hot").orElseThrow());
+    }
+
+    @Test
+    void aTemperatureCFieldTakesPriorityOverAThermalState() {
+        // Should not happen from one honest platform, but if both arrive the
+        // numeric reading is more informative and wins -- matching
+        // WorkerEligibility's own precedence. healthy() already sets a safe
+        // TEMPERATURE_C, so a CRITICAL THERMAL_STATE alongside it must be
+        // ignored rather than refusing the worker.
+        WorkerRoster roster = WorkerRoster.from(Map.of(
+                "phone-1", healthy(20).put("THERMAL_STATE", "CRITICAL")));
+
+        assertEquals(List.of("phone-1"), roster.eligible());
+    }
+
+    @Test
+    void anUnrecognisedThermalStateNameFailsClosed() {
+        WorkerRoster roster = WorkerRoster.from(Map.of(
+                "phone-1", healthyNoCelsius(20).put("THERMAL_STATE", "MOLTEN")));
+
+        assertTrue(roster.eligible().isEmpty());
+        assertTrue(roster.refusalOf("phone-1").isPresent());
     }
 
     @Test

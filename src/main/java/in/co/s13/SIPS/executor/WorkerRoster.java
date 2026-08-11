@@ -56,7 +56,9 @@ import org.json.JSONObject;
  * <pre>
  * MAINS          boolean — on wall power
  * BATTERY        int     — percent, if on battery
- * TEMPERATURE_C  double  — optional
+ * TEMPERATURE_C  double  — optional, wins over THERMAL_STATE if both arrive
+ * THERMAL_STATE  string  — optional; NOMINAL/FAIR/SERIOUS/CRITICAL, iOS's
+ *                          vocabulary for a platform with no Celsius API
  * BENCH_MS       [long]  — WorkerBench.standard() timings, warm-up first
  * IN_USE         boolean — optional; whether the owner is using it right now
  * </pre>
@@ -100,24 +102,40 @@ public final class WorkerRoster {
         speeds.put(workerId, speedOf(announcement));
     }
 
-    /** The announcement as the reading the eligibility rules judge. */
+    /**
+     * The announcement as the reading the eligibility rules judge.
+     *
+     * <p>Temperature has three shapes, tried in order: a real {@code
+     * TEMPERATURE_C} wins when present, since a number is more informative
+     * than a bucket; {@code THERMAL_STATE} — iOS's four-level vocabulary,
+     * since {@code ProcessInfo.thermalState} is all a Swift worker can ever
+     * report — is tried next; a device reporting neither falls back to the
+     * existing unknown-temperature handling.
+     */
     private static WorkerEligibility.Reading readingOf(JSONObject announcement) {
         double temperature = announcement.optDouble("TEMPERATURE_C", Double.NaN);
+        boolean mains = announcement.optBoolean("MAINS", false);
+
         WorkerEligibility.Reading reading;
-        if (announcement.optBoolean("MAINS", false)) {
-            reading = Double.isNaN(temperature)
-                    ? WorkerEligibility.Reading.unknownTemperature()
-                    : WorkerEligibility.Reading.mains(temperature);
+        if (!Double.isNaN(temperature)) {
+            reading = mains ? WorkerEligibility.Reading.mains(temperature)
+                    : WorkerEligibility.Reading.onBattery(requiredBatteryPercent(announcement),
+                            temperature);
+        } else if (announcement.has("THERMAL_STATE")) {
+            // valueOf() throws IllegalArgumentException on an unrecognised
+            // name, which the caller already treats as a failed-closed
+            // refusal -- exactly right for a level this framework does not
+            // understand rather than one it should trust blindly.
+            WorkerEligibility.ThermalLevel level = WorkerEligibility.ThermalLevel
+                    .valueOf(announcement.getString("THERMAL_STATE"));
+            reading = mains ? WorkerEligibility.Reading.mainsWithThermalLevel(level)
+                    : WorkerEligibility.Reading.onBatteryWithThermalLevel(
+                            requiredBatteryPercent(announcement), level);
         } else {
-            if (!announcement.has("BATTERY")) {
-                // Fails closed: silent about power is not "probably fine".
-                throw new IllegalArgumentException(
-                        "the announcement says nothing about power");
-            }
-            int battery = announcement.getInt("BATTERY");
-            reading = WorkerEligibility.Reading.onBattery(battery,
-                    Double.isNaN(temperature) ? 25.0 : temperature);
+            reading = mains ? WorkerEligibility.Reading.unknownTemperature()
+                    : WorkerEligibility.Reading.onBattery(requiredBatteryPercent(announcement), 25.0);
         }
+
         // Unlike power, silence here is not suspicious: hardly any platform
         // can report active use at all, so IN_USE absent leaves the reading
         // as-is (unknown), and only an explicit true or false is applied.
@@ -126,6 +144,14 @@ public final class WorkerRoster {
                     ? reading.activelyInUse() : reading.confirmedIdle();
         }
         return reading;
+    }
+
+    /** Fails closed: silent about power is not "probably fine". */
+    private static int requiredBatteryPercent(JSONObject announcement) {
+        if (!announcement.has("BATTERY")) {
+            throw new IllegalArgumentException("the announcement says nothing about power");
+        }
+        return announcement.getInt("BATTERY");
     }
 
     /** Claimed timings, believed only as far as they are believable. */
