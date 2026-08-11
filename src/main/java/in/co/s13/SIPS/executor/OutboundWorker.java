@@ -21,6 +21,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
+import java.time.Duration;
 import java.util.function.Function;
 import org.json.JSONObject;
 
@@ -41,6 +43,20 @@ import org.json.JSONObject;
  * <p>This is the same design for any worker that cannot be reached — a laptop
  * on hotel wifi, a container with no ingress — and phones are only its most
  * demanding case.
+ *
+ * <h2>Idle disconnect</h2>
+ *
+ * <p>JPPF's Android node takes the opposite position: it disconnects before
+ * <em>every</em> task and reconnects only to submit results and fetch the
+ * next one, specifically to conserve battery — a background socket is exactly
+ * what Android's Doze and App Standby power management throttles or kills.
+ * That is the right instinct and the wrong mechanism for us: reconnecting per
+ * chunk reintroduces the radio wake-up and handshake this class exists to
+ * avoid, and a shard here is typically seconds to minutes of work, not a
+ * microtask. {@link #idleTimeout} is the synthesis — the connection survives
+ * a steady stream of chunks and only lets itself go once it has genuinely
+ * had nothing to do for a while, which is the situation JPPF's design is
+ * actually protecting against.
  */
 public final class OutboundWorker implements AutoCloseable {
 
@@ -53,6 +69,7 @@ public final class OutboundWorker implements AutoCloseable {
     private volatile Socket socket;
     private volatile Thread pump;
     private volatile boolean closing;
+    private volatile long idleTimeoutMillis;
 
     public OutboundWorker(String workerId, String masterHost, int masterPort) {
         if (workerId == null || workerId.isBlank()) {
@@ -84,6 +101,20 @@ public final class OutboundWorker implements AutoCloseable {
         return this;
     }
 
+    /**
+     * How long the connection may sit with no work arriving before it lets
+     * itself go. Unset (the default) means the connection is held
+     * indefinitely, right for a worker with reliable power.
+     */
+    public OutboundWorker idleTimeout(Duration timeout) {
+        if (timeout == null || timeout.isZero() || timeout.isNegative()) {
+            throw new IllegalArgumentException("An idle timeout must be a positive "
+                    + "duration; to hold the connection indefinitely, do not set one");
+        }
+        this.idleTimeoutMillis = timeout.toMillis();
+        return this;
+    }
+
     /** Dials the master and starts answering work on a background thread. */
     public void connect() throws IOException {
         Socket dialled = new Socket();
@@ -97,17 +128,31 @@ public final class OutboundWorker implements AutoCloseable {
                 .put("WORKER", workerId)
                 .put("ABOUT", announcement), null);
 
-        pump = new Thread(() -> serve(in, out), "outbound-worker-" + workerId);
+        // Set only after hello: the handshake itself must not race the idle
+        // clock, and connect() already has its own 30s connect timeout.
+        long idle = idleTimeoutMillis;
+        if (idle > 0) {
+            dialled.setSoTimeout((int) idle);
+        }
+
+        pump = new Thread(() -> serve(dialled, in, out), "outbound-worker-" + workerId);
         pump.setDaemon(true);
         pump.start();
     }
 
-    private void serve(DataInputStream in, DataOutputStream out) {
+    private void serve(Socket dialled, DataInputStream in, DataOutputStream out) {
         while (!closing) {
             WorkerFrames.Frame frame;
             try {
                 frame = WorkerFrames.read(in);
+            } catch (SocketTimeoutException idle) {
+                // Nothing arrived while we waited: let go rather than hold a
+                // background socket open for nothing. The caller reconnects
+                // when it has something to contribute again.
+                closeQuietly(dialled);
+                return;
             } catch (IOException hungUp) {
+                closeQuietly(dialled);
                 return;
             }
             if (!WorkerFrames.WORK.equals(frame.type())) {
@@ -159,6 +204,19 @@ public final class OutboundWorker implements AutoCloseable {
         Thread current_pump = pump;
         if (current_pump != null) {
             current_pump.interrupt();
+        }
+    }
+
+    /**
+     * Closes a socket the pump thread is retiring on its own — an idle
+     * timeout or a hang-up, neither of which is a request to stop
+     * reconnecting for good, so {@code closing} is left alone.
+     */
+    private static void closeQuietly(Socket dialled) {
+        try {
+            dialled.close();
+        } catch (IOException alreadyGone) {
+            // Going away either way.
         }
     }
 }

@@ -162,6 +162,31 @@ class WorkerRosterTest {
     }
 
     @Test
+    void aWorkerActivelyInUseIsLeftOutByDefault() {
+        // JPPF's Idle Host mode, applied to a fleet of phones: an unqualified
+        // "healthy" phone whose owner is mid-conversation with it should not
+        // be handed an hour of training.
+        WorkerRoster roster = WorkerRoster.from(Map.of(
+                "phone-1", healthy(20),
+                "phone-2", healthy(20).put("IN_USE", true)));
+
+        assertEquals(List.of("phone-1"), roster.eligible());
+        assertTrue(roster.refusalOf("phone-2").orElseThrow().contains("use"),
+                roster.refusalOf("phone-2").orElseThrow());
+    }
+
+    @Test
+    void aWorkerSilentAboutActiveUseIsNotPenalisedForIt() {
+        // Unlike battery: hardly any platform can report this at all, so
+        // treating silence as refusal would refuse nearly the whole fleet.
+        // healthy() never sets IN_USE, and every other test here relies on
+        // that not costing eligibility -- this just says so explicitly.
+        WorkerRoster roster = WorkerRoster.from(Map.of("phone-1", healthy(20)));
+
+        assertEquals(List.of("phone-1"), roster.eligible());
+    }
+
+    @Test
     void anEmptyRosterSaysSoUsefully() {
         WorkerRoster roster = WorkerRoster.from(Map.of());
 

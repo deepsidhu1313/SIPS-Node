@@ -18,6 +18,7 @@ package in.co.s13.SIPS.executor;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -231,6 +232,117 @@ class OutboundWorkerTest {
                 }
             }
         });
+    }
+
+    @Test
+    @Timeout(30)
+    void anIdleWorkerDisconnectsItselfAfterItsTimeout() throws Exception {
+        // JPPF's Android node disconnects before every task specifically to
+        // conserve battery on a device the OS punishes for holding a
+        // background socket open (Doze / App Standby throttle idle
+        // connections). We keep the connection across a run of chunks --
+        // reconnecting per chunk is a radio wake-up and a handshake every
+        // time, which this class's own javadoc already argues against -- but
+        // a connection with nothing to do for a while is exactly the
+        // JPPF case, so it lets itself go rather than sit idle for free.
+        int port = listening();
+
+        try (OutboundWorker worker = new OutboundWorker("phone-1", "127.0.0.1", port)) {
+            worker.idleTimeout(Duration.ofMillis(300));
+            worker.connect();
+            assertTrue(master.awaitWorker("phone-1", 10, TimeUnit.SECONDS));
+
+            long deadline = System.currentTimeMillis() + 5000;
+            while (worker.connected() && System.currentTimeMillis() < deadline) {
+                Thread.sleep(50);
+            }
+
+            assertFalse(worker.connected(), "an idle worker should have let go of its "
+                    + "connection rather than hold it open for nothing");
+        }
+    }
+
+    @Test
+    @Timeout(30)
+    void aSteadyStreamOfWorkNeverTripsTheIdleTimeout() throws Exception {
+        // The idle clock resets on every frame, not on wall time since
+        // connect: a worker mid-round must never be disconnected out from
+        // under a task just because the round has run longer than the
+        // timeout.
+        int port = listening();
+
+        try (OutboundWorker worker = new OutboundWorker("phone-1", "127.0.0.1", port)) {
+            worker.idleTimeout(Duration.ofMillis(300));
+            worker.onWork(task -> "ok".getBytes(StandardCharsets.UTF_8));
+            worker.connect();
+            assertTrue(master.awaitWorker("phone-1", 10, TimeUnit.SECONDS));
+
+            for (int i = 0; i < 8; i++) {
+                assertArrayEquals("ok".getBytes(StandardCharsets.UTF_8),
+                        master.send("phone-1", new JSONObject(), 10, TimeUnit.SECONDS));
+                Thread.sleep(100);
+            }
+
+            assertTrue(worker.connected(), "a steadily used connection must not be "
+                    + "dropped just because the whole run outlasted the idle timeout");
+        }
+    }
+
+    @Test
+    @Timeout(30)
+    void aWorkerThatIdledOutCanRedialAndServeAgain() throws Exception {
+        // The point of disconnecting rather than erroring out: the worker
+        // gets to come back. A phone that goes quiet for a while and later
+        // has something to contribute should not be permanently exiled.
+        int port = listening();
+
+        try (OutboundWorker worker = new OutboundWorker("phone-1", "127.0.0.1", port)) {
+            worker.idleTimeout(Duration.ofMillis(300));
+            worker.onWork(task -> "back".getBytes(StandardCharsets.UTF_8));
+            worker.connect();
+            assertTrue(master.awaitWorker("phone-1", 10, TimeUnit.SECONDS));
+
+            long deadline = System.currentTimeMillis() + 5000;
+            while (worker.connected() && System.currentTimeMillis() < deadline) {
+                Thread.sleep(50);
+            }
+            assertFalse(worker.connected());
+
+            worker.connect();
+            assertTrue(master.awaitWorker("phone-1", 10, TimeUnit.SECONDS));
+            assertArrayEquals("back".getBytes(StandardCharsets.UTF_8),
+                    master.send("phone-1", new JSONObject(), 10, TimeUnit.SECONDS));
+        }
+    }
+
+    @Test
+    @Timeout(30)
+    void withoutAnIdleTimeoutTheConnectionIsHeldIndefinitely() throws Exception {
+        // The default, unchanged: a worker with reliable power (a laptop
+        // behind NAT, a container) has no reason to let go of a connection
+        // that costs it nothing to keep.
+        int port = listening();
+
+        try (OutboundWorker worker = new OutboundWorker("phone-1", "127.0.0.1", port)) {
+            worker.connect();
+            assertTrue(master.awaitWorker("phone-1", 10, TimeUnit.SECONDS));
+
+            Thread.sleep(500);
+
+            assertTrue(worker.connected(), "no idle timeout was configured");
+        }
+    }
+
+    @Test
+    @Timeout(30)
+    void idleTimeoutRefusesNonsense() {
+        OutboundWorker worker = new OutboundWorker("phone-1", "127.0.0.1", 1234);
+
+        assertThrows(IllegalArgumentException.class, () -> worker.idleTimeout(null));
+        assertThrows(IllegalArgumentException.class,
+                () -> worker.idleTimeout(Duration.ZERO));
+        assertThrows(IllegalArgumentException.class,
+                () -> worker.idleTimeout(Duration.ofMillis(-1)));
     }
 
     @Test

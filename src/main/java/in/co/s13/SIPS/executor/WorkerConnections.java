@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -47,13 +46,24 @@ import org.json.JSONObject;
  * <p>A worker that hangs up leaves the roster immediately. Otherwise the
  * scheduler keeps handing shards to a phone that walked out of range, and every
  * one of them waits out its deadline before anyone notices.
+ *
+ * <p>A worker id is expected to reconnect over the life of a session — an idle
+ * timeout ({@code OutboundWorker.idleTimeout}) makes that the normal case
+ * rather than a rare one. {@link #awaitWorker} and {@link #awaitDeparture}
+ * are therefore polled against the live {@link #workers} map rather than
+ * signalled with a per-id {@code CountDownLatch}: a latch fires once and
+ * stays fired, so after a worker's first arrival ever, a latch-based
+ * {@code awaitWorker} would report it connected forever after — including in
+ * the gap after it left and before it came back, which is exactly the window
+ * a caller asking the question is trying to detect.
  */
 public final class WorkerConnections implements AutoCloseable {
 
+    /** How often a wait for arrival or departure re-checks the live state. */
+    private static final long POLL_MILLIS = 15;
+
     private final int requestedPort;
     private final Map<String, Connection> workers = new ConcurrentHashMap<>();
-    private final Map<String, CountDownLatch> arrivals = new ConcurrentHashMap<>();
-    private final Map<String, CountDownLatch> departures = new ConcurrentHashMap<>();
     private final AtomicInteger accepted = new AtomicInteger();
     private final AtomicLong requestIds = new AtomicLong();
 
@@ -110,6 +120,7 @@ public final class WorkerConnections implements AutoCloseable {
 
     private void welcome(Socket dialled) {
         String workerId = null;
+        Connection connection = null;
         try {
             DataInputStream in = new DataInputStream(dialled.getInputStream());
             DataOutputStream out = new DataOutputStream(dialled.getOutputStream());
@@ -121,19 +132,23 @@ public final class WorkerConnections implements AutoCloseable {
             }
             workerId = hello.header().getString("WORKER");
             JSONObject about = hello.header().optJSONObject("ABOUT");
-            Connection connection = new Connection(dialled, out,
+            connection = new Connection(dialled, out,
                     about == null ? new JSONObject() : about);
             workers.put(workerId, connection);
-            arrivals.computeIfAbsent(workerId, key -> new CountDownLatch(1)).countDown();
 
             pump(in, connection);
         } catch (IOException hungUp) {
             // Expected whenever a worker goes away, which is the normal end of
             // every one of these connections.
         } finally {
-            if (workerId != null) {
-                workers.remove(workerId);
-                departures.computeIfAbsent(workerId, key -> new CountDownLatch(1)).countDown();
+            if (workerId != null && connection != null) {
+                // Conditional on this thread's own Connection instance, not
+                // just the id: if a newer connection for this id has already
+                // replaced this one in the map (a fast reconnect racing this
+                // thread's own unwind), this stale finally-block must not
+                // evict it. Connection has no equals() override, so this
+                // compares by reference -- exactly "is it still mine".
+                workers.remove(workerId, connection);
             }
             try {
                 dialled.close();
@@ -217,18 +232,37 @@ public final class WorkerConnections implements AutoCloseable {
         return accepted.get();
     }
 
-    /** Waits for a worker to dial in. */
+    /**
+     * Waits for a worker to be connected right now.
+     *
+     * <p>Returns immediately if it already is — a caller re-checking a
+     * worker it just confirmed must not be made to wait a poll interval for
+     * no reason. Polls the live {@link #workers} map rather than a per-id
+     * latch, so a worker that reconnects after an idle disconnect is
+     * correctly seen as newly arrived rather than reported from whatever its
+     * very first connection, ever, happened to signal.
+     */
     public boolean awaitWorker(String workerId, long timeout, TimeUnit unit)
             throws InterruptedException {
-        return arrivals.computeIfAbsent(workerId, key -> new CountDownLatch(1))
-                .await(timeout, unit);
+        return awaitCondition(() -> workers.containsKey(workerId), timeout, unit);
     }
 
-    /** Waits for a worker to go away. */
+    /** Waits for a worker to not be connected right now, by the same reasoning. */
     public boolean awaitDeparture(String workerId, long timeout, TimeUnit unit)
             throws InterruptedException {
-        return departures.computeIfAbsent(workerId, key -> new CountDownLatch(1))
-                .await(timeout, unit);
+        return awaitCondition(() -> !workers.containsKey(workerId), timeout, unit);
+    }
+
+    private static boolean awaitCondition(java.util.function.BooleanSupplier condition,
+            long timeout, TimeUnit unit) throws InterruptedException {
+        long deadline = System.nanoTime() + unit.toNanos(timeout);
+        while (!condition.getAsBoolean()) {
+            if (System.nanoTime() >= deadline) {
+                return false;
+            }
+            Thread.sleep(POLL_MILLIS);
+        }
+        return true;
     }
 
     @Override

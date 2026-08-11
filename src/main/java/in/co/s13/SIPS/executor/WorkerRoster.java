@@ -58,6 +58,7 @@ import org.json.JSONObject;
  * BATTERY        int     — percent, if on battery
  * TEMPERATURE_C  double  — optional
  * BENCH_MS       [long]  — WorkerBench.standard() timings, warm-up first
+ * IN_USE         boolean — optional; whether the owner is using it right now
  * </pre>
  */
 public final class WorkerRoster {
@@ -102,19 +103,29 @@ public final class WorkerRoster {
     /** The announcement as the reading the eligibility rules judge. */
     private static WorkerEligibility.Reading readingOf(JSONObject announcement) {
         double temperature = announcement.optDouble("TEMPERATURE_C", Double.NaN);
+        WorkerEligibility.Reading reading;
         if (announcement.optBoolean("MAINS", false)) {
-            return Double.isNaN(temperature)
+            reading = Double.isNaN(temperature)
                     ? WorkerEligibility.Reading.unknownTemperature()
                     : WorkerEligibility.Reading.mains(temperature);
+        } else {
+            if (!announcement.has("BATTERY")) {
+                // Fails closed: silent about power is not "probably fine".
+                throw new IllegalArgumentException(
+                        "the announcement says nothing about power");
+            }
+            int battery = announcement.getInt("BATTERY");
+            reading = WorkerEligibility.Reading.onBattery(battery,
+                    Double.isNaN(temperature) ? 25.0 : temperature);
         }
-        if (!announcement.has("BATTERY")) {
-            // Fails closed: silent about power is not "probably fine".
-            throw new IllegalArgumentException(
-                    "the announcement says nothing about power");
+        // Unlike power, silence here is not suspicious: hardly any platform
+        // can report active use at all, so IN_USE absent leaves the reading
+        // as-is (unknown), and only an explicit true or false is applied.
+        if (announcement.has("IN_USE")) {
+            reading = announcement.getBoolean("IN_USE")
+                    ? reading.activelyInUse() : reading.confirmedIdle();
         }
-        int battery = announcement.getInt("BATTERY");
-        return WorkerEligibility.Reading.onBattery(battery,
-                Double.isNaN(temperature) ? 25.0 : temperature);
+        return reading;
     }
 
     /** Claimed timings, believed only as far as they are believable. */
