@@ -1,0 +1,163 @@
+/*
+ * Copyright (C) 2026 Navdeep Singh Sidhu
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package in.co.s13.SIPS.executor;
+
+import in.co.s13.sips.lib.array.WorkerBench;
+import in.co.s13.sips.lib.ml.ShardPlan;
+import in.co.s13.sips.lib.ml.WorkerEligibility;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TreeMap;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+/**
+ * What the master decides about dialled-in workers, from what they said.
+ *
+ * <p>This closes the seam between three pieces that existed separately:
+ * {@code WorkerConnections} holds each worker's hello announcement as raw
+ * JSON, {@link WorkerEligibility} judges a reading, and {@link ShardPlan}
+ * weights by measured speed. The roster parses every announcement once,
+ * applies the policy, and hands the planner exactly the workers worth
+ * scheduling — so trust decisions live in one place instead of drifting
+ * across call sites.
+ *
+ * <h2>Announcements are claims</h2>
+ *
+ * <p>The device is the only party that knows its battery — and a party with
+ * every incentive to be believed. Two rules follow. Parsing <b>fails
+ * closed</b>: an announcement that is malformed or silent about power leaves
+ * that worker unscheduled with the reason kept, because the device that
+ * cannot say how it is doing is the one not to assume healthy. And claimed
+ * speeds are <b>bounded by refusal</b>: hostile timings (a zero-millisecond
+ * run, claiming infinite speed) are treated as no timings at all — the worker
+ * keeps its eligibility and loses its claim, landing at the planner's
+ * unmeasured default rather than being handed the whole dataset.
+ *
+ * <h2>The announcement schema</h2>
+ *
+ * <pre>
+ * MAINS          boolean — on wall power
+ * BATTERY        int     — percent, if on battery
+ * TEMPERATURE_C  double  — optional
+ * BENCH_MS       [long]  — WorkerBench.standard() timings, warm-up first
+ * </pre>
+ */
+public final class WorkerRoster {
+
+    private final Map<String, ShardPlan.Measured> speeds = new LinkedHashMap<>();
+    private final Map<String, String> refusals = new LinkedHashMap<>();
+
+    private WorkerRoster() {
+    }
+
+    /** Builds a roster from each worker's announcement, judging as it parses. */
+    public static WorkerRoster from(Map<String, JSONObject> announcements) {
+        WorkerRoster roster = new WorkerRoster();
+        // Sorted, so two masters reading the same fleet produce the same
+        // roster order -- and with it the same shard division.
+        for (Map.Entry<String, JSONObject> entry
+                : new TreeMap<>(announcements).entrySet()) {
+            roster.admit(entry.getKey(), entry.getValue());
+        }
+        return roster;
+    }
+
+    private void admit(String workerId, JSONObject announcement) {
+        WorkerEligibility.Reading reading;
+        try {
+            reading = readingOf(announcement);
+        } catch (RuntimeException malformed) {
+            // One phone sending nonsense must not take the roster down; it is
+            // simply not scheduled, and the reason is kept for the log.
+            refusals.put(workerId, "unreadable announcement: " + malformed.getMessage());
+            return;
+        }
+        WorkerEligibility.Report report =
+                WorkerEligibility.of(reading, WorkerEligibility.Policy.defaults());
+        if (!report.fit()) {
+            refusals.put(workerId, report.refusal().orElse("unfit"));
+            return;
+        }
+        speeds.put(workerId, speedOf(announcement));
+    }
+
+    /** The announcement as the reading the eligibility rules judge. */
+    private static WorkerEligibility.Reading readingOf(JSONObject announcement) {
+        double temperature = announcement.optDouble("TEMPERATURE_C", Double.NaN);
+        if (announcement.optBoolean("MAINS", false)) {
+            return Double.isNaN(temperature)
+                    ? WorkerEligibility.Reading.unknownTemperature()
+                    : WorkerEligibility.Reading.mains(temperature);
+        }
+        if (!announcement.has("BATTERY")) {
+            // Fails closed: silent about power is not "probably fine".
+            throw new IllegalArgumentException(
+                    "the announcement says nothing about power");
+        }
+        int battery = announcement.getInt("BATTERY");
+        return WorkerEligibility.Reading.onBattery(battery,
+                Double.isNaN(temperature) ? 25.0 : temperature);
+    }
+
+    /** Claimed timings, believed only as far as they are believable. */
+    private static ShardPlan.Measured speedOf(JSONObject announcement) {
+        JSONArray timings = announcement.optJSONArray("BENCH_MS");
+        if (timings == null || timings.length() < WorkerBench.MINIMUM_TIMED_RUNS + 1) {
+            // No measurement yet: the planner's unmeasured default, not
+            // starvation -- every new machine starts unmeasured.
+            return new ShardPlan.Measured(0, 0);
+        }
+        long[] millis = new long[timings.length()];
+        for (int i = 0; i < timings.length(); i++) {
+            millis[i] = timings.getLong(i);
+        }
+        try {
+            return WorkerBench.measured(millis);
+        } catch (IllegalArgumentException hostile) {
+            // A zero-millisecond run claims infinite speed and would be
+            // handed the whole dataset. Eligibility kept, claim refused.
+            return new ShardPlan.Measured(0, 0);
+        }
+    }
+
+    /** The workers worth giving work to, in stable order. */
+    public List<String> eligible() {
+        return new ArrayList<>(speeds.keySet());
+    }
+
+    /** Measured speeds for {@link ShardPlan#acrossMeasured}. */
+    public Map<String, ShardPlan.Measured> speeds() {
+        return Map.copyOf(speeds);
+    }
+
+    /** Why a worker was left out, if it was. */
+    public Optional<String> refusalOf(String workerId) {
+        return Optional.ofNullable(refusals.get(workerId));
+    }
+
+    /** Fails now, with the refusals, rather than scheduling onto nobody. */
+    public void requireWorkers() {
+        if (speeds.isEmpty()) {
+            throw new IllegalStateException("No dialled-in worker is fit for work; "
+                    + "refused: " + refusals);
+        }
+    }
+}
